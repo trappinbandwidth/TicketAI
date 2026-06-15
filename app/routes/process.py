@@ -162,7 +162,6 @@ async def process_ticket(
             win_rate=m.win_rate,
             total_tickets=m.total_tickets,
             match_type=m.match_type,
-            sf_url=m.sf_url,
         )
         for m in atty_matches_raw
     ]

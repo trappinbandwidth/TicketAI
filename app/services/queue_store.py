@@ -30,6 +30,24 @@ EXTRACTED_FIELDS = [
 ]
 
 
+_SEED_ATTORNEYS = [
+    # Florida
+    ("mock-fl-001", "James R. Holloway",   "jholloway@hollowaytransportlaw.com", "(850) 555-0142", "Florida", "", 4.8, 0.74, 312),
+    ("mock-fl-002", "Sandra M. Vega",      "svega@vegacdldefense.com",           "(407) 555-0219", "Florida", "", 4.6, 0.68, 187),
+    ("mock-fl-003", "Derek W. Fontaine",   "dfontaine@fontainelegal.com",        "(305) 555-0387", "Florida", "", 4.5, 0.61,  98),
+    # Maryland
+    ("mock-md-001", "Patricia L. Nguyen",  "pnguyen@nguyen-trucklaw.com",        "(410) 555-0174", "Maryland", "", 4.9, 0.81, 445),
+    ("mock-md-002", "Thomas A. Griggs",    "tgriggs@griggslawmd.com",            "(301) 555-0263", "Maryland", "", 4.7, 0.72, 229),
+    ("mock-md-003", "Carol B. Simmons",    "csimmons@simmonstraffic.com",        "(443) 555-0318", "Maryland", "", 4.4, 0.65, 153),
+    # Washington
+    ("mock-wa-001", "Marcus J. Breckenridge", "mbreckenridge@breckenridgecdl.com", "(206) 555-0492", "Washington", "", 4.7, 0.77, 381),
+    ("mock-wa-002", "Yuki T. Yamamoto",    "yyamamoto@yamamotolegal.com",        "(253) 555-0135", "Washington", "", 4.6, 0.71, 204),
+    ("mock-wa-003", "Brenda K. Okafor",    "bokafor@okafortrucklaw.com",         "(360) 555-0277", "Washington", "", 4.3, 0.58, 117),
+    ("mock-wa-004", "Kevin L. Sorensen",   "ksorensen@sorensentraffic.com",      "(509) 555-0348", "Washington", "", 4.5, 0.69, 278),
+    ("mock-wa-005", "Alicia R. Montoya",   "amontoya@montoyacdllaw.com",         "(425) 555-0461", "Washington", "", 4.8, 0.83, 512),
+]
+
+
 def init_db() -> None:
     os.makedirs(DB_PATH.parent, exist_ok=True)
     os.makedirs(TRAINING_DIR, exist_ok=True)
@@ -46,8 +64,6 @@ def init_db() -> None:
                 process_response_json     TEXT NOT NULL,
                 reject_reason             TEXT,
                 edited_fields_json        TEXT,
-                sf_ticket_id              TEXT,
-                sf_ticket_url             TEXT,
                 pass1_extraction_json     TEXT,
                 pass2_extraction_json     TEXT,
                 consensus_extraction_json TEXT,
@@ -75,11 +91,41 @@ def init_db() -> None:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_queue_created       ON queue(created_at)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_queue_status        ON queue(status)")
 
-        # Non-destructive migration for existing databases — must run BEFORE indexes on new cols
+        # Attorneys table — local replacement for Salesforce attorney records
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS attorneys (
+                id            TEXT PRIMARY KEY,
+                name          TEXT NOT NULL,
+                email         TEXT,
+                phone         TEXT,
+                state         TEXT NOT NULL,
+                county        TEXT NOT NULL DEFAULT '',
+                rating        REAL,
+                win_rate      REAL NOT NULL DEFAULT 0.0,
+                total_tickets INTEGER NOT NULL DEFAULT 0,
+                active        INTEGER NOT NULL DEFAULT 1,
+                notes         TEXT,
+                created_at    TEXT NOT NULL,
+                updated_at    TEXT NOT NULL
+            )
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_attorneys_state ON attorneys(state)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_attorneys_state_county ON attorneys(state, county)")
+
+        # Seed default attorneys if table is empty
+        count = conn.execute("SELECT COUNT(*) FROM attorneys").fetchone()[0]
+        if count == 0:
+            ts = _now()
+            conn.executemany(
+                """INSERT OR IGNORE INTO attorneys
+                   (id, name, email, phone, state, county, rating, win_rate, total_tickets, active, created_at, updated_at)
+                   VALUES (?,?,?,?,?,?,?,?,?,1,?,?)""",
+                [(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], ts, ts) for a in _SEED_ATTORNEYS],
+            )
+
+        # Non-destructive migration for existing databases
         existing = {r[1] for r in conn.execute("PRAGMA table_info(queue)").fetchall()}
         for col, typedef in [
-            ("sf_ticket_id",              "TEXT"),
-            ("sf_ticket_url",             "TEXT"),
             ("pass1_extraction_json",     "TEXT"),
             ("pass2_extraction_json",     "TEXT"),
             ("consensus_extraction_json", "TEXT"),
@@ -93,7 +139,6 @@ def init_db() -> None:
             if col not in existing:
                 conn.execute(f"ALTER TABLE queue ADD COLUMN {col} {typedef}")
 
-        # Indexes on new columns — safe to run after migration
         conn.execute("CREATE INDEX IF NOT EXISTS idx_queue_doc_type ON queue(doc_type)")
 
 
@@ -158,7 +203,7 @@ def list_recent(limit: int = 50) -> list[dict]:
         conn.row_factory = sqlite3.Row
         rows = conn.execute(
             """SELECT id, filename, pass_status, status, created_at, updated_at,
-               sf_ticket_id, sf_ticket_url, doc_type, prompt_version,
+               doc_type, prompt_version,
                attorney_matched, attorney_match_type, has_price_estimate
                FROM queue ORDER BY created_at DESC LIMIT ?""",
             (limit,),
@@ -196,7 +241,7 @@ def get_agent_events(scan_id: str) -> list[dict]:
     return result
 
 
-def approve_item(id: str, edited_fields: dict, sf_ticket_id: str | None = None, sf_ticket_url: str | None = None) -> None:
+def approve_item(id: str, edited_fields: dict) -> None:
     item = get_item(id)
     if item is None:
         raise ValueError(f"Queue item not found: {id}")
@@ -204,9 +249,8 @@ def approve_item(id: str, edited_fields: dict, sf_ticket_id: str | None = None, 
     ts = _now()
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute(
-            """UPDATE queue SET status='approved', updated_at=?, edited_fields_json=?,
-               sf_ticket_id=?, sf_ticket_url=? WHERE id=?""",
-            (ts, json.dumps(edited_fields), sf_ticket_id, sf_ticket_url, id),
+            "UPDATE queue SET status='approved', updated_at=?, edited_fields_json=? WHERE id=?",
+            (ts, json.dumps(edited_fields), id),
         )
 
     process_response = item["process_response"]

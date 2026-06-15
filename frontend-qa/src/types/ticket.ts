@@ -46,7 +46,6 @@ export interface AttorneyMatch {
   win_rate: number
   total_tickets: number
   match_type: 'county' | 'state'
-  sf_url: string
 }
 
 export interface DocumentResult {

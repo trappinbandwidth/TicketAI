@@ -442,12 +442,6 @@
       <div id="confirm-icon" class="text-5xl mb-3">✓</div>
       <h3 id="confirm-title" class="text-xl font-bold text-slate-800 mb-2">—</h3>
       <p id="confirm-body" class="text-sm text-slate-500 mb-4" style="white-space:pre-line">—</p>
-      <a id="sf-ticket-link" href="#" target="_blank"
-         class="hidden inline-block mb-5 px-4 py-2 rounded-lg text-sm font-semibold text-white"
-         style="background:#0070d2;">
-        View in Salesforce
-      </a>
-      <br>
       <button onclick="handleReset()" class="btn btn-reset">Start New Scan</button>
     </section>
 
@@ -903,7 +897,7 @@ function renderResults(data) {
           <div class="text-2xl leading-none mt-0.5">${rank}</div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <a href="${a.sf_url}" target="_blank" class="font-semibold text-blue-700 hover:underline text-sm truncate">${a.name}</a>
+              <span class="font-semibold text-slate-800 text-sm truncate">${a.name}</span>
               ${badge}
               ${rating ? `<span class="text-xs text-amber-500 font-semibold">${rating}</span>` : ''}
             </div>
@@ -1174,23 +1168,8 @@ async function handleApprove() {
     document.getElementById('confirm-icon').textContent  = '✅';
     document.getElementById('confirm-title').textContent = 'Approved — Saved to Training Data';
 
-    let bodyText = `"${currentResponse?.filename}" added to training dataset.${editCount>0?' ('+editCount+' field'+(editCount>1?'s':'')+' corrected)':''}`;
-    if (data.sf_ticket_id) {
-      bodyText += `\n\nSalesforce Ticket: ${data.sf_ticket_id}`;
-    }
+    const bodyText = `"${currentResponse?.filename}" added to training dataset.${editCount>0?' ('+editCount+' field'+(editCount>1?'s':'')+' corrected)':''}`;
     document.getElementById('confirm-body').textContent = bodyText;
-
-    // Show SF link if returned
-    const sfLinkEl = document.getElementById('sf-ticket-link');
-    if (sfLinkEl) {
-      if (data.sf_ticket_url) {
-        sfLinkEl.href = data.sf_ticket_url;
-        sfLinkEl.textContent = `View in Salesforce → ${data.sf_ticket_id}`;
-        sfLinkEl.classList.remove('hidden');
-      } else {
-        sfLinkEl.classList.add('hidden');
-      }
-    }
 
     loadSidebar();
   } catch(err) {

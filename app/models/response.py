@@ -154,7 +154,6 @@ class AttorneyMatch(BaseModel):
     win_rate: float
     total_tickets: int
     match_type: str      # "county" | "state"
-    sf_url: str
 
 
 class ProcessResponse(BaseModel):
