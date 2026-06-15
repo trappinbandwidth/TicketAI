@@ -1,0 +1,30 @@
+# Environment & secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+
+# Runtime data — never commit the live DB or training output
+data/
+training_data/
+
+# macOS
+.DS_Store
+
+# Claude Code session files
+.claude/
+
+# Test fixtures (real ticket images)
+tests/golden/*.pdf
+tests/golden/*.jpg
+tests/golden/*.png
+
+# Frontend build artifacts
+frontend-qa/node_modules/
+frontend-qa/dist/

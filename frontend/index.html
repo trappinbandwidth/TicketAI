@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CDL Legal — AI Ticket Scanner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --cdl-blue:#1a3a5c; --cdl-gold:#c8972a; --cdl-light:#f4f6f9; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--cdl-light); }
+
+    #drop-zone { border:2.5px dashed #93b4d4; transition:border-color .2s,background .2s; }
+    #drop-zone.drag-over { border-color:var(--cdl-gold); background:#fff8ec; }
+
+    .conf-bar-track { background:#e2e8f0; border-radius:999px; height:6px; overflow:hidden; }
+    .conf-bar-fill  { height:100%; border-radius:999px; transition:width .6s ease; }
+
+    .badge-green  { background:#dcfce7; color:#15803d; border:1.5px solid #86efac; }
+    .badge-yellow { background:#fef9c3; color:#a16207; border:1.5px solid #fde047; }
+    .badge-red    { background:#fee2e2; color:#b91c1c; border:1.5px solid #fca5a5; }
+
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spinner { animation:spin .8s linear infinite; }
+
+    /* Field cards */
+    .field-card { transition:box-shadow .15s; }
+    .field-card:hover { box-shadow:0 4px 18px rgba(26,58,92,.10); }
+    .field-card.low-conf    { border-left:4px solid #f59e0b; }
+    .field-card.ok-conf     { border-left:4px solid #22c55e; }
+    .field-card.conflict    { border-left:4px solid #8b5cf6; background:#faf5ff; }
+    .field-card.hide-ok     { display:none; }
+
+    /* Sidebar filter tabs */
+    .sf-tab { border-radius:6px; padding:3px 9px; font-size:.7rem; font-weight:600; cursor:pointer;
+              border:1.5px solid transparent; transition:background .1s,color .1s; }
+    .sf-tab.active { background:var(--cdl-blue); color:#fff; }
+    .sf-tab:not(.active) { background:#f1f5f9; color:#475569; }
+    .sf-tab:not(.active):hover { background:#e2e8f0; }
+
+    /* Inputs */
+    .field-input {
+      border:1.5px solid #e2e8f0; border-radius:6px; padding:6px 10px;
+      font-size:.9rem; width:100%; background:#f8fafc;
+      transition:border-color .2s,background .2s;
+    }
+    .field-input:focus { outline:none; border-color:var(--cdl-blue); background:#fff; }
+    .field-input.edited { border-color:var(--cdl-gold); background:#fffbeb; }
+
+    /* Tooltip */
+    .tooltip-wrap { position:relative; display:inline-block; }
+    .tooltip-box {
+      visibility:hidden; opacity:0;
+      position:absolute; bottom:125%; left:50%; transform:translateX(-50%);
+      background:#1e293b; color:#f1f5f9;
+      font-size:.75rem; padding:7px 10px; border-radius:6px;
+      width:260px; text-align:left; z-index:99;
+      transition:opacity .15s; pointer-events:none;
+    }
+    .tooltip-wrap:hover .tooltip-box { visibility:visible; opacity:1; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;} }
+    .fade-up { animation:fadeUp .3s ease both; }
+
+    .btn-approve { background:#15803d; color:#fff; }
+    .btn-approve:hover { background:#166534; }
+    .btn-reject  { background:#b91c1c; color:#fff; }
+    .btn-reject:hover  { background:#991b1b; }
+    .btn-reset   { background:#e2e8f0; color:#374151; }
+    .btn-reset:hover   { background:#cbd5e1; }
+    .btn { border-radius:8px; padding:9px 20px; font-weight:600; font-size:.9rem; transition:background .15s; cursor:pointer; border:none; }
+
+    .section-label { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#64748b; }
+
+    /* ── SPLIT PANE (sticky image) ── */
+    #review-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    #image-pane {
+      position: sticky;
+      top: 72px;          /* below fixed header */
+      max-height: calc(100vh - 88px);
+      overflow-y: auto;
+    }
+    #fields-pane { min-width: 0; }
+
+    /* Fixed header height placeholder */
+    #sticky-header { position:sticky; top:0; z-index:40; }
+
+    /* Sidebar */
+    #sidebar { width:272px; min-width:272px; }
+    .sidebar-item { cursor:pointer; transition:background .1s; }
+    .sidebar-item:hover { background:#f1f5f9; }
+
+    /* Toast */
+    #toast {
+      position:fixed; bottom:24px; right:24px; z-index:200;
+      padding:11px 18px; border-radius:10px; font-weight:600; font-size:.875rem;
+      box-shadow:0 8px 24px rgba(0,0,0,.15); transition:opacity .3s,transform .3s;
+    }
+    #toast.hidden { opacity:0; transform:translateY(8px); pointer-events:none; }
+
+    /* Keyboard hint */
+    kbd {
+      display:inline-block; padding:1px 5px; border:1px solid #cbd5e1;
+      border-radius:4px; font-size:.7rem; font-family:monospace;
+      background:#f8fafc; color:#475569;
+    }
+
+    /* Problems-only toggle */
+    #problems-toggle.active { background:var(--cdl-gold); color:#fff; border-color:var(--cdl-gold); }
+
+    /* Multi-image thumbnail strip */
+    #thumb-strip { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .thumb-item {
+      position:relative; border-radius:8px; overflow:hidden;
+      border:2px solid #e2e8f0; background:#f8fafc;
+      width:90px; flex-shrink:0; cursor:grab;
+      transition:border-color .15s, box-shadow .15s;
+    }
+    .thumb-item.drag-over-thumb { border-color:var(--cdl-gold); box-shadow:0 0 0 3px #fde68a; }
+    .thumb-item img { width:90px; height:70px; object-fit:cover; display:block; }
+    .thumb-item .thumb-label {
+      font-size:.62rem; font-weight:700; text-align:center;
+      padding:2px 4px; background:#1a3a5c; color:#fff;
+    }
+    .thumb-item .thumb-remove {
+      position:absolute; top:2px; right:2px;
+      width:18px; height:18px; border-radius:50%;
+      background:rgba(0,0,0,.55); color:#fff;
+      font-size:.65rem; font-weight:900; line-height:18px; text-align:center;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+    .thumb-item .thumb-remove:hover { background:#ef4444; }
+    #thumb-add {
+      width:90px; height:90px; border-radius:8px;
+      border:2px dashed #93b4d4; background:#f8fafc;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      cursor:pointer; color:#64748b; font-size:.7rem; font-weight:600; gap:4px;
+      transition:border-color .15s, background .15s; flex-shrink:0;
+    }
+    #thumb-add:hover { border-color:var(--cdl-blue); background:#eff6ff; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<div id="toast" class="hidden"></div>
+
+<!-- ── STICKY HEADER ─────────────────────────────────────── -->
+<div id="sticky-header" style="background:var(--cdl-blue);" class="shadow-md">
+  <div class="max-w-screen-2xl mx-auto px-5 py-3 flex items-center gap-4">
+    <div>
+      <div class="text-white font-bold text-lg tracking-tight">CDL Legal</div>
+      <div class="text-xs" style="color:#93b4d4;">AI Ticket Scanner — Reviewer Portal</div>
+    </div>
+    <div class="ml-auto flex items-center gap-3 flex-wrap">
+      <label class="section-label text-slate-300">API Key</label>
+      <input id="api-key-input" type="password" value="cdl-local-dev"
+        class="px-2.5 py-1.5 rounded text-sm bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-yellow-400 w-40" />
+      <label class="section-label text-slate-300 ml-1">Backend</label>
+      <input id="backend-url-input" type="text" value=""
+        placeholder="http://localhost:8000"
+        class="px-2.5 py-1.5 rounded text-sm bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-yellow-400 w-44" />
+      <!-- Keyboard hints -->
+      <div class="hidden lg:flex items-center gap-1.5 ml-2 text-slate-400 text-xs">
+        <kbd>G</kbd> Approve &nbsp;
+        <kbd>R</kbd> Reject &nbsp;
+        <kbd>P</kbd> Problems &nbsp;
+        <kbd>B</kbd> Bulk greens
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE BODY ─────────────────────────────────────────── -->
+<div class="max-w-screen-2xl mx-auto flex gap-5 px-5 py-6 items-start">
+
+  <!-- MAIN -->
+  <div class="flex-1 min-w-0 space-y-5">
+
+    <!-- UPLOAD -->
+    <section id="upload-section" class="bg-white rounded-2xl shadow p-7">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold" style="color:var(--cdl-blue);">Upload Traffic Citation</h2>
+        <p class="text-sm text-slate-500 mt-0.5">Drag &amp; drop or click — PDF, JPG, PNG. Long tickets? Upload multiple images in order. For CDL license, upload front &amp; back.</p>
+      </div>
+
+      <!-- Drop zone -->
+      <div id="drop-zone" class="rounded-xl p-8 text-center cursor-pointer select-none"
+        onclick="document.getElementById('file-input').click()">
+        <svg class="mx-auto mb-3 text-slate-400" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 16v-8m0 0-3 3m3-3 3 3M4.5 19.5h15A2.25 2.25 0 0 0 21.75 17.25V9.75A2.25 2.25 0 0 0 19.5 7.5h-3.879a1.5 1.5 0 0 1-1.06-.44l-1.122-1.12A1.5 1.5 0 0 0 12.38 5.5H4.5A2.25 2.25 0 0 0 2.25 7.75v9.5A2.25 2.25 0 0 0 4.5 19.5z"/>
+        </svg>
+        <p class="text-slate-500 text-sm font-medium">Drop images here or click to browse</p>
+        <p class="text-xs text-slate-400 mt-1">PDF · JPG · PNG &nbsp;·&nbsp; Multiple images for long tickets or CDL front &amp; back</p>
+        <input id="file-input" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple class="hidden" />
+      </div>
+
+      <!-- Thumbnail strip (shown once files are selected) -->
+      <div id="thumb-strip" class="hidden" style="margin-top:12px;display:none;gap:10px;flex-wrap:wrap;">
+        <!-- Thumbnails injected by JS -->
+        <div id="thumb-add" onclick="document.getElementById('file-input').click()" title="Add more images">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Add image
+        </div>
+      </div>
+      <p id="thumb-hint" class="hidden text-xs text-slate-400 mt-1.5">Drag thumbnails to reorder pages · ✕ to remove</p>
+
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <div>
+          <label class="section-label block mb-1">Driver Name <span class="text-slate-400 font-normal normal-case">(optional)</span></label>
+          <input id="driver-name" type="text" placeholder="e.g. John Smith" class="field-input" />
+        </div>
+        <div>
+          <label class="section-label block mb-1">Prompt Version</label>
+          <select id="prompt-version" class="field-input"><option value="v1">v1</option><option value="v2">v2</option></select>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center gap-3">
+        <button id="scan-btn" onclick="handleScan()" class="btn"
+          style="background:var(--cdl-blue);color:#fff;opacity:.4;cursor:not-allowed;" disabled>
+          Scan Ticket
+        </button>
+        <span id="file-name-badge" class="text-sm text-slate-500 italic"></span>
+      </div>
+    </section>
+
+    <!-- LOADING -->
+    <section id="loading-section" class="hidden bg-white rounded-2xl shadow p-10 text-center">
+      <svg class="spinner mx-auto mb-4" width="42" height="42" fill="none" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke="#e2e8f0" stroke-width="3"/>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke="#1a3a5c" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <p class="font-semibold text-slate-700">Scanning with AI agents…</p>
+      <p class="text-sm text-slate-400 mt-1">Usually 10–20 seconds.</p>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results-section" class="hidden fade-up">
+
+      <!-- Status bar (full width above split) -->
+      <div id="status-bar" class="rounded-2xl shadow p-4 mb-4 flex flex-wrap items-center gap-4 bg-white">
+        <div>
+          <div class="section-label mb-1">AI Status</div>
+          <div id="pass-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold">
+            <span id="pass-dot" class="w-2.5 h-2.5 rounded-full inline-block"></span>
+            <span id="pass-label">—</span>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="section-label mb-1">Referee Notes</div>
+          <p id="referee-notes" class="text-sm text-slate-700 leading-snug">—</p>
+        </div>
+        <div class="flex items-center gap-2 ml-auto">
+          <!-- ② PROBLEMS-ONLY TOGGLE -->
+          <button id="problems-toggle"
+            onclick="toggleProblemsOnly()"
+            class="btn border border-slate-300 text-slate-600 text-xs px-3 py-1.5"
+            style="background:#f8fafc;">
+            ⚠ Problems only
+          </button>
+          <div class="text-right">
+            <div class="section-label mb-0.5">Pages</div>
+            <span id="pages-count" class="text-xl font-bold" style="color:var(--cdl-blue);">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ STICKY SPLIT PANE -->
+      <div id="review-layout">
+
+        <!-- LEFT: sticky image pane -->
+        <div id="image-pane" class="space-y-4">
+
+          <!-- Document preview -->
+          <div class="bg-white rounded-2xl shadow overflow-hidden">
+            <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+              <div class="section-label">Document</div>
+              <p id="preview-filename" class="text-xs text-slate-400 truncate max-w-[200px]"></p>
+            </div>
+            <div class="p-2 bg-slate-50 flex items-start justify-center min-h-40">
+              <img id="preview-img" src="" alt="Ticket" class="rounded w-full object-contain max-h-[60vh]" style="display:none;" />
+              <p id="preview-placeholder" class="text-slate-400 text-sm p-8 text-center">Preview loads after scan.<br>PDFs show the first page.</p>
+            </div>
+          </div>
+
+          <!-- Price Estimate -->
+          <div id="price-card" class="hidden rounded-2xl shadow-lg p-5 text-white">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold uppercase tracking-widest opacity-80">Estimated Driver Price</span>
+              <div class="flex gap-2">
+                <span id="price-highrisk-badge" class="hidden text-xs bg-white/20 px-2 py-0.5 rounded-full font-semibold">⚠ High Risk</span>
+                <span id="price-source-badge" class="text-xs bg-white/20 px-2 py-0.5 rounded-full"></span>
+              </div>
+            </div>
+            <p id="price-display" class="text-4xl font-extrabold tracking-tight mt-1">—</p>
+            <p id="price-breakdown" class="text-sm opacity-75 mt-1"></p>
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-white/20 text-sm">
+              <div class="flex flex-col">
+                <span class="text-xs opacity-60 uppercase tracking-wide">Win Rate</span>
+                <span id="price-winrate" class="font-bold text-lg">—</span>
+              </div>
+              <div class="w-px h-8 bg-white/20"></div>
+              <div class="flex flex-col">
+                <span class="text-xs opacity-60 uppercase tracking-wide">Sample Size</span>
+                <span id="price-sample" class="font-bold text-lg">—</span>
+              </div>
+              <div class="w-px h-8 bg-white/20"></div>
+              <div class="flex flex-col">
+                <span class="text-xs opacity-60 uppercase tracking-wide">Data</span>
+                <span id="price-datasource" class="font-bold capitalize">—</span>
+              </div>
+            </div>
+            <p id="price-note" class="text-xs opacity-60 mt-2 italic hidden"></p>
+          </div>
+
+          <!-- Attorney Matches -->
+          <div id="attorney-wrap" class="hidden bg-white rounded-2xl shadow p-4">
+            <div class="section-label mb-2">Suggested Attorneys</div>
+            <div id="attorney-no-match" class="hidden text-sm font-semibold text-red-600 flex items-center gap-2">
+              ⚠ No Attorney on File — Team alert required to find coverage for this area.
+            </div>
+            <div id="attorney-list" class="flex flex-col gap-2"></div>
+          </div>
+
+          <!-- CDL Impact -->
+          <div id="cdl-impact-wrap" class="hidden bg-white rounded-2xl shadow p-4">
+            <div class="section-label mb-2">CDL Point Impact</div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div><span class="text-slate-500">Category:</span> <span id="cdl-category" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Points:</span> <span id="cdl-points" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Severity:</span> <span id="cdl-severity" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">CSA:</span> <span id="cdl-csa" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Must Appear:</span> <span id="cdl-appear" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Attorney Rec:</span> <span id="cdl-attorney" class="font-semibold text-slate-800">—</span></div>
+            </div>
+          </div>
+
+          <!-- Doc Severity (non-ticket types) -->
+          <div id="doc-severity-wrap" class="hidden bg-white rounded-2xl shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="section-label">Document Severity</div>
+              <span id="doc-sev-badge" class="text-xs font-bold px-2.5 py-1 rounded-full">—</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div><span class="text-slate-500">Score:</span> <span id="doc-sev-score" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Attorney:</span> <span id="doc-sev-attorney" class="font-semibold text-slate-800">—</span></div>
+            </div>
+            <div class="mb-2">
+              <div class="text-xs text-slate-500 mb-1">Required Action</div>
+              <div id="doc-sev-action" class="text-sm font-medium text-slate-800">—</div>
+            </div>
+            <div id="doc-sev-days-wrap">
+              <div class="text-xs text-slate-500 mb-1">Response Window</div>
+              <div id="doc-sev-days" class="text-sm font-semibold text-red-600">—</div>
+            </div>
+            <div class="mt-2">
+              <div class="text-xs text-slate-500 mb-1">Key Factors</div>
+              <ul id="doc-sev-factors" class="list-disc list-inside space-y-0.5"></ul>
+            </div>
+          </div>
+
+          <!-- Doc metadata -->
+          <div class="bg-white rounded-2xl shadow p-4">
+            <div class="section-label mb-2">Document Metadata</div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div><span class="text-slate-500">Type:</span> <span id="meta-file-type" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Format:</span> <span id="meta-format" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Confidence:</span> <span id="meta-ft-conf" class="font-semibold text-slate-800">—</span></div>
+              <div><span class="text-slate-500">Others:</span> <span id="meta-others" class="font-semibold text-slate-800">—</span></div>
+            </div>
+            <p id="meta-ft-reason" class="text-xs text-slate-400 mt-2 italic leading-snug">—</p>
+          </div>
+
+        </div><!-- /image-pane -->
+
+        <!-- RIGHT: fields pane -->
+        <div id="fields-pane" class="space-y-4">
+
+          <!-- Dual-conflict warning -->
+          <div id="conflict-banner" class="hidden rounded-xl border border-violet-300 bg-violet-50 px-4 py-2.5 flex items-start gap-3">
+            <svg class="mt-0.5 shrink-0 text-violet-500" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 12l4.5-9h9l4.5 9-4.5 9h-9Z"/>
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-violet-800">Dual-pass conflict — AI disagreed on these fields</p>
+              <p class="text-xs text-violet-700 mt-0.5" id="conflict-list">—</p>
+            </div>
+          </div>
+
+          <!-- Low-conf warning -->
+          <div id="low-conf-banner" class="hidden rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 flex items-start gap-3">
+            <svg class="mt-0.5 shrink-0 text-amber-500" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-amber-800">Low-confidence fields</p>
+              <p class="text-xs text-amber-700 mt-0.5" id="low-conf-list">—</p>
+            </div>
+          </div>
+
+          <!-- Field cards -->
+          <div class="bg-white rounded-2xl shadow overflow-hidden">
+            <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm">Extracted Fields</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Click any value to edit. <span id="edit-count-label" class="text-blue-500"></span></p>
+              </div>
+              <button onclick="resetEdits()" class="btn btn-reset text-xs py-1 px-3">Reset</button>
+            </div>
+            <div id="fields-grid" class="p-4 grid grid-cols-1 gap-3"></div>
+          </div>
+
+          <!-- Action bar -->
+          <div class="bg-white rounded-2xl shadow p-4">
+            <div id="reject-form" class="hidden mb-3">
+              <label class="section-label block mb-1">Rejection Reason <span class="font-normal normal-case text-slate-400">(optional)</span></label>
+              <input id="reject-reason" type="text" placeholder="e.g. Poor scan quality, wrong document…" class="field-input mb-2" />
+              <div class="flex gap-2">
+                <button onclick="confirmReject()" class="btn btn-reject flex-1">Confirm Reject</button>
+                <button onclick="cancelReject()" class="btn btn-reset">Cancel</button>
+              </div>
+            </div>
+            <div id="action-buttons" class="flex flex-wrap items-center gap-2">
+              <button id="approve-btn" onclick="handleApprove()" class="btn btn-approve flex-1">
+                ✓ Approve &amp; Save
+              </button>
+              <button onclick="showRejectForm()" class="btn btn-reject flex-1">✗ Reject</button>
+              <button onclick="handleReset()" class="btn btn-reset w-full mt-1 text-xs">↩ New Scan</button>
+            </div>
+          </div>
+
+        </div><!-- /fields-pane -->
+      </div><!-- /review-layout -->
+    </section><!-- /results -->
+
+    <!-- CONFIRMATION -->
+    <section id="confirm-section" class="hidden bg-white rounded-2xl shadow p-10 text-center fade-up">
+      <div id="confirm-icon" class="text-5xl mb-3">✓</div>
+      <h3 id="confirm-title" class="text-xl font-bold text-slate-800 mb-2">—</h3>
+      <p id="confirm-body" class="text-sm text-slate-500 mb-4" style="white-space:pre-line">—</p>
+      <a id="sf-ticket-link" href="#" target="_blank"
+         class="hidden inline-block mb-5 px-4 py-2 rounded-lg text-sm font-semibold text-white"
+         style="background:#0070d2;">
+        View in Salesforce
+      </a>
+      <br>
+      <button onclick="handleReset()" class="btn btn-reset">Start New Scan</button>
+    </section>
+
+  </div><!-- /main -->
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="bg-white rounded-2xl shadow overflow-hidden sticky top-20">
+    <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between" style="background:var(--cdl-blue);">
+      <div>
+        <div class="text-white text-xs font-bold uppercase tracking-widest">Recent Scans</div>
+        <div id="sidebar-counts" class="text-xs mt-0.5" style="color:#93b4d4;"></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="bulkApproveGreens()" title="Approve all GREEN pending" class="text-xs font-semibold px-2 py-1 rounded" style="background:rgba(255,255,255,.15);color:#d1fae5;">⚡ Bulk</button>
+        <button onclick="loadSidebar()" class="text-slate-300 hover:text-white text-sm" title="Refresh">↻</button>
+      </div>
+    </div>
+    <!-- Filter tabs -->
+    <div class="px-3 py-2 border-b border-slate-100 space-y-1.5">
+      <div class="flex gap-1 flex-wrap">
+        <button class="sf-tab active" onclick="setSidebarFilter('pass','all')" id="sf-pass-all">All</button>
+        <button class="sf-tab" onclick="setSidebarFilter('pass','green')" id="sf-pass-green">🟢 Green</button>
+        <button class="sf-tab" onclick="setSidebarFilter('pass','yellow')" id="sf-pass-yellow">🟡 Yellow</button>
+        <button class="sf-tab" onclick="setSidebarFilter('pass','red')" id="sf-pass-red">🔴 Red</button>
+      </div>
+      <div class="flex gap-1 flex-wrap">
+        <button class="sf-tab active" onclick="setSidebarFilter('status','all')" id="sf-status-all">All</button>
+        <button class="sf-tab" onclick="setSidebarFilter('status','pending')" id="sf-status-pending">Pending</button>
+        <button class="sf-tab" onclick="setSidebarFilter('status','approved')" id="sf-status-approved">Approved</button>
+        <button class="sf-tab" onclick="setSidebarFilter('status','rejected')" id="sf-status-rejected">Rejected</button>
+      </div>
+    </div>
+    <div id="sidebar-list" class="divide-y divide-slate-100 text-sm overflow-y-auto" style="max-height:calc(100vh - 210px);">
+      <p class="text-xs text-slate-400 px-4 py-6 text-center">No scans yet.</p>
+    </div>
+  </aside>
+
+</div><!-- /body row -->
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let currentResponse = null;
+let currentQueueId  = null;
+let selectedFiles   = [];   // ordered array of File objects
+let problemsOnly    = false;
+let editCount       = 0;
+let sidebarItems    = [];
+let sidebarFilter   = { pass: 'all', status: 'all' };
+let dragSrcIdx      = null;
+
+// ── Violation Category picklist (must match book_worm.py exactly) ──────────
+const VIOLATION_CATEGORIES = [
+  '',
+  'Driver license violation',
+  'Alcohol / Drug related violation',
+  'Reckless Driving',
+  'Speeding (15+)',
+  'Cell Phone',
+  'Failure to yield to emergency vehicle',
+  'Following too close',
+  'Careless Driving',
+  'Lane Violation',
+  'Failure to Obey Traffic Control Device',
+  'Too Fast for Conditions',
+  'Speeding (1-14)',
+  'Seatbelt',
+  'ELD/Logs',
+  'Equipment/Maintenance',
+  'Registration Violations',
+  'Overweight/Overlength',
+  'Parking',
+];
+
+// ① Date fields and ① Violation Category field use special inputs
+const DATE_FIELDS = new Set([
+  'Date_of_Ticket__c', 'Court_Date__c',
+  'Inspection_Date__c', 'Crash_Date__c',
+  'Civil_Penalty_Due_Date__c', 'CDL_Expiration__c',
+  'Driver_DOB__c', 'MVR_Generated_Date__c',
+]);
+const SELECT_FIELDS = { 'Violation_Category__c': VIOLATION_CATEGORIES };
+const YESNO_FIELDS  = new Set([
+  'Accident__c',
+  'Driver_OOS__c', 'Vehicle_OOS__c',
+  'Federal_Recordable__c', 'State_Reportable__c',
+  'Towaway__c', 'Citation_Issued__c', 'HM_Involved__c',
+]);
+
+const FIELD_LABELS = {
+  // Ticket / Warning
+  Date_of_Ticket__c:           'Date of Ticket',
+  Violation_Description__c:    'Violation Description',
+  Violation_Category__c:       'Violation Category',
+  Court_Date__c:               'Court / Response Date',
+  Accident__c:                 'Accident Involved',
+  Drivers_License_Type__c:     'License Type',
+  Ticket_Court__c:             'Court Name',
+  Court_Phone_Number__c:       'Court Phone',
+  Ticket_City__c:              'City',
+  Ticket_County__c:            'County',
+  Ticket_State__c:             'State',
+  Insp_Report_Num__c:          'Inspection Report #',
+  Citation_Number__c:          'Citation Number',
+  // Inspection Report
+  Inspection_Date__c:          'Date',
+  Inspection_Time__c:          'Time',
+  Inspection_State__c:         'State',
+  Inspection_County__c:        'County',
+  Inspection_City__c:          'City',
+  Inspection_Location__c:      'Location',
+  DOT_Number__c:               'DOT Number',
+  Inspection_Level__c:         'Inspection Level',
+  VIN__c:                      'Vehicle VIN',
+  Unit_Make__c:                'Unit Make / Type',
+  Unit_License_Plate__c:       'License Plate',
+  Driver_OOS__c:               'Driver Out of Service',
+  Vehicle_OOS__c:              'Vehicle Out of Service',
+  BASIC_Categories__c:         'BASIC Categories Affected',
+  // Crash Report
+  Crash_Report_Number__c:      'Crash Report #',
+  Crash_Date__c:               'Crash Date',
+  Crash_State__c:              'State',
+  Crash_County__c:             'County',
+  Crash_City__c:               'City',
+  Crash_Location__c:           'Location / Street',
+  Federal_Recordable__c:       'Federal Recordable',
+  State_Reportable__c:         'State Reportable',
+  Number_of_Fatalities__c:     'Fatalities',
+  Number_of_Injuries__c:       'Injuries',
+  Towaway__c:                  'Towaway',
+  Citation_Issued__c:          'Citation Issued at Scene',
+  HM_Involved__c:              'Hazmat Involved',
+  // Civil Penalty
+  Civil_Penalty_Case_Number__c:'Case / Penalty Number',
+  Civil_Penalty_Amount__c:     'Penalty Amount',
+  Civil_Penalty_Due_Date__c:   'Payment / Response Due',
+  BASIC_Category__c:           'BASIC Category',
+  // CDL License
+  CDL_License_Number__c:       'License Number',
+  CDL_State__c:                'Issuing State',
+  CDL_Class__c:                'CDL Class',
+  CDL_Expiration__c:           'Expiration Date',
+  CDL_Endorsements__c:         'Endorsements',
+  CDL_Restrictions__c:         'Restrictions',
+  Driver_First_Name__c:        'First Name',
+  Driver_Last_Name__c:         'Last Name',
+  Driver_DOB__c:               'Date of Birth',
+  // MVR
+  MVR_License_Number__c:       'License Number',
+  MVR_State__c:                'License State',
+  MVR_Class__c:                'License Class',
+  MVR_Generated_Date__c:       'MVR Date Generated',
+  MVR_Violations_Summary__c:   'Violations / Convictions',
+  MVR_Total_Points__c:         'Total Points',
+  MVR_Suspension_Count__c:     'Suspensions on Record',
+};
+
+// Fields to show per document type (order matters)
+const DOC_TYPE_FIELDS = {
+  'Ticket': [
+    'Date_of_Ticket__c','Citation_Number__c','Ticket_State__c','Ticket_County__c',
+    'Ticket_City__c','Violation_Description__c','Violation_Category__c',
+    'Court_Date__c','Ticket_Court__c','Court_Phone_Number__c',
+    'Accident__c','Drivers_License_Type__c','Insp_Report_Num__c',
+  ],
+  'Warning': [
+    'Date_of_Ticket__c','Citation_Number__c','Ticket_State__c','Ticket_County__c',
+    'Ticket_City__c','Violation_Description__c','Violation_Category__c',
+    'Accident__c','Drivers_License_Type__c',
+  ],
+  'Inspection Report': [
+    'Inspection_Date__c','Inspection_Time__c','Insp_Report_Num__c',
+    'Inspection_Location__c','Inspection_City__c','Inspection_State__c','Inspection_County__c',
+    'Violation_Description__c',
+    'Driver_OOS__c','Vehicle_OOS__c','BASIC_Categories__c',
+    'Inspection_Level__c','DOT_Number__c',
+  ],
+  'Crash Report': [
+    'Crash_Report_Number__c','Crash_Date__c','Crash_State__c','Crash_County__c',
+    'Crash_City__c','Crash_Location__c','Federal_Recordable__c','State_Reportable__c',
+    'Number_of_Fatalities__c','Number_of_Injuries__c','Towaway__c',
+    'Citation_Issued__c','HM_Involved__c','VIN__c','DOT_Number__c','Insp_Report_Num__c',
+  ],
+  'Civil Penalty': [
+    'Civil_Penalty_Case_Number__c','Date_of_Ticket__c','Ticket_State__c',
+    'Civil_Penalty_Amount__c','Civil_Penalty_Due_Date__c',
+    'Violation_Description__c','BASIC_Category__c',
+  ],
+  'CDL': [
+    'CDL_License_Number__c','CDL_State__c','CDL_Class__c','CDL_Expiration__c',
+    'CDL_Endorsements__c','CDL_Restrictions__c',
+    'Driver_First_Name__c','Driver_Last_Name__c','Driver_DOB__c',
+  ],
+  'MVR': [
+    'MVR_License_Number__c','MVR_State__c','MVR_Class__c','MVR_Generated_Date__c',
+    'MVR_Total_Points__c','MVR_Suspension_Count__c','MVR_Violations_Summary__c',
+  ],
+};
+
+// Severity badge colors for doc_severity
+const SEVERITY_COLORS = {
+  LOW:      { bg:'#d1fae5', text:'#065f46', label:'Low Risk' },
+  MEDIUM:   { bg:'#fef3c7', text:'#92400e', label:'Medium Risk' },
+  HIGH:     { bg:'#fee2e2', text:'#991b1b', label:'High Risk' },
+  CRITICAL: { bg:'#ef4444', text:'#ffffff', label:'Critical' },
+};
+
+function apiKey()  { return document.getElementById('api-key-input').value.trim() || 'cdl-local-dev'; }
+function baseUrl() {
+  const v = document.getElementById('backend-url-input').value.trim().replace(/\/$/, '');
+  if (v) return v;
+  // If running on port 80/443 (nginx in production), same origin has the API
+  const port = parseInt(window.location.port, 10);
+  if (!port || port === 80 || port === 443) return window.location.origin;
+  // Dev static server (e.g. port 3456) — API runs on 8000
+  return `${window.location.protocol}//${window.location.hostname}:8000`;
+}
+
+// ── Drop zone ──────────────────────────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  addFiles(Array.from(e.dataTransfer.files));
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) addFiles(Array.from(fileInput.files));
+  fileInput.value = ''; // reset so same file can be re-added if needed
+});
+
+function addFiles(newFiles) {
+  const allowed = ['application/pdf','image/jpeg','image/jpg','image/png'];
+  const valid = newFiles.filter(f => allowed.includes(f.type));
+  if (!valid.length) return;
+  selectedFiles = [...selectedFiles, ...valid].slice(0, 10);
+  renderThumbs();
+  updateScanBtn();
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  renderThumbs();
+  updateScanBtn();
+}
+
+function updateScanBtn() {
+  const btn = document.getElementById('scan-btn');
+  const badge = document.getElementById('file-name-badge');
+  if (selectedFiles.length) {
+    btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
+    const totalKB = selectedFiles.reduce((s,f)=>s+f.size,0)/1024;
+    badge.textContent = selectedFiles.length === 1
+      ? `${selectedFiles[0].name} · ${totalKB.toFixed(0)} KB`
+      : `${selectedFiles.length} images · ${totalKB.toFixed(0)} KB total`;
+  } else {
+    btn.disabled=true; btn.style.opacity='0.4'; btn.style.cursor='not-allowed';
+    badge.textContent = '';
+  }
+}
+
+function renderThumbs() {
+  const strip = document.getElementById('thumb-strip');
+  const hint  = document.getElementById('thumb-hint');
+  const addBtn = document.getElementById('thumb-add');
+
+  // Remove old thumb items (keep the add button)
+  strip.querySelectorAll('.thumb-item').forEach(el => el.remove());
+
+  if (!selectedFiles.length) {
+    strip.style.display = 'none';
+    hint.classList.add('hidden');
+    return;
+  }
+
+  strip.style.display = 'flex';
+  hint.classList.toggle('hidden', selectedFiles.length < 2);
+
+  selectedFiles.forEach((file, idx) => {
+    const item = document.createElement('div');
+    item.className = 'thumb-item';
+    item.draggable = true;
+    item.dataset.idx = idx;
+
+    // Image preview
+    const img = document.createElement('img');
+    img.alt = `Page ${idx+1}`;
+    if (file.type !== 'application/pdf') {
+      img.src = URL.createObjectURL(file);
+    } else {
+      // PDF placeholder
+      img.style.cssText = 'width:90px;height:70px;object-fit:contain;background:#f1f5f9;padding:8px;';
+      img.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>');
+    }
+
+    const label = document.createElement('div');
+    label.className = 'thumb-label';
+    label.textContent = `Page ${idx+1}`;
+
+    const removeBtn = document.createElement('div');
+    removeBtn.className = 'thumb-remove';
+    removeBtn.textContent = '✕';
+    removeBtn.onclick = (e) => { e.stopPropagation(); removeFile(idx); };
+
+    item.appendChild(img);
+    item.appendChild(label);
+    item.appendChild(removeBtn);
+
+    // Drag-to-reorder
+    item.addEventListener('dragstart', () => { dragSrcIdx = idx; item.style.opacity='0.4'; });
+    item.addEventListener('dragend',   () => { item.style.opacity='1'; renderThumbs(); });
+    item.addEventListener('dragover',  (e) => { e.preventDefault(); item.classList.add('drag-over-thumb'); });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over-thumb'));
+    item.addEventListener('drop', (e) => {
+      e.preventDefault(); item.classList.remove('drag-over-thumb');
+      if (dragSrcIdx !== null && dragSrcIdx !== idx) {
+        const moved = selectedFiles.splice(dragSrcIdx, 1)[0];
+        selectedFiles.splice(idx, 0, moved);
+        dragSrcIdx = null;
+        renderThumbs();
+      }
+    });
+
+    strip.insertBefore(item, addBtn);
+  });
+}
+
+// ── Scan ───────────────────────────────────────────────────────────────────
+async function handleScan() {
+  if (!selectedFiles.length) return;
+  show('loading-section'); hide('upload-section'); hide('results-section'); hide('confirm-section');
+
+  const fd = new FormData();
+  // Send all files in order — backend accepts files[]
+  selectedFiles.forEach(f => fd.append('files', f));
+  const dn = document.getElementById('driver-name').value.trim();
+  if (dn) fd.append('driver_name', dn);
+  fd.append('prompt_version', document.getElementById('prompt-version').value);
+
+  try {
+    const res = await fetch(`${baseUrl()}/api/v1/process`, {
+      method:'POST', headers:{'x-api-key':apiKey()}, body:fd,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({detail:res.statusText}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    currentResponse = data;
+    currentQueueId  = data.queue_id ?? null;
+
+    // Image preview
+    const imgEl = document.getElementById('preview-img');
+    const phEl  = document.getElementById('preview-placeholder');
+    document.getElementById('preview-filename').textContent = data.filename
+      + (selectedFiles.length > 1 ? ` (${selectedFiles.length} images)` : '');
+    if (selectedFiles[0]?.type.startsWith('image/')) {
+      imgEl.src = URL.createObjectURL(selectedFiles[0]);
+      imgEl.style.display='block'; phEl.style.display='none';
+    } else if (data.queue_id) {
+      fetchAndShowPreview(data.queue_id);
+    }
+
+    renderResults(data);
+    hide('loading-section'); show('results-section');
+    loadSidebar();
+  } catch(err) {
+    hide('loading-section'); show('upload-section');
+    showToast(`Scan failed: ${err.message}`, 'error');
+  }
+}
+
+async function fetchAndShowPreview(queueId) {
+  try {
+    const res = await fetch(`${baseUrl()}/api/v1/queue/${queueId}`, {headers:{'x-api-key':apiKey()}});
+    if (!res.ok) return;
+    const item = await res.json();
+    if (item.image_b64) {
+      const imgEl = document.getElementById('preview-img');
+      imgEl.src = `data:image/png;base64,${item.image_b64}`;
+      imgEl.style.display='block';
+      document.getElementById('preview-placeholder').style.display='none';
+    }
+  } catch {}
+}
+
+// ── Render Results ─────────────────────────────────────────────────────────
+function renderResults(data) {
+  // Pass status badge
+  const status = (data.pass_status||'unknown').toLowerCase();
+  const badgeEl = document.getElementById('pass-badge');
+  badgeEl.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold';
+  const dotEl = document.getElementById('pass-dot');
+  if (status==='green') {
+    badgeEl.classList.add('badge-green'); dotEl.className='w-2.5 h-2.5 rounded-full inline-block bg-green-500';
+    document.getElementById('pass-label').textContent = 'GREEN — High Confidence';
+  } else if (status==='yellow') {
+    badgeEl.classList.add('badge-yellow'); dotEl.className='w-2.5 h-2.5 rounded-full inline-block bg-yellow-400';
+    document.getElementById('pass-label').textContent = 'YELLOW — Review Recommended';
+  } else {
+    badgeEl.classList.add('badge-red'); dotEl.className='w-2.5 h-2.5 rounded-full inline-block bg-red-500';
+    document.getElementById('pass-label').textContent = 'RED — Escalation Required';
+  }
+
+  document.getElementById('referee-notes').textContent = data.referee_notes || 'No notes.';
+  document.getElementById('pages-count').textContent   = data.pages_processed ?? '—';
+
+  // Price estimate
+  const pe = data.price_estimate;
+  const priceCard = document.getElementById('price-card');
+  if (pe && pe.driver_price_base > 0) {
+    priceCard.classList.remove('hidden');
+    priceCard.style.background = pe.high_risk ? '#f97316' : '#059669'; // orange-500 / emerald-600
+    document.getElementById('price-display').textContent = pe.display;
+    document.getElementById('price-breakdown').textContent =
+      `Atty avg $${pe.avg_attny_price.toLocaleString()} + CDL fee $${pe.cdl_fee} = base $${pe.driver_price_base.toLocaleString()} (±15–20%)`;
+    document.getElementById('price-winrate').textContent  = pe.win_rate_pct > 0 ? pe.win_rate_pct + '%' : '—';
+    document.getElementById('price-sample').textContent   = pe.sample_size > 0 ? pe.sample_size.toLocaleString() + ' tickets' : '—';
+    document.getElementById('price-datasource').textContent = pe.data_source;
+    document.getElementById('price-source-badge').textContent = pe.data_source === 'fallback' ? 'State avg' : 'Historical';
+    document.getElementById('price-highrisk-badge').classList.toggle('hidden', !pe.high_risk);
+    const noteEl = document.getElementById('price-note');
+    if (pe.note) { noteEl.textContent = pe.note; noteEl.classList.remove('hidden'); }
+    else { noteEl.classList.add('hidden'); }
+  } else {
+    priceCard.classList.add('hidden');
+  }
+
+  // Attorney matches
+  const attys = data.attorney_matches || [];
+  const noAtty = data.no_attorney_flag === true;
+  const attyWrap = document.getElementById('attorney-wrap');
+  const attyList = document.getElementById('attorney-list');
+  const attyNoMatch = document.getElementById('attorney-no-match');
+  attyList.innerHTML = '';
+  if (noAtty || attys.length > 0) {
+    attyWrap.classList.remove('hidden');
+    if (noAtty && attys.length === 0) {
+      attyNoMatch.classList.remove('hidden');
+    } else {
+      attyNoMatch.classList.add('hidden');
+      attys.forEach((a, i) => {
+        const winPct = a.win_rate > 0 ? Math.round(a.win_rate * 100) + '%' : '—';
+        const badge = a.match_type === 'county'
+          ? '<span style="background:#dbeafe;color:#1d4ed8" class="text-xs px-1.5 py-0.5 rounded font-semibold">County</span>'
+          : '<span style="background:#f3f4f6;color:#6b7280" class="text-xs px-1.5 py-0.5 rounded font-semibold">State</span>';
+        const rank = ['🥇','🥈','🥉'][i] || `#${i+1}`;
+        const rating = a.rating > 0 ? `★ ${a.rating.toFixed(1)}` : '';
+        const card = document.createElement('div');
+        card.className = 'border border-slate-100 rounded-xl p-3 flex items-start gap-3';
+        card.innerHTML = `
+          <div class="text-2xl leading-none mt-0.5">${rank}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <a href="${a.sf_url}" target="_blank" class="font-semibold text-blue-700 hover:underline text-sm truncate">${a.name}</a>
+              ${badge}
+              ${rating ? `<span class="text-xs text-amber-500 font-semibold">${rating}</span>` : ''}
+            </div>
+            <div class="flex gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+              <span>Win rate: <strong class="text-slate-700">${winPct}</strong></span>
+              <span>Tickets: <strong class="text-slate-700">${a.total_tickets > 0 ? a.total_tickets.toLocaleString() : '—'}</strong></span>
+              ${a.phone ? `<a href="tel:${a.phone}" class="text-blue-600 hover:underline">${a.phone}</a>` : ''}
+              ${a.email ? `<a href="mailto:${a.email}" class="text-blue-600 hover:underline truncate max-w-[160px]">${a.email}</a>` : ''}
+            </div>
+          </div>`;
+        attyList.appendChild(card);
+      });
+    }
+  } else {
+    attyWrap.classList.add('hidden');
+    attyNoMatch.classList.add('hidden');
+  }
+
+  // CDL impact (tickets only)
+  const cdl = data.cdl_point_impact;
+  if (cdl) {
+    document.getElementById('cdl-impact-wrap').classList.remove('hidden');
+    document.getElementById('cdl-category').textContent = cdl.violation_category || '—';
+    document.getElementById('cdl-points').textContent   = cdl.cdl_points ?? cdl.points ?? '—';
+    document.getElementById('cdl-severity').textContent = cdl.severity || '—';
+    document.getElementById('cdl-csa').textContent      = cdl.csa_category || '—';
+    document.getElementById('cdl-appear').textContent   = cdl.must_appear_in_court ? 'Yes' : 'No';
+    document.getElementById('cdl-attorney').textContent = cdl.attorney_recommended  ? 'Yes' : 'No';
+  } else {
+    document.getElementById('cdl-impact-wrap').classList.add('hidden');
+  }
+
+  // Doc severity (non-ticket document types)
+  const sev = data.doc_severity;
+  const sevWrap = document.getElementById('doc-severity-wrap');
+  if (sev) {
+    sevWrap.classList.remove('hidden');
+    const sc = SEVERITY_COLORS[sev.severity] || SEVERITY_COLORS.MEDIUM;
+    const sevBadge = document.getElementById('doc-sev-badge');
+    sevBadge.textContent = sc.label;
+    sevBadge.style.background = sc.bg;
+    sevBadge.style.color = sc.text;
+    document.getElementById('doc-sev-score').textContent = sev.severity_score + '/100';
+    document.getElementById('doc-sev-action').textContent = sev.action_required || '—';
+    const daysEl = document.getElementById('doc-sev-days');
+    if (sev.days_to_respond) {
+      daysEl.parentElement.classList.remove('hidden');
+      daysEl.textContent = sev.days_to_respond + ' days';
+    } else {
+      daysEl.parentElement.classList.add('hidden');
+    }
+    const factorsList = document.getElementById('doc-sev-factors');
+    factorsList.innerHTML = (sev.key_factors||[]).map(f=>`<li class="text-xs text-slate-600">${escHtml(f)}</li>`).join('');
+    document.getElementById('doc-sev-attorney').textContent = sev.attorney_recommended ? 'Yes — see attorney matches' : 'Not required';
+  } else {
+    sevWrap.classList.add('hidden');
+  }
+
+  // Dual-conflict banner
+  const conflictFields = data.dual_conflicts || [];
+  if (conflictFields.length) {
+    document.getElementById('conflict-banner').classList.remove('hidden');
+    document.getElementById('conflict-list').textContent = conflictFields.map(k=>FIELD_LABELS[k]||k).join(', ');
+  } else {
+    document.getElementById('conflict-banner').classList.add('hidden');
+  }
+
+  // Low-confidence banner
+  const lowFields = data.low_confidence_fields || [];
+  if (lowFields.length) {
+    document.getElementById('low-conf-banner').classList.remove('hidden');
+    document.getElementById('low-conf-list').textContent = lowFields.map(k=>FIELD_LABELS[k]||k).join(', ');
+  } else {
+    document.getElementById('low-conf-banner').classList.add('hidden');
+  }
+
+  // Metadata
+  const r = data.result;
+  document.getElementById('meta-file-type').textContent = r.file_type || '—';
+  document.getElementById('meta-format').textContent    = r.document_text_format || '—';
+  const ftConf = r.file_type_analysis;
+  document.getElementById('meta-ft-conf').textContent   = ftConf ? `${Math.round(ftConf.confidence_score*100)}%` : '—';
+  document.getElementById('meta-ft-reason').textContent = ftConf?.ai_reason || '—';
+  document.getElementById('meta-others').textContent    = (r.other_document_types||[]).join(', ') || 'None';
+
+  // Build field cards
+  const lowSet      = new Set(lowFields);
+  const conflictSet = new Set(conflictFields);
+  const grid    = document.getElementById('fields-grid');
+  grid.innerHTML = '';
+  editCount = 0;
+
+  // Pick the field set for this document type; fall back to full ticket set
+  const fileType = r.file_type || 'Ticket';
+  const typeFields = DOC_TYPE_FIELDS[fileType] || DOC_TYPE_FIELDS['Ticket'];
+  // Sort: conflicts first, then low-confidence, then doc-type order
+  const sorted = [...typeFields].sort((a,b) => {
+    const rank = k => conflictSet.has(k) ? 0 : lowSet.has(k) ? 1 : 2;
+    return rank(a) - rank(b);
+  });
+
+  sorted.forEach((key, idx) => {
+    const field = r[key]; if (!field || field.value === undefined) return;
+    const isLow      = lowSet.has(key);
+    const isConflict = conflictSet.has(key);
+    const conf  = typeof field.confidence_score === 'number' ? field.confidence_score : 0;
+    const pct   = Math.round(conf * 100);
+    const barColor = conf>=0.85 ? '#22c55e' : conf>=0.60 ? '#f59e0b' : '#ef4444';
+
+    const card = document.createElement('div');
+    const cardClass = isConflict ? 'conflict' : isLow ? 'low-conf' : 'ok-conf';
+    card.className = `field-card rounded-xl border border-slate-100 p-3 bg-slate-50 ${cardClass}`;
+    card.dataset.key = key;
+    card.dataset.isLow      = isLow ? '1' : '0';
+    card.dataset.isConflict = isConflict ? '1' : '0';
+
+    // ① Smart input type
+    let inputHtml;
+    if (SELECT_FIELDS[key]) {
+      const opts = SELECT_FIELDS[key].map(v =>
+        `<option value="${escAttr(v)}" ${v===field.value?'selected':''}>${escHtml(v||'— select —')}</option>`
+      ).join('');
+      inputHtml = `<select class="field-input" data-original="${escAttr(field.value)}"
+        onchange="markEdited(this)" tabindex="${idx+1}">${opts}</select>`;
+    } else if (DATE_FIELDS.has(key)) {
+      // Convert MM/DD/YYYY → YYYY-MM-DD for the date input
+      const iso = mmddyyyyToIso(field.value);
+      inputHtml = `<input type="date" class="field-input" data-original="${escAttr(field.value)}"
+        value="${escAttr(iso)}" onchange="markEdited(this)" tabindex="${idx+1}" />`;
+    } else if (YESNO_FIELDS.has(key)) {
+      const val = (field.value||'').toLowerCase();
+      inputHtml = `<select class="field-input" data-original="${escAttr(field.value)}"
+        onchange="markEdited(this)" tabindex="${idx+1}">
+        <option value="Yes" ${val==='yes'?'selected':''}>Yes</option>
+        <option value="No"  ${val!=='yes'?'selected':''}>No</option>
+      </select>`;
+    } else {
+      inputHtml = `<input type="text" class="field-input" data-original="${escAttr(field.value)}"
+        value="${escAttr(field.value)}" oninput="markEdited(this)" tabindex="${idx+1}" />`;
+    }
+
+    // Inline notes for low-confidence and conflict fields
+    const reasonHtml = isLow && !isConflict
+      ? `<p class="text-xs text-amber-700 mt-1.5 leading-snug">${escHtml(field.ai_reason||'')}</p>`
+      : '';
+    const conflictHtml = isConflict
+      ? `<p class="text-xs text-violet-700 mt-1.5 leading-snug font-medium">⚡ Pass 1 &amp; Pass 2 disagreed — verify this value before approving.</p>`
+      : '';
+    const conflictBadge = isConflict
+      ? `<span class="ml-1 text-xs font-bold px-1.5 py-0.5 rounded" style="background:#ede9fe;color:#7c3aed;">Conflict</span>`
+      : '';
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between mb-1.5">
+        <div class="flex items-center gap-1">
+          <label class="section-label">${FIELD_LABELS[key]||key}</label>
+          ${conflictBadge}
+        </div>
+        <div class="tooltip-wrap">
+          <span class="text-xs font-semibold cursor-help
+            ${pct>=85?'text-green-600':pct>=60?'text-amber-600':'text-red-600'}">${pct}%</span>
+          <div class="tooltip-box"><strong>AI Reason:</strong><br>${escHtml(field.ai_reason||'—')}</div>
+        </div>
+      </div>
+      ${inputHtml}
+      <div class="conf-bar-track mt-1.5">
+        <div class="conf-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+      </div>
+      ${conflictHtml}${reasonHtml}`;
+    grid.appendChild(card);
+  });
+
+  // Reset UI state
+  document.getElementById('reject-form').classList.add('hidden');
+  document.getElementById('action-buttons').classList.remove('hidden');
+  const ab = document.getElementById('approve-btn');
+  ab.disabled=false; ab.style.opacity='1'; ab.textContent='✓ Approve & Save';
+  updateEditCountLabel();
+
+  // Re-apply problems-only filter if active
+  if (problemsOnly) applyProblemsFilter();
+}
+
+// ── ② Problems-only toggle ─────────────────────────────────────────────────
+function toggleProblemsOnly() {
+  problemsOnly = !problemsOnly;
+  const btn = document.getElementById('problems-toggle');
+  btn.classList.toggle('active', problemsOnly);
+  btn.textContent = problemsOnly ? '✓ Problems only (on)' : '⚠ Problems only';
+  applyProblemsFilter();
+}
+
+function applyProblemsFilter() {
+  document.querySelectorAll('#fields-grid .field-card').forEach(card => {
+    const isProblem = card.dataset.isLow === '1' || card.dataset.isConflict === '1';
+    card.classList.toggle('hide-ok', problemsOnly && !isProblem);
+  });
+}
+
+// ── Field edit tracking ────────────────────────────────────────────────────
+function markEdited(input) {
+  const original = input.dataset.original;
+  // For date inputs: compare ISO value to original MM/DD/YYYY
+  let currentVal = input.value;
+  if (input.type === 'date') {
+    currentVal = isoToMmddyyyy(currentVal); // normalise for comparison
+  }
+  const isEdited = currentVal !== original && !(currentVal === '' && original === '');
+  input.classList.toggle('edited', isEdited);
+  recountEdits();
+}
+
+function recountEdits() {
+  editCount = document.querySelectorAll('#fields-grid .field-input.edited').length;
+  updateEditCountLabel();
+}
+
+function updateEditCountLabel() {
+  const el = document.getElementById('edit-count-label');
+  el.textContent = editCount > 0 ? `${editCount} edit${editCount>1?'s':''} pending` : '';
+}
+
+function resetEdits() {
+  document.querySelectorAll('#fields-grid .field-card').forEach(card => {
+    const input = card.querySelector('.field-input');
+    if (!input) return;
+    const orig = input.dataset.original;
+    if (input.type === 'date') {
+      input.value = mmddyyyyToIso(orig);
+    } else {
+      input.value = orig;
+    }
+    input.classList.remove('edited');
+  });
+  editCount = 0;
+  updateEditCountLabel();
+}
+
+function collectEdits() {
+  const edits = {};
+  document.querySelectorAll('#fields-grid .field-card').forEach(card => {
+    const key   = card.dataset.key;
+    const input = card.querySelector('.field-input');
+    if (!input) return;
+    let val = input.value;
+    if (input.type === 'date') val = isoToMmddyyyy(val);
+    edits[key] = val;
+  });
+  return edits;
+}
+
+// ── Approve ────────────────────────────────────────────────────────────────
+async function handleApprove() {
+  if (!currentQueueId) { showToast('No queue ID — re-scan first.', 'error'); return; }
+  const btn = document.getElementById('approve-btn');
+  btn.disabled=true; btn.textContent='Saving…'; btn.style.opacity='0.6';
+
+  try {
+    const res = await fetch(`${baseUrl()}/api/v1/queue/${currentQueueId}/approve`, {
+      method:'PUT',
+      headers:{'x-api-key':apiKey(),'Content-Type':'application/json'},
+      body: JSON.stringify({edited_fields: collectEdits()}),
+    });
+    if (!res.ok) throw new Error((await res.json()).detail || 'Approve failed');
+    const data = await res.json();
+
+    hide('results-section'); show('confirm-section');
+    document.getElementById('confirm-icon').textContent  = '✅';
+    document.getElementById('confirm-title').textContent = 'Approved — Saved to Training Data';
+
+    let bodyText = `"${currentResponse?.filename}" added to training dataset.${editCount>0?' ('+editCount+' field'+(editCount>1?'s':'')+' corrected)':''}`;
+    if (data.sf_ticket_id) {
+      bodyText += `\n\nSalesforce Ticket: ${data.sf_ticket_id}`;
+    }
+    document.getElementById('confirm-body').textContent = bodyText;
+
+    // Show SF link if returned
+    const sfLinkEl = document.getElementById('sf-ticket-link');
+    if (sfLinkEl) {
+      if (data.sf_ticket_url) {
+        sfLinkEl.href = data.sf_ticket_url;
+        sfLinkEl.textContent = `View in Salesforce → ${data.sf_ticket_id}`;
+        sfLinkEl.classList.remove('hidden');
+      } else {
+        sfLinkEl.classList.add('hidden');
+      }
+    }
+
+    loadSidebar();
+  } catch(err) {
+    btn.disabled=false; btn.textContent='✓ Approve & Save'; btn.style.opacity='1';
+    showToast(`Approve failed: ${err.message}`, 'error');
+  }
+}
+
+// ── Reject ─────────────────────────────────────────────────────────────────
+function showRejectForm() {
+  document.getElementById('action-buttons').classList.add('hidden');
+  document.getElementById('reject-form').classList.remove('hidden');
+  document.getElementById('reject-reason').focus();
+}
+function cancelReject() {
+  document.getElementById('reject-form').classList.add('hidden');
+  document.getElementById('action-buttons').classList.remove('hidden');
+}
+async function confirmReject() {
+  if (!currentQueueId) { showToast('No queue ID.', 'error'); return; }
+  const reason = document.getElementById('reject-reason').value.trim();
+  try {
+    const res = await fetch(`${baseUrl()}/api/v1/queue/${currentQueueId}/reject`, {
+      method:'PUT',
+      headers:{'x-api-key':apiKey(),'Content-Type':'application/json'},
+      body: JSON.stringify({reason}),
+    });
+    if (!res.ok) throw new Error((await res.json()).detail || 'Reject failed');
+    hide('results-section'); show('confirm-section');
+    document.getElementById('confirm-icon').textContent  = '🚩';
+    document.getElementById('confirm-title').textContent = 'Ticket Rejected';
+    document.getElementById('confirm-body').textContent  =
+      `"${currentResponse?.filename}" marked as rejected.${reason?' Reason: '+reason:''}`;
+    loadSidebar();
+  } catch(err) {
+    showToast(`Reject failed: ${err.message}`, 'error');
+  }
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+function handleReset() {
+  currentResponse=null; currentQueueId=null; selectedFiles=[]; editCount=0; problemsOnly=false;
+  fileInput.value='';
+  document.getElementById('file-name-badge').textContent='';
+  document.getElementById('thumb-strip').classList.add('hidden');
+  document.getElementById('thumb-hint').classList.add('hidden');
+  document.getElementById('thumb-strip').querySelectorAll('.thumb-item').forEach(el=>el.remove());
+  document.getElementById('driver-name').value='';
+  document.getElementById('fields-grid').innerHTML='';
+  document.getElementById('conflict-banner').classList.add('hidden');
+  document.getElementById('low-conf-banner').classList.add('hidden');
+  document.getElementById('cdl-impact-wrap').classList.add('hidden');
+  document.getElementById('price-card').classList.add('hidden');
+  document.getElementById('sf-ticket-link').classList.add('hidden');
+  document.getElementById('attorney-wrap').classList.add('hidden');
+  document.getElementById('attorney-list').innerHTML = '';
+  document.getElementById('attorney-no-match').classList.add('hidden');
+  document.getElementById('reject-reason').value='';
+  document.getElementById('problems-toggle').classList.remove('active');
+  document.getElementById('problems-toggle').textContent='⚠ Problems only';
+  const imgEl=document.getElementById('preview-img');
+  imgEl.src=''; imgEl.style.display='none';
+  document.getElementById('preview-placeholder').style.display='block';
+  const btn=document.getElementById('scan-btn');
+  btn.disabled=true; btn.style.opacity='0.4'; btn.style.cursor='not-allowed';
+  hide('results-section'); hide('loading-section'); hide('confirm-section'); show('upload-section');
+}
+
+// ── Sidebar ────────────────────────────────────────────────────────────────
+async function loadSidebar() {
+  try {
+    const res = await fetch(`${baseUrl()}/api/v1/queue`, {headers:{'x-api-key':apiKey()}});
+    if (!res.ok) return;
+    sidebarItems = await res.json();
+    // Summary counts
+    const pending  = sidebarItems.filter(i=>i.status==='pending').length;
+    const red      = sidebarItems.filter(i=>i.pass_status==='red' && i.status==='pending').length;
+    const approved = sidebarItems.filter(i=>i.status==='approved').length;
+    document.getElementById('sidebar-counts').textContent =
+      `${pending} pending${red?' · '+red+' red':''} · ${approved} approved`;
+    applyAndRenderSidebar();
+  } catch {}
+}
+
+function setSidebarFilter(dimension, value) {
+  sidebarFilter[dimension] = value;
+  // Update tab active states
+  ['all','green','yellow','red'].forEach(v => {
+    document.getElementById(`sf-pass-${v}`)?.classList.toggle('active', dimension==='pass' ? v===value : sidebarFilter.pass===v);
+  });
+  ['all','pending','approved','rejected'].forEach(v => {
+    document.getElementById(`sf-status-${v}`)?.classList.toggle('active', dimension==='status' ? v===value : sidebarFilter.status===v);
+  });
+  applyAndRenderSidebar();
+}
+
+function applyAndRenderSidebar() {
+  let filtered = sidebarItems;
+  if (sidebarFilter.pass !== 'all')   filtered = filtered.filter(i=>i.pass_status===sidebarFilter.pass);
+  if (sidebarFilter.status !== 'all') filtered = filtered.filter(i=>i.status===sidebarFilter.status);
+  renderSidebar(filtered.slice(0, 50));
+}
+
+function renderSidebar(items) {
+  const list = document.getElementById('sidebar-list');
+  if (!items.length) {
+    list.innerHTML='<p class="text-xs text-slate-400 px-4 py-5 text-center">No results.</p>'; return;
+  }
+  // Sort: pending reds first, then other pending, then actioned
+  const sorted = [...items].sort((a,b) => {
+    const pri = i => i.status==='pending' && i.pass_status==='red' ? 0
+              : i.status==='pending' ? 1 : 2;
+    return pri(a) - pri(b);
+  });
+  list.innerHTML = sorted.map(item => {
+    const psColor = item.pass_status==='green' ? 'bg-green-500'
+                  : item.pass_status==='yellow' ? 'bg-yellow-400' : 'bg-red-500';
+    const psLabel = item.pass_status==='green' ? 'GREEN'
+                  : item.pass_status==='yellow' ? 'YELLOW' : 'RED';
+    const stColor = item.status==='approved' ? 'text-green-600 bg-green-50'
+                  : item.status==='rejected'  ? 'text-red-600 bg-red-50'
+                  : 'text-yellow-700 bg-yellow-50';
+    const date = new Date(item.created_at).toLocaleDateString();
+    return `<div class="sidebar-item px-3 py-2.5" onclick="loadQueueItem('${item.id}')">
+      <p class="font-medium text-slate-700 truncate text-xs leading-snug">${escHtml(item.filename)}</p>
+      <div class="flex items-center gap-1.5 mt-1">
+        <span class="text-white text-xs font-bold px-1.5 py-0.5 rounded-sm ${psColor}">${psLabel}</span>
+        <span class="text-xs px-1.5 py-0.5 rounded-sm ${stColor}">${item.status}</span>
+        <span class="text-xs text-slate-400 ml-auto">${date}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Bulk approve greens ────────────────────────────────────────────────────
+async function bulkApproveGreens() {
+  const greens = sidebarItems.filter(i=>i.pass_status==='green' && i.status==='pending');
+  if (!greens.length) { showToast('No pending GREEN scans to bulk approve.', 'error'); return; }
+  if (!confirm(`Approve all ${greens.length} pending GREEN scan(s) with no edits?`)) return;
+
+  let done=0, failed=0;
+  for (const item of greens) {
+    try {
+      const res = await fetch(`${baseUrl()}/api/v1/queue/${item.id}/approve`, {
+        method:'PUT',
+        headers:{'x-api-key':apiKey(),'Content-Type':'application/json'},
+        body: JSON.stringify({edited_fields:{}}),
+      });
+      if (res.ok) done++; else failed++;
+    } catch { failed++; }
+  }
+  showToast(`Bulk approved ${done} GREEN scan${done!==1?'s':''}${failed?` (${failed} failed)`:''}`, done?'success':'error');
+  loadSidebar();
+}
+
+async function loadQueueItem(id) {
+  try {
+    const res = await fetch(`${baseUrl()}/api/v1/queue/${id}`, {headers:{'x-api-key':apiKey()}});
+    if (!res.ok) return;
+    const item = await res.json();
+    currentResponse = item.process_response;
+    currentQueueId  = item.id;
+
+    document.getElementById('preview-filename').textContent = item.filename;
+    const imgEl = document.getElementById('preview-img');
+    const phEl  = document.getElementById('preview-placeholder');
+    if (item.image_b64) {
+      imgEl.src = `data:image/png;base64,${item.image_b64}`;
+      imgEl.style.display='block'; phEl.style.display='none';
+    } else {
+      imgEl.style.display='none'; phEl.style.display='block';
+    }
+
+    renderResults(item.process_response);
+    hide('upload-section'); hide('loading-section'); hide('confirm-section'); show('results-section');
+
+    if (item.status !== 'pending') {
+      const ab = document.getElementById('approve-btn');
+      ab.disabled=true; ab.style.opacity='0.45';
+      ab.textContent = item.status==='approved' ? '✓ Already Approved' : '✓ Approve & Save';
+    }
+  } catch {
+    showToast('Failed to load scan.', 'error');
+  }
+}
+
+// ── Date helpers (MM/DD/YYYY ↔ YYYY-MM-DD) ────────────────────────────────
+function mmddyyyyToIso(v) {
+  if (!v) return '';
+  const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return '';
+  return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+}
+function isoToMmddyyyy(v) {
+  if (!v) return '';
+  const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return v;
+  return `${m[2]}/${m[3]}/${m[1]}`;
+}
+
+// ── Keyboard shortcuts ─────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  // Skip when typing in an input, select, or textarea
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  const resultsVisible = !document.getElementById('results-section').classList.contains('hidden');
+  if (!resultsVisible) return;
+
+  if (e.key === 'g' || e.key === 'G') { e.preventDefault(); handleApprove(); }
+  if (e.key === 'r' || e.key === 'R') { e.preventDefault(); showRejectForm(); }
+  if (e.key === 'p' || e.key === 'P') { e.preventDefault(); toggleProblemsOnly(); }
+  if (e.key === 'b' || e.key === 'B') { e.preventDefault(); bulkApproveGreens(); }
+});
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = type==='error'
+    ? 'fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl font-semibold text-sm bg-red-600 text-white shadow-xl'
+    : 'fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl font-semibold text-sm bg-green-600 text-white shadow-xl';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className='hidden', 3500);
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadSidebar();
+setInterval(loadSidebar, 15000);
+</script>
+</body>
+</html>

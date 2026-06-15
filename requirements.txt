@@ -1,0 +1,12 @@
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12
+anthropic==0.54.0
+pymupdf==1.25.1
+python-dotenv==1.0.1
+pydantic==2.10.3
+langgraph==0.2.60
+langchain-core==0.3.28
+Pillow==11.2.1
+pytesseract==0.3.13
+simple-salesforce==1.12.6

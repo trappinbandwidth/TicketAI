@@ -1,0 +1,2935 @@
+{
+  "Alabama": {
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 799.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1199,
+      "driver_price_low": 1019,
+      "driver_price_high": 1439,
+      "win_rate_pct": 100.0,
+      "sample_size": 9,
+      "std_dev": 199.47,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 887.25,
+      "cdl_fee": 400,
+      "driver_price_base": 1287,
+      "driver_price_low": 1094,
+      "driver_price_high": 1544,
+      "win_rate_pct": 83.3,
+      "sample_size": 12,
+      "std_dev": 222.2,
+      "high_risk": false
+    }
+  },
+  "Arizona": {
+    "Careless Driving": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 61.1,
+      "sample_size": 18,
+      "std_dev": 3.45,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 62.5,
+      "sample_size": 24,
+      "std_dev": 2.23,
+      "high_risk": false
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 0.0,
+      "sample_size": 4,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 775.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1175,
+      "driver_price_low": 999,
+      "driver_price_high": 1410,
+      "win_rate_pct": 60.0,
+      "sample_size": 5,
+      "std_dev": 150.62,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 81.3,
+      "sample_size": 16,
+      "std_dev": 3.64,
+      "high_risk": true
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 75.0,
+      "sample_size": 4,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 63.2,
+      "sample_size": 19,
+      "std_dev": 6.46,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 63.6,
+      "sample_size": 11,
+      "std_dev": 11.05,
+      "high_risk": false
+    },
+    "Too Fast for Conditions": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 60.0,
+      "sample_size": 5,
+      "std_dev": 0,
+      "high_risk": true
+    }
+  },
+  "Arkansas": {
+    "Alcohol / Drug related violation": {
+      "avg_attny_price": 1425.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1825,
+      "driver_price_low": 1551,
+      "driver_price_high": 2190,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 212.13,
+      "high_risk": true
+    },
+    "Careless Driving": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 75.0,
+      "sample_size": 4,
+      "std_dev": 70.71,
+      "high_risk": false
+    },
+    "Cell Phone": {
+      "avg_attny_price": 675.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1075,
+      "driver_price_low": 914,
+      "driver_price_high": 1290,
+      "win_rate_pct": 87.5,
+      "sample_size": 8,
+      "std_dev": 115.73,
+      "high_risk": true
+    },
+    "Driver license violation": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 100.0,
+      "sample_size": 4,
+      "std_dev": 57.74,
+      "high_risk": true
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 575.0,
+      "cdl_fee": 400,
+      "driver_price_base": 975,
+      "driver_price_low": 829,
+      "driver_price_high": 1170,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 70.71,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 50.0,
+      "sample_size": 16,
+      "std_dev": 255.92,
+      "high_risk": true
+    },
+    "Following too close": {
+      "avg_attny_price": 325.0,
+      "cdl_fee": 400,
+      "driver_price_base": 725,
+      "driver_price_low": 616,
+      "driver_price_high": 870,
+      "win_rate_pct": 66.7,
+      "sample_size": 3,
+      "std_dev": 28.87,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 100.0,
+      "sample_size": 4,
+      "std_dev": 25,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 529.06,
+      "cdl_fee": 400,
+      "driver_price_base": 929,
+      "driver_price_low": 790,
+      "driver_price_high": 1115,
+      "win_rate_pct": 43.7,
+      "sample_size": 32,
+      "std_dev": 127.5,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 626.56,
+      "cdl_fee": 400,
+      "driver_price_base": 1027,
+      "driver_price_low": 873,
+      "driver_price_high": 1232,
+      "win_rate_pct": 50.0,
+      "sample_size": 32,
+      "std_dev": 147.41,
+      "high_risk": true
+    }
+  },
+  "California": {
+    "Cell Phone": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 65.4,
+      "sample_size": 26,
+      "std_dev": 43.04,
+      "high_risk": true
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 100.0,
+      "sample_size": 8,
+      "std_dev": 52.5,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 325.0,
+      "cdl_fee": 400,
+      "driver_price_base": 725,
+      "driver_price_low": 616,
+      "driver_price_high": 870,
+      "win_rate_pct": 85.7,
+      "sample_size": 7,
+      "std_dev": 47.25,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 352.9,
+      "cdl_fee": 400,
+      "driver_price_base": 753,
+      "driver_price_low": 640,
+      "driver_price_high": 904,
+      "win_rate_pct": 83.0,
+      "sample_size": 112,
+      "std_dev": 79.81,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 64.0,
+      "sample_size": 111,
+      "std_dev": 64.0,
+      "high_risk": true
+    },
+    "Parking": {
+      "avg_attny_price": 375.0,
+      "cdl_fee": 400,
+      "driver_price_base": 775,
+      "driver_price_low": 659,
+      "driver_price_high": 930,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 50,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 75.0,
+      "sample_size": 4,
+      "std_dev": 25,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 93.7,
+      "sample_size": 189,
+      "std_dev": 59.06,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 90.3,
+      "sample_size": 258,
+      "std_dev": 67.2,
+      "high_risk": true
+    }
+  },
+  "Colorado": {
+    "Careless Driving": {
+      "avg_attny_price": 900.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1300,
+      "driver_price_low": 1105,
+      "driver_price_high": 1560,
+      "win_rate_pct": 81.8,
+      "sample_size": 11,
+      "std_dev": 255.75,
+      "high_risk": true
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 712.5,
+      "cdl_fee": 400,
+      "driver_price_base": 1112,
+      "driver_price_low": 945,
+      "driver_price_high": 1334,
+      "win_rate_pct": 75.0,
+      "sample_size": 4,
+      "std_dev": 62.92,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 725.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1125,
+      "driver_price_low": 956,
+      "driver_price_high": 1350,
+      "win_rate_pct": 83.3,
+      "sample_size": 18,
+      "std_dev": 71.88,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 675.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1075,
+      "driver_price_low": 914,
+      "driver_price_high": 1290,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 86.6,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 700.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1100,
+      "driver_price_low": 935,
+      "driver_price_high": 1320,
+      "win_rate_pct": 100.0,
+      "sample_size": 10,
+      "std_dev": 54.01,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 700.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1100,
+      "driver_price_low": 935,
+      "driver_price_high": 1320,
+      "win_rate_pct": 84.0,
+      "sample_size": 25,
+      "std_dev": 58.24,
+      "high_risk": false
+    }
+  },
+  "Connecticut": {
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 450.0,
+      "cdl_fee": 400,
+      "driver_price_base": 850,
+      "driver_price_low": 722,
+      "driver_price_high": 1020,
+      "win_rate_pct": 100.0,
+      "sample_size": 6,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 450.0,
+      "cdl_fee": 400,
+      "driver_price_base": 850,
+      "driver_price_low": 722,
+      "driver_price_high": 1020,
+      "win_rate_pct": 71.4,
+      "sample_size": 7,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 450.0,
+      "cdl_fee": 400,
+      "driver_price_base": 850,
+      "driver_price_low": 722,
+      "driver_price_high": 1020,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 450.0,
+      "cdl_fee": 400,
+      "driver_price_base": 850,
+      "driver_price_low": 722,
+      "driver_price_high": 1020,
+      "win_rate_pct": 100.0,
+      "sample_size": 6,
+      "std_dev": 0,
+      "high_risk": false
+    }
+  },
+  "Delaware": {
+    "Careless Driving": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 100.0,
+      "sample_size": 6,
+      "std_dev": 0,
+      "high_risk": true
+    }
+  },
+  "Florida": {
+    "Speeding (1-14)": {
+      "avg_attny_price": 250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 650,
+      "driver_price_low": 552,
+      "driver_price_high": 780,
+      "win_rate_pct": 100.0,
+      "sample_size": 11,
+      "std_dev": 67.43,
+      "high_risk": false
+    }
+  },
+  "Georgia": {
+    "Alcohol / Drug related violation": {
+      "avg_attny_price": 1788.12,
+      "cdl_fee": 400,
+      "driver_price_base": 2188,
+      "driver_price_low": 1860,
+      "driver_price_high": 2626,
+      "win_rate_pct": 100.0,
+      "sample_size": 4,
+      "std_dev": 198.38,
+      "high_risk": false
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 337.5,
+      "cdl_fee": 400,
+      "driver_price_base": 738,
+      "driver_price_low": 627,
+      "driver_price_high": 886,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 95.8,
+      "sample_size": 95,
+      "std_dev": 117.17,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 95.1,
+      "sample_size": 82,
+      "std_dev": 101.01,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 100.0,
+      "sample_size": 25,
+      "std_dev": 70,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    }
+  },
+  "Idaho": {
+    "Cell Phone": {
+      "avg_attny_price": 380.0,
+      "cdl_fee": 400,
+      "driver_price_base": 780,
+      "driver_price_low": 663,
+      "driver_price_high": 936,
+      "win_rate_pct": 66.7,
+      "sample_size": 3,
+      "std_dev": 17.32,
+      "high_risk": false
+    },
+    "Registration Violations": {
+      "avg_attny_price": 367.5,
+      "cdl_fee": 400,
+      "driver_price_base": 768,
+      "driver_price_low": 653,
+      "driver_price_high": 922,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 49.5,
+      "high_risk": true
+    }
+  },
+  "Illinois": {
+    "Careless Driving": {
+      "avg_attny_price": 450.0,
+      "cdl_fee": 400,
+      "driver_price_base": 850,
+      "driver_price_low": 722,
+      "driver_price_high": 1020,
+      "win_rate_pct": 100.0,
+      "sample_size": 17,
+      "std_dev": 94.06,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 100.0,
+      "sample_size": 6,
+      "std_dev": 24.58,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 387.5,
+      "cdl_fee": 400,
+      "driver_price_base": 788,
+      "driver_price_low": 670,
+      "driver_price_high": 946,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 455.93,
+      "cdl_fee": 400,
+      "driver_price_base": 856,
+      "driver_price_low": 728,
+      "driver_price_high": 1027,
+      "win_rate_pct": 94.9,
+      "sample_size": 59,
+      "std_dev": 86.91,
+      "high_risk": true
+    },
+    "Failure to yield to emergency vehicle": {
+      "avg_attny_price": 395.0,
+      "cdl_fee": 400,
+      "driver_price_base": 795,
+      "driver_price_low": 676,
+      "driver_price_high": 954,
+      "win_rate_pct": 80.0,
+      "sample_size": 5,
+      "std_dev": 88.91,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 425.0,
+      "cdl_fee": 400,
+      "driver_price_base": 825,
+      "driver_price_low": 701,
+      "driver_price_high": 990,
+      "win_rate_pct": 87.5,
+      "sample_size": 8,
+      "std_dev": 101.08,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 512.5,
+      "cdl_fee": 400,
+      "driver_price_base": 912,
+      "driver_price_low": 775,
+      "driver_price_high": 1094,
+      "win_rate_pct": 100.0,
+      "sample_size": 8,
+      "std_dev": 99.05,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 534.57,
+      "cdl_fee": 400,
+      "driver_price_base": 935,
+      "driver_price_low": 795,
+      "driver_price_high": 1122,
+      "win_rate_pct": 98.0,
+      "sample_size": 49,
+      "std_dev": 136.09,
+      "high_risk": true
+    },
+    "Too Fast for Conditions": {
+      "avg_attny_price": 550.0,
+      "cdl_fee": 400,
+      "driver_price_base": 950,
+      "driver_price_low": 808,
+      "driver_price_high": 1140,
+      "win_rate_pct": 88.0,
+      "sample_size": 25,
+      "std_dev": 189.97,
+      "high_risk": true
+    }
+  },
+  "Indiana": {
+    "ELD/Logs": {
+      "avg_attny_price": 775.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1175,
+      "driver_price_low": 999,
+      "driver_price_high": 1410,
+      "win_rate_pct": 33.3,
+      "sample_size": 3,
+      "std_dev": 76.38,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 304.5,
+      "cdl_fee": 400,
+      "driver_price_base": 704,
+      "driver_price_low": 598,
+      "driver_price_high": 845,
+      "win_rate_pct": 33.3,
+      "sample_size": 3,
+      "std_dev": 5.2,
+      "high_risk": false
+    },
+    "Failure to yield to emergency vehicle": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 0.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 21.4,
+      "sample_size": 14,
+      "std_dev": 212.29,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 60.0,
+      "sample_size": 5,
+      "std_dev": 81.86,
+      "high_risk": false
+    }
+  },
+  "Iowa": {
+    "Careless Driving": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 50.0,
+      "sample_size": 18,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 0.0,
+      "sample_size": 3,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Driver license violation": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 77.8,
+      "sample_size": 9,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 66.7,
+      "sample_size": 6,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 66.7,
+      "sample_size": 6,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 50.0,
+      "sample_size": 24,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 60.0,
+      "sample_size": 5,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Registration Violations": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Seatbelt": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 14.3,
+      "sample_size": 7,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 47.1,
+      "sample_size": 17,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 73.7,
+      "sample_size": 19,
+      "std_dev": 0,
+      "high_risk": false
+    }
+  },
+  "Kansas": {
+    "Alcohol / Drug related violation": {
+      "avg_attny_price": 850.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1250,
+      "driver_price_low": 1062,
+      "driver_price_high": 1500,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 900.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1300,
+      "driver_price_low": 1105,
+      "driver_price_high": 1560,
+      "win_rate_pct": 23.1,
+      "sample_size": 13,
+      "std_dev": 257.27,
+      "high_risk": true
+    },
+    "Failure to yield to emergency vehicle": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 875.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1275,
+      "driver_price_low": 1084,
+      "driver_price_high": 1530,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 70.71,
+      "high_risk": true
+    },
+    "Registration Violations": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 607.69,
+      "cdl_fee": 400,
+      "driver_price_base": 1008,
+      "driver_price_low": 857,
+      "driver_price_high": 1210,
+      "win_rate_pct": 76.9,
+      "sample_size": 26,
+      "std_dev": 165.84,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 666.2,
+      "cdl_fee": 400,
+      "driver_price_base": 1066,
+      "driver_price_low": 906,
+      "driver_price_high": 1279,
+      "win_rate_pct": 54.9,
+      "sample_size": 71,
+      "std_dev": 188.39,
+      "high_risk": true
+    }
+  },
+  "Kentucky": {
+    "Careless Driving": {
+      "avg_attny_price": 780.36,
+      "cdl_fee": 400,
+      "driver_price_base": 1180,
+      "driver_price_low": 1003,
+      "driver_price_high": 1416,
+      "win_rate_pct": 71.4,
+      "sample_size": 7,
+      "std_dev": 107.24,
+      "high_risk": true
+    },
+    "Driver license violation": {
+      "avg_attny_price": 712.5,
+      "cdl_fee": 400,
+      "driver_price_base": 1112,
+      "driver_price_low": 945,
+      "driver_price_high": 1334,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 106.07,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 618.75,
+      "cdl_fee": 400,
+      "driver_price_base": 1019,
+      "driver_price_low": 866,
+      "driver_price_high": 1223,
+      "win_rate_pct": 50.0,
+      "sample_size": 6,
+      "std_dev": 27.54,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 854.55,
+      "cdl_fee": 400,
+      "driver_price_base": 1255,
+      "driver_price_low": 1067,
+      "driver_price_high": 1506,
+      "win_rate_pct": 27.3,
+      "sample_size": 11,
+      "std_dev": 146.64,
+      "high_risk": true
+    },
+    "Registration Violations": {
+      "avg_attny_price": 775.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1175,
+      "driver_price_low": 999,
+      "driver_price_high": 1410,
+      "win_rate_pct": 75.0,
+      "sample_size": 8,
+      "std_dev": 235.28,
+      "high_risk": true
+    },
+    "Seatbelt": {
+      "avg_attny_price": 1390.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1790,
+      "driver_price_low": 1522,
+      "driver_price_high": 2148,
+      "win_rate_pct": 60.0,
+      "sample_size": 5,
+      "std_dev": 443.33,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 725.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1125,
+      "driver_price_low": 956,
+      "driver_price_high": 1350,
+      "win_rate_pct": 100.0,
+      "sample_size": 10,
+      "std_dev": 239.35,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 88.9,
+      "sample_size": 18,
+      "std_dev": 225.98,
+      "high_risk": false
+    }
+  },
+  "Louisiana": {
+    "Careless Driving": {
+      "avg_attny_price": 356.25,
+      "cdl_fee": 400,
+      "driver_price_base": 756,
+      "driver_price_low": 643,
+      "driver_price_high": 907,
+      "win_rate_pct": 87.5,
+      "sample_size": 16,
+      "std_dev": 59.8,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 98.7,
+      "sample_size": 153,
+      "std_dev": 63.08,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 100.0,
+      "sample_size": 4,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Registration Violations": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 92.6,
+      "sample_size": 27,
+      "std_dev": 38.49,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 100.0,
+      "sample_size": 35,
+      "std_dev": 33.81,
+      "high_risk": false
+    }
+  },
+  "Maryland": {
+    "Careless Driving": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Reckless Driving": {
+      "avg_attny_price": 437.5,
+      "cdl_fee": 400,
+      "driver_price_base": 838,
+      "driver_price_low": 712,
+      "driver_price_high": 1006,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 330.0,
+      "cdl_fee": 400,
+      "driver_price_base": 730,
+      "driver_price_low": 620,
+      "driver_price_high": 876,
+      "win_rate_pct": 100.0,
+      "sample_size": 5,
+      "std_dev": 32.12,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 151.17,
+      "high_risk": false
+    }
+  },
+  "Michigan": {
+    "Careless Driving": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 50.89,
+      "high_risk": false
+    },
+    "Cell Phone": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 95.0,
+      "sample_size": 20,
+      "std_dev": 89.26,
+      "high_risk": false
+    },
+    "Driver license violation": {
+      "avg_attny_price": 987.5,
+      "cdl_fee": 400,
+      "driver_price_base": 1388,
+      "driver_price_low": 1180,
+      "driver_price_high": 1666,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 91.7,
+      "sample_size": 12,
+      "std_dev": 55.73,
+      "high_risk": false
+    },
+    "Following too close": {
+      "avg_attny_price": 387.5,
+      "cdl_fee": 400,
+      "driver_price_base": 788,
+      "driver_price_low": 670,
+      "driver_price_high": 946,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 568.75,
+      "cdl_fee": 400,
+      "driver_price_base": 969,
+      "driver_price_low": 824,
+      "driver_price_high": 1163,
+      "win_rate_pct": 85.7,
+      "sample_size": 14,
+      "std_dev": 108.96,
+      "high_risk": false
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 100.0,
+      "sample_size": 10,
+      "std_dev": 83.37,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 83.3,
+      "sample_size": 12,
+      "std_dev": 32.57,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 28.87,
+      "high_risk": false
+    }
+  },
+  "Minnesota": {
+    "Cell Phone": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 0.0,
+      "sample_size": 3,
+      "std_dev": 8.66,
+      "high_risk": true
+    },
+    "Driver license violation": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 57.1,
+      "sample_size": 7,
+      "std_dev": 16.94,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 297.5,
+      "cdl_fee": 400,
+      "driver_price_base": 698,
+      "driver_price_low": 593,
+      "driver_price_high": 838,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 7.07,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 40.0,
+      "sample_size": 5,
+      "std_dev": 37.08,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 71.4,
+      "sample_size": 7,
+      "std_dev": 9.45,
+      "high_risk": false
+    }
+  },
+  "Mississippi": {
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 519.75,
+      "cdl_fee": 400,
+      "driver_price_base": 920,
+      "driver_price_low": 782,
+      "driver_price_high": 1104,
+      "win_rate_pct": 91.4,
+      "sample_size": 35,
+      "std_dev": 158.6,
+      "high_risk": false
+    },
+    "Following too close": {
+      "avg_attny_price": 587.5,
+      "cdl_fee": 400,
+      "driver_price_base": 988,
+      "driver_price_low": 840,
+      "driver_price_high": 1186,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 612.5,
+      "cdl_fee": 400,
+      "driver_price_base": 1012,
+      "driver_price_low": 860,
+      "driver_price_high": 1214,
+      "win_rate_pct": 83.3,
+      "sample_size": 24,
+      "std_dev": 117.36,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 600.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1000,
+      "driver_price_low": 850,
+      "driver_price_high": 1200,
+      "win_rate_pct": 95.2,
+      "sample_size": 21,
+      "std_dev": 146.87,
+      "high_risk": false
+    }
+  },
+  "Missouri": {
+    "Careless Driving": {
+      "avg_attny_price": 1000.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1400,
+      "driver_price_low": 1190,
+      "driver_price_high": 1680,
+      "win_rate_pct": 60.0,
+      "sample_size": 5,
+      "std_dev": 207.97,
+      "high_risk": true
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 33.3,
+      "sample_size": 3,
+      "std_dev": 28.87,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 4,
+      "std_dev": 75,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 475.0,
+      "cdl_fee": 400,
+      "driver_price_base": 875,
+      "driver_price_low": 744,
+      "driver_price_high": 1050,
+      "win_rate_pct": 86.4,
+      "sample_size": 22,
+      "std_dev": 154.96,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 331.25,
+      "cdl_fee": 400,
+      "driver_price_base": 731,
+      "driver_price_low": 621,
+      "driver_price_high": 877,
+      "win_rate_pct": 100.0,
+      "sample_size": 8,
+      "std_dev": 113.98,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 337.5,
+      "cdl_fee": 400,
+      "driver_price_base": 738,
+      "driver_price_low": 627,
+      "driver_price_high": 886,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 22,
+      "std_dev": 141.31,
+      "high_risk": false
+    }
+  },
+  "Montana": {
+    "Careless Driving": {
+      "avg_attny_price": 675.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1075,
+      "driver_price_low": 914,
+      "driver_price_high": 1290,
+      "win_rate_pct": 66.7,
+      "sample_size": 6,
+      "std_dev": 57.74,
+      "high_risk": true
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 600.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1000,
+      "driver_price_low": 850,
+      "driver_price_high": 1200,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 600.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1000,
+      "driver_price_low": 850,
+      "driver_price_high": 1200,
+      "win_rate_pct": 0.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 630.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1030,
+      "driver_price_low": 876,
+      "driver_price_high": 1236,
+      "win_rate_pct": 60.0,
+      "sample_size": 5,
+      "std_dev": 57.74,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 700.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1100,
+      "driver_price_low": 935,
+      "driver_price_high": 1320,
+      "win_rate_pct": 83.3,
+      "sample_size": 6,
+      "std_dev": 49.16,
+      "high_risk": false
+    }
+  },
+  "Nebraska": {
+    "ELD/Logs": {
+      "avg_attny_price": 470.0,
+      "cdl_fee": 400,
+      "driver_price_base": 870,
+      "driver_price_low": 740,
+      "driver_price_high": 1044,
+      "win_rate_pct": 60.0,
+      "sample_size": 15,
+      "std_dev": 118.35,
+      "high_risk": true
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 355.0,
+      "cdl_fee": 400,
+      "driver_price_base": 755,
+      "driver_price_low": 642,
+      "driver_price_high": 906,
+      "win_rate_pct": 0.0,
+      "sample_size": 5,
+      "std_dev": 70.71,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 88.5,
+      "sample_size": 26,
+      "std_dev": 131.53,
+      "high_risk": false
+    }
+  },
+  "Nevada": {
+    "Cell Phone": {
+      "avg_attny_price": 1250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1650,
+      "driver_price_low": 1402,
+      "driver_price_high": 1980,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 101.61,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 1006.25,
+      "cdl_fee": 400,
+      "driver_price_base": 1406,
+      "driver_price_low": 1195,
+      "driver_price_high": 1687,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 53.03,
+      "high_risk": false
+    }
+  },
+  "New Jersey": {
+    "Careless Driving": {
+      "avg_attny_price": 343.06,
+      "cdl_fee": 400,
+      "driver_price_base": 743,
+      "driver_price_low": 632,
+      "driver_price_high": 892,
+      "win_rate_pct": 96.3,
+      "sample_size": 27,
+      "std_dev": 57.76,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 275.0,
+      "cdl_fee": 400,
+      "driver_price_base": 675,
+      "driver_price_low": 574,
+      "driver_price_high": 810,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Driver license violation": {
+      "avg_attny_price": 375.0,
+      "cdl_fee": 400,
+      "driver_price_base": 775,
+      "driver_price_low": 659,
+      "driver_price_high": 930,
+      "win_rate_pct": 100.0,
+      "sample_size": 8,
+      "std_dev": 76.76,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 275.0,
+      "cdl_fee": 400,
+      "driver_price_base": 675,
+      "driver_price_low": 574,
+      "driver_price_high": 810,
+      "win_rate_pct": 97.6,
+      "sample_size": 41,
+      "std_dev": 46.62,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 275.0,
+      "cdl_fee": 400,
+      "driver_price_base": 675,
+      "driver_price_low": 574,
+      "driver_price_high": 810,
+      "win_rate_pct": 100.0,
+      "sample_size": 34,
+      "std_dev": 42.31,
+      "high_risk": false
+    },
+    "Parking": {
+      "avg_attny_price": 275.0,
+      "cdl_fee": 400,
+      "driver_price_base": 675,
+      "driver_price_low": 574,
+      "driver_price_high": 810,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Registration Violations": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 80.18,
+      "high_risk": false
+    }
+  },
+  "New Mexico": {
+    "Careless Driving": {
+      "avg_attny_price": 1034.84,
+      "cdl_fee": 400,
+      "driver_price_base": 1435,
+      "driver_price_low": 1220,
+      "driver_price_high": 1722,
+      "win_rate_pct": 100.0,
+      "sample_size": 9,
+      "std_dev": 335.69,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 427.29,
+      "cdl_fee": 400,
+      "driver_price_base": 827,
+      "driver_price_low": 703,
+      "driver_price_high": 992,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 17.73,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 424.54,
+      "cdl_fee": 400,
+      "driver_price_base": 825,
+      "driver_price_low": 701,
+      "driver_price_high": 990,
+      "win_rate_pct": 100.0,
+      "sample_size": 23,
+      "std_dev": 98.13,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 337.5,
+      "cdl_fee": 400,
+      "driver_price_base": 738,
+      "driver_price_low": 627,
+      "driver_price_high": 886,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 429.25,
+      "cdl_fee": 400,
+      "driver_price_base": 829,
+      "driver_price_low": 705,
+      "driver_price_high": 995,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 50.24,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 414.01,
+      "cdl_fee": 400,
+      "driver_price_base": 814,
+      "driver_price_low": 692,
+      "driver_price_high": 977,
+      "win_rate_pct": 96.8,
+      "sample_size": 31,
+      "std_dev": 78.9,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 433.56,
+      "cdl_fee": 400,
+      "driver_price_base": 834,
+      "driver_price_low": 709,
+      "driver_price_high": 1001,
+      "win_rate_pct": 100.0,
+      "sample_size": 13,
+      "std_dev": 145.83,
+      "high_risk": false
+    }
+  },
+  "New York": {
+    "Careless Driving": {
+      "avg_attny_price": 351.79,
+      "cdl_fee": 400,
+      "driver_price_base": 752,
+      "driver_price_low": 639,
+      "driver_price_high": 902,
+      "win_rate_pct": 100.0,
+      "sample_size": 14,
+      "std_dev": 100.38,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 175.0,
+      "cdl_fee": 400,
+      "driver_price_base": 575,
+      "driver_price_low": 489,
+      "driver_price_high": 690,
+      "win_rate_pct": 75.0,
+      "sample_size": 4,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Driver license violation": {
+      "avg_attny_price": 200.0,
+      "cdl_fee": 400,
+      "driver_price_base": 600,
+      "driver_price_low": 510,
+      "driver_price_high": 720,
+      "win_rate_pct": 100.0,
+      "sample_size": 4,
+      "std_dev": 14.43,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 200.0,
+      "cdl_fee": 400,
+      "driver_price_base": 600,
+      "driver_price_low": 510,
+      "driver_price_high": 720,
+      "win_rate_pct": 98.5,
+      "sample_size": 68,
+      "std_dev": 57.3,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 475.0,
+      "cdl_fee": 400,
+      "driver_price_base": 875,
+      "driver_price_low": 744,
+      "driver_price_high": 1050,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 70.71,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 200.0,
+      "cdl_fee": 400,
+      "driver_price_base": 600,
+      "driver_price_low": 510,
+      "driver_price_high": 720,
+      "win_rate_pct": 100.0,
+      "sample_size": 12,
+      "std_dev": 24.91,
+      "high_risk": false
+    }
+  },
+  "North Carolina": {
+    "Cell Phone": {
+      "avg_attny_price": 250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 650,
+      "driver_price_low": 552,
+      "driver_price_high": 780,
+      "win_rate_pct": 88.9,
+      "sample_size": 9,
+      "std_dev": 18.29,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 303.33,
+      "cdl_fee": 400,
+      "driver_price_base": 703,
+      "driver_price_low": 598,
+      "driver_price_high": 844,
+      "win_rate_pct": 100.0,
+      "sample_size": 30,
+      "std_dev": 75.68,
+      "high_risk": true
+    },
+    "Seatbelt": {
+      "avg_attny_price": 250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 650,
+      "driver_price_low": 552,
+      "driver_price_high": 780,
+      "win_rate_pct": 90.9,
+      "sample_size": 22,
+      "std_dev": 61.38,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 289.38,
+      "cdl_fee": 400,
+      "driver_price_base": 689,
+      "driver_price_low": 586,
+      "driver_price_high": 827,
+      "win_rate_pct": 100.0,
+      "sample_size": 30,
+      "std_dev": 87.08,
+      "high_risk": false
+    }
+  },
+  "Ohio": {
+    "Cell Phone": {
+      "avg_attny_price": 250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 650,
+      "driver_price_low": 552,
+      "driver_price_high": 780,
+      "win_rate_pct": 94.4,
+      "sample_size": 36,
+      "std_dev": 23.88,
+      "high_risk": true
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 650,
+      "driver_price_low": 552,
+      "driver_price_high": 780,
+      "win_rate_pct": 95.8,
+      "sample_size": 72,
+      "std_dev": 86.75,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 94.1,
+      "sample_size": 17,
+      "std_dev": 43.72,
+      "high_risk": false
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 587.5,
+      "cdl_fee": 400,
+      "driver_price_base": 988,
+      "driver_price_low": 840,
+      "driver_price_high": 1186,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": true
+    },
+    "Registration Violations": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 9,
+      "std_dev": 126.11,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 650,
+      "driver_price_low": 552,
+      "driver_price_high": 780,
+      "win_rate_pct": 85.7,
+      "sample_size": 7,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 250.0,
+      "cdl_fee": 400,
+      "driver_price_base": 650,
+      "driver_price_low": 552,
+      "driver_price_high": 780,
+      "win_rate_pct": 100.0,
+      "sample_size": 43,
+      "std_dev": 82.39,
+      "high_risk": false
+    }
+  },
+  "Oklahoma": {
+    "Cell Phone": {
+      "avg_attny_price": 587.5,
+      "cdl_fee": 400,
+      "driver_price_base": 988,
+      "driver_price_low": 840,
+      "driver_price_high": 1186,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 84.6,
+      "sample_size": 13,
+      "std_dev": 174.27,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 75.0,
+      "sample_size": 8,
+      "std_dev": 193.16,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 675.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1075,
+      "driver_price_low": 914,
+      "driver_price_high": 1290,
+      "win_rate_pct": 100.0,
+      "sample_size": 28,
+      "std_dev": 216.22,
+      "high_risk": false
+    }
+  },
+  "Oregon": {
+    "Equipment/Maintenance": {
+      "avg_attny_price": 487.5,
+      "cdl_fee": 400,
+      "driver_price_base": 888,
+      "driver_price_low": 755,
+      "driver_price_high": 1066,
+      "win_rate_pct": 83.3,
+      "sample_size": 6,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 384.38,
+      "cdl_fee": 400,
+      "driver_price_base": 784,
+      "driver_price_low": 666,
+      "driver_price_high": 941,
+      "win_rate_pct": 31.2,
+      "sample_size": 16,
+      "std_dev": 54.67,
+      "high_risk": true
+    },
+    "Registration Violations": {
+      "avg_attny_price": 395.83,
+      "cdl_fee": 400,
+      "driver_price_base": 796,
+      "driver_price_low": 677,
+      "driver_price_high": 955,
+      "win_rate_pct": 66.7,
+      "sample_size": 12,
+      "std_dev": 48.61,
+      "high_risk": true
+    },
+    "Seatbelt": {
+      "avg_attny_price": 287.5,
+      "cdl_fee": 400,
+      "driver_price_base": 688,
+      "driver_price_low": 585,
+      "driver_price_high": 826,
+      "win_rate_pct": 0.0,
+      "sample_size": 2,
+      "std_dev": 35.36,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 31.2,
+      "sample_size": 16,
+      "std_dev": 46.43,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 410.37,
+      "cdl_fee": 400,
+      "driver_price_base": 810,
+      "driver_price_low": 688,
+      "driver_price_high": 972,
+      "win_rate_pct": 22.0,
+      "sample_size": 41,
+      "std_dev": 76.12,
+      "high_risk": true
+    }
+  },
+  "Pennsylvania": {
+    "Careless Driving": {
+      "avg_attny_price": 505.26,
+      "cdl_fee": 400,
+      "driver_price_base": 905,
+      "driver_price_low": 769,
+      "driver_price_high": 1086,
+      "win_rate_pct": 81.6,
+      "sample_size": 38,
+      "std_dev": 134.87,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 480.77,
+      "cdl_fee": 400,
+      "driver_price_base": 881,
+      "driver_price_low": 749,
+      "driver_price_high": 1057,
+      "win_rate_pct": 84.6,
+      "sample_size": 13,
+      "std_dev": 108.45,
+      "high_risk": true
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 387.5,
+      "cdl_fee": 400,
+      "driver_price_base": 788,
+      "driver_price_low": 670,
+      "driver_price_high": 946,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 25,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 550.0,
+      "cdl_fee": 400,
+      "driver_price_base": 950,
+      "driver_price_low": 808,
+      "driver_price_high": 1140,
+      "win_rate_pct": 100.0,
+      "sample_size": 29,
+      "std_dev": 166.66,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 565.64,
+      "cdl_fee": 400,
+      "driver_price_base": 966,
+      "driver_price_low": 821,
+      "driver_price_high": 1159,
+      "win_rate_pct": 89.3,
+      "sample_size": 112,
+      "std_dev": 146.67,
+      "high_risk": true
+    },
+    "Failure to yield to emergency vehicle": {
+      "avg_attny_price": 341.25,
+      "cdl_fee": 400,
+      "driver_price_base": 741,
+      "driver_price_low": 630,
+      "driver_price_high": 889,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 38.89,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 509.51,
+      "cdl_fee": 400,
+      "driver_price_base": 910,
+      "driver_price_low": 774,
+      "driver_price_high": 1092,
+      "win_rate_pct": 80.4,
+      "sample_size": 46,
+      "std_dev": 139.78,
+      "high_risk": true
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 475.0,
+      "cdl_fee": 400,
+      "driver_price_base": 875,
+      "driver_price_low": 744,
+      "driver_price_high": 1050,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 70.71,
+      "high_risk": true
+    },
+    "Registration Violations": {
+      "avg_attny_price": 551.94,
+      "cdl_fee": 400,
+      "driver_price_base": 952,
+      "driver_price_low": 809,
+      "driver_price_high": 1142,
+      "win_rate_pct": 60.0,
+      "sample_size": 10,
+      "std_dev": 182.95,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 387.5,
+      "cdl_fee": 400,
+      "driver_price_base": 788,
+      "driver_price_low": 670,
+      "driver_price_high": 946,
+      "win_rate_pct": 100.0,
+      "sample_size": 11,
+      "std_dev": 61.92,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 450.0,
+      "cdl_fee": 400,
+      "driver_price_base": 850,
+      "driver_price_low": 722,
+      "driver_price_high": 1020,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 148.62,
+      "high_risk": false
+    },
+    "Too Fast for Conditions": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 85.7,
+      "sample_size": 7,
+      "std_dev": 89.93,
+      "high_risk": true
+    }
+  },
+  "Rhode Island": {
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 756.2,
+      "cdl_fee": 400,
+      "driver_price_base": 1156,
+      "driver_price_low": 983,
+      "driver_price_high": 1387,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 7.93,
+      "high_risk": false
+    }
+  },
+  "South Carolina": {
+    "Cell Phone": {
+      "avg_attny_price": 950.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1350,
+      "driver_price_low": 1148,
+      "driver_price_high": 1620,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 950.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1350,
+      "driver_price_low": 1148,
+      "driver_price_high": 1620,
+      "win_rate_pct": 81.8,
+      "sample_size": 11,
+      "std_dev": 150.18,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 950.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1350,
+      "driver_price_low": 1148,
+      "driver_price_high": 1620,
+      "win_rate_pct": 58.3,
+      "sample_size": 12,
+      "std_dev": 197.09,
+      "high_risk": true
+    },
+    "Reckless Driving": {
+      "avg_attny_price": 1200.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1600,
+      "driver_price_low": 1360,
+      "driver_price_high": 1920,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 950.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1350,
+      "driver_price_low": 1148,
+      "driver_price_high": 1620,
+      "win_rate_pct": 40.0,
+      "sample_size": 5,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 950.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1350,
+      "driver_price_low": 1148,
+      "driver_price_high": 1620,
+      "win_rate_pct": 89.5,
+      "sample_size": 19,
+      "std_dev": 127.35,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 950.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1350,
+      "driver_price_low": 1148,
+      "driver_price_high": 1620,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 236.04,
+      "high_risk": false
+    },
+    "Too Fast for Conditions": {
+      "avg_attny_price": 1137.5,
+      "cdl_fee": 400,
+      "driver_price_base": 1538,
+      "driver_price_low": 1307,
+      "driver_price_high": 1846,
+      "win_rate_pct": 100.0,
+      "sample_size": 6,
+      "std_dev": 311.05,
+      "high_risk": true
+    }
+  },
+  "Tennessee": {
+    "Careless Driving": {
+      "avg_attny_price": 600.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1000,
+      "driver_price_low": 850,
+      "driver_price_high": 1200,
+      "win_rate_pct": 100.0,
+      "sample_size": 10,
+      "std_dev": 156.91,
+      "high_risk": false
+    },
+    "Driver license violation": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 100.0,
+      "sample_size": 5,
+      "std_dev": 190.53,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 675.81,
+      "cdl_fee": 400,
+      "driver_price_base": 1076,
+      "driver_price_low": 915,
+      "driver_price_high": 1291,
+      "win_rate_pct": 93.5,
+      "sample_size": 31,
+      "std_dev": 79.64,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 688.89,
+      "cdl_fee": 400,
+      "driver_price_base": 1089,
+      "driver_price_low": 926,
+      "driver_price_high": 1307,
+      "win_rate_pct": 100.0,
+      "sample_size": 9,
+      "std_dev": 161.04,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 645.24,
+      "cdl_fee": 400,
+      "driver_price_base": 1045,
+      "driver_price_low": 888,
+      "driver_price_high": 1254,
+      "win_rate_pct": 95.2,
+      "sample_size": 63,
+      "std_dev": 97.49,
+      "high_risk": true
+    }
+  },
+  "Texas": {
+    "Driver license violation": {
+      "avg_attny_price": 425.0,
+      "cdl_fee": 400,
+      "driver_price_base": 825,
+      "driver_price_low": 701,
+      "driver_price_high": 990,
+      "win_rate_pct": 100.0,
+      "sample_size": 5,
+      "std_dev": 99.37,
+      "high_risk": false
+    },
+    "ELD/Logs": {
+      "avg_attny_price": 330.0,
+      "cdl_fee": 400,
+      "driver_price_base": 730,
+      "driver_price_low": 620,
+      "driver_price_high": 876,
+      "win_rate_pct": 100.0,
+      "sample_size": 5,
+      "std_dev": 105.5,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 325.0,
+      "cdl_fee": 400,
+      "driver_price_base": 725,
+      "driver_price_low": 616,
+      "driver_price_high": 870,
+      "win_rate_pct": 96.3,
+      "sample_size": 27,
+      "std_dev": 89.14,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 425.0,
+      "cdl_fee": 400,
+      "driver_price_base": 825,
+      "driver_price_low": 701,
+      "driver_price_high": 990,
+      "win_rate_pct": 89.5,
+      "sample_size": 57,
+      "std_dev": 143.16,
+      "high_risk": false
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 337.5,
+      "cdl_fee": 400,
+      "driver_price_base": 738,
+      "driver_price_low": 627,
+      "driver_price_high": 886,
+      "win_rate_pct": 88.9,
+      "sample_size": 9,
+      "std_dev": 116.99,
+      "high_risk": true
+    },
+    "Registration Violations": {
+      "avg_attny_price": 418.75,
+      "cdl_fee": 400,
+      "driver_price_base": 819,
+      "driver_price_low": 696,
+      "driver_price_high": 983,
+      "win_rate_pct": 85.7,
+      "sample_size": 14,
+      "std_dev": 111.96,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Too Fast for Conditions": {
+      "avg_attny_price": 787.5,
+      "cdl_fee": 400,
+      "driver_price_base": 1188,
+      "driver_price_low": 1010,
+      "driver_price_high": 1426,
+      "win_rate_pct": 90.0,
+      "sample_size": 10,
+      "std_dev": 272.11,
+      "high_risk": true
+    }
+  },
+  "Utah": {
+    "Careless Driving": {
+      "avg_attny_price": 666.67,
+      "cdl_fee": 400,
+      "driver_price_base": 1067,
+      "driver_price_low": 907,
+      "driver_price_high": 1280,
+      "win_rate_pct": 66.7,
+      "sample_size": 6,
+      "std_dev": 57.74,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 700.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1100,
+      "driver_price_low": 935,
+      "driver_price_high": 1320,
+      "win_rate_pct": 25.0,
+      "sample_size": 4,
+      "std_dev": 50,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 600.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1000,
+      "driver_price_low": 850,
+      "driver_price_high": 1200,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 700.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1100,
+      "driver_price_low": 935,
+      "driver_price_high": 1320,
+      "win_rate_pct": 55.0,
+      "sample_size": 20,
+      "std_dev": 117.38,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 625.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1025,
+      "driver_price_low": 871,
+      "driver_price_high": 1230,
+      "win_rate_pct": 75.0,
+      "sample_size": 4,
+      "std_dev": 50,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 625.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1025,
+      "driver_price_low": 871,
+      "driver_price_high": 1230,
+      "win_rate_pct": 92.9,
+      "sample_size": 14,
+      "std_dev": 48.8,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 680.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1080,
+      "driver_price_low": 918,
+      "driver_price_high": 1296,
+      "win_rate_pct": 90.0,
+      "sample_size": 10,
+      "std_dev": 59.39,
+      "high_risk": true
+    }
+  },
+  "Virginia": {
+    "Careless Driving": {
+      "avg_attny_price": 708.33,
+      "cdl_fee": 400,
+      "driver_price_base": 1108,
+      "driver_price_low": 942,
+      "driver_price_high": 1330,
+      "win_rate_pct": 100.0,
+      "sample_size": 18,
+      "std_dev": 153.13,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 100.0,
+      "sample_size": 8,
+      "std_dev": 124.64,
+      "high_risk": false
+    },
+    "Driver license violation": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 557.5,
+      "cdl_fee": 400,
+      "driver_price_base": 958,
+      "driver_price_low": 814,
+      "driver_price_high": 1150,
+      "win_rate_pct": 96.3,
+      "sample_size": 27,
+      "std_dev": 151.26,
+      "high_risk": false
+    },
+    "Following too close": {
+      "avg_attny_price": 712.5,
+      "cdl_fee": 400,
+      "driver_price_base": 1112,
+      "driver_price_low": 945,
+      "driver_price_high": 1334,
+      "win_rate_pct": 100.0,
+      "sample_size": 6,
+      "std_dev": 133.43,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 536.25,
+      "cdl_fee": 400,
+      "driver_price_base": 936,
+      "driver_price_low": 796,
+      "driver_price_high": 1123,
+      "win_rate_pct": 90.0,
+      "sample_size": 20,
+      "std_dev": 113.38,
+      "high_risk": true
+    },
+    "Reckless Driving": {
+      "avg_attny_price": 824.61,
+      "cdl_fee": 400,
+      "driver_price_base": 1225,
+      "driver_price_low": 1041,
+      "driver_price_high": 1470,
+      "win_rate_pct": 94.7,
+      "sample_size": 19,
+      "std_dev": 218.24,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 84.6,
+      "sample_size": 13,
+      "std_dev": 207,
+      "high_risk": false
+    }
+  },
+  "Washington": {
+    "Careless Driving": {
+      "avg_attny_price": 400.0,
+      "cdl_fee": 400,
+      "driver_price_base": 800,
+      "driver_price_low": 680,
+      "driver_price_high": 960,
+      "win_rate_pct": 75.0,
+      "sample_size": 4,
+      "std_dev": 57.74,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 88.2,
+      "sample_size": 17,
+      "std_dev": 85.72,
+      "high_risk": false
+    },
+    "Equipment/Maintenance": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 87.5,
+      "sample_size": 8,
+      "std_dev": 94.43,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 83.3,
+      "sample_size": 12,
+      "std_dev": 58.23,
+      "high_risk": false
+    },
+    "Lane Violation": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 100.0,
+      "sample_size": 11,
+      "std_dev": 46.49,
+      "high_risk": false
+    },
+    "Registration Violations": {
+      "avg_attny_price": 312.5,
+      "cdl_fee": 400,
+      "driver_price_base": 712,
+      "driver_price_low": 605,
+      "driver_price_high": 854,
+      "win_rate_pct": 66.7,
+      "sample_size": 3,
+      "std_dev": 25,
+      "high_risk": false
+    },
+    "Seatbelt": {
+      "avg_attny_price": 325.0,
+      "cdl_fee": 400,
+      "driver_price_base": 725,
+      "driver_price_low": 616,
+      "driver_price_high": 870,
+      "win_rate_pct": 81.8,
+      "sample_size": 11,
+      "std_dev": 55.7,
+      "high_risk": false
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 94.4,
+      "sample_size": 18,
+      "std_dev": 39.47,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 350.0,
+      "cdl_fee": 400,
+      "driver_price_base": 750,
+      "driver_price_low": 638,
+      "driver_price_high": 900,
+      "win_rate_pct": 100.0,
+      "sample_size": 22,
+      "std_dev": 110.64,
+      "high_risk": false
+    }
+  },
+  "West Virginia": {
+    "Careless Driving": {
+      "avg_attny_price": 475.0,
+      "cdl_fee": 400,
+      "driver_price_base": 875,
+      "driver_price_low": 744,
+      "driver_price_high": 1050,
+      "win_rate_pct": 50.0,
+      "sample_size": 2,
+      "std_dev": 70.71,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 515.0,
+      "cdl_fee": 400,
+      "driver_price_base": 915,
+      "driver_price_low": 778,
+      "driver_price_high": 1098,
+      "win_rate_pct": 0.0,
+      "sample_size": 2,
+      "std_dev": 14.14,
+      "high_risk": true
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 520.0,
+      "cdl_fee": 400,
+      "driver_price_base": 920,
+      "driver_price_low": 782,
+      "driver_price_high": 1104,
+      "win_rate_pct": 40.0,
+      "sample_size": 5,
+      "std_dev": 65.42,
+      "high_risk": true
+    },
+    "Reckless Driving": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 28.87,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 500.0,
+      "cdl_fee": 400,
+      "driver_price_base": 900,
+      "driver_price_low": 765,
+      "driver_price_high": 1080,
+      "win_rate_pct": 92.3,
+      "sample_size": 13,
+      "std_dev": 73.16,
+      "high_risk": false
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 515.0,
+      "cdl_fee": 400,
+      "driver_price_base": 915,
+      "driver_price_low": 778,
+      "driver_price_high": 1098,
+      "win_rate_pct": 88.9,
+      "sample_size": 9,
+      "std_dev": 135.36,
+      "high_risk": false
+    }
+  },
+  "Wisconsin": {
+    "Careless Driving": {
+      "avg_attny_price": 199.0,
+      "cdl_fee": 400,
+      "driver_price_base": 599,
+      "driver_price_low": 509,
+      "driver_price_high": 719,
+      "win_rate_pct": 100.0,
+      "sample_size": 3,
+      "std_dev": 19.63,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 299.0,
+      "cdl_fee": 400,
+      "driver_price_base": 699,
+      "driver_price_low": 594,
+      "driver_price_high": 839,
+      "win_rate_pct": 100.0,
+      "sample_size": 5,
+      "std_dev": 54.96,
+      "high_risk": false
+    },
+    "Overweight/Overlength": {
+      "avg_attny_price": 427.18,
+      "cdl_fee": 400,
+      "driver_price_base": 827,
+      "driver_price_low": 703,
+      "driver_price_high": 992,
+      "win_rate_pct": 90.9,
+      "sample_size": 22,
+      "std_dev": 113.42,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 300.0,
+      "cdl_fee": 400,
+      "driver_price_base": 700,
+      "driver_price_low": 595,
+      "driver_price_high": 840,
+      "win_rate_pct": 100.0,
+      "sample_size": 7,
+      "std_dev": 64.77,
+      "high_risk": false
+    }
+  },
+  "Wyoming": {
+    "Careless Driving": {
+      "avg_attny_price": 756.82,
+      "cdl_fee": 400,
+      "driver_price_base": 1157,
+      "driver_price_low": 983,
+      "driver_price_high": 1388,
+      "win_rate_pct": 54.5,
+      "sample_size": 11,
+      "std_dev": 59.14,
+      "high_risk": true
+    },
+    "Cell Phone": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 100.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Driver license violation": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 50.0,
+      "sample_size": 4,
+      "std_dev": 0,
+      "high_risk": false
+    },
+    "Failure to Obey Traffic Control Device": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 83.3,
+      "sample_size": 6,
+      "std_dev": 20.41,
+      "high_risk": false
+    },
+    "Following too close": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 0.0,
+      "sample_size": 2,
+      "std_dev": 0,
+      "high_risk": true
+    },
+    "Lane Violation": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 25.0,
+      "sample_size": 8,
+      "std_dev": 40.25,
+      "high_risk": true
+    },
+    "Speeding (1-14)": {
+      "avg_attny_price": 750.0,
+      "cdl_fee": 400,
+      "driver_price_base": 1150,
+      "driver_price_low": 978,
+      "driver_price_high": 1380,
+      "win_rate_pct": 83.3,
+      "sample_size": 12,
+      "std_dev": 17.68,
+      "high_risk": true
+    },
+    "Speeding (15+)": {
+      "avg_attny_price": 793.75,
+      "cdl_fee": 400,
+      "driver_price_base": 1194,
+      "driver_price_low": 1015,
+      "driver_price_high": 1433,
+      "win_rate_pct": 85.0,
+      "sample_size": 20,
+      "std_dev": 71.79,
+      "high_risk": true
+    }
+  }
+}

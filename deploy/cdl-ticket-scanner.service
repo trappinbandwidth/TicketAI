@@ -1,0 +1,30 @@
+[Unit]
+Description=CDL Legal — AI Ticket Scanner API
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cdlscanner
+Group=cdlscanner
+WorkingDirectory=/srv/cdl-ticket-scanner
+EnvironmentFile=/srv/cdl-ticket-scanner/.env
+ExecStart=/srv/cdl-ticket-scanner/.venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --workers 2 \
+    --timeout-keep-alive 120
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cdl-ticket-scanner
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/srv/cdl-ticket-scanner/data /srv/cdl-ticket-scanner/training_data
+
+[Install]
+WantedBy=multi-user.target
