@@ -1,7 +1,7 @@
 import { constantsVale } from './common-service/types.interface';
 
 export const constants: constantsVale = {
-  API_BASE: `${import.meta.env.VITE_REACT_APP_BASE_URL}/CDLLegalCarrierService`,
+  API_BASE: `${import.meta.env.VITE_REACT_APP_BASE_URL}/RigResolveCarrierService`,
   API_VERSION: 'api/v1/',
   PAGINATION_CURRENT_PAGE: 1,
   PAGINATION_ITEM_PER_PAGE: 10,

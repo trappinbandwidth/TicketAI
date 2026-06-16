@@ -8,6 +8,6 @@ export type ConfigValue = {
 // ----------------------------------------------------------------------
 
 export const CONFIG: ConfigValue = {
-  appName: 'Member Portal | CDL LEGAL',
+  appName: 'Rig Resolve | Member Portal',
   appVersion: import.meta.env.VITE_APP_VERSION || '0.0.0',
 };

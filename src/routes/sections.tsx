@@ -76,7 +76,7 @@ export function Router() {
   }, [menuQuery.data]);
 
   const handleReactivate = () => {
-    window.location.href = 'mailto:protect@cdllegal.com?subject=Membership%20Reactivation';
+    window.location.href = 'mailto:support@rigresolve.com?subject=Membership%20Reactivation';
   };
 
   useEffect(() => {

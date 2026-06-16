@@ -41,7 +41,7 @@ export default function PrivacySecurityPage() {
                         variant="secondary"
                         fullWidth
                         size="lg"
-                        onClick={() => window.open('https://cdllegal.com/privacy', '_blank')}
+                        onClick={() => window.open('https://rigresolve.com/privacy', '_blank')}
                         className="justify-start gap-2 border border-slate-200 bg-white px-4 text-[#1a365d]"
                     >
                         <LucideIcon name="FileText" size={20} />

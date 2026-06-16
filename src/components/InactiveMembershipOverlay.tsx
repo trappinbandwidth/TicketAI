@@ -35,7 +35,7 @@ export function InactiveMembershipOverlay({ onReactivate }: InactiveMembershipOv
                     </button>
 
                     <p className="text-sm text-gray-500">
-                        Questions? Contact us at protect@cdllegal.com
+                        Questions? Contact us at support@rigresolve.com
                     </p>
                 </div>
             </div>

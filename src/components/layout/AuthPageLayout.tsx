@@ -16,7 +16,7 @@ export function AuthPageLayout({ children, containerClassName }: AuthPageLayoutP
 
       <div className="auth-grid-overlay pointer-events-none absolute inset-0 opacity-30" />
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center p-3">
+      <div className="relative z-10 flex min-h-screen items-start justify-center overflow-y-auto p-3 pt-6">
         <div className={cn('w-full', containerClassName)}>{children}</div>
       </div>
     </div>

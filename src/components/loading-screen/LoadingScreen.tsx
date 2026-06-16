@@ -18,21 +18,20 @@ export default function LoadingScreen() {
                 {/* Animated Logo Circle */}
                 <div className="relative flex items-center justify-center">
                     {/* Spinning outer ring */}
-                    <div className="absolute h-[100px] w-[100px] animate-spin rounded-full border-[3px] border-transparent border-r-[#0D3E6B] border-t-[#0D3E6B] sm:h-[120px] sm:w-[120px]" />
+                    <div className="absolute h-[100px] w-[100px] animate-spin rounded-full border-[3px] border-transparent border-r-[#2EC4A5] border-t-[#2EC4A5] sm:h-[120px] sm:w-[120px]" />
 
                     {/* Inner pulsing background */}
-                    <div className="flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-[#EAF1F8] shadow-[0_8px_24px_rgba(13,62,107,0.15)] sm:h-24 sm:w-24">
-                        {/* CDL Text */}
+                    <div className="flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-[rgba(46,196,165,0.10)] shadow-[0_8px_24px_rgba(46,196,165,0.20)] sm:h-24 sm:w-24">
                         <span
                             className="text-[1.75rem] font-extrabold tracking-[0.5px] sm:text-[2.125rem]"
                             style={{
-                                background: 'linear-gradient(135deg, #0D3E6B 0%, #1e3a5f 100%)',
+                                background: 'linear-gradient(135deg, #2EC4A5 0%, #1E9E85 100%)',
                                 backgroundClip: 'text',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                             }}
                         >
-                            CDL
+                            RR
                         </span>
                     </div>
                 </div>
@@ -59,7 +58,7 @@ export default function LoadingScreen() {
                         {[0, 1, 2].map((index) => (
                             <div
                                 key={index}
-                                className="h-2 w-2 animate-pulse rounded-full bg-[#0D3E6B]"
+                                className="h-2 w-2 animate-pulse rounded-full bg-[#2EC4A5]"
                                 style={{ animationDelay: `${index * 0.2}s` }}
                             />
                         ))}

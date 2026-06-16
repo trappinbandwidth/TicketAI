@@ -73,7 +73,7 @@ const AuthLayout = ({ sx, children, header, style, disableLink = false }: AuthLa
       cssVars={{ '--layout-auth-content-width': '420px', ...style }}
       style={sx}
       contentStyle={{
-        backgroundImage: "url('/assets/bg_cdl_legal.jpeg')",
+        backgroundImage: "url('/assets/bg_auth.jpeg')",
         boxShadow: 'rgb(121 119 119 / 30%) 0px 0px 0px 1016px inset',
         backgroundPosition: 'center center',
       }}

@@ -236,8 +236,7 @@ export default function ReferralPage() {
 
     // const qrLinkUrl = driverData.referralProfile.qrCodeImageUrl || '';
     const referralCode = driverData?.referralProfile?.referralCode || '';
-    // const displayUrl = `cdllegal.com/ref/${referralCode}`; // Simplified display URL
-    const referralUrl = driverData?.referralProfile?.qrCodeImageUrl || '';
+const referralUrl = driverData?.referralProfile?.qrCodeImageUrl || '';
     const referralLink = driverData?.referralProfile?.referralUrl || '';
 
     const getNextShareMessage = useCallback(() => {
@@ -289,7 +288,7 @@ export default function ReferralPage() {
             directLink.href = referralUrl;
             directLink.target = '_blank';
             directLink.rel = 'noopener noreferrer';
-            directLink.download = `cdl-legal-referral-${referralCode || 'qr-code'}`;
+            directLink.download = `rig-resolve-referral-${referralCode || 'qr-code'}`;
             document.body.appendChild(directLink);
             directLink.click();
             document.body.removeChild(directLink);
@@ -316,7 +315,7 @@ export default function ReferralPage() {
 
             const downloadLink = document.createElement('a');
             downloadLink.href = objectUrl;
-            downloadLink.download = `cdl-legal-referral-${referralCode || 'qr-code'}.${fileExtension}`;
+            downloadLink.download = `rig-resolve-referral-${referralCode || 'qr-code'}.${fileExtension}`;
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);

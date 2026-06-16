@@ -356,7 +356,6 @@ export default function SignupFlow({
     const handleSendOtp = async () => {
         const phone = infoMethods.getValues('phone');
 
-        // Validate phone format
         if (!phone || !/^\(\d{3}\) \d{3}-\d{4}$/.test(phone)) {
             infoMethods.setError('phone', {
                 type: 'manual',
@@ -365,23 +364,9 @@ export default function SignupFlow({
             return;
         }
 
-        setIsSendingOtp(true);
-        setOtpError('');
-
-        try {
-            // Clean phone number for API
-            const cleanPhone = phone.replace(/\D/g, '');
-            const response = await SendOTP({ PhoneNumber: cleanPhone, send_otp: true });
-
-            if (response.StatusCode === constants.RESPONSE_STATUS.SUCCESS) {
-                setShowOtpInput(true);
-                setOtpCooldown(60); // 60 second cooldown
-            }
-        } catch (error: any) {
-            toasterService(error?.message || 'Failed to send verification code', 4, 'Error');
-        } finally {
-            setIsSendingOtp(false);
-        }
+        // Local test mode: skip API, show OTP input immediately
+        setShowOtpInput(true);
+        setOtpCooldown(60);
     };
 
     // Verify OTP Handler - accepts code as parameter for auto-verification
@@ -389,33 +374,19 @@ export default function SignupFlow({
         if (code.length !== 6) {
             return;
         }
-        setIsVerifyingOtp(true);
-        setOtpError('');
-        try {
-            const phone = infoMethods.getValues('phone');
-            const cleanPhone = phone.replace(/\D/g, '');
 
-            const response = await VerifyOTP({
-                PhoneNumber: cleanPhone,
-                OTPCode: code,
-                verify_otp: true
-            });
-
-            if (response.StatusCode === constants.RESPONSE_STATUS.SUCCESS) {
-                setIsPhoneVerified(true);
-                setLastVerifiedPhone(phone);
-                setShowOtpInput(false);
-                setOtpCode('');
-            } else {
-                setOtpError(response.Message || 'Invalid verification code');
-                setOtpCode(''); // Clear on error for retry
-            }
-        } catch (error: any) {
-            setOtpError(error?.message || 'Verification failed');
-            setOtpCode(''); // Clear on error for retry
-        } finally {
-            setIsVerifyingOtp(false);
+        // Local test mode: accept hardcoded OTP 123456
+        if (code !== '123456') {
+            setOtpError('Incorrect code. Use 123456 for local testing.');
+            return;
         }
+
+        const phone = infoMethods.getValues('phone');
+        setIsPhoneVerified(true);
+        setLastVerifiedPhone(phone);
+        setShowOtpInput(false);
+        setOtpCode('');
+
     };
     // Helper to get current plan data
     const getCurrentPlanData = (tier: PlanType): Plan | null => {

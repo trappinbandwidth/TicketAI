@@ -1,35 +1,73 @@
-/** **************************************
-* Fonts: app
-*************************************** */
-@import '@fontsource-variable/open-sans';
+/* ── Rig Resolve — Driver App (portal-driver: dark, mobile-first, teal-primary) ── */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-size: 16px;
-  --background: #ffffff;
-  --foreground: #1f2937;
-  --card: #ffffff;
-  --card-foreground: #1f2937;
-  --popover: #ffffff;
-  --popover-foreground: #1f2937;
-  --primary: #0d3e6b;
-  --primary-foreground: #ffffff;
-  --secondary: #eef6ff;
-  --secondary-foreground: #0d3e6b;
-  --muted: #f3f4f6;
-  --muted-foreground: #64748b;
-  --accent: #d7e9ff;
-  --accent-foreground: #0d3e6b;
-  --destructive: #ec1c24;
-  --destructive-foreground: #ffffff;
-  --border: rgba(15, 23, 42, 0.12);
-  --input: #ffffff;
-  --input-background: #f8fafc;
-  --ring: rgba(13, 62, 107, 0.28);
-  --radius: 1rem;
+  /* Global brand constants */
+  --brand-teal:        #2EC4A5;
+  --brand-teal-dark:   #1E9E85;
+  --brand-teal-dim:    rgba(46, 196, 165, 0.12);
+  --brand-ink:         #2D3142;
+  --brand-ink-deep:    #1A1E2E;
+  --font-display:      'DM Serif Display', Georgia, serif;
+  --font-body:         'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:         'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+  /* Portal-driver surface tokens */
+  --color-bg:              #0A0F1A;
+  --color-surface:         #0F1724;
+  --color-card:            #141E2E;
+  --color-border:          #1A2840;
+  --color-border-hover:    #253550;
+
+  /* Portal-driver action tokens */
+  --color-primary:         #2EC4A5;
+  --color-primary-hover:   #1E9E85;
+  --color-primary-bg:      rgba(46, 196, 165, 0.08);
+  --color-primary-border:  rgba(46, 196, 165, 0.20);
+
+  /* Portal-driver text tokens */
+  --color-text:            #E2E8F0;
+  --color-text-muted:      #94A3B8;
+  --color-text-dim:        #475569;
+  --color-text-faint:      #334155;
+
+  /* Semantic driver tokens (ONE semantic purpose each) */
+  --color-amber:           #F59E0B;  /* court dates · deadlines · warnings */
+  --color-amber-bg:        rgba(245, 158, 11, 0.12);
+  --color-amber-border:    rgba(245, 158, 11, 0.20);
+  --color-red:             #EF4444;  /* CDL at risk ONLY */
+  --color-red-bg:          rgba(239, 68, 68, 0.12);
+  --color-red-border:      rgba(239, 68, 68, 0.20);
+  --color-green:           #22C55E;  /* wins · dismissals only */
+  --color-green-bg:        rgba(34, 197, 94, 0.12);
+  --color-green-border:    rgba(34, 197, 94, 0.20);
+
+  /* shadcn / component-library var aliases */
+  --font-size:              16px;
+  --background:             #0A0F1A;
+  --foreground:             #E2E8F0;
+  --card:                   #141E2E;
+  --card-foreground:        #E2E8F0;
+  --popover:                #0F1724;
+  --popover-foreground:     #E2E8F0;
+  --primary:                #2EC4A5;
+  --primary-foreground:     #0A1628;
+  --secondary:              #141E2E;
+  --secondary-foreground:   #E2E8F0;
+  --muted:                  #0F1724;
+  --muted-foreground:       #94A3B8;
+  --accent:                 rgba(46, 196, 165, 0.08);
+  --accent-foreground:      #2EC4A5;
+  --destructive:            #EF4444;
+  --destructive-foreground: #E2E8F0;
+  --border:                 #1A2840;
+  --input:                  #141E2E;
+  --input-background:       #0F1724;
+  --ring:                   rgba(46, 196, 165, 0.40);
+  --radius:                 1rem;
 }
 
 @media (max-width: 374px) {
@@ -56,13 +94,18 @@
   }
 }
 
+@media (max-width: 374px)  { :root { --font-size: 14px; } }
+@media (min-width: 428px) and (max-width: 767px)  { :root { --font-size: 17px; } }
+@media (min-width: 768px) and (max-width: 1023px) { :root { --font-size: 18px; } }
+@media (min-width: 1024px) { :root { --font-size: 18px; } }
+
 @layer base {
   html {
     font-size: var(--font-size);
   }
 
   body {
-    @apply bg-surface-app font-sans text-ink-body antialiased;
+    @apply bg-driver-bg font-sans text-driver-text antialiased;
   }
 
   * {

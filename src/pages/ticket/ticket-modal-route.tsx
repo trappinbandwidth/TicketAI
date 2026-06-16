@@ -218,7 +218,7 @@ export default function TicketDetailPage() {
 
   const handleContactSupport = useCallback(() => {
     window.location.href =
-      'mailto:protect@cdllegal.com?subject=Support%20Request%20for%20Ticket%20' +
+      'mailto:support@rigresolve.com?subject=Support%20Request%20for%20Ticket%20' +
       encodeURIComponent(ticket?.stateCodeCitation || ticket?.name || '') +
       '&body=' +
       encodeURIComponent(ticket?.name ? `I need support regarding my ticket: ${ticket.name}` : 'I need support regarding my ticket.');
@@ -402,7 +402,7 @@ export default function TicketDetailPage() {
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1a365d]">
                     <LucideIcon name="Mail" size={14} color="white" />
                   </div>
-                  <p className="text-xs">{ticket?.attorney.email || 'email@cdllegalgroup.com'}</p>
+                  <p className="text-xs">{ticket?.attorney.email || 'support@rigresolve.com'}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1a365d]">

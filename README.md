@@ -1,6 +1,6 @@
-# CDL Legal Driver Portal
+# Rig Resolve
 
-A comprehensive member portal application for CDL Legal drivers, built with React, TypeScript, and Material-UI. This application provides drivers with access to their profile, billing information, MVR records, support tickets, and dashboard analytics.
+A comprehensive member portal application for Rig Resolve drivers, built with React, TypeScript, and Material-UI. This application provides drivers with access to their profile, billing information, MVR records, support tickets, and dashboard analytics.
 
 ---
 
@@ -28,7 +28,7 @@ A comprehensive member portal application for CDL Legal drivers, built with Reac
 
 ## 🎯 Overview
 
-The **CDL Legal Driver Portal** is a modern web application designed to provide CDL drivers with a centralized platform to manage their membership, view billing information, access MVR (Motor Vehicle Record) reports, submit support requests, and track their account status.
+The **Rig Resolve** is a modern web application designed to provide CDL drivers with a centralized platform to manage their membership, view billing information, access MVR (Motor Vehicle Record) reports, submit support requests, and track their account status.
 
 ### Key Highlights
 
@@ -233,7 +233,7 @@ Create a `.env` file in the root directory with the following variables:
 VITE_REACT_APP_BASE_URL=<your-backend-api-url>
 
 # Example:
-# VITE_REACT_APP_BASE_URL=https://api.cdllegal.com
+# VITE_REACT_APP_BASE_URL=https://api.rigresolve.com
 ```
 
 **Note**: The `.env` file is gitignored for security. Never commit sensitive credentials.
@@ -356,10 +356,10 @@ sudo nano .env
 pip3 install -r requirements.txt
 
 # Restart the service
-sudo systemctl restart cdl-legal-carrier-guard.service
+sudo systemctl restart rig-resolve-driver.service
 
 # Verify service status
-sudo systemctl status cdl-legal-carrier-guard.service
+sudo systemctl status rig-resolve-driver.service
 ```
 
 #### Frontend Deployment
@@ -384,13 +384,13 @@ sudo systemctl status nginx
 
 ```bash
 # Real-time service logs
-journalctl -u cdl-legal-carrier-guard.service -f
+journalctl -u rig-resolve-driver.service -f
 
 # Last 100 lines
-journalctl -u cdl-legal-carrier-guard.service -n 100
+journalctl -u rig-resolve-driver.service -n 100
 
 # Logs from specific time
-journalctl -u cdl-legal-carrier-guard.service --since "2024-01-01"
+journalctl -u rig-resolve-driver.service --since "2024-01-01"
 ```
 
 #### Application Logs
@@ -420,7 +420,7 @@ tail -f /var/log/nginx/error.log
 
 ## 📱 Progressive Web App (PWA)
 
-The CDL Legal Driver Portal is a fully functional Progressive Web App with offline support, installability, and optimized caching strategies.
+The Rig Resolve is a fully functional Progressive Web App with offline support, installability, and optimized caching strategies.
 
 ### PWA Features
 
@@ -749,4 +749,4 @@ Current Version: **2.0.0**
 
 ---
 
-**Built with ❤️ by the CDL Legal Team**
+**Built with ❤️ by the Rig Resolve Team**

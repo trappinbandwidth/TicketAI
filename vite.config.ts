@@ -50,9 +50,9 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'CDL Legal Driver Portal',
-        short_name: 'CDL Portal',
-        description: 'Member portal for CDL Legal drivers to manage their profile, billing, MVR records, and support tickets.',
+        name: 'Rig Resolve',
+        short_name: 'Rig Resolve',
+        description: 'Rig Resolve — legal benefit app for commercial truck drivers. Manage tickets, track cases, and connect with attorneys.',
         theme_color: '#1976d2',
         background_color: '#ffffff',
         display: 'standalone',
@@ -176,14 +176,14 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'wide',
-            label: 'CDL Legal Driver Portal - Desktop View'
+            label: 'Rig Resolve - Desktop View'
           },
           {
             src: '/icons/android/android-launchericon-512-512.png',
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'narrow',
-            label: 'CDL Legal Driver Portal - Mobile View'
+            label: 'Rig Resolve - Mobile View'
           }
         ]
       },

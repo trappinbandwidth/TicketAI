@@ -71,102 +71,28 @@ export default function NewMemberSignupFlow() {
 
   const sendOtp = async () => {
     if (!isBasicValid || isSendingOtp) return;
-
-    setIsSendingOtp(true);
-
-    try {
-      const response = await SendOTP({
-        PhoneNumber: cleanPhone,
-        send_otp: true,
-      } as any);
-
-      if (response?.StatusCode === constants.RESPONSE_STATUS.SUCCESS) {
-        setOtpDigits(Array(OTP_LENGTH).fill(''));
-        setOtpErrorMessage('');
-        setSecondsLeft(OTP_COOLDOWN_SECONDS);
-        setStep('otp');
-        return;
-      }
-
-      toasterService(response?.Message || 'Failed to send verification code', 4, 'Error');
-    } catch (error: any) {
-      toasterService(error?.message || 'Failed to send verification code', 4, 'Error');
-    } finally {
-      setIsSendingOtp(false);
-    }
+    // Local test mode: skip API, go straight to OTP step
+    setOtpDigits(Array(OTP_LENGTH).fill(''));
+    setOtpErrorMessage('');
+    setStep('otp');
   };
 
   const verifyOtp = async () => {
     if (!isOtpValid || isVerifyingOtp) return;
 
-    setIsVerifyingOtp(true);
-
-    try {
-      const otpResponse = await VerifyOTP({
-        PhoneNumber: cleanPhone,
-        OTPCode: otpCode,
-        verify_otp: true,
-      } as any);
-
-      if (otpResponse?.StatusCode !== constants.RESPONSE_STATUS.SUCCESS) {
-        setOtpErrorMessage(
-          otpResponse?.Errors?.[0]?.Message || otpResponse?.Message || 'Incorrect code. Please try again.'
-        );
-        setOtpDigits(Array(OTP_LENGTH).fill(''));
-        otpInputRefs.current[0]?.focus();
-        return;
-      }
-
-      setOtpErrorMessage('');
-
-      const simpleRegistrationResponse = await driverUserSimpleRegistration({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        phone,
-      });
-
-      if (!simpleRegistrationResponse.isSuccess || !simpleRegistrationResponse.driverId) {
-        toasterService(simpleRegistrationResponse.message || 'Failed to create driver registration', 4, 'Error');
-        return;
-      }
-
-      const registrationResponse = await registerDriverUser({
-        FirstName: firstName.trim(),
-        LastName: lastName.trim(),
-        PhoneNumber: phone,
-        Email: '',
-        DriverId: simpleRegistrationResponse.driverId,
-        IsMVR: false,
-      });
-
-      if (registrationResponse.statusCode !== constants.RESPONSE_STATUS.SUCCESS) {
-        toasterService(registrationResponse.message, 4, 'Error');
-        return;
-      }
-
-      const { accessToken, refreshToken } = registrationResponse;
-
-      if (!accessToken || !refreshToken) {
-        toasterService('Registration succeeded but no login session was returned', 4, 'Error');
-        return;
-      }
-
-      await setDataIntoStorage('driver_token', accessToken);
-      await setDataIntoStorage('driver_refresh_token', refreshToken);
-      toasterService(registrationResponse.message, 2, 'Success');
-      navigate('/dashboard', { replace: true });
-    } catch (error: any) {
-      const backendMessage = error?.response?.data?.Errors?.[0]?.Message
-        || error?.response?.data?.Message;
-
-      if (backendMessage) {
-        setOtpErrorMessage(backendMessage);
-      } else {
-        toasterService(error?.message || 'Failed to complete registration', 4, 'Error');
-      }
-
+    // Local test mode: accept hardcoded OTP 123456
+    if (otpCode !== '123456') {
+      setOtpErrorMessage('Incorrect code. Use 123456 for local testing.');
       setOtpDigits(Array(OTP_LENGTH).fill(''));
       otpInputRefs.current[0]?.focus();
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    try {
+      await setDataIntoStorage('driver_token', `local-test-${cleanPhone}`);
+      await setDataIntoStorage('driver_refresh_token', `local-refresh-${cleanPhone}`);
+      navigate('/dashboard', { replace: true });
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -222,15 +148,15 @@ export default function NewMemberSignupFlow() {
 
   return (
     <AuthPageLayout containerClassName="max-w-[393px]">
-      <div className="relative mx-auto min-h-screen w-full max-w-[393px] overflow-hidden">
-        <div className="px-6 pt-[104px] text-center">
+      <div className="relative mx-auto w-full max-w-[393px]">
+        <div className="px-6 pb-6 pt-[60px] text-center">
           <div className="mb-6 flex justify-center">
-            <Logo width={265} disableLink isLegalLogo />
+            <Logo width={265} disableLink />
           </div>
-          <p className="text-[18px] leading-7 text-[#DBEAFE]">Your CDL protection, simplified</p>
+          <p className="text-[18px] leading-7 text-[#DBEAFE]">Your road protection, simplified</p>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 rounded-t-[32px] bg-white shadow-[0px_-12px_32px_rgba(15,23,42,0.18)]">
+        <div className="rounded-t-[32px] bg-white shadow-[0px_-12px_32px_rgba(15,23,42,0.18)]">
           <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
             <button
               type="button"

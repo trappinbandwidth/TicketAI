@@ -1,4 +1,4 @@
-# CDL Legal Driver Portal - Product Overview
+# Rig Resolve - Product Overview
 
 **Version:** 2.0.0
 **Last Updated:** January 2026
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The CDL Legal Driver Portal is a Progressive Web Application (PWA) designed to serve as a comprehensive member management platform for Commercial Driver's License (CDL) Legal drivers. The portal provides drivers with a centralized hub to manage their membership, access legal services, track billing, view Motor Vehicle Records (MVR), and engage with support services.
+The Rig Resolve is a Progressive Web Application (PWA) designed to serve as a comprehensive member management platform for Commercial Driver's License (CDL) Legal drivers. The portal provides drivers with a centralized hub to manage their membership, access legal services, track billing, view Motor Vehicle Records (MVR), and engage with support services.
 
 ---
 
@@ -23,7 +23,7 @@ To provide CDL drivers with a seamless, mobile-first digital experience that sim
 ### Primary Users
 - **CDL Drivers**: Commercial truck drivers requiring legal protection and support services
 - **Owner-Operators**: Independent trucking business owners managing their own legal coverage
-- **Fleet Drivers**: Drivers employed by trucking companies using CDL Legal services
+- **Fleet Drivers**: Drivers employed by trucking companies using Rig Resolve services
 
 ### User Personas
 
@@ -182,7 +182,7 @@ Landing Page → Phone Verification → OTP Entry → Dashboard
 ## Integration Points
 
 ### Backend Services
-- CDL Legal Carrier Service API
+- Rig Resolve API
 - Payment gateway integration
 - MVR data provider integration
 
@@ -236,8 +236,8 @@ Landing Page → Phone Verification → OTP Entry → Dashboard
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 2.0.0 | January 2026 | CDL Legal Team | Initial comprehensive documentation |
+| 2.0.0 | January 2026 | Rig Resolve Team | Initial comprehensive documentation |
 
 ---
 
-*This document provides a high-level overview of the CDL Legal Driver Portal product. For technical implementation details, see the Technical Design Document.*
+*This document provides a high-level overview of the Rig Resolve product. For technical implementation details, see the Technical Design Document.*

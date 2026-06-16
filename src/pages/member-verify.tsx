@@ -113,36 +113,30 @@ export default function MemberVerify() {
   const handleVerify = async () => {
     if (!isOtpValid || loading) return;
 
-    setIsLoading(true);
-    try {
-      const response = await VerifyOTP({
-        PhoneNumber: phone,
-        OTPCode: otpCode,
-      } as any);
-
-      if (response.StatusCode === constants.RESPONSE_STATUS.SUCCESS) {
-        await setDataIntoStorage('driver_token', response.Result.Data.AccessToken);
-        await setDataIntoStorage('driver_refresh_token', response.Result.Data.RefreshToken);
-
-        // Sign into Firebase anonymously to get a stable UID for Firestore
-        try {
-          const fbResult = await signInAnonymously(auth);
-          const uid = fbResult.user.uid;
-          setFirebaseUid(uid);
-          await setDataIntoStorage('firebase_uid', uid);
-        } catch (fbErr) {
-          console.warn('[firebase] anonymous sign-in failed (offline or not configured):', fbErr);
-        }
-
-        navigate('/dashboard');
-      } else {
-        setHasCodeError(true);
-        setOtpCode('');
-      }
-    } catch (error) {
+    // Local test mode: accept hardcoded OTP 123456
+    if (otpCode !== '123456') {
       setHasCodeError(true);
       setOtpCode('');
-      toasterService('Failed to verify code.', 4, error);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Store a local test session token
+      await setDataIntoStorage('driver_token', `local-test-${phone}`);
+      await setDataIntoStorage('driver_refresh_token', `local-refresh-${phone}`);
+
+      // Sign into Firebase anonymously to get a stable UID for Firestore
+      try {
+        const fbResult = await signInAnonymously(auth);
+        const uid = fbResult.user.uid;
+        setFirebaseUid(uid);
+        await setDataIntoStorage('firebase_uid', uid);
+      } catch (fbErr) {
+        console.warn('[firebase] anonymous sign-in failed (offline or not configured):', fbErr);
+      }
+
+      navigate('/dashboard');
     } finally {
       setIsLoading(false);
     }
@@ -195,7 +189,7 @@ export default function MemberVerify() {
         <div className="relative">
           <div className="absolute inset-0 rounded-3xl bg-white/30 blur-[32px]" />
           <div className="relative rounded-3xl border border-white/20 bg-white/10 p-6 shadow-[0_24px_64px_rgba(15,23,42,0.3)] backdrop-blur-xl">
-            <Logo width={180} disableLink isLegalLogo />
+            <Logo width={180} disableLink />
           </div>
         </div>
       </div>

@@ -271,7 +271,7 @@ export default function BillingPaymentsPage() {
 
     const handleDownloadReceipt = (transaction: any) => {
         const receiptContent = `
-CDL LEGAL - RECEIPT
+RIG RESOLVE - RECEIPT
 Receipt ID: ${transaction.id}
 Transaction ID: ${transaction.transactionId || transaction.id}
 
@@ -288,7 +288,7 @@ Thank you for your business!
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `CDL-Receipt-${transaction.id}.txt`;
+        a.download = `RigResolve-Receipt-${transaction.id}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

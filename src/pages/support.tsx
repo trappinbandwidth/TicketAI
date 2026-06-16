@@ -133,14 +133,14 @@ export default function SupportPage() {
                                 <SupportRequestItem
                                     title="Question about court date"
                                     id="SUP-001"
-                                    ticket="CDL-2024-001"
+                                    ticket="RR-2024-001"
                                     status="Resolved"
                                     date="11/15/2024"
                                 />
                                 <SupportRequestItem
                                     title="Document upload issue"
                                     id="SUP-002"
-                                    ticket="CDL-2024-003"
+                                    ticket="RR-2024-003"
                                     status="Resolved"
                                     date="10/28/2024"
                                 />
@@ -282,7 +282,7 @@ export default function SupportPage() {
                                 <SupportRequestItem
                                     title="Question about court date"
                                     id="SUP-001"
-                                    ticket="CDL-2024-001"
+                                    ticket="RR-2024-001"
                                     status="Resolved"
                                     date="11/15/2024"
                                 />

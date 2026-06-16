@@ -18,7 +18,6 @@ type LogoSx = {
 export type LogoProps = React.HTMLAttributes<HTMLDivElement> & {
   href?: string;
   disableLink?: boolean;
-  isLegalLogo?: boolean;
   width?: string | number;
   height?: string | number;
   sx?: LogoSx;
@@ -40,7 +39,7 @@ function resolveDimension(value?: string | number) {
 
 export const Logo = forwardRef<HTMLDivElement, LogoProps>(
   (
-    { width, href = '/', height, isLegalLogo, disableLink = false, className, sx, ...other },
+    { width, href = '/', height, disableLink = false, className, sx, ...other },
     ref
   ) => {
     const resolvedWidth = resolveDimension(width ?? resolveResponsiveValue(sx?.width) ?? '100%');
@@ -57,7 +56,7 @@ export const Logo = forwardRef<HTMLDivElement, LogoProps>(
     const image = (
       <img
         alt="Full logo"
-        src={isLegalLogo ? "/assets/cdl_legal_logo.png" : "/assets/logo.png"}
+        src="/assets/logo.png"
         width="100%"
         height="100%"
         className="block h-full w-full object-contain"

@@ -19,7 +19,7 @@ export function ModalContent({
       <Dialog.Overlay className="fixed inset-0 z-[10000] bg-slate-950/50 backdrop-blur-sm" />
       <Dialog.Content
         className={cn(
-          'fixed left-1/2 top-1/2 z-[10001] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-slate-200 bg-white p-6 shadow-glass outline-none',
+          'fixed left-1/2 top-1/2 z-[10001] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-slate-200 bg-white p-6 shadow-glass outline-none max-h-[90dvh] overflow-y-auto',
           className
         )}
         {...props}

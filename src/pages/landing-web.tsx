@@ -12,11 +12,11 @@ export default function LandingWeb() {
       <div className="relative mx-auto flex min-h-screen w-full max-w-[393px] items-center justify-center px-6 py-10">
         <div className="w-full max-w-[345px]">
           <div className="mb-[22px] flex justify-center">
-            <Logo width={265} disableLink isLegalLogo />
+            <Logo width={265} disableLink />
           </div>
 
           <div className="mb-10 text-center">
-            <p className="text-[18px] leading-7 text-[#DBEAFE]">Your CDL protection, simplified</p>
+            <p className="text-[18px] leading-7 text-[#DBEAFE]">Your road protection, simplified</p>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -57,8 +57,8 @@ export default function LandingWeb() {
 
           <div className="mt-10 text-center text-[14px] leading-5 text-[rgba(219,234,254,0.8)]">
             <span>Questions? Contact us at </span>
-            <a href="mailto:protect@cdllegal.com" className="text-white underline underline-offset-2">
-              protect@cdllegal.com
+            <a href="mailto:support@rigresolve.com" className="text-white underline underline-offset-2">
+              support@rigresolve.com
             </a>
           </div>
         </div>

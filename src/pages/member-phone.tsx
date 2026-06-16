@@ -34,30 +34,13 @@ export default function MemberPhone() {
   const handleSubmit = async () => {
     if (!isPhoneValid || loading) return;
 
-    setIsLoading(true);
-    setShowErrorState(false);
-
-    try {
-      const response = await SendOTP({ PhoneNumber: cleanPhoneNumber } as any);
-
-      if (response.StatusCode === constants.RESPONSE_STATUS.SUCCESS) {
-        const reversed = cleanPhoneNumber.split('').reverse().join('');
-        const salt = Math.random().toString(36).substring(2, 8);
-        const obfuscated = btoa(btoa(`${salt}:${reversed}`));
-
-        navigate(`/member-verify?token=${encodeURIComponent(obfuscated)}`, {
-          state: { phoneNumber },
-        });
-      } else {
-        setShowErrorState(true);
-        setPhoneNumber('');
-      }
-    } catch {
-      setShowErrorState(true);
-      setPhoneNumber('');
-    } finally {
-      setIsLoading(false);
-    }
+    // Local test mode: skip API, navigate directly to verify with hardcoded OTP 123456
+    const reversed = cleanPhoneNumber.split('').reverse().join('');
+    const salt = 'local';
+    const obfuscated = btoa(btoa(`${salt}:${reversed}`));
+    navigate(`/member-verify?token=${encodeURIComponent(obfuscated)}`, {
+      state: { phoneNumber },
+    });
   };
 
   return (
@@ -77,7 +60,7 @@ export default function MemberPhone() {
         <div className="relative">
           <div className="absolute inset-0 rounded-3xl bg-white/30 blur-[32px]" />
           <div className="relative rounded-3xl border-2 border-white/40 bg-white/20 p-6 shadow-[0_24px_64px_rgba(15,23,42,0.3)] backdrop-blur-xl">
-            <Logo width={180} disableLink isLegalLogo />
+            <Logo width={180} disableLink />
           </div>
         </div>
       </div>
