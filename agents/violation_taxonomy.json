@@ -1,0 +1,259 @@
+{
+  "Other": {
+    "total_occurrences": 11528,
+    "unique_descriptions": 1202,
+    "examples": [
+      "Failure Of Individual Driving On Highway To Display License To Uniformed Police On Demand",
+      "Person Driving Motor Vehicle While License Suspended Under 17-106, 26-204, 26-206, 27-103",
+      "Failing To Display Proper Vehicle I.D.",
+      "Driving Veh. W/O Adequate Rear Reg. Plate Illumination",
+      "Failure Of Licensee To Notify Administration Of Change Of Address Within 30 Days"
+    ]
+  },
+  "Speeding": {
+    "total_occurrences": 4124,
+    "unique_descriptions": 298,
+    "examples": [
+      "Exceeding The Posted Speed Limit Of 30 Mph",
+      "Exceeding The Posted Speed Limit Of 40 Mph",
+      "Failure To Control Vehicle Speed On Highway To Avoid Collision",
+      "Exceeding Maximum Speed: 39 Mph In A Posted 30 Mph Zone",
+      "Exceeding The Posted Speed Limit Of 35 Mph"
+    ]
+  },
+  "Registration Violation": {
+    "total_occurrences": 2997,
+    "unique_descriptions": 64,
+    "examples": [
+      "Failure To Display Registration Card Upon Demand By Police Officer",
+      "Displaying Expired Registration Plate Issued By Any State",
+      "Driving Vehicle On Highway Without Current Registration Plates And Validation Tabs",
+      "Failure To Attach Vehicle Registration Plates At Front And Rear",
+      "Failure To Maintain Legible Registration Plate Free From Covers"
+    ]
+  },
+  "Lighting Violation": {
+    "total_occurrences": 2413,
+    "unique_descriptions": 326,
+    "examples": [
+      "Stop Lights (*)",
+      "Failure Of Veh. On Hwy. To Display Lighted Lamps, Illuminating Device In Unfavorable Visibility Cond",
+      "Failure To Display Two Lighted Front Lamps When Required",
+      "Tag Lights (*)",
+      "Headlights (*)"
+    ]
+  },
+  "Failure to Obey Traffic Control": {
+    "total_occurrences": 2288,
+    "unique_descriptions": 10,
+    "examples": [
+      "Driver Failure To Obey Properly Placed Traffic Control Device Instructions",
+      "Drive Across Private Property For The Purpose Of Avoiding Traffic Control Device",
+      "Drive Across Private Property, Leave The Roadway For The Purpose Of Avoiding Traffic Control Device",
+      "Leave The Roadway For The Purpose Of Avoiding Traffic Control Device",
+      "Driver Failure At \"T\" Intersection W/O Traffic Control Device To Yield Right-Of-Way"
+    ]
+  },
+  "No Valid License": {
+    "total_occurrences": 2034,
+    "unique_descriptions": 44,
+    "examples": [
+      "Driving Motor Vehicle On Highway Without Required License And Authorization",
+      "Driving To Drive Motor Vehicle On Highway Without Required License And Authorization",
+      "Driving, Attempting To Drive Motor Vehicle On Highway Without Required License And Authorization",
+      "Driving  Motor Vehicle On Highway Without Required License And Authorization",
+      "Attempting To Drive Motor Vehicle On Highway Without Required License And Authorization"
+    ]
+  },
+  "Failure to Signal": {
+    "total_occurrences": 1971,
+    "unique_descriptions": 214,
+    "examples": [
+      "Driver Failure To Stop At Steady Circular Red Signal",
+      "Driver Fail To Stop At Flashing Red Traffic Signal Stop Line",
+      "Driver Entering Intersection At Flashing Red Traffic Signal Without Stopping",
+      "Pedestrian Crossing Roadway Between Adjacent Intersections Having Traffic Control Signal",
+      "Driver Fail To Stop At Red Traffic Signal Before Right Turn"
+    ]
+  },
+  "DUI / Impaired Driving": {
+    "total_occurrences": 1312,
+    "unique_descriptions": 34,
+    "examples": [
+      "Driving While Impaired By Alcohol",
+      "Driving Vehicle While Under The Influence Of Alcohol",
+      "Driving Under The Influence Of Alcohol Per Se",
+      "Driver Consuming Alcoholic Beverage In Passenger Area Of Motor Vehicle On Highway",
+      "Driving While Impaired By Drugs Or Drugs And Alcohol"
+    ]
+  },
+  "Seatbelt Violation": {
+    "total_occurrences": 1228,
+    "unique_descriptions": 31,
+    "examples": [
+      "Operator Not Restrained By Seatbelt",
+      "Passenger Age 16 Or More In Outboard Front Seat Of Motor Vehicle Without Seatbelt Restraint",
+      "Oper. Motor Veh. With Operator Not Restrained By Seat Belt",
+      "Occupant Under 16 Not Restrained By Seatbelt",
+      "Passenger Age 16 Or More In Rear Seat Of Motor Veh Without Seatbelt Restraint"
+    ]
+  },
+  "Suspended Registration": {
+    "total_occurrences": 1059,
+    "unique_descriptions": 3,
+    "examples": [
+      "Driving Vehicle On Highway With Suspended Registration",
+      "Driving Veh. On Hwy. With Suspended Registration",
+      "Allowing Veh. To Be Driven On Hwy. With Suspended Registration"
+    ]
+  },
+  "Driving on Suspended License": {
+    "total_occurrences": 860,
+    "unique_descriptions": 3,
+    "examples": [
+      "Person Driving Motor Vehicle On Highway Or Public Use Property On Suspended License And Privilege",
+      "Person Driving Motor Vehicle On Highway Or Public Use Property On Suspended Out-Of-State License",
+      "Suspended Licensee Failure To Return Dealer License To Adm."
+    ]
+  },
+  "Improper Lane Change": {
+    "total_occurrences": 822,
+    "unique_descriptions": 28,
+    "examples": [
+      "Driver Changing Lanes When Unsafe",
+      "Driver Failure To Obey Designated Lane Directions",
+      "Failure Of Dr. To Make Lane Change To Avail. Lane Not Immed. Adj. To Stopped Emerg. Veh",
+      "Failure Of Driver To Make Lane Change To Availablelane Not Immed. Adjacent To Stopped Emerg. Veh.",
+      "Driving Vehicle In Hov Lane When Not Authorized By Traffic Control Device"
+    ]
+  },
+  "Tire Violation": {
+    "total_occurrences": 731,
+    "unique_descriptions": 69,
+    "examples": [
+      "Operating Motor Vehicle With Inadequate Tires On Other Than Steering Axle",
+      "Operating Motor Vehicle With Flat Tire",
+      "Operating Motor Vehicle With Under-Inflated Tire",
+      "Tires",
+      "Operating A M/V With Inadequate Tires On Other Than Steering Axle"
+    ]
+  },
+  "Failure to Stop": {
+    "total_occurrences": 637,
+    "unique_descriptions": 8,
+    "examples": [
+      "Driver Failure To Stop At Stop Sign Line",
+      "Failure To Stop At Stop Sign",
+      "Driver Failure To Stop At Intersection Hwy. Stop Sign And Yield Right-Of-Way",
+      "Driver Failure To Stop At Stop Sign Before Entering Crosswalk",
+      "Failure To Stop At Stop Sign At Nearest Point Of Approaching Traffic View"
+    ]
+  },
+  "Cell Phone / Distracted Driving": {
+    "total_occurrences": 627,
+    "unique_descriptions": 9,
+    "examples": [
+      "Driver Using Hands To Use Handheld Telephone Whilemotor Vehicle Is In Motion",
+      "Failure To Secure Automobile, Light Truck/Vans By Load Specific Rules",
+      "Using Hand-Held Mobile Phone While Operating A Commercial Motor Vehicle",
+      "Driver Using Hands To Use Handheld Telephone Whilemotor Vehicle Is In Motion Secondary Action",
+      "Driver Of A Class H Veh Carrying Passengers And Inmotion Using Handheld Phone"
+    ]
+  },
+  "Careless / Reckless Driving": {
+    "total_occurrences": 604,
+    "unique_descriptions": 4,
+    "examples": [
+      "Negligent Driving Vehicle In Careless And Imprudent Manner Endangering Property, Life And Person",
+      "Reckless Driving Vehicle In Wanton And Willful Disregard For Safety Of Persons And Property",
+      "Negligent Driving",
+      "Reckless Driving"
+    ]
+  },
+  "Missing Medical Certificate": {
+    "total_occurrences": 572,
+    "unique_descriptions": 1,
+    "examples": [
+      "Driving A Motor Veh Without A Valid Medical Examiners Certificate In Possession"
+    ]
+  },
+  "Brake Violation": {
+    "total_occurrences": 297,
+    "unique_descriptions": 121,
+    "examples": [
+      "Vehicle Brake System",
+      "Leaving Unattended Veh. W/O Stopping Engine, Locking Ignition, Removing Key & Setting Brake",
+      "Ext. Air Brake Component",
+      "Operating Motor Vehicle Without Proper Parking Brake System",
+      "Brakes On Truck Are Inoperative"
+    ]
+  },
+  "Hours of Service Violation": {
+    "total_occurrences": 86,
+    "unique_descriptions": 48,
+    "examples": [
+      "Brake Hose Not Secured Against Damage",
+      "Brake  Hose Not Secured Against Damage",
+      "Brake Hose Inadequate",
+      "Brake  Hose Inadequate",
+      "Brake  Hose Connections Are Leaking"
+    ]
+  },
+  "Red Light Violation": {
+    "total_occurrences": 57,
+    "unique_descriptions": 6,
+    "examples": [
+      "Failure To Stop For Stopped School Veh. Operating Alternately Flashing Red Lights",
+      "Failure To Remain Stopped For Stopped School Veh. Operating Alternately Flashing Red Lights",
+      "Failure To Stop For Stopped Veh. Operating Alternately Flashing Red Lights",
+      "Veh. Hwy. Operation With Inadequate Rear Red Light Reflector",
+      "393.17B2 - Driveaway Towaway W/Out Required Lights On Rear Of Towed Veh"
+    ]
+  },
+  "Failed Inspection": {
+    "total_occurrences": 56,
+    "unique_descriptions": 3,
+    "examples": [
+      "Motor Carrier Fail To Correct Defects Noted On Inspection Report",
+      "Materially Altering, Changing Veh. Equipment After Inspection, Repair Order Cert. Issued.",
+      "Failure To Make Shipping Papers Immediately Accessible For Inspection"
+    ]
+  },
+  "No Insurance": {
+    "total_occurrences": 45,
+    "unique_descriptions": 2,
+    "examples": [
+      "Failure Of Veh. Driver Involved In Accident To Give Insurance Policy Information",
+      "Failure Of Veh. Owner To Furnish Adm. Required Insurance Evidence After Bodily Injury Accident"
+    ]
+  },
+  "Weight Violation": {
+    "total_occurrences": 35,
+    "unique_descriptions": 32,
+    "examples": [
+      "Operating A Motor Vehicle Carrying A Weight Greater Than Specified For The Tires",
+      "Weight Violations On Highways And Interstates Exceeding Allowable Weight Of 56000Lbs By 3400Lbs",
+      "Weight Violations On Highways And Interstates Exceeding Allowable Weight Of 71000Lbs By 2400Lbs",
+      "Weight Violations On Highways And Interstates Exceeding Allowable Weight Of 71000Lbs By 1900Lbs",
+      "Weight Violations On Highways And Interstates Exceeding Allowable Weight Of 71000Lbs By 500Lbs"
+    ]
+  },
+  "HAZMAT Violation": {
+    "total_occurrences": 25,
+    "unique_descriptions": 8,
+    "examples": [
+      "Transporting Hazardous Materials W/O Registration",
+      "Fail To Obey Out-Of-Service Order Bu Driving Commercial M/V On Hwy.W/Transp. Nonhazardous Materials",
+      "Transporting Hazardous Materials W/O Shipping Papers",
+      "Fail To Obey Out-Of-Service Order By Driving Commercial Mv On Hwy. W/Transp. Nonhazardous Materials",
+      "Transporting Hazardous Materials W/Out Required Markings"
+    ]
+  },
+  "Oversize Load": {
+    "total_occurrences": 1,
+    "unique_descriptions": 1,
+    "examples": [
+      "Person Failing To Obtain And Possess Required Permit Before Moving An Oversized Load"
+    ]
+  }
+}

@@ -1,0 +1,2966 @@
+{
+  "ticket_001.png": {
+    "status": "ok",
+    "elapsed_s": 0.7,
+    "queue_id": "b6d741d9-fc77-459f-bc3d-9a6063773b70",
+    "pass_status": "yellow",
+    "avg_field_confidence": 0.911,
+    "fields_filled": 17,
+    "total_fields": 62,
+    "low_confidence_fields": [
+      "CDL_Expiration__c"
+    ],
+    "data": {
+      "success": true,
+      "mock": false,
+      "filename": "ticket_001.png",
+      "pages_processed": 1,
+      "pass_status": "yellow",
+      "low_confidence_fields": [
+        "CDL_Expiration__c"
+      ],
+      "referee_notes": "Some fields need review. Avg: 0.91. Low: CDL_Expiration__c",
+      "cdl_point_impact": {
+        "violation_category": "Registration Violations",
+        "cdl_points": 1,
+        "severity": "minor",
+        "csa_category": "Vehicle Maintenance",
+        "must_appear_in_court": false,
+        "attorney_recommended": false
+      },
+      "doc_severity": null,
+      "escalation_reason": null,
+      "queue_id": "b6d741d9-fc77-459f-bc3d-9a6063773b70",
+      "price_estimate": {
+        "avg_attny_price": 843.12,
+        "cdl_fee": 400,
+        "driver_price_base": 1243,
+        "driver_price_low": 1057,
+        "driver_price_high": 1492,
+        "win_rate_pct": 0.0,
+        "sample_size": 0,
+        "high_risk": false,
+        "data_source": "fallback",
+        "display": "$1,057 \u2013 $1,492",
+        "note": "No exact match for 'Registration Violations' in Alabama \u2014 using state average."
+      },
+      "dual_conflicts": [],
+      "attorney_matches": [],
+      "no_attorney_flag": true,
+      "cached": true,
+      "result": {
+        "file_type": "Ticket",
+        "other_document_types": [],
+        "file_type_analysis": {
+          "confidence_score": 0.97,
+          "ai_reason": "Document is titled 'ALABAMA UNIFORM NONTRAFFIC CITATION AND COMPLAINT', confirming it is a Ticket/Citation type."
+        },
+        "file_name": "NV1265563",
+        "document_text_format": "mixed",
+        "Date_of_Ticket__c": {
+          "value": "08/30/2023",
+          "confidence_score": 0.98,
+          "ai_reason": "Date '8/30/2023' is printed in the header area of the form next to 'Date', clearly the date of offense/issuance. Normalized to MM/DD/YYYY format.",
+          "bbox": null
+        },
+        "Violation_Description__c": {
+          "value": "Did violate, PSC-UCR VIOLATION, Section PSC RULE 3.216, Code of Alabama 1975, within the County of CLEBURNE at or near I-20 MP 209 & WEIGH STATION, more particularly described in the DESCRIPTION OF OFFENSE below. Vehicle: GA-C225ED 2003 FRHT TT",
+          "confidence_score": 0.95,
+          "ai_reason": "Verbatim extraction of the violation text from the body of the citation and the DESCRIPTION OF OFFENSE section. Combined both sections as they form the complete violation description.",
+          "bbox": null
+        },
+        "Violation_Category__c": {
+          "value": "Registration Violations",
+          "confidence_score": 0.8,
+          "ai_reason": "PSC-UCR VIOLATION (Unified Carrier Registration) is an administrative/regulatory compliance violation related to carrier registration requirements. Best mapped to 'Registration Violations' from the closed picklist.",
+          "bbox": null
+        },
+        "Court_Date__c": {
+          "value": "10/18/2023",
+          "confidence_score": 0.98,
+          "ai_reason": "Court appearance date of '10/18/2023' at 9:00 AM is printed in the COURT APPEARANCE INFORMATION section, with address at 120 VICKERY STREET, ROOM 202, HEFLIN AL 36264. Note: Alabama is listed as a state where Citation_Number__c is not printed, but court date is explicitly present on this non-traffic citation form.",
+          "bbox": null
+        },
+        "Accident__c": {
+          "value": "No",
+          "confidence_score": 0.92,
+          "ai_reason": "No accident or crash checkbox is marked, and the violation is a PSC-UCR administrative violation at a weigh station. No language referencing collision, accident, or property damage appears in the offense description.",
+          "bbox": null
+        },
+        "Drivers_License_Type__c": {
+          "value": "Non-CDL",
+          "confidence_score": 0.7,
+          "ai_reason": "Driver's license state is listed as GA with no CDL class indicator on the citation. No CDL checkbox or class field is marked. However, the violation involves a commercial vehicle (FRHT TT = Freightliner Tractor-Trailer), creating ambiguity. No explicit CDL designation found on document, defaulting to Non-CDL with reduced confidence.",
+          "bbox": null
+        },
+        "Ticket_Court__c": {
+          "value": "District Court of Cleburne County",
+          "confidence_score": 0.95,
+          "ai_reason": "The form header states 'IN THE DISTRICT COURT OF CLEBURNE COUNTY', identifying the court name. Address given as 120 VICKERY STREET, ROOM 202, HEFLIN AL 36264.",
+          "bbox": null
+        },
+        "Court_Phone_Number__c": {
+          "value": "(256) 463-2651",
+          "confidence_score": 0.97,
+          "ai_reason": "Telephone number '256-463-2651' is printed in the court appearance information section. Formatted as (256) 463-2651.",
+          "bbox": null
+        },
+        "Ticket_City__c": {
+          "value": "",
+          "confidence_score": 0.85,
+          "ai_reason": "The violation occurred 'at or near I-20 MP 209 & WEIGH STATION' in Cleburne County. No specific city of violation is identified on the citation. The driver's address city is Snellville, GA, which is not the violation city.",
+          "bbox": null
+        },
+        "Ticket_County__c": {
+          "value": "Cleburne",
+          "confidence_score": 0.99,
+          "ai_reason": "The citation explicitly states 'within the County of CLEBURNE' in the violation description, and the court header also shows 'CLEBURNE COUNTY'.",
+          "bbox": null
+        },
+        "Ticket_State__c": {
+          "value": "Alabama",
+          "confidence_score": 0.99,
+          "ai_reason": "Document header states 'State of Alabama Unified Judicial System' and 'ALABAMA UNIFORM NONTRAFFIC CITATION AND COMPLAINT', confirming Alabama as the issuing state.",
+          "bbox": null
+        },
+        "Insp_Report_Num__c": {
+          "value": "",
+          "confidence_score": 0.95,
+          "ai_reason": "No separate Inspection Report is present in this document. The citation references a weigh station stop but no FMCSA Driver/Vehicle Examination Report number is printed on this citation.",
+          "bbox": null
+        },
+        "Citation_Number__c": {
+          "value": "",
+          "confidence_score": 0.95,
+          "ai_reason": "Alabama is listed in the state-specific rules as a state where Citation_Number__c is NOT printed on tickets. The alphanumeric 'NV1265563' appears to be a case/control number in the upper right, but per Alabama state rules, citation numbers are not printed on Alabama tickets. Field left empty with high confidence per state-specific rule.",
+          "bbox": null
+        },
+        "Inspection_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Time__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "DOT_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type; no DOT number printed on this citation.",
+          "bbox": null
+        },
+        "Inspection_Level__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "VIN__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type; no VIN printed on this citation.",
+          "bbox": null
+        },
+        "Unit_Make__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Unit_License_Plate__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Driver_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Vehicle_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Categories__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Report_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Federal_Recordable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "State_Reportable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Fatalities__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Injuries__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Towaway__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Citation_Issued__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "HM_Involved__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Case_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Amount__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Due_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Category__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "CDL_License_Number__c": {
+          "value": "058594395",
+          "confidence_score": 0.95,
+          "ai_reason": "License number '058594395' is printed in the Driver's License Number field on the citation form.",
+          "bbox": null
+        },
+        "CDL_State__c": {
+          "value": "Georgia",
+          "confidence_score": 0.97,
+          "ai_reason": "Driver's license state is printed as 'GA' (Georgia) next to the license number field.",
+          "bbox": null
+        },
+        "CDL_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No license class is printed on this citation document.",
+          "bbox": null
+        },
+        "CDL_Expiration__c": {
+          "value": "08/29/1958",
+          "confidence_score": 0.4,
+          "ai_reason": "The field labeled 'Expiration Date' shows '8/29/1958'. This date is implausible as a license expiration (it predates modern CDL systems) and may actually be the driver's date of birth which appears to be the same value. The Birth Date field also shows '8/29/1958'. This likely represents a data entry or form layout confusion \u2014 the expiration date field may not have been filled. Setting low confidence due to implausible value.",
+          "bbox": null
+        },
+        "CDL_Endorsements__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type; endorsements not listed on this citation.",
+          "bbox": null
+        },
+        "CDL_Restrictions__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type; restrictions not listed on this citation.",
+          "bbox": null
+        },
+        "Driver_First_Name__c": {
+          "value": "LEVANOUS",
+          "confidence_score": 0.97,
+          "ai_reason": "First name 'LEVANOUS' is printed in the 'First' name field on the citation form.",
+          "bbox": null
+        },
+        "Driver_Last_Name__c": {
+          "value": "NORMAN",
+          "confidence_score": 0.97,
+          "ai_reason": "Last name 'NORMAN' is printed in the 'Last' name field on the citation form.",
+          "bbox": null
+        },
+        "Driver_DOB__c": {
+          "value": "08/29/1958",
+          "confidence_score": 0.97,
+          "ai_reason": "Date of birth '8/29/1958' is printed in the 'Birth Date' field on the citation form. Normalized to MM/DD/YYYY format.",
+          "bbox": null
+        },
+        "Driver_Address__c": {
+          "value": "4870 WYNSHIP LN, SNELLVILLE, GA 30039",
+          "confidence_score": 0.96,
+          "ai_reason": "Driver's address fields show street '4870 WYNSHIP LN', city 'SNELLVILLE', state 'GA', zip '30039'. Combined into a single address string.",
+          "bbox": null
+        },
+        "MVR_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Generated_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Violations_Summary__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Total_Points__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Suspension_Count__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        }
+      }
+    }
+  },
+  "ticket_002.png": {
+    "status": "ok",
+    "elapsed_s": 29.0,
+    "queue_id": "41d88d31-7528-4096-a07b-14fd77342c8c",
+    "pass_status": "green",
+    "avg_field_confidence": 0.873,
+    "fields_filled": 17,
+    "total_fields": 62,
+    "low_confidence_fields": [],
+    "data": {
+      "success": true,
+      "mock": false,
+      "filename": "ticket_002.png",
+      "pages_processed": 1,
+      "pass_status": "green",
+      "low_confidence_fields": [],
+      "referee_notes": "All fields high confidence. Avg score: 0.87",
+      "cdl_point_impact": {
+        "violation_category": "Failure to Obey Traffic Control Device",
+        "cdl_points": 2,
+        "severity": "standard",
+        "csa_category": "Unsafe Driving",
+        "must_appear_in_court": false,
+        "attorney_recommended": false
+      },
+      "doc_severity": null,
+      "escalation_reason": null,
+      "queue_id": "41d88d31-7528-4096-a07b-14fd77342c8c",
+      "price_estimate": {
+        "avg_attny_price": 799.0,
+        "cdl_fee": 400,
+        "driver_price_base": 1199,
+        "driver_price_low": 1019,
+        "driver_price_high": 1439,
+        "win_rate_pct": 100.0,
+        "sample_size": 9,
+        "high_risk": false,
+        "data_source": "historical",
+        "display": "$1,019 \u2013 $1,439",
+        "note": ""
+      },
+      "dual_conflicts": [],
+      "attorney_matches": [],
+      "no_attorney_flag": true,
+      "cached": true,
+      "result": {
+        "file_type": "Ticket",
+        "other_document_types": [],
+        "file_type_analysis": {
+          "confidence_score": 0.98,
+          "ai_reason": "Document is titled 'TICKET AND COMPLAINT', FORM UTC-1, REV. 3/2003, issued in Alabama. It contains citation number, court appearance information, violation checkboxes, and defendant/complainant fields \u2014 all hallmarks of a traffic ticket."
+        },
+        "file_name": "",
+        "document_text_format": "mixed",
+        "Date_of_Ticket__c": {
+          "value": "10/11/2010",
+          "confidence_score": 0.85,
+          "ai_reason": "The offense date is handwritten in the Month/Day/Year fields as '10 11 16210' \u2014 reading Month=10, Day=11, Year=2010 (the '162' appears to be a misread; the year field shows '10' after the slash area). The date block reads Month=10, Day=11, Year=10, normalized to 10/11/2010.",
+          "bbox": null
+        },
+        "Violation_Description__c": {
+          "value": "Running Red Light",
+          "confidence_score": 0.82,
+          "ai_reason": "Checkbox item 10 'Running Red Light' appears to be checked in the CHECK THE APPROPRIATE BLOCK section. The violation code section references Section 32-5A-32(3)A of the Code of Alabama 1975, which aligns with traffic control device violations.",
+          "bbox": null
+        },
+        "Violation_Category__c": {
+          "value": "Failure to Obey Traffic Control Device",
+          "confidence_score": 0.82,
+          "ai_reason": "Checkbox 10 'Running Red Light' is marked. Per normalization rules, 'Run red light' maps to 'Failure to Obey Traffic Control Device'.",
+          "bbox": null
+        },
+        "Court_Date__c": {
+          "value": "04/06/2020",
+          "confidence_score": 0.8,
+          "ai_reason": "Court Appearance Date is handwritten as M=4, D=6, Y=20, normalized to 04/06/2020. This is in the COURT APPEARANCE INFORMATION section of the ticket. Note: year '20' normalized to 2020 per DATE NORMALIZATION RULES.",
+          "bbox": null
+        },
+        "Accident__c": {
+          "value": "No",
+          "confidence_score": 0.9,
+          "ai_reason": "The 'Accident Involved' checkbox in the FACTS RELATING TO THE OFFENSE section does not appear to be checked/marked.",
+          "bbox": null
+        },
+        "Drivers_License_Type__c": {
+          "value": "CDL",
+          "confidence_score": 0.88,
+          "ai_reason": "The 'CDL Required' checkbox appears to be checked 'Yes'. Additionally, the Class of License field shows 'A', which is a commercial license class. Per extraction rules, Class A maps to CDL.",
+          "bbox": null
+        },
+        "Ticket_Court__c": {
+          "value": "Jefferson County District Court",
+          "confidence_score": 0.88,
+          "ai_reason": "Court section shows 'District Court' checkbox selected and the court name is handwritten as 'Jefferson County' \u2014 combined to 'Jefferson County District Court'.",
+          "bbox": null
+        },
+        "Court_Phone_Number__c": {
+          "value": "(200) 325-5309",
+          "confidence_score": 0.75,
+          "ai_reason": "Phone number next to court name is handwritten as '(200) 325-5309'. The area code '200' may be a misread of '205' (Jefferson County, AL typical area code), but extracted verbatim from what is visible.",
+          "bbox": null
+        },
+        "Ticket_City__c": {
+          "value": "",
+          "confidence_score": 0.7,
+          "ai_reason": "The CITY field at the top of the ticket appears blank or unreadable. The offense location references Hwy 78 in Jefferson County but no specific city is clearly printed in the city field.",
+          "bbox": null
+        },
+        "Ticket_County__c": {
+          "value": "Jefferson",
+          "confidence_score": 0.95,
+          "ai_reason": "The document header reads 'ALABAMA, COUNTY OF Jefferson' and the offense location references 'Jefferson' County. Jefferson County is clearly identified.",
+          "bbox": null
+        },
+        "Ticket_State__c": {
+          "value": "Alabama",
+          "confidence_score": 0.99,
+          "ai_reason": "Document header explicitly states 'ALABAMA, COUNTY OF' and the form is FORM UTC-1 (Alabama Uniform Traffic Citation).",
+          "bbox": null
+        },
+        "Insp_Report_Num__c": {
+          "value": "",
+          "confidence_score": 0.95,
+          "ai_reason": "No inspection report number is present on this ticket. Alabama is listed as a state where Citation_Number__c is not printed on tickets, but this is a ticket-only document with no attached inspection report.",
+          "bbox": null
+        },
+        "Citation_Number__c": {
+          "value": "",
+          "confidence_score": 0.95,
+          "ai_reason": "Alabama is listed in the STATE-SPECIFIC FIELD AVAILABILITY section as a state where Citation_Number__c is NOT printed on tickets. The number 'N 5190978' visible on the document is the ticket/form number pre-printed on the form, which serves as the internal document control number. Per Alabama-specific rules, citation numbers are not printed on Alabama UTC-1 tickets.",
+          "bbox": null
+        },
+        "Inspection_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Time__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "DOT_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type. No DOT number present on this document.",
+          "bbox": null
+        },
+        "Inspection_Level__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "VIN__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type. No VIN field present on this Alabama UTC-1 form.",
+          "bbox": null
+        },
+        "Unit_Make__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Unit_License_Plate__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Driver_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Vehicle_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Categories__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Report_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Federal_Recordable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "State_Reportable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Fatalities__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Injuries__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Towaway__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Citation_Issued__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "HM_Involved__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Case_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Amount__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Due_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Category__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "CDL_License_Number__c": {
+          "value": "H159802640 2822",
+          "confidence_score": 0.78,
+          "ai_reason": "Driver's License Number field is handwritten as 'H159802640 2822' (Minnesota DL number format). Extracted verbatim from the Driver's License Number field on the ticket.",
+          "bbox": null
+        },
+        "CDL_State__c": {
+          "value": "Minnesota",
+          "confidence_score": 0.95,
+          "ai_reason": "The State field for the driver's license shows 'MN', which corresponds to Minnesota. The driver's address also shows state 'MN'.",
+          "bbox": null
+        },
+        "CDL_Class__c": {
+          "value": "A",
+          "confidence_score": 0.88,
+          "ai_reason": "The Class of License field on the ticket shows 'A', indicating a Class A commercial driver's license.",
+          "bbox": null
+        },
+        "CDL_Expiration__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No CDL expiration date is printed on this ticket document. Expiration date fields are not part of Alabama UTC-1 ticket forms.",
+          "bbox": null
+        },
+        "CDL_Endorsements__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No CDL endorsement information is present on this ticket. Endorsements are not recorded on Alabama UTC-1 ticket forms.",
+          "bbox": null
+        },
+        "CDL_Restrictions__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No CDL restriction information is present on this ticket. Restrictions are not recorded on Alabama UTC-1 ticket forms.",
+          "bbox": null
+        },
+        "Driver_First_Name__c": {
+          "value": "Gary",
+          "confidence_score": 0.92,
+          "ai_reason": "The First Name field is handwritten as 'Gary'.",
+          "bbox": null
+        },
+        "Driver_Last_Name__c": {
+          "value": "Weiss",
+          "confidence_score": 0.92,
+          "ai_reason": "The Last name field at top right is handwritten as 'Weiss'.",
+          "bbox": null
+        },
+        "Driver_DOB__c": {
+          "value": "07/10/1963",
+          "confidence_score": 0.82,
+          "ai_reason": "The DOB field shows M=07, D=10, Y=63. Normalized per DATE NORMALIZATION RULES: year '63' \u2192 '1963' (pre-2000 birth year), resulting in 07/10/1963.",
+          "bbox": null
+        },
+        "Driver_Address__c": {
+          "value": "12695 Germane #13, Apple Valley, MN 55124",
+          "confidence_score": 0.85,
+          "ai_reason": "Driver address fields show Street: '12695 Germane #13', City: 'Apple Valley', State: 'MN', Zip: '55124'. Combined into a single address string.",
+          "bbox": null
+        },
+        "MVR_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Generated_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Violations_Summary__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Total_Points__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Suspension_Count__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        }
+      }
+    }
+  },
+  "ticket_003.png": {
+    "status": "ok",
+    "elapsed_s": 48.4,
+    "queue_id": "fc3f584b-3b34-4063-bd3e-db8eb4093b4c",
+    "pass_status": "green",
+    "avg_field_confidence": 0.987,
+    "fields_filled": 19,
+    "total_fields": 62,
+    "low_confidence_fields": [],
+    "data": {
+      "success": true,
+      "mock": false,
+      "filename": "ticket_003.png",
+      "pages_processed": 1,
+      "pass_status": "green",
+      "low_confidence_fields": [],
+      "referee_notes": "All fields high confidence. Avg score: 0.99",
+      "cdl_point_impact": {
+        "violation_category": "Speeding (15+)",
+        "cdl_points": 4,
+        "severity": "serious",
+        "csa_category": "Unsafe Driving",
+        "must_appear_in_court": false,
+        "attorney_recommended": true
+      },
+      "doc_severity": null,
+      "escalation_reason": null,
+      "queue_id": "fc3f584b-3b34-4063-bd3e-db8eb4093b4c",
+      "price_estimate": {
+        "avg_attny_price": 887.25,
+        "cdl_fee": 400,
+        "driver_price_base": 1287,
+        "driver_price_low": 1094,
+        "driver_price_high": 1544,
+        "win_rate_pct": 83.3,
+        "sample_size": 12,
+        "high_risk": false,
+        "data_source": "historical",
+        "display": "$1,094 \u2013 $1,544",
+        "note": ""
+      },
+      "dual_conflicts": [],
+      "attorney_matches": [],
+      "no_attorney_flag": true,
+      "cached": false,
+      "result": {
+        "file_type": "Ticket",
+        "other_document_types": [],
+        "file_type_analysis": {
+          "confidence_score": 0.99,
+          "ai_reason": "Document is titled 'ALABAMA UNIFORM TRAFFIC TICKET AND COMPLAINT' \u2014 confirmed Ticket type with citation number, violation, officer info, and court appearance information."
+        },
+        "file_name": "",
+        "document_text_format": "digital",
+        "Date_of_Ticket__c": {
+          "value": "12/04/2022",
+          "confidence_score": 0.99,
+          "ai_reason": "Date is explicitly printed on the document as '12/4/2022' adjacent to 'Date' label near the top of the form, normalized to MM/DD/YYYY format.",
+          "bbox": null
+        },
+        "Violation_Description__c": {
+          "value": "Speeding (92/65 mph)",
+          "confidence_score": 0.99,
+          "ai_reason": "Violation described as 'SPEEDING 26 MPH OVER LIMIT' with speed details showing 92 MPH in a 65 MPH zone. Per speeding exception rule, formatted as Speeding (92/65 mph).",
+          "bbox": null
+        },
+        "Violation_Category__c": {
+          "value": "Speeding (15+)",
+          "confidence_score": 0.99,
+          "ai_reason": "Driver was traveling 92 MPH in a 65 MPH zone \u2014 27 mph over the limit, which exceeds the 15+ mph threshold for 'Speeding (15+)' category.",
+          "bbox": null
+        },
+        "Court_Date__c": {
+          "value": "02/07/2023",
+          "confidence_score": 0.99,
+          "ai_reason": "Court Appearance Date and Time is explicitly printed as '2/7/2023' at '8:30 AM' in the COURT APPEARANCE INFORMATION section at the bottom of the document. Normalized to MM/DD/YYYY.",
+          "bbox": null
+        },
+        "Accident__c": {
+          "value": "No",
+          "confidence_score": 0.99,
+          "ai_reason": "Document explicitly states 'Crash Involved: NO' in the Facts Relating to the Offense section.",
+          "bbox": null
+        },
+        "Drivers_License_Type__c": {
+          "value": "CDL",
+          "confidence_score": 0.99,
+          "ai_reason": "Class of License field shows 'A', which is a Class A commercial driver's license \u2014 maps to CDL.",
+          "bbox": null
+        },
+        "Ticket_Court__c": {
+          "value": "District Court of Montgomery County",
+          "confidence_score": 0.99,
+          "ai_reason": "Court name is explicitly printed as 'DISTRICT COURT OF MONTGOMERY COUNTY' in the Court Appearance Information section.",
+          "bbox": null
+        },
+        "Court_Phone_Number__c": {
+          "value": "(866) 954-9395",
+          "confidence_score": 0.97,
+          "ai_reason": "Phone number '866-954-9395' is printed in the Court Appearance Information section next to the court website. Formatted as (866) 954-9395.",
+          "bbox": null
+        },
+        "Ticket_City__c": {
+          "value": "Rural Montgomery",
+          "confidence_score": 0.99,
+          "ai_reason": "City field at the top of the form is printed as 'RURAL MONTGOMERY'.",
+          "bbox": null
+        },
+        "Ticket_County__c": {
+          "value": "Montgomery",
+          "confidence_score": 0.99,
+          "ai_reason": "County is explicitly printed as 'MONTGOMERY' in the Alabama County field at the top of the form.",
+          "bbox": null
+        },
+        "Ticket_State__c": {
+          "value": "Alabama",
+          "confidence_score": 0.99,
+          "ai_reason": "Document is titled 'ALABAMA UNIFORM TRAFFIC TICKET AND COMPLAINT' \u2014 state is Alabama. Confirmed by form header.",
+          "bbox": null
+        },
+        "Insp_Report_Num__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No inspection report number is present on this ticket document.",
+          "bbox": null
+        },
+        "Citation_Number__c": {
+          "value": "U2325365",
+          "confidence_score": 0.95,
+          "ai_reason": "Ticket Number is explicitly printed as 'U2325365' in the upper right area of the form under the 'TICKET NUMBER' label. Note: Per state-specific rules, Alabama tickets do not print citation numbers; however, this document clearly shows a Ticket Number 'U2325365' which serves as the citation identifier.",
+          "bbox": null
+        },
+        "Inspection_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Time__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "DOT_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type; no DOT number present on this document.",
+          "bbox": null
+        },
+        "Inspection_Level__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "VIN__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No VIN is printed on this ticket document.",
+          "bbox": null
+        },
+        "Unit_Make__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Unit_License_Plate__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Driver_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Vehicle_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Categories__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Report_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Federal_Recordable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "State_Reportable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Fatalities__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Injuries__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Towaway__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Citation_Issued__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "HM_Involved__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Case_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Amount__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Due_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Category__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "CDL_License_Number__c": {
+          "value": "M263936714050",
+          "confidence_score": 0.99,
+          "ai_reason": "Driver's License Number is printed as 'M263936714050' in the Driver's License Number field on the ticket.",
+          "bbox": null
+        },
+        "CDL_State__c": {
+          "value": "Florida",
+          "confidence_score": 0.99,
+          "ai_reason": "Driver's license state is printed as 'FL' (Florida) in the State field adjacent to the Driver's License Number field.",
+          "bbox": null
+        },
+        "CDL_Class__c": {
+          "value": "A",
+          "confidence_score": 0.99,
+          "ai_reason": "Class of License is printed as 'A' on the ticket form.",
+          "bbox": null
+        },
+        "CDL_Expiration__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No CDL expiration date is printed on this ticket document.",
+          "bbox": null
+        },
+        "CDL_Endorsements__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No endorsement information is printed on this ticket document.",
+          "bbox": null
+        },
+        "CDL_Restrictions__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No restriction information is printed on this ticket document.",
+          "bbox": null
+        },
+        "Driver_First_Name__c": {
+          "value": "WILLIAM",
+          "confidence_score": 0.99,
+          "ai_reason": "Driver's first name is explicitly printed as 'WILLIAM' in the First Name field of the ticket.",
+          "bbox": null
+        },
+        "Driver_Last_Name__c": {
+          "value": "MCCARTNEY",
+          "confidence_score": 0.99,
+          "ai_reason": "Driver's last name is explicitly printed as 'MCCARTNEY' in the Last field of the ticket.",
+          "bbox": null
+        },
+        "Driver_DOB__c": {
+          "value": "11/05/1971",
+          "confidence_score": 0.99,
+          "ai_reason": "Date of Birth is printed as '11/5/1971' in the DOB field on the ticket. Normalized to MM/DD/YYYY as 11/05/1971.",
+          "bbox": null
+        },
+        "Driver_Address__c": {
+          "value": "2431 NW 86TH ST, MIAMI, FL 33147-4150",
+          "confidence_score": 0.99,
+          "ai_reason": "Driver's address is printed as '2431 NW 86TH ST' with city 'MIAMI', state 'FL', and zip code '33147-4150' on the ticket form. Combined into a single address string.",
+          "bbox": null
+        },
+        "MVR_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Generated_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Violations_Summary__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Total_Points__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Suspension_Count__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        }
+      }
+    }
+  },
+  "ticket_004.png": {
+    "status": "ok",
+    "elapsed_s": 111.6,
+    "queue_id": "425f623c-f1e7-484c-883a-db7a53ba473c",
+    "pass_status": "red",
+    "avg_field_confidence": 0.955,
+    "fields_filled": 17,
+    "total_fields": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "data": {
+      "success": true,
+      "mock": false,
+      "filename": "ticket_004.png",
+      "pages_processed": 1,
+      "pass_status": "red",
+      "low_confidence_fields": [
+        "Court_Date__c"
+      ],
+      "referee_notes": "Critical field(s) below floor: Court_Date__c",
+      "cdl_point_impact": null,
+      "doc_severity": null,
+      "escalation_reason": "Critical field(s) below floor: Court_Date__c",
+      "queue_id": "425f623c-f1e7-484c-883a-db7a53ba473c",
+      "price_estimate": {
+        "avg_attny_price": 524.42,
+        "cdl_fee": 400,
+        "driver_price_base": 924,
+        "driver_price_low": 785,
+        "driver_price_high": 1109,
+        "win_rate_pct": 0.0,
+        "sample_size": 0,
+        "high_risk": false,
+        "data_source": "fallback",
+        "display": "$785 \u2013 $1,109",
+        "note": "No data for Alaska \u2014 using national average."
+      },
+      "dual_conflicts": [
+        "Violation_Description__c",
+        "Ticket_Court__c",
+        "Driver_Address__c",
+        "Driver_DOB__c"
+      ],
+      "attorney_matches": [],
+      "no_attorney_flag": true,
+      "cached": false,
+      "result": {
+        "file_type": "Ticket",
+        "other_document_types": [],
+        "file_type_analysis": {
+          "confidence_score": 0.97,
+          "ai_reason": "Document is titled 'UNIFORM SUMMONS AND COMPLAINT' and 'ANCHORAGE POLICE DEPARTMENT' with 'Traffic Offense' marked, citation number present, defendant information, violation code, and court appearance instructions \u2014 clearly a traffic citation/ticket."
+        },
+        "file_name": "",
+        "document_text_format": "digital",
+        "Date_of_Ticket__c": {
+          "value": "07/03/2022",
+          "confidence_score": 0.98,
+          "ai_reason": "Date is clearly printed on the officer signature line area as '07/03/2022' and also visible in the header as 'ON Sun THE 3RD DAY OF Jul 2022 AT 05:33 AM', confirming the date of offense as July 3, 2022, normalized to MM/DD/YYYY.",
+          "bbox": null
+        },
+        "Violation_Description__c": {
+          "value": "AMC9.28.030(A): Driving without Proof of Insurance/Other Security (Correctable)",
+          "confidence_score": 0.97,
+          "ai_reason": "The offense section lists 'AMC9.28.030(A): Driving without Proof of Insurance/Other Security (Correctable)' as the cited violation, extracted verbatim from the document.",
+          "bbox": null
+        },
+        "Violation_Category__c": {
+          "value": "Registration Violations",
+          "confidence_score": 0.93,
+          "ai_reason": "AMC9.28.030(A) is driving without proof of insurance/other security, which maps to 'Registration Violations' per the normalization rules ('No Insurance' maps to Registration Violations).",
+          "bbox": null
+        },
+        "Court_Date__c": {
+          "value": "",
+          "confidence_score": 0.9,
+          "ai_reason": "The document states 'OPTIONAL COURT APPEARANCE' and instructs the defendant to pay or respond within 30 days. The offense is a civil traffic infraction (Registration Violations category), not a criminal offense. The document does not print a specific mandatory court date. The right side states payment must be made within 30 days, but no specific calendar court date is printed. The ticket date is 07/03/2022; however, since this is Alaska (not Florida or Washington), the 30-day rule does not auto-apply. No explicit court date is printed on the document, so value is empty.",
+          "bbox": null
+        },
+        "Accident__c": {
+          "value": "No",
+          "confidence_score": 0.9,
+          "ai_reason": "No accident or crash checkbox is marked on the document. The violation is driving without proof of insurance, and there is no mention of a collision, property damage, or bodily injury in the offense or remarks sections.",
+          "bbox": null
+        },
+        "Drivers_License_Type__c": {
+          "value": "CDL",
+          "confidence_score": 0.97,
+          "ai_reason": "The document lists 'Cdl-A' under the license class field, indicating a Class A Commercial Driver's License. Per extraction rules, Class A maps to 'CDL'.",
+          "bbox": null
+        },
+        "Ticket_Court__c": {
+          "value": "Third Judicial District of Alaska",
+          "confidence_score": 0.9,
+          "ai_reason": "The document header states 'THE THIRD JUDICIAL DISTRICT OF ALASKA' and references the District Court of Anchorage. The court name is identified as Third Judicial District of Alaska.",
+          "bbox": null
+        },
+        "Court_Phone_Number__c": {
+          "value": "(907) 786-2429",
+          "confidence_score": 0.93,
+          "ai_reason": "Phone number '(907) 786-2429' is printed in the optional court appearance section: 'call (907) 786-2429 Monday through Friday 7am-7pm'. Formatted as (xxx) xxx-xxxx.",
+          "bbox": null
+        },
+        "Ticket_City__c": {
+          "value": "Anchorage",
+          "confidence_score": 0.99,
+          "ai_reason": "The document clearly states 'MUNICIPALITY OF ANCHORAGE, PLAINTIFF' and 'ANCHORAGE POLICE DEPARTMENT', and the offense location is listed as '36th/ Lois' in Anchorage, AK.",
+          "bbox": null
+        },
+        "Ticket_County__c": {
+          "value": "",
+          "confidence_score": 0.95,
+          "ai_reason": "Alaska does not use counties in the same way as other states; the document references the Municipality of Anchorage rather than a county. No county field is printed on this Alaska ticket.",
+          "bbox": null
+        },
+        "Ticket_State__c": {
+          "value": "Alaska",
+          "confidence_score": 0.99,
+          "ai_reason": "The document header clearly states 'ANCHORAGE POLICE DEPARTMENT', 'MUNICIPALITY OF ANCHORAGE', 'STATE AK', and 'THIRD JUDICIAL DISTRICT OF ALASKA', confirming the state as Alaska.",
+          "bbox": null
+        },
+        "Insp_Report_Num__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No inspection report is present in this document, and no inspection report number is referenced.",
+          "bbox": null
+        },
+        "Citation_Number__c": {
+          "value": "A3950689",
+          "confidence_score": 0.97,
+          "ai_reason": "The citation/ticket number is printed prominently as 'No. A3950689' in the header of the Uniform Summons and Complaint form, clearly labeled as the ticket/summons number.",
+          "bbox": null
+        },
+        "Inspection_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Time__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "DOT_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No DOT number is printed on this traffic ticket.",
+          "bbox": null
+        },
+        "Inspection_Level__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "VIN__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No VIN is explicitly printed on this ticket. The vehicle information section shows plate and state but no VIN field is visible.",
+          "bbox": null
+        },
+        "Unit_Make__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Unit_License_Plate__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Inspection Report type.",
+          "bbox": null
+        },
+        "Driver_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Vehicle_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Categories__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Report_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Federal_Recordable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "State_Reportable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Fatalities__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Injuries__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Towaway__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Citation_Issued__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "HM_Involved__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Case_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Amount__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Due_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Category__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "CDL_License_Number__c": {
+          "value": "7613769",
+          "confidence_score": 0.93,
+          "ai_reason": "The license number is printed in the defendant's information section as '7613769' following 'Cdl-A' and the APSIN number, identified as the driver's license number on the ticket.",
+          "bbox": null
+        },
+        "CDL_State__c": {
+          "value": "Alaska",
+          "confidence_score": 0.97,
+          "ai_reason": "The license is issued in Alaska as indicated by 'STATE AK' next to the license number field on the ticket.",
+          "bbox": null
+        },
+        "CDL_Class__c": {
+          "value": "A",
+          "confidence_score": 0.97,
+          "ai_reason": "The document explicitly states 'Cdl-A' in the license class section, indicating a Class A Commercial Driver License.",
+          "bbox": null
+        },
+        "CDL_Expiration__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No CDL expiration date is printed on this traffic ticket.",
+          "bbox": null
+        },
+        "CDL_Endorsements__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No endorsement information is printed on this traffic ticket.",
+          "bbox": null
+        },
+        "CDL_Restrictions__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No restriction information is printed on this traffic ticket.",
+          "bbox": null
+        },
+        "Driver_First_Name__c": {
+          "value": "RYAN EDWARD",
+          "confidence_score": 0.97,
+          "ai_reason": "The defendant's name is printed as 'DONALDSON, RYAN EDWARD' \u2014 last name first format. First name extracted as 'RYAN EDWARD' (including middle name as printed).",
+          "bbox": null
+        },
+        "Driver_Last_Name__c": {
+          "value": "DONALDSON",
+          "confidence_score": 0.99,
+          "ai_reason": "The defendant's name is printed as 'DONALDSON, RYAN EDWARD' in the DEFENDANT field. Last name is 'DONALDSON'.",
+          "bbox": null
+        },
+        "Driver_DOB__c": {
+          "value": "03/03/1983",
+          "confidence_score": 0.97,
+          "ai_reason": "The date of birth is printed as '03/03/1983' in the defendant information section labeled 'DOB', normalized to MM/DD/YYYY format.",
+          "bbox": null
+        },
+        "Driver_Address__c": {
+          "value": "1920 W 32ND AVE, ANCHORAGE, AK",
+          "confidence_score": 0.95,
+          "ai_reason": "The defendant's address is printed as '1920 W 32ND AVE' with city 'ANCHORAGE' and state 'AK' in the address fields of the citation.",
+          "bbox": null
+        },
+        "MVR_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Generated_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Violations_Summary__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Total_Points__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Suspension_Count__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        }
+      }
+    }
+  },
+  "ticket_005.png": {
+    "status": "ok",
+    "elapsed_s": 53.9,
+    "queue_id": "5cac3491-c434-4f00-be53-4b2d4866a331",
+    "pass_status": "green",
+    "avg_field_confidence": 0.959,
+    "fields_filled": 21,
+    "total_fields": 62,
+    "low_confidence_fields": [],
+    "data": {
+      "success": true,
+      "mock": false,
+      "filename": "ticket_005.png",
+      "pages_processed": 1,
+      "pass_status": "green",
+      "low_confidence_fields": [],
+      "referee_notes": "All fields high confidence. Avg score: 0.96",
+      "cdl_point_impact": {
+        "violation_category": "Lane Violation",
+        "cdl_points": 2,
+        "severity": "standard",
+        "csa_category": "Unsafe Driving",
+        "must_appear_in_court": false,
+        "attorney_recommended": false
+      },
+      "doc_severity": null,
+      "escalation_reason": null,
+      "queue_id": "5cac3491-c434-4f00-be53-4b2d4866a331",
+      "price_estimate": {
+        "avg_attny_price": 500.0,
+        "cdl_fee": 400,
+        "driver_price_base": 900,
+        "driver_price_low": 765,
+        "driver_price_high": 1080,
+        "win_rate_pct": 81.3,
+        "sample_size": 16,
+        "high_risk": true,
+        "data_source": "historical",
+        "display": "$765 \u2013 $1,080",
+        "note": ""
+      },
+      "dual_conflicts": [],
+      "attorney_matches": [],
+      "no_attorney_flag": true,
+      "cached": false,
+      "result": {
+        "file_type": "Ticket",
+        "other_document_types": [],
+        "file_type_analysis": {
+          "confidence_score": 0.98,
+          "ai_reason": "Document is titled 'ARIZONA TRAFFIC TICKET AND COMPLAINT' issued by the Arizona Department of Public Safety. It contains citation number, defendant information, violation fields, court information, and officer signature \u2014 all hallmarks of a traffic ticket."
+        },
+        "file_name": "",
+        "document_text_format": "mixed",
+        "Date_of_Ticket__c": {
+          "value": "03/15/2023",
+          "confidence_score": 0.98,
+          "ai_reason": "The date field labeled 'Date' in the officer certification section reads '03/15/2023', which is the date the undersigned certified the violation. This is the ticket issue date.",
+          "bbox": null
+        },
+        "Violation_Description__c": {
+          "value": "DRIVE IN ONE LANE; UNSAFE LANE CHANGE",
+          "confidence_score": 0.97,
+          "ai_reason": "The violation section under 'THE DEFENDANT COMMITTED THE FOLLOWING' lists Statute ARS 28-729.1 with Violation text 'DRIVE IN ONE LANE; UNSAFE LANE CHANGE'. Extracted verbatim.",
+          "bbox": null
+        },
+        "Violation_Category__c": {
+          "value": "Lane Violation",
+          "confidence_score": 0.97,
+          "ai_reason": "'UNSAFE LANE CHANGE' maps directly to the 'Lane Violation' category per normalization rules ('Unsafe Lane Change' is explicitly listed as a mapping for Lane Violation).",
+          "bbox": null
+        },
+        "Court_Date__c": {
+          "value": "04/27/2023",
+          "confidence_score": 0.97,
+          "ai_reason": "The court appearance section reads 'AT THE DATE AND TIME INDICATED: VIRTUAL APPEARANCES VARY BY COURT' with Date '04/27/2023' and Time '10:00 AM'. This is the mandatory appearance date printed on the citation.",
+          "bbox": null
+        },
+        "Accident__c": {
+          "value": "No",
+          "confidence_score": 0.92,
+          "ai_reason": "The checkboxes at the top of the form show 'COLLISION' is not checked. The violation is a lane violation with no accident-related language. The 'COLLISION' checkbox is unchecked.",
+          "bbox": null
+        },
+        "Drivers_License_Type__c": {
+          "value": "CDL",
+          "confidence_score": 0.97,
+          "ai_reason": "The driver's license information section shows 'Class A' under the Class field and 'CDL' is indicated. Class A is a commercial driver's license class, mapping to 'CDL'.",
+          "bbox": null
+        },
+        "Ticket_Court__c": {
+          "value": "NORTH STAR JC",
+          "confidence_score": 0.95,
+          "ai_reason": "The court field in the appearance section reads 'NORTH STAR JC' as the court name.",
+          "bbox": null
+        },
+        "Court_Phone_Number__c": {
+          "value": "(928) 688-2954",
+          "confidence_score": 0.96,
+          "ai_reason": "The court phone number is printed as '(928) 688-2954' in the court information section.",
+          "bbox": null
+        },
+        "Ticket_City__c": {
+          "value": "SANDERS",
+          "confidence_score": 0.95,
+          "ai_reason": "The court address section lists 'SANDERS, AZ 86512' as the city/state/zip for the court location, indicating the ticket was issued in Sanders, AZ.",
+          "bbox": null
+        },
+        "Ticket_County__c": {
+          "value": "APACHE",
+          "confidence_score": 0.97,
+          "ai_reason": "The 'County' field in the officer certification section reads 'APACHE'.",
+          "bbox": null
+        },
+        "Ticket_State__c": {
+          "value": "Arizona",
+          "confidence_score": 0.99,
+          "ai_reason": "The document header reads 'ARIZONA DEPARTMENT OF PUBLIC SAFETY' and 'ARIZONA TRAFFIC TICKET AND COMPLAINT'. The state is clearly Arizona.",
+          "bbox": null
+        },
+        "Insp_Report_Num__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No inspection report number is present on this document. No separate inspection report was identified.",
+          "bbox": null
+        },
+        "Citation_Number__c": {
+          "value": "915319723074001",
+          "confidence_score": 0.97,
+          "ai_reason": "The 'Complaint' field at the top of the ticket reads '915319723074001', which is the primary citation/complaint number for this Arizona Traffic Ticket and Complaint.",
+          "bbox": null
+        },
+        "Inspection_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Time__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "DOT_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No DOT number is visible on this ticket document.",
+          "bbox": null
+        },
+        "Inspection_Level__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "VIN__c": {
+          "value": "3AKJHHDR6PSNG7851",
+          "confidence_score": 0.93,
+          "ai_reason": "The Vehicle Identification Number (VIN) field on the ticket reads '3AKJHHDR6PSNG7851'.",
+          "bbox": null
+        },
+        "Unit_Make__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type; unit make field is for Inspection Reports.",
+          "bbox": null
+        },
+        "Unit_License_Plate__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type extraction of unit license plate.",
+          "bbox": null
+        },
+        "Driver_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Vehicle_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Categories__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Report_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Federal_Recordable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "State_Reportable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Fatalities__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Injuries__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Towaway__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Citation_Issued__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "HM_Involved__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Case_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Amount__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Due_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Category__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "CDL_License_Number__c": {
+          "value": "S531000902230",
+          "confidence_score": 0.95,
+          "ai_reason": "The driver's license number field reads 'S531000902230' in the DEFENDANT section of the ticket.",
+          "bbox": null
+        },
+        "CDL_State__c": {
+          "value": "Florida",
+          "confidence_score": 0.96,
+          "ai_reason": "The State field adjacent to the driver's license number reads 'FL', indicating the license was issued in Florida.",
+          "bbox": null
+        },
+        "CDL_Class__c": {
+          "value": "A",
+          "confidence_score": 0.97,
+          "ai_reason": "The Class field in the driver's license section reads 'A', indicating a Class A CDL.",
+          "bbox": null
+        },
+        "CDL_Expiration__c": {
+          "value": "08/31/2023",
+          "confidence_score": 0.93,
+          "ai_reason": "The license plate/expiration date section shows 'Expir. Date 08/31/2023' associated with the license plate 'PWU4879' from state OH. This appears to be the vehicle registration expiration. However, no separate CDL expiration date is clearly printed on the ticket for the driver's license itself \u2014 this value is taken from the expiration date field visible in the vehicle section.",
+          "bbox": null
+        },
+        "CDL_Endorsements__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Endorsements field on ticket shows the column header but the value is not clearly legible or populated in the image.",
+          "bbox": null
+        },
+        "CDL_Restrictions__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No restrictions field is present or populated on this ticket document.",
+          "bbox": null
+        },
+        "Driver_First_Name__c": {
+          "value": "ANIEL",
+          "confidence_score": 0.95,
+          "ai_reason": "The Name field in the DEFENDANT section shows 'First: ANIEL' as the driver's first name.",
+          "bbox": null
+        },
+        "Driver_Last_Name__c": {
+          "value": "SAINT VIL",
+          "confidence_score": 0.95,
+          "ai_reason": "The Name field in the DEFENDANT section shows 'Last: SAINT VIL' as the driver's last name.",
+          "bbox": null
+        },
+        "Driver_DOB__c": {
+          "value": "08/23/1990",
+          "confidence_score": 0.96,
+          "ai_reason": "The DOB field in the DEFENDANT section reads '08/23/1990'.",
+          "bbox": null
+        },
+        "Driver_Address__c": {
+          "value": "3211 W BUENA VISTA DR, MARGATE, FL 33063",
+          "confidence_score": 0.95,
+          "ai_reason": "The Residential Address field reads '3211 W BUENA VISTA DR' with City 'MARGATE', State 'FL', Zip '33063'.",
+          "bbox": null
+        },
+        "MVR_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Generated_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Violations_Summary__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Total_Points__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Suspension_Count__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        }
+      }
+    }
+  },
+  "ticket_006.png": {
+    "status": "ok",
+    "elapsed_s": 51.1,
+    "queue_id": "1cbfc288-d4b1-4871-9f6b-b581b36694ac",
+    "pass_status": "green",
+    "avg_field_confidence": 0.974,
+    "fields_filled": 24,
+    "total_fields": 62,
+    "low_confidence_fields": [],
+    "data": {
+      "success": true,
+      "mock": false,
+      "filename": "ticket_006.png",
+      "pages_processed": 1,
+      "pass_status": "green",
+      "low_confidence_fields": [],
+      "referee_notes": "All fields high confidence. Avg score: 0.97",
+      "cdl_point_impact": {
+        "violation_category": "Failure to Obey Traffic Control Device",
+        "cdl_points": 2,
+        "severity": "standard",
+        "csa_category": "Unsafe Driving",
+        "must_appear_in_court": false,
+        "attorney_recommended": false
+      },
+      "doc_severity": null,
+      "escalation_reason": null,
+      "queue_id": "1cbfc288-d4b1-4871-9f6b-b581b36694ac",
+      "price_estimate": {
+        "avg_attny_price": 775.0,
+        "cdl_fee": 400,
+        "driver_price_base": 1175,
+        "driver_price_low": 999,
+        "driver_price_high": 1410,
+        "win_rate_pct": 60.0,
+        "sample_size": 5,
+        "high_risk": true,
+        "data_source": "historical",
+        "display": "$999 \u2013 $1,410",
+        "note": ""
+      },
+      "dual_conflicts": [],
+      "attorney_matches": [],
+      "no_attorney_flag": true,
+      "cached": false,
+      "result": {
+        "file_type": "Ticket",
+        "other_document_types": [],
+        "file_type_analysis": {
+          "confidence_score": 0.98,
+          "ai_reason": "Document is titled 'PEORIA AZ POLICE DEPARTMENT CITATION' and contains court information, violator details, violation location, and a specific violation charge. All structural elements confirm this is a traffic citation/ticket."
+        },
+        "file_name": "",
+        "document_text_format": "digital",
+        "Date_of_Ticket__c": {
+          "value": "12/14/2019",
+          "confidence_score": 0.99,
+          "ai_reason": "The document explicitly states 'Issue/Date Time: 12/14/2019 08:14 AM' and 'Violation/Date Time: 12/14/2019 08:14 AM', both confirming the ticket issue date as 12/14/2019.",
+          "bbox": null
+        },
+        "Violation_Description__c": {
+          "value": "FAIL TO STOP FOR RED SIGNAL",
+          "confidence_score": 0.99,
+          "ai_reason": "The VIOLATIONS section clearly states 'FAIL TO STOP FOR RED SIGNAL' as the cited violation text, extracted verbatim.",
+          "bbox": null
+        },
+        "Violation_Category__c": {
+          "value": "Failure to Obey Traffic Control Device",
+          "confidence_score": 0.99,
+          "ai_reason": "Failing to stop for a red signal maps directly to 'Failure to Obey Traffic Control Device' per normalization rules (run red light).",
+          "bbox": null
+        },
+        "Court_Date__c": {
+          "value": "01/07/2020",
+          "confidence_score": 0.99,
+          "ai_reason": "The document explicitly states 'Court Appearance Date and Time: Tuesday, 1/7/2020 at 1:30 PM'. Normalized to 01/07/2020. This is after the ticket date of 12/14/2019, passing validation.",
+          "bbox": null
+        },
+        "Accident__c": {
+          "value": "Yes",
+          "confidence_score": 0.97,
+          "ai_reason": "The VIOLATIONS section contains a checkbox field 'Accident Y', indicating the accident checkbox is marked 'Y' (Yes).",
+          "bbox": null
+        },
+        "Drivers_License_Type__c": {
+          "value": "CDL",
+          "confidence_score": 0.97,
+          "ai_reason": "The ticket lists 'Class A' under the driver's license information. Class A is a commercial driver license class, which maps to 'CDL' per extraction rules.",
+          "bbox": null
+        },
+        "Ticket_Court__c": {
+          "value": "Peoria City Court #0750",
+          "confidence_score": 0.99,
+          "ai_reason": "The COURT INFORMATION section explicitly names the court as 'Peoria City Court #0750'.",
+          "bbox": null
+        },
+        "Court_Phone_Number__c": {
+          "value": "(623) 773-7407",
+          "confidence_score": 0.99,
+          "ai_reason": "The court information section lists 'Fax: 623-773-7407' and a primary number '623-773-7407'. The primary phone number is formatted as (623) 773-7407.",
+          "bbox": null
+        },
+        "Ticket_City__c": {
+          "value": "Peoria",
+          "confidence_score": 0.99,
+          "ai_reason": "The VIOLATION LOCATION section and the court address both reference Peoria. The City field in the violation location section states '*PEORIA'.",
+          "bbox": null
+        },
+        "Ticket_County__c": {
+          "value": "Maricopa",
+          "confidence_score": 0.99,
+          "ai_reason": "The VIOLATION LOCATION section explicitly states 'County: MARICOPA'.",
+          "bbox": null
+        },
+        "Ticket_State__c": {
+          "value": "Arizona",
+          "confidence_score": 0.99,
+          "ai_reason": "The document header states 'PEORIA AZ POLICE DEPARTMENT CITATION' and the driver's state is listed as 'AZ', confirming the state is Arizona.",
+          "bbox": null
+        },
+        "Insp_Report_Num__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No Inspection Report was identified in this document. No inspection report number is present.",
+          "bbox": null
+        },
+        "Citation_Number__c": {
+          "value": "0721000176125",
+          "confidence_score": 0.99,
+          "ai_reason": "The document clearly states 'Citation # 0721000176125' in the upper right area of the citation, confirming this as the citation number.",
+          "bbox": null
+        },
+        "Inspection_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Time__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "DOT_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No DOT number is present on this traffic citation.",
+          "bbox": null
+        },
+        "Inspection_Level__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "VIN__c": {
+          "value": "AZ289198",
+          "confidence_score": 0.85,
+          "ai_reason": "The VEHICLE REGISTRATION section lists 'VIN AZ289198'. This appears to be the vehicle identification number as printed on the citation, though it is unusually short for a standard VIN.",
+          "bbox": null
+        },
+        "Unit_Make__c": {
+          "value": "HENR",
+          "confidence_score": 0.85,
+          "ai_reason": "The VEHICLE REGISTRATION section lists 'Make: HENR', extracted verbatim as the vehicle make abbreviation.",
+          "bbox": null
+        },
+        "Unit_License_Plate__c": {
+          "value": "FOXBDYJ",
+          "confidence_score": 0.97,
+          "ai_reason": "The VEHICLE REGISTRATION section lists 'Plate # FOXBDYJ' with State AZ, confirmed as the license plate number.",
+          "bbox": null
+        },
+        "Driver_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Vehicle_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Categories__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Report_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Federal_Recordable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "State_Reportable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Fatalities__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Injuries__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Towaway__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Citation_Issued__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "HM_Involved__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Case_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Amount__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Due_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Category__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "CDL_License_Number__c": {
+          "value": "B14796367",
+          "confidence_score": 0.99,
+          "ai_reason": "The ticket lists 'DL # B14796367' in the violator information section, confirmed as the driver's license number.",
+          "bbox": null
+        },
+        "CDL_State__c": {
+          "value": "Arizona",
+          "confidence_score": 0.99,
+          "ai_reason": "The ticket lists 'DL State: AZ', confirming the driver's license was issued in Arizona.",
+          "bbox": null
+        },
+        "CDL_Class__c": {
+          "value": "A",
+          "confidence_score": 0.99,
+          "ai_reason": "The ticket lists 'Class A' under the driver's information, confirming Class A CDL.",
+          "bbox": null
+        },
+        "CDL_Expiration__c": {
+          "value": "10/18/2024",
+          "confidence_score": 0.99,
+          "ai_reason": "The ticket states 'Lic Expires 10/18/2024' in the violator information section.",
+          "bbox": null
+        },
+        "CDL_Endorsements__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The ticket lists 'Endorsement:' with no value populated, indicating no endorsements are recorded on this citation.",
+          "bbox": null
+        },
+        "CDL_Restrictions__c": {
+          "value": "B",
+          "confidence_score": 0.95,
+          "ai_reason": "The ticket lists 'Restrictions B' in the driver information section, extracted verbatim.",
+          "bbox": null
+        },
+        "Driver_First_Name__c": {
+          "value": "ANTHONY",
+          "confidence_score": 0.99,
+          "ai_reason": "The VIOLATOR AND VIOLATION DATE section lists 'First ANTHONY' as the driver's first name.",
+          "bbox": null
+        },
+        "Driver_Last_Name__c": {
+          "value": "STEWART",
+          "confidence_score": 0.99,
+          "ai_reason": "The VIOLATOR AND VIOLATION DATE section lists 'Last STEWART' as the driver's last name.",
+          "bbox": null
+        },
+        "Driver_DOB__c": {
+          "value": "03/24/1946",
+          "confidence_score": 0.99,
+          "ai_reason": "The ticket lists 'DOB 03/24/1946' in the violator information section.",
+          "bbox": null
+        },
+        "Driver_Address__c": {
+          "value": "9109 W VILLA LINDO DR, PEORIA, AZ 85383",
+          "confidence_score": 0.99,
+          "ai_reason": "The VIOLATOR AND VIOLATION DATE section lists 'Address 9109 W VILLA LINDO DR', City 'PEORIA', State 'AZ', Zip '85383', assembled into a full address string.",
+          "bbox": null
+        },
+        "MVR_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Generated_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Violations_Summary__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Total_Points__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Suspension_Count__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        }
+      }
+    }
+  },
+  "ticket_007.png": {
+    "status": "ok",
+    "elapsed_s": 106.1,
+    "queue_id": "11009e88-74bd-49e8-918b-9b2bb46fceb0",
+    "pass_status": "red",
+    "avg_field_confidence": 0.973,
+    "fields_filled": 10,
+    "total_fields": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "data": {
+      "success": true,
+      "mock": false,
+      "filename": "ticket_007.png",
+      "pages_processed": 1,
+      "pass_status": "red",
+      "low_confidence_fields": [
+        "Court_Date__c"
+      ],
+      "referee_notes": "Critical field(s) below floor: Court_Date__c",
+      "cdl_point_impact": null,
+      "doc_severity": null,
+      "escalation_reason": "Critical field(s) below floor: Court_Date__c",
+      "queue_id": "11009e88-74bd-49e8-918b-9b2bb46fceb0",
+      "price_estimate": {
+        "avg_attny_price": 530.56,
+        "cdl_fee": 400,
+        "driver_price_base": 931,
+        "driver_price_low": 791,
+        "driver_price_high": 1117,
+        "win_rate_pct": 0.0,
+        "sample_size": 0,
+        "high_risk": false,
+        "data_source": "fallback",
+        "display": "$791 \u2013 $1,117",
+        "note": "No exact match for 'Parking' in Arizona \u2014 using state average."
+      },
+      "dual_conflicts": [],
+      "attorney_matches": [],
+      "no_attorney_flag": true,
+      "cached": false,
+      "result": {
+        "file_type": "Ticket",
+        "other_document_types": [],
+        "file_type_analysis": {
+          "confidence_score": 0.97,
+          "ai_reason": "Document is titled 'ARIZONA TRAFFIC TICKET AND COMPLAINT' issued by Goodyear Police Department, confirming Ticket type. Contains 'Defendant', 'Citation No.', 'Court', and violation fields meeting the threshold of 3+ keyword groups."
+        },
+        "file_name": "",
+        "document_text_format": "digital",
+        "Date_of_Ticket__c": {
+          "value": "02/04/2020",
+          "confidence_score": 0.97,
+          "ai_reason": "Date extracted from the 'ON OR ABOUT' section showing Month: Feb, Day: 04, Year: 20. Normalized per DATE NORMALIZATION RULES: 'Feb' -> '02', '20' -> '2020', resulting in 02/04/2020.",
+          "bbox": null
+        },
+        "Violation_Description__c": {
+          "value": "STOPPING,STANDING,PARKING PROHIBITED BY SIGNS AND RULES",
+          "confidence_score": 0.98,
+          "ai_reason": "Verbatim text extracted from the CITATION section under 'COMMITTED A: 13-3-7A13 CIVIL' \u2014 the violation description reads 'STOPPING,STANDING,PARKING PROHIBITED BY SIGNS AND RULES'. No other violations are listed in sections B through E.",
+          "bbox": null
+        },
+        "Violation_Category__c": {
+          "value": "Parking",
+          "confidence_score": 0.97,
+          "ai_reason": "Violation 'STOPPING,STANDING,PARKING PROHIBITED BY SIGNS AND RULES' maps directly to the 'Parking' category per normalization rules: 'Parking where prohibited' -> 'Parking'.",
+          "bbox": null
+        },
+        "Court_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No court date is printed on this citation. The citation is marked 'CIVIL' for a parking violation. No 'Pay By', 'Court Date', 'Due Date', or similar label with an associated date is visible on the document. The document shows a Docket # field at the bottom but no date is filled in. Cannot determine a court/payment date from the document content alone.",
+          "bbox": null
+        },
+        "Accident__c": {
+          "value": "No",
+          "confidence_score": 0.97,
+          "ai_reason": "The 'ACCIDENT' checkbox at the bottom of the document is not checked/marked. The CMV checkbox is marked with an X, but the ACCIDENT checkbox remains unchecked, indicating no accident was involved.",
+          "bbox": null
+        },
+        "Drivers_License_Type__c": {
+          "value": "CDL",
+          "confidence_score": 0.9,
+          "ai_reason": "The CMV (Commercial Motor Vehicle) checkbox is marked with an X at the bottom of the document. The vehicle is listed as an INTERNATIONAL TRUCK TRACTOR SEMI. The CLASS field in the driver's license section is present but not filled in. Secondary indicator of CMV checkbox being checked supports CDL classification.",
+          "bbox": null
+        },
+        "Ticket_Court__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No court name is explicitly printed on this citation. The issuing agency is Goodyear Police Department but no court name or court address field is present on the document.",
+          "bbox": null
+        },
+        "Court_Phone_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No court phone number is printed on this citation document.",
+          "bbox": null
+        },
+        "Ticket_City__c": {
+          "value": "Goodyear",
+          "confidence_score": 0.99,
+          "ai_reason": "City is explicitly printed on the document header as 'City: Goodyear, AZ' and confirmed in the 'IN: GOODYEAR' field in the offense location section.",
+          "bbox": null
+        },
+        "Ticket_County__c": {
+          "value": "Maricopa",
+          "confidence_score": 0.99,
+          "ai_reason": "County is explicitly printed on the document header as 'County: Maricopa County' and confirmed in the location section 'MARICOPA COUNTY, AZ'.",
+          "bbox": null
+        },
+        "Ticket_State__c": {
+          "value": "Arizona",
+          "confidence_score": 0.99,
+          "ai_reason": "Document is titled 'ARIZONA TRAFFIC TICKET AND COMPLAINT'. The location section also shows 'MARICOPA COUNTY, AZ', confirming the state is Arizona.",
+          "bbox": null
+        },
+        "Insp_Report_Num__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No Inspection Report was identified in this document. No separate inspection report number field is present.",
+          "bbox": null
+        },
+        "Citation_Number__c": {
+          "value": "E00011027",
+          "confidence_score": 0.99,
+          "ai_reason": "Citation number is explicitly printed in the upper right area of the document as 'Citation No. E00011027'. This is clearly labeled and distinct from the Incident number '2020-00004308' which is a separate reference.",
+          "bbox": null
+        },
+        "Inspection_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Time__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Inspection_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "DOT_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "No DOT number is printed on this traffic ticket document.",
+          "bbox": null
+        },
+        "Inspection_Level__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "VIN__c": {
+          "value": "3HSDJAPR0HN743616",
+          "confidence_score": 0.98,
+          "ai_reason": "VIN is explicitly printed in the VEHICLE section of the ticket as '3HSDJAPR0HN743616'.",
+          "bbox": null
+        },
+        "Unit_Make__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Unit_License_Plate__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Driver_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Vehicle_OOS__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Categories__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Report_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_County__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_City__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Crash_Location__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Federal_Recordable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "State_Reportable__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Fatalities__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Number_of_Injuries__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Towaway__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Citation_Issued__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "HM_Involved__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Case_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Amount__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "Civil_Penalty_Due_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "BASIC_Category__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "CDL_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The DRIVER'S LICENSE # field is present on the ticket but no value is filled in for the license number.",
+          "bbox": null
+        },
+        "CDL_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The STATE field adjacent to DRIVER'S LICENSE # is present but no value is filled in.",
+          "bbox": null
+        },
+        "CDL_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The CLASS field adjacent to DRIVER'S LICENSE # is present but no value is filled in on the ticket.",
+          "bbox": null
+        },
+        "CDL_Expiration__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The EXPIRES field adjacent to DRIVER'S LICENSE # is present but no value is filled in on the ticket.",
+          "bbox": null
+        },
+        "CDL_Endorsements__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The ENDORSEMENT field is present but no value is filled in on the ticket.",
+          "bbox": null
+        },
+        "CDL_Restrictions__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The RESTRICTION field is present but no value is filled in on the ticket.",
+          "bbox": null
+        },
+        "Driver_First_Name__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The NAME (FIRST MIDDLE LAST) field under DEFENDANT is present but the value is not filled in \u2014 only two quotation marks ('') appear, indicating no name was entered.",
+          "bbox": null
+        },
+        "Driver_Last_Name__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The NAME field under DEFENDANT contains only '' with no discernible last name filled in.",
+          "bbox": null
+        },
+        "Driver_DOB__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The DOB field is present in the driver information row but no date of birth value is filled in.",
+          "bbox": null
+        },
+        "Driver_Address__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "The RESIDENTIAL ADDRESS field is present but no address value is filled in for the defendant.",
+          "bbox": null
+        },
+        "MVR_License_Number__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_State__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Class__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Generated_Date__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Violations_Summary__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Total_Points__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        },
+        "MVR_Suspension_Count__c": {
+          "value": "",
+          "confidence_score": 0.0,
+          "ai_reason": "Not applicable for Ticket type.",
+          "bbox": null
+        }
+      }
+    }
+  }
+}

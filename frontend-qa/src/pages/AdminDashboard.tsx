@@ -49,7 +49,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">CDL Legal — AI Performance Dashboard</h1>
+          <h1 className="text-xl font-bold text-gray-800">Rig Resolve — AI Performance Dashboard</h1>
           <p className="text-xs text-gray-400 mt-0.5">Real-time extraction analytics & agent health</p>
         </div>
         <div className="flex items-center gap-2">

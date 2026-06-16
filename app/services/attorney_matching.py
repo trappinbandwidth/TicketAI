@@ -13,6 +13,7 @@ Matching strategy:
 Results are cached in memory for 4 hours per (state, county) pair.
 Cache is cleared on server restart or via invalidate_cache().
 """
+from __future__ import annotations
 import logging
 import sqlite3
 import time

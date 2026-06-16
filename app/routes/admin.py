@@ -2,12 +2,14 @@
 Admin dashboard API routes.
 All endpoints require the same API key as the process endpoint.
 """
+from __future__ import annotations
 import json
 import logging
 import os
 import sqlite3
 from collections import defaultdict
 from pathlib import Path
+from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import FileResponse
@@ -69,7 +71,7 @@ PROMPT_SECTION_MAP = {
 }
 
 
-def _check_auth(x_api_key: str | None):
+def _check_auth(x_api_key: Optional[str]):
     expected = os.getenv("API_KEY", "cdl-local-dev")
     if x_api_key != expected:
         raise HTTPException(status_code=401, detail="Invalid API key.")
@@ -86,7 +88,7 @@ def _db():
 # ── Overview stats ──────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/overview")
-def get_overview(days: int = 30, x_api_key: str | None = Header(None)):
+def get_overview(days: int = 30, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     conn = _db()
 
@@ -145,7 +147,7 @@ def get_overview(days: int = 30, x_api_key: str | None = Header(None)):
 # ── Field performance ───────────────────────────────────────────────────────
 
 @router.get("/admin/stats/fields")
-def get_field_stats(doc_type: str | None = None, x_api_key: str | None = Header(None)):
+def get_field_stats(doc_type: Optional[str] = None, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
 
     if not TRAINING_FILE.exists():
@@ -255,7 +257,7 @@ def get_field_stats(doc_type: str | None = None, x_api_key: str | None = Header(
 # ── Field drill-down ────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/fields/{field_key}")
-def get_field_drilldown(field_key: str, x_api_key: str | None = Header(None)):
+def get_field_drilldown(field_key: str, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
 
     if not TRAINING_FILE.exists():
@@ -308,7 +310,7 @@ def get_field_drilldown(field_key: str, x_api_key: str | None = Header(None)):
 # ── Agent scorecard ─────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/agents")
-def get_agent_stats(days: int = 30, x_api_key: str | None = Header(None)):
+def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     conn = _db()
 
@@ -438,7 +440,7 @@ def get_agent_stats(days: int = 30, x_api_key: str | None = Header(None)):
 # ── Scan feed ────────────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/feed")
-def get_scan_feed(limit: int = 100, x_api_key: str | None = Header(None)):
+def get_scan_feed(limit: int = 100, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     conn = _db()
     rows = conn.execute("""
@@ -459,7 +461,7 @@ def get_scan_feed(limit: int = 100, x_api_key: str | None = Header(None)):
 # ── Attorney coverage ────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/attorneys")
-def get_attorney_stats(x_api_key: str | None = Header(None)):
+def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     conn = _db()
 
@@ -527,7 +529,7 @@ def get_attorney_stats(x_api_key: str | None = Header(None)):
 # ── Training data export ────────────────────────────────────────────────────
 
 @router.get("/admin/training/export")
-def export_training(x_api_key: str | None = Header(None)):
+def export_training(x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     if not TRAINING_FILE.exists():
         raise HTTPException(status_code=404, detail="No training data yet.")

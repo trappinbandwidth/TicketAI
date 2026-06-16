@@ -9,6 +9,7 @@ Required env vars (set in .env):
   FIREBASE_SERVICE_ACCOUNT_JSON — full service account JSON as a single-line string
                                   OR leave blank to use Application Default Credentials
 """
+from __future__ import annotations
 import json
 import logging
 import os

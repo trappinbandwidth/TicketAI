@@ -2,6 +2,7 @@
 Per-document-type severity scoring for non-ticket documents.
 Tickets are scored via cdl_impact.py (CDL point impact).
 """
+from __future__ import annotations
 from app.models.response import DocumentResult, DocSeverityScore
 
 

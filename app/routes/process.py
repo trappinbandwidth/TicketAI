@@ -1,9 +1,10 @@
+from __future__ import annotations
 import hashlib
 import json
 import logging
 import os
 import uuid
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 
@@ -29,7 +30,7 @@ SUPPORTED_TYPES = {
 }
 
 
-def _check_auth(x_api_key: str | None):
+def _check_auth(x_api_key: Optional[str]):
     expected = os.getenv("API_KEY", "cdl-local-dev")
     if x_api_key != expected:
         raise HTTPException(status_code=401, detail="Invalid API key.")
@@ -38,11 +39,11 @@ def _check_auth(x_api_key: str | None):
 @router.post("/process", response_model=ProcessResponse)
 async def process_ticket(
     files: List[UploadFile] = File(...),
-    driver_name: str | None = Form(None),
-    driver_id: str | None = Form(None),   # Firebase Auth UID — used to write back to Firestore
-    ticket_id: str | None = Form(None),   # Firestore ticket document ID
+    driver_name: Optional[str] = Form(None),
+    driver_id: Optional[str] = Form(None),
+    ticket_id: Optional[str] = Form(None),
     prompt_version: str = Form("v2"),
-    x_api_key: str | None = Header(None),
+    x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
 

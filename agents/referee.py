@@ -6,6 +6,7 @@ Green  (avg ≥ 0.85, no critical field < 0.70) → zero human intervention
 Yellow (avg ≥ 0.60, or any non-critical field low) → flag for review
 Red    (avg < 0.60, or any critical field < 0.70) → human escalation
 """
+from __future__ import annotations
 import logging
 import re
 

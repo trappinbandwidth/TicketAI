@@ -12,7 +12,7 @@ export default function Header({ onHome, onAdmin }: Props) {
         </div>
         <div className="text-left">
           <div className="font-bold text-gray-800 leading-none">Ticket Scanner QA</div>
-          <div className="text-xs text-gray-400">CDL Legal — AI Extraction Review</div>
+          <div className="text-xs text-gray-400">Rig Resolve — AI Extraction Review</div>
         </div>
       </button>
       <div className="flex items-center gap-4">

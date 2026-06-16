@@ -2,6 +2,8 @@
 Pricing endpoint — GET /api/v1/price-estimate
 Returns driver price range for a given state + violation category.
 """
+from __future__ import annotations
+from typing import Optional
 from fastapi import APIRouter, Header, HTTPException, Query
 import os
 from pydantic import BaseModel
@@ -31,7 +33,7 @@ class PriceEstimateResponse(BaseModel):
 def price_estimate(
     state: str = Query(..., description="Full state name, e.g. 'Florida'"),
     violation: str = Query(..., description="Violation category from picklist"),
-    x_api_key: str | None = Header(None),
+    x_api_key: Optional[str] = Header(None),
 ):
     expected = os.getenv("API_KEY", "cdl-local-dev")
     if x_api_key != expected:

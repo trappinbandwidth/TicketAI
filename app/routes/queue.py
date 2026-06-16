@@ -1,6 +1,8 @@
+from __future__ import annotations
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -19,15 +21,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def _check_auth(x_api_key: str | None):
+def _check_auth(x_api_key: Optional[str]):
     expected = os.getenv("API_KEY", "cdl-local-dev")
     if x_api_key != expected:
         raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
 class ApproveRequest(BaseModel):
-    edited_fields: dict[str, str] = {}
-    reviewer_id: str | None = None
+    edited_fields: dict = {}
+    reviewer_id: Optional[str] = None
 
 
 class RejectRequest(BaseModel):
@@ -35,13 +37,13 @@ class RejectRequest(BaseModel):
 
 
 @router.get("/queue")
-async def get_queue(x_api_key: str | None = Header(None)):
+async def get_queue(x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     return list_recent(limit=50)
 
 
 @router.get("/queue/{item_id}")
-async def get_queue_item(item_id: str, x_api_key: str | None = Header(None)):
+async def get_queue_item(item_id: str, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     item = get_item(item_id)
     if item is None:
@@ -53,7 +55,7 @@ async def get_queue_item(item_id: str, x_api_key: str | None = Header(None)):
 async def approve_queue_item(
     item_id: str,
     body: ApproveRequest,
-    x_api_key: str | None = Header(None),
+    x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
     item = get_item(item_id)
@@ -72,7 +74,7 @@ async def approve_queue_item(
 async def reject_queue_item(
     item_id: str,
     body: RejectRequest,
-    x_api_key: str | None = Header(None),
+    x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
     try:
@@ -83,13 +85,13 @@ async def reject_queue_item(
 
 
 @router.get("/queue/{item_id}/audit")
-async def get_queue_audit(item_id: str, x_api_key: str | None = Header(None)):
+async def get_queue_audit(item_id: str, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     return {"scan_id": item_id, "audit": get_field_audit(item_id)}
 
 
 @router.get("/training/export")
-async def export_training(x_api_key: str | None = Header(None)):
+async def export_training(x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
     if not TRAINING_FILE.exists():
         raise HTTPException(status_code=404, detail="No training data yet.")

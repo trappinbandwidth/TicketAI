@@ -8,6 +8,7 @@ Strategy per field:
      "dual_conflict" so Referee knows a human should validate it.
   4. Pass-level metadata is merged into extraction for traceability.
 """
+from __future__ import annotations
 import logging
 
 from app.services.queue_store import log_agent_event

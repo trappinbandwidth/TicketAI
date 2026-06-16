@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CDL Legal — AI Ticket Scanner</title>
+  <title>Rig Resolve — AI Ticket Scanner</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root { --cdl-blue:#1a3a5c; --cdl-gold:#c8972a; --cdl-light:#f4f6f9; }
+    :root { --cdl-blue:#0D3E6B; --cdl-gold:#dc2626; --cdl-light:#f4f6f9; }
     body { font-family:'Inter',system-ui,sans-serif; background:var(--cdl-light); }
 
     #drop-zone { border:2.5px dashed #93b4d4; transition:border-color .2s,background .2s; }
@@ -112,6 +112,56 @@
     /* Problems-only toggle */
     #problems-toggle.active { background:var(--cdl-gold); color:#fff; border-color:var(--cdl-gold); }
 
+    /* ── Image toolbar ───────────────────────────────────────────────────────── */
+    #img-toolbar { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+    .toolbar-btn {
+      width:30px; height:30px; border-radius:6px; border:1.5px solid #e2e8f0;
+      background:#f8fafc; color:#475569; font-size:.85rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .1s,color .1s,border-color .1s; flex-shrink:0;
+    }
+    .toolbar-btn:hover { background:var(--cdl-blue); color:#fff; border-color:var(--cdl-blue); }
+    .toolbar-btn:disabled { opacity:.4; cursor:not-allowed; pointer-events:none; }
+    .toolbar-divider { width:1px; height:20px; background:#e2e8f0; flex-shrink:0; margin:0 2px; }
+    #page-indicator { font-size:.72rem; font-weight:700; color:#475569; min-width:38px; text-align:center; }
+    #bbox-toggle-btn.bbox-on { background:#eff6ff; color:var(--cdl-blue); border-color:#bfdbfe; }
+
+    /* ── PII card ────────────────────────────────────────────────────────────── */
+    #pii-card { border-left:4px solid var(--cdl-blue); }
+    .pii-badge {
+      display:inline-flex; gap:5px; align-items:center; cursor:pointer;
+      background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:6px;
+      padding:3px 8px; font-size:.74rem; transition:border-color .15s, background .15s;
+    }
+    .pii-badge:hover { background:#dbeafe; border-color:var(--cdl-blue); }
+    .pii-badge .pii-label { color:#64748b; }
+    .pii-badge .pii-val { font-weight:700; color:#1e3a5c; }
+
+    /* ── Reviewer ────────────────────────────────────────────────────────────── */
+    .reviewer-pill {
+      font-size:.7rem; font-weight:700; padding:2px 9px; border-radius:999px;
+      background:#eff6ff; color:#1e3a5c; border:1.5px solid #bfdbfe;
+    }
+
+    /* ── Audit trail ─────────────────────────────────────────────────────────── */
+    .audit-entry { display:flex; gap:9px; align-items:flex-start; padding:7px 0; border-bottom:1px solid #f1f5f9; }
+    .audit-entry:last-child { border-bottom:none; }
+    .audit-dot { width:7px; height:7px; border-radius:50%; background:var(--cdl-blue); flex-shrink:0; margin-top:5px; }
+    .audit-text { font-size:.77rem; color:#475569; line-height:1.45; }
+    .audit-text strong { color:#1e293b; }
+    .audit-time { font-size:.68rem; color:#94a3b8; margin-top:1px; }
+
+    /* ── Image transform wrapper ─────────────────────────────────────────────── */
+    #img-xform {
+      position:relative; display:inline-flex;
+      transition:transform .2s ease; transform-origin:center center;
+    }
+    #img-outer { overflow:hidden; cursor:grab; user-select:none; }
+    #img-outer.grabbing { cursor:grabbing; }
+
+    /* ── Active page thumbnail ───────────────────────────────────────────────── */
+    .thumb-item.thumb-active { border-color:var(--cdl-blue); box-shadow:0 0 0 2px #bfdbfe; }
+
     /* Multi-image thumbnail strip */
     #thumb-strip { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
     .thumb-item {
@@ -152,7 +202,7 @@
 <div id="sticky-header" style="background:var(--cdl-blue);" class="shadow-md">
   <div class="max-w-screen-2xl mx-auto px-5 py-3 flex items-center gap-4">
     <div>
-      <div class="text-white font-bold text-lg tracking-tight">CDL Legal</div>
+      <div class="text-white font-bold text-lg tracking-tight">Rig Resolve</div>
       <div class="text-xs" style="color:#93b4d4;">AI Ticket Scanner — Reviewer Portal</div>
     </div>
     <div class="ml-auto flex items-center gap-3 flex-wrap">
@@ -163,12 +213,29 @@
       <input id="backend-url-input" type="text" value=""
         placeholder="http://localhost:8000"
         class="px-2.5 py-1.5 rounded text-sm bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-yellow-400 w-44" />
+      <!-- Reviewer selector -->
+      <div class="flex items-center gap-1.5">
+        <label class="section-label text-slate-300 whitespace-nowrap">Reviewer</label>
+        <select id="reviewer-select" onchange="onReviewerChange()"
+          class="px-2 py-1.5 rounded text-sm bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-yellow-400">
+          <option value="">— Select —</option>
+          <option value="Quest">Quest</option>
+          <option value="Justin">Justin</option>
+          <option value="Eniola">Eniola</option>
+        </select>
+        <span id="reviewer-pill-display" class="hidden reviewer-pill"></span>
+      </div>
       <!-- Keyboard hints -->
-      <div class="hidden lg:flex items-center gap-1.5 ml-2 text-slate-400 text-xs">
-        <kbd>G</kbd> Approve &nbsp;
-        <kbd>R</kbd> Reject &nbsp;
-        <kbd>P</kbd> Problems &nbsp;
-        <kbd>B</kbd> Bulk greens
+      <div class="hidden xl:flex items-center gap-1 ml-2 text-slate-400 text-xs flex-wrap">
+        <kbd>G</kbd><span class="mr-2">Approve</span>
+        <kbd>R</kbd><span class="mr-2">Reject</span>
+        <kbd>P</kbd><span class="mr-2">Problems</span>
+        <kbd>B</kbd><span class="mr-3">Bulk</span>
+        <span class="text-slate-600 mr-3">│</span>
+        <kbd>+</kbd><kbd>−</kbd><span class="mr-2">Zoom</span>
+        <kbd>[</kbd><kbd>]</kbd><span class="mr-2">Rotate</span>
+        <kbd>←↑↓→</kbd><span class="mr-2">Pan</span>
+        <kbd>,</kbd><kbd>.</kbd><span>Page</span>
       </div>
     </div>
   </div>
@@ -275,15 +342,34 @@
         <!-- LEFT: sticky image pane -->
         <div id="image-pane" class="space-y-4">
 
+          <!-- Image toolbar -->
+          <div id="img-toolbar" class="hidden bg-white rounded-2xl shadow px-3 py-2 img-toolbar">
+            <button class="toolbar-btn" onclick="rotatePage(-90)" title="Rotate left">↺</button>
+            <button class="toolbar-btn" onclick="rotatePage(90)"  title="Rotate right">↻</button>
+            <div class="toolbar-divider"></div>
+            <button class="toolbar-btn" onclick="zoomOut()" title="Zoom out" style="font-size:1.1rem;font-weight:700;">−</button>
+            <button class="toolbar-btn" onclick="zoomIn()"  title="Zoom in"  style="font-size:1.1rem;font-weight:700;">+</button>
+            <button class="toolbar-btn text-xs font-bold" onclick="resetView()" title="Reset view">⊙</button>
+            <div class="toolbar-divider"></div>
+            <button id="prev-page-btn" class="toolbar-btn" onclick="showPage(currentPageIdx-1)" title="Previous page" disabled>‹</button>
+            <span id="page-indicator">1 / 1</span>
+            <button id="next-page-btn" class="toolbar-btn" onclick="showPage(currentPageIdx+1)" title="Next page" disabled>›</button>
+            <div class="toolbar-divider"></div>
+            <button id="bbox-toggle-btn" class="toolbar-btn bbox-on" onclick="toggleBboxes()" title="Toggle field bounding boxes" style="font-size:.58rem;font-weight:800;letter-spacing:.03em;width:auto;padding:0 6px;">BBOX</button>
+          </div>
+
           <!-- Document preview -->
           <div class="bg-white rounded-2xl shadow overflow-hidden">
             <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
               <div class="section-label">Document</div>
               <p id="preview-filename" class="text-xs text-slate-400 truncate max-w-[200px]"></p>
             </div>
-            <div class="p-2 bg-slate-50 flex items-start justify-center min-h-40">
-              <img id="preview-img" src="" alt="Ticket" class="rounded w-full object-contain max-h-[60vh]" style="display:none;" />
-              <p id="preview-placeholder" class="text-slate-400 text-sm p-8 text-center">Preview loads after scan.<br>PDFs show the first page.</p>
+            <div id="img-outer" class="bg-slate-50 flex items-center justify-center min-h-40" style="position:relative; min-height:160px;">
+              <div id="img-xform">
+                <img id="preview-img" src="" alt="Ticket" class="rounded object-contain max-h-[60vh]" style="display:none; max-width:100%;" onload="onImgLoad()" />
+                <canvas id="bbox-canvas" style="position:absolute;top:0;left:0;pointer-events:none;display:none;"></canvas>
+              </div>
+              <p id="preview-placeholder" class="text-slate-400 text-sm p-8 text-center" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">Preview loads after scan.<br>PDFs show the first page.</p>
             </div>
           </div>
 
@@ -380,6 +466,15 @@
         <!-- RIGHT: fields pane -->
         <div id="fields-pane" class="space-y-4">
 
+          <!-- PII / Driver Information card -->
+          <div id="pii-card" class="hidden bg-white rounded-2xl shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="section-label">Driver Information (PII)</div>
+              <span class="text-xs text-slate-400">Click a field to highlight in document</span>
+            </div>
+            <div id="pii-fields" class="flex flex-wrap gap-2"></div>
+          </div>
+
           <!-- Dual-conflict warning -->
           <div id="conflict-banner" class="hidden rounded-xl border border-violet-300 bg-violet-50 px-4 py-2.5 flex items-start gap-3">
             <svg class="mt-0.5 shrink-0 text-violet-500" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -414,6 +509,12 @@
             <div id="fields-grid" class="p-4 grid grid-cols-1 gap-3"></div>
           </div>
 
+          <!-- Reviewer status in action bar -->
+          <div id="reviewer-status-bar" class="hidden bg-white rounded-2xl shadow px-4 py-2 flex items-center gap-2">
+            <span class="text-xs text-slate-500">Reviewing as:</span>
+            <span id="action-reviewer-pill" class="reviewer-pill">—</span>
+          </div>
+
           <!-- Action bar -->
           <div class="bg-white rounded-2xl shadow p-4">
             <div id="reject-form" class="hidden mb-3">
@@ -431,6 +532,15 @@
               <button onclick="showRejectForm()" class="btn btn-reject flex-1">✗ Reject</button>
               <button onclick="handleReset()" class="btn btn-reset w-full mt-1 text-xs">↩ New Scan</button>
             </div>
+          </div>
+
+          <!-- Reviewer Audit Trail -->
+          <div id="audit-card" class="hidden bg-white rounded-2xl shadow p-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="section-label">Review Audit Trail</div>
+              <button onclick="loadAuditTrail()" class="text-xs text-blue-500 hover:underline">Refresh</button>
+            </div>
+            <div id="audit-list" class="text-xs text-slate-400 italic">No entries yet.</div>
           </div>
 
         </div><!-- /fields-pane -->
@@ -491,6 +601,13 @@ let editCount       = 0;
 let sidebarItems    = [];
 let sidebarFilter   = { pass: 'all', status: 'all' };
 let dragSrcIdx      = null;
+let currentPageIdx  = 0;
+let pageRotations   = {};
+let zoomLevel       = 1.0;
+let panX            = 0;
+let panY            = 0;
+let showBboxes      = true;
+let activeBboxKey   = null;
 
 // ── Violation Category picklist (must match book_worm.py exactly) ──────────
 const VIOLATION_CATEGORIES = [
@@ -751,6 +868,9 @@ function renderThumbs() {
     item.appendChild(label);
     item.appendChild(removeBtn);
 
+    // Click to preview this page
+    item.addEventListener('click', () => { showPage(idx); });
+
     // Drag-to-reorder
     item.addEventListener('dragstart', () => { dragSrcIdx = idx; item.style.opacity='0.4'; });
     item.addEventListener('dragend',   () => { item.style.opacity='1'; renderThumbs(); });
@@ -799,14 +919,27 @@ async function handleScan() {
     const phEl  = document.getElementById('preview-placeholder');
     document.getElementById('preview-filename').textContent = data.filename
       + (selectedFiles.length > 1 ? ` (${selectedFiles.length} images)` : '');
+
+    currentPageIdx = 0; zoomLevel = 1; panX = 0; panY = 0; pageRotations = {}; activeBboxKey = null;
+    document.getElementById('img-xform').style.transform = '';
+    document.getElementById('bbox-canvas').style.display = 'none';
+
     if (selectedFiles[0]?.type.startsWith('image/')) {
       imgEl.src = URL.createObjectURL(selectedFiles[0]);
-      imgEl.style.display='block'; phEl.style.display='none';
+      imgEl.style.display = 'block'; phEl.style.display = 'none';
     } else if (data.queue_id) {
       fetchAndShowPreview(data.queue_id);
     }
 
     renderResults(data);
+
+    // Show toolbar + page nav
+    document.getElementById('img-toolbar').classList.remove('hidden');
+    updatePageNav();
+    // Highlight first active thumb
+    document.querySelectorAll('.thumb-item').forEach((el, i) =>
+      el.classList.toggle('thumb-active', i === 0));
+
     hide('loading-section'); show('results-section');
     loadSidebar();
   } catch(err) {
@@ -1068,7 +1201,19 @@ function renderResults(data) {
       </div>
       ${conflictHtml}${reasonHtml}`;
     grid.appendChild(card);
+
+    // Bbox highlight on card click (outside input/select)
+    if (r[key]?.bbox) {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', ev => {
+        if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT') return;
+        highlightFieldBbox(key);
+      });
+    }
   });
+
+  // PII section
+  renderPiiSection(data);
 
   // Reset UI state
   document.getElementById('reject-form').classList.add('hidden');
@@ -1152,6 +1297,18 @@ function collectEdits() {
 // ── Approve ────────────────────────────────────────────────────────────────
 async function handleApprove() {
   if (!currentQueueId) { showToast('No queue ID — re-scan first.', 'error'); return; }
+
+  // Reviewer is required
+  if (!reviewer()) {
+    const sel = document.getElementById('reviewer-select');
+    sel.style.outline = '2px solid #dc2626';
+    sel.style.outlineOffset = '2px';
+    setTimeout(() => { sel.style.outline = ''; sel.style.outlineOffset = ''; }, 2500);
+    showToast('Select a reviewer before approving.', 'error');
+    sel.focus();
+    return;
+  }
+
   const btn = document.getElementById('approve-btn');
   btn.disabled=true; btn.textContent='Saving…'; btn.style.opacity='0.6';
 
@@ -1159,16 +1316,20 @@ async function handleApprove() {
     const res = await fetch(`${baseUrl()}/api/v1/queue/${currentQueueId}/approve`, {
       method:'PUT',
       headers:{'x-api-key':apiKey(),'Content-Type':'application/json'},
-      body: JSON.stringify({edited_fields: collectEdits()}),
+      body: JSON.stringify({edited_fields: collectEdits(), reviewer_id: reviewer() || null}),
     });
     if (!res.ok) throw new Error((await res.json()).detail || 'Approve failed');
     const data = await res.json();
+
+    // Load audit trail before hiding results
+    await loadAuditTrail(currentQueueId);
 
     hide('results-section'); show('confirm-section');
     document.getElementById('confirm-icon').textContent  = '✅';
     document.getElementById('confirm-title').textContent = 'Approved — Saved to Training Data';
 
-    const bodyText = `"${currentResponse?.filename}" added to training dataset.${editCount>0?' ('+editCount+' field'+(editCount>1?'s':'')+' corrected)':''}`;
+    const rev = reviewer();
+    const bodyText = `"${currentResponse?.filename}" approved${rev?' by '+rev:''}.${editCount>0?' ('+editCount+' field'+(editCount>1?'s':'')+' corrected)':''}`;
     document.getElementById('confirm-body').textContent = bodyText;
 
     loadSidebar();
@@ -1212,6 +1373,7 @@ async function confirmReject() {
 // ── Reset ──────────────────────────────────────────────────────────────────
 function handleReset() {
   currentResponse=null; currentQueueId=null; selectedFiles=[]; editCount=0; problemsOnly=false;
+  currentPageIdx=0; zoomLevel=1; panX=0; panY=0; pageRotations={}; activeBboxKey=null;
   fileInput.value='';
   document.getElementById('file-name-badge').textContent='';
   document.getElementById('thumb-strip').classList.add('hidden');
@@ -1222,17 +1384,23 @@ function handleReset() {
   document.getElementById('conflict-banner').classList.add('hidden');
   document.getElementById('low-conf-banner').classList.add('hidden');
   document.getElementById('cdl-impact-wrap').classList.add('hidden');
+  document.getElementById('doc-severity-wrap').classList.add('hidden');
   document.getElementById('price-card').classList.add('hidden');
-  document.getElementById('sf-ticket-link').classList.add('hidden');
   document.getElementById('attorney-wrap').classList.add('hidden');
   document.getElementById('attorney-list').innerHTML = '';
   document.getElementById('attorney-no-match').classList.add('hidden');
+  document.getElementById('pii-card').classList.add('hidden');
+  document.getElementById('audit-card').classList.add('hidden');
+  document.getElementById('reviewer-status-bar').classList.add('hidden');
+  document.getElementById('img-toolbar').classList.add('hidden');
+  document.getElementById('img-xform').style.transform = '';
+  document.getElementById('bbox-canvas').style.display = 'none';
   document.getElementById('reject-reason').value='';
   document.getElementById('problems-toggle').classList.remove('active');
   document.getElementById('problems-toggle').textContent='⚠ Problems only';
   const imgEl=document.getElementById('preview-img');
   imgEl.src=''; imgEl.style.display='none';
-  document.getElementById('preview-placeholder').style.display='block';
+  document.getElementById('preview-placeholder').style.display='flex';
   const btn=document.getElementById('scan-btn');
   btn.disabled=true; btn.style.opacity='0.4'; btn.style.cursor='not-allowed';
   hide('results-section'); hide('loading-section'); hide('confirm-section'); show('upload-section');
@@ -1343,7 +1511,14 @@ async function loadQueueItem(id) {
       imgEl.style.display='none'; phEl.style.display='block';
     }
 
+    currentPageIdx = 0; zoomLevel = 1; panX = 0; panY = 0; pageRotations = {}; activeBboxKey = null;
+    document.getElementById('img-xform').style.transform = '';
+    document.getElementById('bbox-canvas').style.display = 'none';
+
     renderResults(item.process_response);
+    document.getElementById('img-toolbar').classList.remove('hidden');
+    updatePageNav();
+    loadAuditTrail(item.id);
     hide('upload-section'); hide('loading-section'); hide('confirm-section'); show('results-section');
 
     if (item.status !== 'pending') {
@@ -1370,16 +1545,71 @@ function isoToMmddyyyy(v) {
   return `${m[2]}/${m[3]}/${m[1]}`;
 }
 
+// ── Mouse wheel zoom ───────────────────────────────────────────────────────
+(function() {
+  const outer = document.getElementById('img-outer');
+  outer.addEventListener('wheel', e => {
+    if (document.getElementById('img-toolbar').classList.contains('hidden')) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    zoomLevel = Math.max(0.2, Math.min(8, zoomLevel * factor));
+    applyTransform();
+  }, { passive: false });
+})();
+
+// ── Drag to pan ────────────────────────────────────────────────────────────
+(function() {
+  const outer = document.getElementById('img-outer');
+  let active = false, sx = 0, sy = 0, spx = 0, spy = 0;
+
+  outer.addEventListener('mousedown', e => {
+    const t = e.target.tagName;
+    if (t === 'INPUT' || t === 'SELECT' || t === 'BUTTON') return;
+    active = true;
+    sx = e.clientX; sy = e.clientY; spx = panX; spy = panY;
+    outer.classList.add('grabbing');
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!active) return;
+    panX = spx + (e.clientX - sx);
+    panY = spy + (e.clientY - sy);
+    applyTransform();
+  });
+
+  document.addEventListener('mouseup', () => {
+    active = false;
+    document.getElementById('img-outer').classList.remove('grabbing');
+  });
+})();
+
 // ── Keyboard shortcuts ─────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-  // Skip when typing in an input, select, or textarea
   const tag = document.activeElement?.tagName;
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
 
+  const imageActive = !document.getElementById('img-toolbar').classList.contains('hidden');
   const resultsVisible = !document.getElementById('results-section').classList.contains('hidden');
-  if (!resultsVisible) return;
 
+  // ── Image viewer shortcuts ──────────────────────────────────────────────
+  if (imageActive) {
+    if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); return; }
+    if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomOut(); return; }
+    if (e.key === '0')  { e.preventDefault(); resetView(); return; }
+    if (e.key === '[')  { e.preventDefault(); rotatePage(-90); return; }
+    if (e.key === ']')  { e.preventDefault(); rotatePage(90); return; }
+    if (e.key === ',')  { e.preventDefault(); showPage(currentPageIdx - 1); return; }
+    if (e.key === '.')  { e.preventDefault(); showPage(currentPageIdx + 1); return; }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); panX -= 60; applyTransform(); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); panX += 60; applyTransform(); return; }
+    if (e.key === 'ArrowUp')    { e.preventDefault(); panY -= 60; applyTransform(); return; }
+    if (e.key === 'ArrowDown')  { e.preventDefault(); panY += 60; applyTransform(); return; }
+  }
+
+  // ── Review action shortcuts ─────────────────────────────────────────────
+  if (!resultsVisible) return;
   if (e.key === 'g' || e.key === 'G') { e.preventDefault(); handleApprove(); }
   if (e.key === 'r' || e.key === 'R') { e.preventDefault(); showRejectForm(); }
   if (e.key === 'p' || e.key === 'P') { e.preventDefault(); toggleProblemsOnly(); }
@@ -1404,7 +1634,267 @@ function hide(id) { document.getElementById(id).classList.add('hidden'); }
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escAttr(s) { return String(s||'').replace(/"/g,'&quot;'); }
 
+// ── Reviewer ───────────────────────────────────────────────────────────────
+function reviewer() { return document.getElementById('reviewer-select').value; }
+
+function onReviewerChange() {
+  const v = reviewer();
+  const pill   = document.getElementById('reviewer-pill-display');
+  const bar    = document.getElementById('reviewer-status-bar');
+  const apill  = document.getElementById('action-reviewer-pill');
+  if (v) {
+    pill.textContent  = v; pill.classList.remove('hidden');
+    apill.textContent = v;
+    bar.classList.remove('hidden');
+    localStorage.setItem('rr_reviewer', v);
+  } else {
+    pill.classList.add('hidden');
+    bar.classList.add('hidden');
+  }
+}
+
+// ── Image manipulation ──────────────────────────────────────────────────────
+function applyTransform() {
+  const xform = document.getElementById('img-xform');
+  const rot   = pageRotations[currentPageIdx] || 0;
+  xform.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel}) rotate(${rot}deg)`;
+}
+function zoomIn()  { zoomLevel = Math.min(zoomLevel * 1.2, 8); applyTransform(); }
+function zoomOut() { zoomLevel = Math.max(zoomLevel / 1.2, 0.2); applyTransform(); }
+function resetView() {
+  zoomLevel = 1; panX = 0; panY = 0; pageRotations[currentPageIdx] = 0;
+  applyTransform(); drawBboxes();
+}
+function rotatePage(deg) {
+  pageRotations[currentPageIdx] = ((pageRotations[currentPageIdx]||0) + deg + 360) % 360;
+  applyTransform();
+}
+
+function showPage(idx) {
+  const total = selectedFiles.length;
+  if (!total) return;
+  idx = Math.max(0, Math.min(idx, total - 1));
+  currentPageIdx = idx;
+
+  document.querySelectorAll('.thumb-item').forEach((el, i) =>
+    el.classList.toggle('thumb-active', i === idx));
+
+  const file  = selectedFiles[idx];
+  const imgEl = document.getElementById('preview-img');
+  const phEl  = document.getElementById('preview-placeholder');
+  if (file && !file.type.includes('pdf')) {
+    imgEl.src = URL.createObjectURL(file);
+    imgEl.style.display = 'block'; phEl.style.display = 'none';
+  }
+
+  updatePageNav();
+  zoomLevel = 1; panX = 0; panY = 0; applyTransform();
+}
+
+function updatePageNav() {
+  const total = Math.max(1, selectedFiles.length);
+  document.getElementById('page-indicator').textContent = `${currentPageIdx + 1} / ${total}`;
+  document.getElementById('prev-page-btn').disabled = currentPageIdx === 0;
+  document.getElementById('next-page-btn').disabled = currentPageIdx >= selectedFiles.length - 1;
+}
+
+// ── Bounding boxes ─────────────────────────────────────────────────────────
+function onImgLoad() {
+  const img    = document.getElementById('preview-img');
+  const canvas = document.getElementById('bbox-canvas');
+  canvas.style.width  = img.offsetWidth  + 'px';
+  canvas.style.height = img.offsetHeight + 'px';
+  drawBboxes();
+}
+
+function toggleBboxes() {
+  showBboxes = !showBboxes;
+  const btn = document.getElementById('bbox-toggle-btn');
+  btn.classList.toggle('bbox-on', showBboxes);
+  drawBboxes();
+}
+
+function getContentRect(img) {
+  const nw = img.naturalWidth, nh = img.naturalHeight;
+  const dw = img.offsetWidth,  dh = img.offsetHeight;
+  if (!nw || !nh) return {x:0, y:0, w:dw, h:dh};
+  const nr = nw/nh, dr = dw/dh;
+  if (nr > dr) {
+    const ch = dw / nr;
+    return {x:0, y:(dh-ch)/2, w:dw, h:ch};
+  } else {
+    const cw = dh * nr;
+    return {x:(dw-cw)/2, y:0, w:cw, h:dh};
+  }
+}
+
+function drawBboxes(highlightKey) {
+  if (highlightKey !== undefined) activeBboxKey = highlightKey;
+  const canvas = document.getElementById('bbox-canvas');
+  const img    = document.getElementById('preview-img');
+  if (!canvas || !img || img.style.display === 'none' || !currentResponse?.result) return;
+
+  if (!showBboxes) { canvas.style.display = 'none'; return; }
+
+  const rect = getContentRect(img);
+  canvas.width  = img.offsetWidth;
+  canvas.height = img.offsetHeight;
+  canvas.style.width  = img.offsetWidth  + 'px';
+  canvas.style.height = img.offsetHeight + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const pageNum = currentPageIdx + 1;
+  let hasAny = false;
+  const r = currentResponse.result;
+
+  Object.entries(r).forEach(([key, field]) => {
+    if (!field || typeof field !== 'object' || !field.bbox) return;
+    const b = field.bbox;
+    // page defaults to 1 if not set
+    if (b.page !== undefined && b.page !== pageNum) return;
+
+    hasAny = true;
+    const bx = rect.x + b.x * rect.w;
+    const by = rect.y + b.y * rect.h;
+    const bw = b.w * rect.w;
+    const bh = b.h * rect.h;
+    const isActive = key === activeBboxKey;
+
+    ctx.save();
+    if (isActive) {
+      ctx.fillStyle = 'rgba(220,38,38,0.14)';
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = 'rgba(13,62,107,0.40)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3,2]);
+    }
+    ctx.strokeRect(bx, by, bw, bh);
+    ctx.restore();
+  });
+
+  canvas.style.display = hasAny ? 'block' : 'none';
+}
+
+function highlightFieldBbox(key) {
+  activeBboxKey = key;
+  // Jump to the page where this field lives, if bbox has a page ref
+  const r = currentResponse?.result;
+  if (r?.[key]?.bbox?.page) {
+    const p = r[key].bbox.page - 1;
+    if (p !== currentPageIdx) showPage(p);
+  }
+  drawBboxes();
+  // Scroll the field card into view
+  const card = document.querySelector(`.field-card[data-key="${key}"]`);
+  if (card) card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// ── PII extraction ──────────────────────────────────────────────────────────
+const PII_FIELD_MAP = [
+  { key:'Driver_First_Name__c',  label:'First Name' },
+  { key:'Driver_Last_Name__c',   label:'Last Name' },
+  { key:'CDL_License_Number__c', label:'CDL #' },
+  { key:'MVR_License_Number__c', label:'License #' },
+  { key:'CDL_Class__c',          label:'CDL Class' },
+  { key:'CDL_State__c',          label:'State' },
+  { key:'Driver_DOB__c',         label:'DOB' },
+  { key:'CDL_Expiration__c',     label:'CDL Exp.' },
+  { key:'Unit_License_Plate__c', label:'Plate #' },
+  { key:'DOT_Number__c',         label:'DOT #' },
+  { key:'VIN__c',                label:'VIN' },
+  { key:'Driver_Address__c',     label:'Address' },
+];
+
+function renderPiiSection(data) {
+  const piiCard   = document.getElementById('pii-card');
+  const piiFields = document.getElementById('pii-fields');
+  piiFields.innerHTML = '';
+
+  const r = data.result;
+  const found = PII_FIELD_MAP.filter(({key}) => r[key]?.value?.trim());
+
+  // Supplement with driver name from form if CDL/MVR didn't produce name fields
+  const hasName = found.some(f => f.key === 'Driver_First_Name__c' || f.key === 'Driver_Last_Name__c');
+  const extras = [];
+  if (!hasName) {
+    const dn = document.getElementById('driver-name').value.trim();
+    if (dn) extras.push({label:'Driver', value:dn, key:null});
+  }
+
+  if (!found.length && !extras.length) { piiCard.classList.add('hidden'); return; }
+  piiCard.classList.remove('hidden');
+
+  found.forEach(({key, label}) => {
+    const badge = document.createElement('div');
+    badge.className = 'pii-badge';
+    badge.title = r[key]?.bbox ? 'Click to highlight in document' : label;
+    badge.innerHTML = `<span class="pii-label">${escHtml(label)}:</span><span class="pii-val">${escHtml(r[key].value)}</span>`;
+    if (r[key]?.bbox) badge.onclick = () => highlightFieldBbox(key);
+    piiFields.appendChild(badge);
+  });
+
+  extras.forEach(({label, value}) => {
+    const badge = document.createElement('div');
+    badge.className = 'pii-badge';
+    badge.style.cursor = 'default';
+    badge.innerHTML = `<span class="pii-label">${escHtml(label)}:</span><span class="pii-val">${escHtml(value)}</span>`;
+    piiFields.appendChild(badge);
+  });
+}
+
+// ── Audit trail ─────────────────────────────────────────────────────────────
+async function loadAuditTrail(queueId) {
+  const id = queueId || currentQueueId;
+  if (!id) return;
+  try {
+    const res = await fetch(`${baseUrl()}/api/v1/queue/${id}/audit`, {
+      headers: {'x-api-key': apiKey()}
+    });
+    if (!res.ok) return;
+    const entries = await res.json();
+    renderAuditTrail(entries);
+    document.getElementById('audit-card').classList.remove('hidden');
+  } catch {}
+}
+
+function renderAuditTrail(entries) {
+  const list = document.getElementById('audit-list');
+  if (!Array.isArray(entries) || !entries.length) {
+    list.innerHTML = '<span>No audit entries.</span>'; return;
+  }
+  list.innerHTML = entries.map(e => {
+    const when  = e.timestamp ? new Date(e.timestamp).toLocaleString() : '';
+    const who   = e.reviewer_id ? ` by <strong>${escHtml(e.reviewer_id)}</strong>` : '';
+    const field = e.field_key ? `<em>${escHtml(FIELD_LABELS[e.field_key]||e.field_key)}</em>: ` : '';
+    const action = escHtml(e.action || 'update');
+    const val   = e.new_value != null ? ` → <strong>"${escHtml(String(e.new_value))}"</strong>` : '';
+    return `<div class="audit-entry">
+      <div class="audit-dot"></div>
+      <div>
+        <div class="audit-text">${field}<strong>${action}</strong>${val}${who}</div>
+        <div class="audit-time">${escHtml(when)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ── Init ───────────────────────────────────────────────────────────────────
+// Restore saved reviewer
+(function() {
+  const saved = localStorage.getItem('rr_reviewer');
+  if (saved) {
+    const sel = document.getElementById('reviewer-select');
+    sel.value = saved;
+    if (sel.value === saved) onReviewerChange();
+  }
+})();
+
 loadSidebar();
 setInterval(loadSidebar, 15000);
 </script>

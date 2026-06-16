@@ -34,8 +34,8 @@ export default function UploadZone({ onUpload, loading }: Props) {
   return (
     <div className="flex flex-col items-center gap-6 py-12 px-4">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-800">CDL Legal — Document QA</h1>
-        <p className="text-gray-500 mt-1">Upload any CDL Legal document to scan, review, and approve</p>
+        <h1 className="text-3xl font-bold text-gray-800">Rig Resolve — Document QA</h1>
+        <p className="text-gray-500 mt-1">Upload any Rig Resolve document to scan, review, and approve</p>
       </div>
 
       <div className="w-full max-w-xl flex gap-3">
