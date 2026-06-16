@@ -1,0 +1,47 @@
+import { constantsVale } from './common-service/types.interface';
+
+export const constants: constantsVale = {
+  API_BASE: `${import.meta.env.VITE_REACT_APP_BASE_URL}/CDLLegalCarrierService`,
+  API_VERSION: 'api/v1/',
+  PAGINATION_CURRENT_PAGE: 1,
+  PAGINATION_ITEM_PER_PAGE: 10,
+  PAGINATION_SELECTED_ITEMS: 0,
+  PAGINATION_MAXSIZE: 3,
+  API: {
+    GET_DRIVER_PAYMENT_METHODS: 'getDriverPaymentMethods',
+    GET_DRIVER_TRANSACTIONS: 'getDriverTransactions',
+    MANAGE_DRIVER_PAYMENT_METHOD: 'manageDriverPaymentMethod',
+    GET_DRIVER_PAYMENT_METHOD_STATUS: 'getDriverPaymentMethodStatus',
+    GET_DRIVER_MVRS: 'getDriverMVRs',
+    GET_MENU_ITEMS: 'GetMenuItems',
+    GET_USER_DETAILS: 'GetUserDetails',
+    GET_DRIVER_PROFILE: 'getDriverProfile',
+    UPDATE_DRIVER_PROFILE: 'updateDriverProfile',
+    UPLOAD_PROFILE_PICTURE: 'uploadProfilePicture',
+    GET_DRIVER_APP_VERSION: 'getDriverAppVersion',
+    SEND_OTP: 'SendOTP',
+    VERIFY_OTP: 'VerifyOTP',
+    GET_DRIVER_TICKETS: 'getDriverTickets',
+    GET_REFERRALS: 'getReferrals',
+    UPGRADE_MEMBERSHIP: 'upgradeMembership',
+    GET_CONFIG_DATA: 'getConfigData',
+    DRIVER_USER_TICKET_REGISTRATION: 'driverUserTicketRegistration',
+    DRIVER_USER_SIMPLE_REGISTRATION: 'driverUserSimpleRegistration',
+    REGISTRATION_PRODUCTS: 'registrationProducts',
+    CREATE_PAYMENT_INTENT: 'createPaymentIntent',
+    DRIVER_REGISTRATION: 'driverUserRegistration',
+    REGISTER_DRIVER_USER: 'RegisterDriverUser',
+    UPLOAD_CASE_DOCUMENTS: 'uploadCaseDocuments',
+    GET_TICKET_DOCUMENTS: 'getFiles',
+    GET_REFERRAL_QR_LINK: 'getReferralQrLink',
+    CREATE_DRIVER_TICKET: 'createDriverTicket',
+    GET_SESSION_STATUS: 'PaymentGateway/GetSessionStatus',
+    UPDATE_DRIVER_REWARDS: 'updateDriverRewards',
+  },
+  // User message
+
+  RESPONSE_STATUS: {
+    SUCCESS: 200,
+    SUCCESS_MESSAGE: 'SUCCESS',
+  },
+};

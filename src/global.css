@@ -1,0 +1,311 @@
+/** **************************************
+* Fonts: app
+*************************************** */
+@import '@fontsource-variable/open-sans';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-size: 16px;
+  --background: #ffffff;
+  --foreground: #1f2937;
+  --card: #ffffff;
+  --card-foreground: #1f2937;
+  --popover: #ffffff;
+  --popover-foreground: #1f2937;
+  --primary: #0d3e6b;
+  --primary-foreground: #ffffff;
+  --secondary: #eef6ff;
+  --secondary-foreground: #0d3e6b;
+  --muted: #f3f4f6;
+  --muted-foreground: #64748b;
+  --accent: #d7e9ff;
+  --accent-foreground: #0d3e6b;
+  --destructive: #ec1c24;
+  --destructive-foreground: #ffffff;
+  --border: rgba(15, 23, 42, 0.12);
+  --input: #ffffff;
+  --input-background: #f8fafc;
+  --ring: rgba(13, 62, 107, 0.28);
+  --radius: 1rem;
+}
+
+@media (max-width: 374px) {
+  :root {
+    --font-size: 14px;
+  }
+}
+
+@media (min-width: 428px) and (max-width: 767px) {
+  :root {
+    --font-size: 17px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --font-size: 18px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --font-size: 18px;
+  }
+}
+
+@layer base {
+  html {
+    font-size: var(--font-size);
+  }
+
+  body {
+    @apply bg-surface-app font-sans text-ink-body antialiased;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+}
+
+@layer components {
+  .auth-background {
+    @apply relative min-h-screen overflow-hidden bg-brand-auth;
+  }
+
+  .auth-grid-overlay {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxIDAgNiAyLjY5IDYgNnMtMi42OSA2LTYgNi02LTIuNjktNi02IDIuNjktNiA2LTZ6TTYgNmgxMnYxMkg2VjZ6IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L2c+PC9zdmc+");
+  }
+}
+
+/* ── Auth glass form-field wrappers (temporary until auth forms are fully local-primitives) ── */
+.auth-glass-input .rhf-text-field-control {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+.auth-glass-input .rhf-text-field-control:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.auth-glass-input .rhf-text-field-control:focus-within {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+.auth-glass-input .rhf-text-field-input {
+  color: #fff;
+  font-size: 1.125rem;
+  padding: 16px;
+}
+.auth-glass-input .rhf-text-field-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+}
+.auth-glass-input .rhf-text-field-control > :not(.rhf-text-field-input) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-glass-otp .rhf-text-field-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+.auth-glass-otp .rhf-text-field-control:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.auth-glass-otp .rhf-text-field-control:focus-within {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+.auth-glass-otp .rhf-text-field-input {
+  color: #fff;
+  font-size: 1.5rem;
+  letter-spacing: 0.5rem;
+  padding: 16px;
+  font-weight: 400;
+}
+.auth-glass-otp .rhf-text-field-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  opacity: 1;
+}
+.auth-glass-otp .rhf-text-field-control > :not(.rhf-text-field-input) {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.auth-glass-otp-error .rhf-text-field-control {
+  border-color: #f87171;
+}
+.auth-glass-otp-error .rhf-text-field-control:hover {
+  border-color: #f87171;
+}
+.auth-glass-otp-error .rhf-text-field-control:focus-within {
+  border-color: #f87171;
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.2);
+}
+
+/** **************************************
+* Plugins
+*************************************** */
+
+
+
+/** **************************************
+* Baseline
+*************************************** */
+html {
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+body,
+#root,
+#root__layout {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+input[type='number']::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+input[type='number']::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+  input[type='date'] {
+    width: 100%;
+    max-width: 100%;
+    height: 44px;
+    min-height: 44px;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    padding-right: 2.75rem;
+    font-size: 16px;
+    line-height: 1.2;
+    text-align: left;
+    box-sizing: border-box;
+    color-scheme: light;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type='date']::-webkit-date-and-time-value {
+    min-height: 1.2rem;
+    text-align: left;
+  }
+
+  input[type='date']::-webkit-datetime-edit {
+    display: flex;
+    align-items: center;
+    min-height: 1.2rem;
+    padding: 0;
+    line-height: 1.2;
+  }
+
+  input[type='date']::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+
+  input[type='date']::-webkit-calendar-picker-indicator {
+    margin: 0;
+    opacity: 1;
+  }
+
+  input[type='date']::-webkit-clear-button,
+  input[type='date']::-webkit-inner-spin-button {
+    display: none;
+  }
+}
+
+.layout__has__sidebar {
+  background-color: #fbf9fa !important;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 50px white inset;
+  -webkit-text-fill-color: #333;
+}
+
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 50px white inset;
+  -webkit-text-fill-color: #333;
+}
+
+.auth-input-autofill:-webkit-autofill,
+.auth-input-autofill:-webkit-autofill:hover,
+.auth-input-autofill:-webkit-autofill:focus,
+.auth-input-autofill:-webkit-autofill:active {
+  border-color: rgba(255, 255, 255, 0.2);
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset;
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  transition: background-color 9999s ease-out, color 9999s ease-out;
+}
+
+#checkout iframe {
+  height: 100vh !important;
+}
+
+.mvp-page-shell {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.mvp-section-card {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.mvp-modal-shell {
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.75rem;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.2);
+}
+
+.mvp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+  padding: 1rem 1.25rem;
+}
+
+.mvp-modal-body {
+  max-height: min(78vh, 780px);
+  overflow: auto;
+  padding: 1.25rem;
+}

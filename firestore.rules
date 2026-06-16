@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each driver can only read/write their own subtree
+    match /drivers/{driverId} {
+      allow read, write: if request.auth != null && request.auth.uid == driverId;
+
+      match /tickets/{ticketId} {
+        allow read: if request.auth != null && request.auth.uid == driverId;
+        // Drivers can create tickets; AI engine (admin SDK) handles updates
+        allow create: if request.auth != null && request.auth.uid == driverId;
+        // No client-side updates — all field updates come from the AI engine via Admin SDK
+        allow update, delete: if false;
+      }
+    }
+
+    // Block everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
