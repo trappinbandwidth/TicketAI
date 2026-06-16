@@ -145,6 +145,7 @@ def referee(state: TicketState) -> dict:
 
     # Determine which critical fields actually apply for this doc type / state
     ticket_state = (data_fields.get("Ticket_State__c") or {}).get("value", "")
+    ticket_violation = (data_fields.get("Violation_Category__c") or {}).get("value", "")
     file_type = (data_fields.get("file_type") or {})
     # file_type may be a plain string (top-level key, not an ExtractedField)
     if isinstance(file_type, dict):
@@ -178,8 +179,30 @@ def referee(state: TicketState) -> dict:
     }
     avg_score = sum(scored_fields.values()) / len(scored_fields) if scored_fields else 0.0
 
-    low_confidence = [k for k, s in scored_fields.items() if s < YELLOW_THRESHOLD]
     critical_failures = [k for k in effective_critical if scores.get(k, 0) < CRITICAL_FLOOR]
+
+    # Court date exemption: if Court_Date__c is empty but Date_of_Ticket__c has a value,
+    # an artificial date (+10 days) will be generated in process.py. Treat this as YELLOW
+    # (needs court follow-up) rather than RED (extraction failure), but only when it is
+    # the sole critical failure — any additional missing critical fields remain RED.
+    court_val = (data_fields.get("Court_Date__c") or {}).get("value", "")
+    ticket_date_val = (data_fields.get("Date_of_Ticket__c") or {}).get("value", "")
+    artificial_date_eligible = (
+        "Court_Date__c" in critical_failures
+        and not court_val
+        and bool(ticket_date_val)
+        and set(critical_failures) <= {"Court_Date__c"}
+    )
+    if artificial_date_eligible:
+        critical_failures = [f for f in critical_failures if f != "Court_Date__c"]
+        logger.warning("[referee] court_date_exemption applied file=%s — artificial date will be generated", filename)
+
+    # Critical failures always appear in low_confidence_fields so they are never invisible.
+    # Without this, a field at exactly YELLOW_THRESHOLD (e.g. 0.60) is below CRITICAL_FLOOR
+    # but not below YELLOW_THRESHOLD, so it would trigger RED with an empty low_confidence list.
+    low_confidence = list({
+        k for k, s in scored_fields.items() if s < YELLOW_THRESHOLD
+    } | set(critical_failures))
 
     if critical_failures:
         pass_status = PassStatus.RED
@@ -192,12 +215,75 @@ def referee(state: TicketState) -> dict:
         logger.warning("[referee] GREEN file=%s avg=%.2f", filename, avg_score)
     elif avg_score >= YELLOW_THRESHOLD:
         pass_status = PassStatus.YELLOW
-        notes = f"Some fields need review. Avg: {avg_score:.2f}. Low: {', '.join(low_confidence) or 'none'}"
+        if artificial_date_eligible:
+            notes = (f"Court date missing — artificial date will be generated (+10 days from ticket date). "
+                     f"Avg: {avg_score:.2f}. Low: {', '.join(low_confidence) or 'none'}")
+        else:
+            notes = f"Some fields need review. Avg: {avg_score:.2f}. Low: {', '.join(low_confidence) or 'none'}"
         logger.warning("[referee] YELLOW file=%s avg=%.2f low=%s", filename, avg_score, low_confidence)
     else:
         pass_status = PassStatus.RED
         notes = f"Overall confidence too low: {avg_score:.2f}"
         logger.warning("[referee] RED file=%s avg=%.2f (below threshold)", filename, avg_score)
+
+    # ── Cross-validation checks ─────────────────────────────────────────────────
+    cross_validation_notes: list[str] = []
+
+    # 1. Speed category vs violation description consistency
+    violation_desc = (data_fields.get("Violation_Description__c") or {}).get("value", "")
+    speed_match = re.search(r'\((\d+)/(\d+)\s*mph\)', violation_desc)
+    if speed_match and ticket_violation:
+        driver_mph = int(speed_match.group(1))
+        limit_mph = int(speed_match.group(2))
+        diff = driver_mph - limit_mph
+        if diff >= 15 and ticket_violation == "Speeding (1-14)":
+            cross_validation_notes.append(
+                f"SPEED_CATEGORY_MISMATCH: Description says {driver_mph}/{limit_mph} mph (+{diff} over) "
+                f"but Violation_Category__c is 'Speeding (1-14)' — should be 'Speeding (15+)'"
+            )
+            scores["Violation_Category__c"] = min(scores.get("Violation_Category__c", 1.0), 0.40)
+        elif diff < 15 and diff > 0 and ticket_violation == "Speeding (15+)":
+            cross_validation_notes.append(
+                f"SPEED_CATEGORY_MISMATCH: Description says {driver_mph}/{limit_mph} mph (+{diff} over) "
+                f"but Violation_Category__c is 'Speeding (15+)' — should be 'Speeding (1-14)'"
+            )
+            scores["Violation_Category__c"] = min(scores.get("Violation_Category__c", 1.0), 0.40)
+
+    # 2. School/work zone flag vs category (zones only apply to moving violations)
+    school_zone_val = (data_fields.get("School_Zone__c") or {}).get("value", "")
+    construction_zone_val = (data_fields.get("Construction_Zone__c") or {}).get("value", "")
+    admin_categories = {"ELD/Logs", "Equipment/Maintenance", "Registration Violations",
+                        "Overweight/Overlength", "Parking"}
+    if school_zone_val.lower() == "yes" and ticket_violation in admin_categories:
+        cross_validation_notes.append(
+            f"ZONE_CATEGORY_MISMATCH: School_Zone=Yes but Violation_Category='{ticket_violation}' "
+            f"is not a moving violation — zone flag unlikely for this charge type"
+        )
+    if construction_zone_val.lower() == "yes" and ticket_violation in admin_categories:
+        cross_validation_notes.append(
+            f"ZONE_CATEGORY_MISMATCH: Construction_Zone=Yes but Violation_Category='{ticket_violation}' "
+            f"is not a moving violation — zone flag unlikely for this charge type"
+        )
+
+    # 3. Mandatory appearance without court date (and not artificial-date eligible)
+    mandatory_val = (data_fields.get("Mandatory_Appearance__c") or {}).get("value", "")
+    if (mandatory_val.lower() == "yes"
+            and not court_val
+            and not artificial_date_eligible
+            and doc_type in ("Ticket", "Warning")):
+        cross_validation_notes.append(
+            "MANDATORY_APPEARANCE_NO_DATE: Ticket requires mandatory court appearance "
+            "but no court date was found and no date-calculation rule applies — escalate immediately"
+        )
+        if pass_status != PassStatus.RED:
+            pass_status = PassStatus.RED
+            notes = ("Mandatory appearance required but no court date extracted. "
+                     + (notes or ""))
+
+    if cross_validation_notes:
+        notes = (notes or "") + " | XVAL: " + "; ".join(cross_validation_notes)
+        logger.warning("[referee] CROSS_VALIDATION file=%s issues=%d: %s",
+                       filename, len(cross_validation_notes), cross_validation_notes)
 
     scan_id = state.get("scan_id", "")
     log_agent_event(scan_id, AGENT_NAME, "scored", {

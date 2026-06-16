@@ -29,6 +29,8 @@ class ExtractedField(BaseModel):
     confidence_score: float
     ai_reason: str
     bbox: Optional[BoundingBox] = None
+    items: Optional[list[str]] = None       # populated when value contains multiple violations
+    raw_evidence: Optional[str] = None      # verbatim OCR snippet used for extraction
 
 
 class FileTypeAnalysis(BaseModel):
@@ -82,6 +84,20 @@ class DocumentResult(BaseModel):
     Ticket_State__c: ExtractedField
     Insp_Report_Num__c: ExtractedField
     Citation_Number__c: ExtractedField
+
+    # ── Ticket defense / economic fields (Tier 1) ────────────────────────
+    Fine_Amount__c: Optional[ExtractedField] = None            # bail/bond/fine dollar amount on ticket
+    Statute_Code__c: Optional[ExtractedField] = None           # violation statute/ordinance code
+    Mandatory_Appearance__c: Optional[ExtractedField] = None   # "Yes" | "No"
+    School_Zone__c: Optional[ExtractedField] = None            # "Yes" | "No"
+    Construction_Zone__c: Optional[ExtractedField] = None      # "Yes" | "No"
+
+    # ── Ticket defense fields (Tier 2) ────────────────────────────────────
+    Officer_Name__c: Optional[ExtractedField] = None           # issuing officer name
+    Officer_Badge__c: Optional[ExtractedField] = None          # badge / ID number
+    Speed_Enforcement_Method__c: Optional[ExtractedField] = None  # Radar | LIDAR | Pacing | Aircraft | Visual | VASCAR | Photo
+    Vehicle_Plate__c: Optional[ExtractedField] = None          # license plate number on ticket
+    Vehicle_State__c: Optional[ExtractedField] = None          # plate issuing state
 
     # ── Inspection Report fields ──────────────────────────────────────────
     Inspection_Date__c: Optional[ExtractedField] = None
@@ -146,6 +162,66 @@ class DocumentResult(BaseModel):
 TicketResponse = DocumentResult
 
 
+class CdlPointEstimate(BaseModel):
+    """CDL point impact estimate by state and violation — for attorney and driver reference."""
+    violation_category: str
+    state: str
+    state_points_min: int
+    state_points_max: int
+    state_points_display: str           # "3–6 pts"
+    federal_serious_violation: bool     # counts toward 60/120-day CDL disqualification under 49 CFR 383.51
+    federal_major_violation: bool       # triggers 1-year+ CDL disqualification under 49 CFR 383.51
+    disqualification_risk: str          # None | Low | Medium | High | Immediate
+    disqualification_note: str          # plain-English consequence
+    csa_severity_weight: int            # FMCSA CSA severity weight 1–10
+    insurance_impact: str               # Minimal | Moderate | Significant | Severe
+    school_zone_applied: bool
+    construction_zone_applied: bool
+    zone_points_added: int              # extra points from zone modifier
+    data_source: str                    # "state_schedule" | "estimate"
+
+
+class PaymentOption(BaseModel):
+    plan: str               # "Pay in Full" | "2 Payments" | "3 Payments" | "4 Payments"
+    installments: int
+    down_payment: float
+    monthly_payment: float
+    total: float
+    available: bool
+
+
+class PaymentOptions(BaseModel):
+    base_amount: float
+    currency: str = "USD"
+    days_until_court: Optional[int] = None
+    options: list[PaymentOption]
+    note: str = ""
+
+
+class CountyCourt(BaseModel):
+    county: str
+    court_name: str
+    website: str
+    scheduling_url: str
+    phone: str
+    address: str
+    notes: str = ""
+
+
+class CourtInfo(BaseModel):
+    state: str
+    state_name: str
+    court_system: str
+    state_portal: str
+    online_payment_url: str
+    scheduling_url: str
+    cdl_info_url: str
+    appear_required_for_serious: bool
+    appear_required: bool
+    notes: str = ""
+    county_court: Optional[CountyCourt] = None
+
+
 class AttorneyMatch(BaseModel):
     attorney_id: str
     name: str
@@ -178,4 +254,8 @@ class ProcessResponse(BaseModel):
     no_attorney_flag: bool = False
 
     cached: bool = False
+    artificial_court_date: bool = False
+    court_info: Optional[CourtInfo] = None
+    cdl_point_estimate: Optional[CdlPointEstimate] = None
+    payment_options: Optional[PaymentOptions] = None
     result: DocumentResult

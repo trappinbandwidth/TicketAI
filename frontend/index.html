@@ -6,7 +6,12 @@
   <title>Rig Resolve — AI Ticket Scanner</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root { --cdl-blue:#0D3E6B; --cdl-gold:#dc2626; --cdl-light:#f4f6f9; }
+    :root {
+      --cdl-blue:   #2EC4A5;  /* teal — primary accent */
+      --cdl-gold:   #D97706;  /* amber — edits · warnings */
+      --cdl-light:  #FAFAF9;  /* warm stone page background */
+      --cdl-header: #2D3142;  /* ink — sticky header chrome */
+    }
     body { font-family:'Inter',system-ui,sans-serif; background:var(--cdl-light); }
 
     #drop-zone { border:2.5px dashed #93b4d4; transition:border-color .2s,background .2s; }
@@ -199,7 +204,7 @@
 <div id="toast" class="hidden"></div>
 
 <!-- ── STICKY HEADER ─────────────────────────────────────── -->
-<div id="sticky-header" style="background:var(--cdl-blue);" class="shadow-md">
+<div id="sticky-header" style="background:var(--cdl-header);" class="shadow-md">
   <div class="max-w-screen-2xl mx-auto px-5 py-3 flex items-center gap-4">
     <div>
       <div class="text-white font-bold text-lg tracking-tight">Rig Resolve</div>

@@ -1,11 +1,53 @@
+/* ── Rig Resolve — QA Dashboard (portal-attorney: warm stone · amber-primary · desktop) ── */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Rig Resolve token layer ─────────────────────────────────────────────── */
+:root {
+  /* Global brand constants */
+  --brand-teal:        #2EC4A5;
+  --brand-teal-dark:   #1E9E85;
+  --brand-ink:         #2D3142;
+  --font-display:      'DM Serif Display', Georgia, serif;
+  --font-body:         'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:         'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+  /* Portal-attorney surface tokens */
+  --color-bg:              #FAFAF9;
+  --color-surface:         #FFFFFF;
+  --color-card:            #FFFFFF;
+  --color-border:          #E7E5E4;
+  --color-border-hover:    #D6D3D1;
+
+  /* Portal-attorney action tokens (amber-primary) */
+  --color-primary:         #D97706;
+  --color-primary-hover:   #B45309;
+  --color-primary-bg:      rgba(217, 119, 6, 0.08);
+  --color-primary-border:  rgba(217, 119, 6, 0.24);
+
+  /* Text tokens */
+  --color-text:            #1C1917;
+  --color-muted:           #78716C;
+  --color-dim:             #A8A29E;
+
+  /* Semantic tokens */
+  --color-amber:           #D97706;
+  --color-amber-bg:        rgba(217, 119, 6, 0.08);
+  --color-red:             #DC2626;
+  --color-red-bg:          rgba(220, 38, 38, 0.08);
+  --color-green:           #16A34A;
+  --color-green-bg:        rgba(22, 163, 74, 0.08);
+  --color-teal:            #2EC4A5;
+  --color-teal-bg:         rgba(46, 196, 165, 0.08);
+}
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f8fafc;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 #root {

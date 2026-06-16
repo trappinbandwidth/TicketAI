@@ -3,19 +3,24 @@ import hashlib
 import json
 import logging
 import os
+import re
 import uuid
+from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 
-from app.models.response import AttorneyMatch, DocumentResult, ProcessResponse, PriceEstimate, TicketResponse
+from app.models.response import AttorneyMatch, CourtInfo, CountyCourt, DocumentResult, ExtractedField, ProcessResponse, PriceEstimate, TicketResponse
 from app.services.attorney_matching import find_attorneys
+from app.services.cdl_points import estimate_cdl_points
 from app.services.doc_scoring import score_document
+from app.services.payment_options import calculate_payment_options
 from app.services.preprocessor import image_file_to_base64, pdf_to_images_and_text
 from app.services.pricing import get_price_estimate
 from app.services.queue_store import cache_get, cache_set, get_item, save_scan
 from app.services.textract_service import extract_word_positions
 from app.services.firebase_service import write_scan_result
+from app.services.court_lookup import lookup_court
 from orchestrator.graph import ticket_graph
 
 logger = logging.getLogger(__name__)
@@ -28,6 +33,72 @@ SUPPORTED_TYPES = {
     "image/jpg": "image",
     "image/png": "image",
 }
+
+
+_DATE_FORMATS = [
+    "%m/%d/%Y", "%m/%d/%y", "%m-%d-%Y", "%m-%d-%y",
+    "%Y-%m-%d", "%B %d, %Y", "%b %d, %Y", "%B %d %Y", "%b %d %Y",
+    "%d/%m/%Y", "%d-%m-%Y",
+]
+
+
+def _artificial_court_date(ticket_date_str: str, days: int = 10) -> Optional[str]:
+    """Parse ticket issue date and return a date `days` later as MM/DD/YYYY."""
+    s = (ticket_date_str or "").strip()
+    if not s:
+        return None
+    try:
+        from dateutil import parser as du
+        dt = du.parse(s, dayfirst=False)
+        return (dt + timedelta(days=days)).strftime("%m/%d/%Y")
+    except Exception:
+        pass
+    for fmt in _DATE_FORMATS:
+        try:
+            dt = datetime.strptime(s, fmt)
+            return (dt + timedelta(days=days)).strftime("%m/%d/%Y")
+        except ValueError:
+            continue
+    return None
+
+
+def _days_from_ai_reason(ai_reason: str) -> Optional[int]:
+    """
+    Scan Court_Date__c ai_reason for explicit day-count language the AI detected
+    but didn't calculate (e.g. 'pay or respond within 30 days').
+    Returns the day count if found and plausible (7–90), else None.
+    """
+    if not ai_reason:
+        return None
+    matches = re.findall(r'\b(\d+)\s+days?\b', ai_reason, re.IGNORECASE)
+    for m in matches:
+        n = int(m)
+        if 7 <= n <= 90:
+            return n
+    return None
+
+
+def _parse_violation_items(value: str) -> Optional[list[str]]:
+    """
+    Split a Violation_Description__c value into a list when multiple violations exist.
+    Handles numbered list format ('1. ... \\n2. ...') and legacy semicolon format.
+    Returns None for single violations (no split needed).
+    """
+    if not value:
+        return None
+    # Numbered list: "1. ...\n2. ..."
+    numbered = re.split(r'\n\d+\.\s+', value)
+    if len(numbered) > 1:
+        # Re-attach the first item (which won't have a leading number after split)
+        first = re.sub(r'^\d+\.\s+', '', numbered[0]).strip()
+        rest = [v.strip() for v in numbered[1:] if v.strip()]
+        items = ([first] if first else []) + rest
+        return items if len(items) > 1 else None
+    # Legacy semicolon format: "Speeding; No Seatbelt"
+    semi = [v.strip() for v in re.split(r';\s*', value) if v.strip()]
+    if len(semi) > 1:
+        return semi
+    return None
 
 
 def _check_auth(x_api_key: Optional[str]):
@@ -157,6 +228,47 @@ async def process_ticket(
             detail=f"Extraction produced incomplete fields: {exc}",
         ) from exc
 
+    # Artificial court date — generated when the document has no court date.
+    # Rule priority:
+    #   1. If ticket says "pay within 30 days" (or any X days) → ticket date + X days
+    #   2. Default → ticket date + 10 days
+    # The attorney can update the real court date once confirmed with the court.
+    artificial_court_date_applied = False
+    if not ticket_result.Court_Date__c.value and ticket_result.Date_of_Ticket__c.value:
+        court_ai_reason = ticket_result.Court_Date__c.ai_reason or ""
+        art_days = _days_from_ai_reason(court_ai_reason) or 10
+        art_date = _artificial_court_date(ticket_result.Date_of_Ticket__c.value, days=art_days)
+        if art_date:
+            if art_days != 10:
+                rule_note = (f"Document states a {art_days}-day payment/response window — "
+                             f"placeholder set to {art_days} days from ticket issue date.")
+            else:
+                rule_note = "No day-count rule found on document — placeholder set to 10 days from ticket issue date."
+            art_field = ExtractedField(
+                value=art_date,
+                confidence_score=0.0,
+                ai_reason=(
+                    f"ARTIFICIAL DATE — no court date found on document. {rule_note} "
+                    f"(Ticket issued: {ticket_result.Date_of_Ticket__c.value}.) "
+                    "CDL Legal will contact the court to obtain and update the real court date. "
+                    "Attorney can update this date once confirmed."
+                ),
+            )
+            ticket_result = ticket_result.model_copy(update={"Court_Date__c": art_field})
+            artificial_court_date_applied = True
+            logger.warning("[court_date] ARTIFICIAL file=%s days=%d ticket_date=%r → art_date=%s",
+                           filename, art_days, ticket_result.Date_of_Ticket__c.value, art_date)
+
+    # Parse Violation_Description__c into a numbered list when multiple violations exist
+    vd = ticket_result.Violation_Description__c
+    if vd.value:
+        violation_items = _parse_violation_items(vd.value)
+        if violation_items:
+            ticket_result = ticket_result.model_copy(
+                update={"Violation_Description__c": vd.model_copy(update={"items": violation_items})}
+            )
+            logger.warning("[violations] file=%s split into %d items", filename, len(violation_items))
+
     # Build price estimate from extracted state + violation
     ticket_state = (ticket_fields.get("Ticket_State__c") or {}).get("value", "")
     ticket_violation = (ticket_fields.get("Violation_Category__c") or {}).get("value", "")
@@ -200,6 +312,73 @@ async def process_ticket(
     if no_atty:
         logger.warning("[attorney] NO ATTORNEY state=%r county=%r", ticket_state, ticket_county)
 
+    # Court lookup
+    court_info = None
+    raw_court = lookup_court(ticket_state, ticket_county, ticket_violation)
+    if raw_court:
+        county_court = None
+        if raw_court.get("county_court"):
+            cc = raw_court["county_court"]
+            county_court = CountyCourt(
+                county=cc.get("county", ""),
+                court_name=cc.get("court_name", ""),
+                website=cc.get("website", ""),
+                scheduling_url=cc.get("scheduling_url", ""),
+                phone=cc.get("phone", ""),
+                address=cc.get("address", ""),
+                notes=cc.get("notes", ""),
+            )
+        court_info = CourtInfo(
+            state=raw_court["state"],
+            state_name=raw_court["state_name"],
+            court_system=raw_court["court_system"],
+            state_portal=raw_court["state_portal"],
+            online_payment_url=raw_court["online_payment_url"],
+            scheduling_url=raw_court["scheduling_url"],
+            cdl_info_url=raw_court["cdl_info_url"],
+            appear_required_for_serious=raw_court["appear_required_for_serious"],
+            appear_required=raw_court["appear_required"],
+            notes=raw_court["notes"],
+            county_court=county_court,
+        )
+        logger.warning("[court] state=%r county=%r → %s", ticket_state, ticket_county,
+                       raw_court.get("county_court", {}).get("court_name") if raw_court.get("county_court") else raw_court["court_system"])
+
+    # CDL point estimation — state + violation + zone flags from extracted fields
+    cdl_point_est = None
+    if ticket_state and ticket_violation:
+        school_zone_val = (ticket_fields.get("School_Zone__c") or {}).get("value", "")
+        construction_zone_val = (ticket_fields.get("Construction_Zone__c") or {}).get("value", "")
+        try:
+            cdl_point_est = estimate_cdl_points(
+                state=ticket_state,
+                violation_category=ticket_violation,
+                school_zone=(school_zone_val.lower() == "yes"),
+                construction_zone=(construction_zone_val.lower() == "yes"),
+            )
+            if cdl_point_est:
+                logger.warning("[cdl_points] file=%s state=%r cat=%r → %s risk=%s",
+                               filename, ticket_state, ticket_violation,
+                               cdl_point_est.state_points_display, cdl_point_est.disqualification_risk)
+        except Exception as exc:
+            logger.warning("[cdl_points] estimation failed file=%s: %s", filename, exc)
+
+    # Payment options — based on attorney fee + court date distance
+    payment_opts = None
+    if price_est and price_est.driver_price_base > 0:
+        court_date_val = ticket_result.Court_Date__c.value if ticket_result.Court_Date__c else ""
+        try:
+            payment_opts = calculate_payment_options(
+                base_amount=float(price_est.driver_price_base),
+                court_date_str=court_date_val or None,
+            )
+            if payment_opts:
+                logger.warning("[payment_opts] file=%s base=$%.0f days=%s plans=%d",
+                               filename, payment_opts.base_amount,
+                               payment_opts.days_until_court, len(payment_opts.options))
+        except Exception as exc:
+            logger.warning("[payment_opts] calculation failed file=%s: %s", filename, exc)
+
     # Severity scoring: tickets use cdl_point_impact (from orchestrator); all other types use doc_scoring
     doc_sev = None
     file_type = (ticket_fields.get("file_type") or "Ticket")
@@ -225,6 +404,10 @@ async def process_ticket(
         dual_conflicts=final.get("dual_conflicts", []),
         attorney_matches=atty_matches,
         no_attorney_flag=no_atty,
+        artificial_court_date=artificial_court_date_applied,
+        court_info=court_info,
+        cdl_point_estimate=cdl_point_est,
+        payment_options=payment_opts,
         result=ticket_result,
     )
 
