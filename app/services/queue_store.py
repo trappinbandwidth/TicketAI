@@ -24,7 +24,7 @@ EXTRACTED_FIELDS = [
     "Civil_Penalty_Case_Number__c", "Civil_Penalty_Amount__c", "Civil_Penalty_Due_Date__c",
     "BASIC_Category__c", "CDL_License_Number__c", "CDL_State__c", "CDL_Class__c",
     "CDL_Expiration__c", "CDL_Endorsements__c", "CDL_Restrictions__c",
-    "Driver_First_Name__c", "Driver_Last_Name__c", "Driver_DOB__c",
+    "Driver_First_Name__c", "Driver_Last_Name__c", "Driver_DOB__c", "Driver_Address__c",
     "MVR_License_Number__c", "MVR_State__c", "MVR_Class__c", "MVR_Generated_Date__c",
     "MVR_Violations_Summary__c", "MVR_Total_Points__c", "MVR_Suspension_Count__c",
 ]
@@ -135,15 +135,65 @@ def init_db() -> None:
             ("attorney_match_type",       "TEXT"),
             ("has_price_estimate",        "INTEGER DEFAULT 0"),
             ("price_estimate_json",       "TEXT"),
+            ("images_b64_json",           "TEXT"),
         ]:
             if col not in existing:
                 conn.execute(f"ALTER TABLE queue ADD COLUMN {col} {typedef}")
 
         conn.execute("CREATE INDEX IF NOT EXISTS idx_queue_doc_type ON queue(doc_type)")
 
+        # Document cache — prevents re-running pipeline for identical uploads
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS document_cache (
+                content_hash  TEXT PRIMARY KEY,
+                scan_id       TEXT NOT NULL,
+                created_at    TEXT NOT NULL
+            )
+        """)
+
+        # Field audit trail — every reviewer edit is logged here
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS field_audit (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                scan_id       TEXT NOT NULL,
+                field_key     TEXT NOT NULL,
+                old_value     TEXT,
+                new_value     TEXT NOT NULL,
+                reviewer_id   TEXT,
+                note          TEXT,
+                changed_at    TEXT NOT NULL
+            )
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_field_audit_scan ON field_audit(scan_id)")
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def cache_get(content_hash: str) -> str | None:
+    """Return the scan_id for a previously processed document, or None."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute(
+                "SELECT scan_id FROM document_cache WHERE content_hash = ?",
+                (content_hash,),
+            ).fetchone()
+        return row[0] if row else None
+    except Exception:
+        return None
+
+
+def cache_set(content_hash: str, scan_id: str) -> None:
+    """Store a hash → scan_id mapping for future cache hits."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                "INSERT OR IGNORE INTO document_cache (content_hash, scan_id, created_at) VALUES (?,?,?)",
+                (content_hash, scan_id, _now()),
+            )
+    except Exception:
+        pass
 
 
 def log_agent_event(scan_id: str, agent: str, event: str, detail: dict | None = None) -> None:
@@ -162,8 +212,9 @@ def save_scan(
     id: str,
     filename: str,
     pass_status: str,
-    image_b64: str,
     process_response_json: str,
+    images_b64: list[str] | None = None,
+    image_b64: str = "",  # deprecated — use images_b64
     pass1_extraction: dict | None = None,
     pass2_extraction: dict | None = None,
     consensus_extraction: dict | None = None,
@@ -175,19 +226,22 @@ def save_scan(
     price_estimate: dict | None = None,
 ) -> None:
     ts = _now()
+    # Prefer images_b64 list; fall back to legacy image_b64 single string
+    page_list = images_b64 if images_b64 else ([image_b64] if image_b64 else [])
+    legacy_b64 = page_list[0] if page_list else ""
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute(
             """INSERT INTO queue (
                 id, filename, pass_status, status, created_at, updated_at,
-                image_b64, process_response_json,
+                image_b64, images_b64_json, process_response_json,
                 pass1_extraction_json, pass2_extraction_json, consensus_extraction_json,
                 doc_type, prompt_version,
                 attorney_matched, attorney_match_type,
                 has_price_estimate, price_estimate_json
-            ) VALUES (?,?,?,  'pending',?,?,  ?,?,  ?,?,?,  ?,?,  ?,?,  ?,?)""",
+            ) VALUES (?,?,?,  'pending',?,?,  ?,?,?,  ?,?,?,  ?,?,  ?,?,  ?,?)""",
             (
                 id, filename, pass_status, ts, ts,
-                image_b64, process_response_json,
+                legacy_b64, json.dumps(page_list) if page_list else None, process_response_json,
                 json.dumps(pass1_extraction) if pass1_extraction else None,
                 json.dumps(pass2_extraction) if pass2_extraction else None,
                 json.dumps(consensus_extraction) if consensus_extraction else None,
@@ -223,6 +277,9 @@ def get_item(id: str) -> dict | None:
     item["pass1_extraction"] = json.loads(item["pass1_extraction_json"]) if item["pass1_extraction_json"] else {}
     item["pass2_extraction"] = json.loads(item["pass2_extraction_json"]) if item["pass2_extraction_json"] else {}
     item["consensus_extraction"] = json.loads(item["consensus_extraction_json"]) if item["consensus_extraction_json"] else {}
+    item["images_all"] = json.loads(item["images_b64_json"]) if item.get("images_b64_json") else (
+        [item["image_b64"]] if item.get("image_b64") else []
+    )
     return item
 
 
@@ -241,7 +298,7 @@ def get_agent_events(scan_id: str) -> list[dict]:
     return result
 
 
-def approve_item(id: str, edited_fields: dict) -> None:
+def approve_item(id: str, edited_fields: dict, reviewer_id: str | None = None) -> None:
     item = get_item(id)
     if item is None:
         raise ValueError(f"Queue item not found: {id}")
@@ -255,6 +312,21 @@ def approve_item(id: str, edited_fields: dict) -> None:
 
     process_response = item["process_response"]
     original = process_response.get("result", {})
+
+    # Log field-level changes to audit trail
+    if edited_fields:
+        with sqlite3.connect(DB_PATH) as conn:
+            for field, new_val in edited_fields.items():
+                if field.startswith("__"):
+                    continue
+                orig_field = original.get(field, {})
+                old_val = (orig_field.get("value", "") if isinstance(orig_field, dict) else "") or ""
+                if old_val != new_val:
+                    conn.execute(
+                        "INSERT INTO field_audit (scan_id, field_key, old_value, new_value, reviewer_id, changed_at) "
+                        "VALUES (?,?,?,?,?,?)",
+                        (id, field, old_val, new_val, reviewer_id, ts),
+                    )
 
     final_values = {}
     for field in EXTRACTED_FIELDS:
@@ -292,6 +364,17 @@ def approve_item(id: str, edited_fields: dict) -> None:
 
     with open(TRAINING_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(record) + "\n")
+
+
+def get_field_audit(scan_id: str) -> list[dict]:
+    """Return all field edits logged for a given scan, oldest first."""
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT * FROM field_audit WHERE scan_id=? ORDER BY changed_at ASC",
+            (scan_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]
 
 
 def reject_item(id: str, reason: str) -> None:

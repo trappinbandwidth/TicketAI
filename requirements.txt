@@ -9,3 +9,4 @@ langgraph==0.2.60
 langchain-core==0.3.28
 Pillow==11.2.1
 pytesseract==0.3.13
+firebase-admin==6.5.0

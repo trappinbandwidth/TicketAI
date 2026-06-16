@@ -4,7 +4,6 @@ Runs the master prompt against the ticket image + OCR text.
 First agent in the pipeline.
 """
 import logging
-import time
 
 from app.services.claude_client import process_document
 from app.services.queue_store import log_agent_event
@@ -89,6 +88,5 @@ def lone_ranger(state: TicketState) -> dict:
 
 def lone_ranger_2(state: TicketState) -> dict:
     """Second extraction pass — only runs for non-green tickets (fast-path skip for green)."""
-    time.sleep(5)
     extraction, _ = _run_extraction(state, pass_num=2, temperature=0.4)
     return {"extraction_2": extraction, "pass2_extraction": extraction}

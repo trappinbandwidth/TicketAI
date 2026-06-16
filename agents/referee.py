@@ -62,6 +62,16 @@ _VALID_VIOLATION_CATEGORIES = {
     "Parking",
 }
 
+# All forms a CDL license type might appear as on a ticket
+_VALID_CDL_TYPES = {
+    "CDL", "Non-CDL",
+    "CDL-A", "CDL-B", "CDL-C",
+    "Class A", "Class B", "Class C",
+    "Class A CDL", "Class B CDL", "Class C CDL",
+    "Commercial", "Commercial Driver License",
+    "A", "B", "C",
+}
+
 
 def _calibrate_scores(data_fields: dict, effective_critical: set | None = None) -> dict[str, float]:
     """
@@ -93,7 +103,7 @@ def _calibrate_scores(data_fields: dict, effective_critical: set | None = None) 
                 capped.append(f"{field}=unknown_category({value!r})")
 
         elif field == "Drivers_License_Type__c":
-            if value and value not in ("CDL", "Non-CDL"):
+            if value and value not in _VALID_CDL_TYPES:
                 scores[field] = min(scores[field], 0.30)
                 capped.append(f"{field}=unknown_license_type({value!r})")
 
@@ -155,9 +165,19 @@ def referee(state: TicketState) -> dict:
         logger.warning("[referee] file=%s state=%r — Ticket_County__c not required for this state", filename, ticket_state)
 
     scores = _calibrate_scores(data_fields, effective_critical=effective_critical)
-    avg_score = sum(scores.values()) / len(scores)
 
-    low_confidence = [k for k, s in scores.items() if s < YELLOW_THRESHOLD]
+    # Average only over fields that matter for this document:
+    # - fields with a non-empty extracted value (they were found and scored)
+    # - critical fields always count (empty critical = 0.0, which is correct)
+    # Excluding empty optional fields prevents 30+ zero-confidence placeholder
+    # fields from dragging a clean ticket extraction into RED.
+    scored_fields = {
+        k: s for k, s in scores.items()
+        if (data_fields.get(k, {}).get("value", "").strip() or k in effective_critical)
+    }
+    avg_score = sum(scored_fields.values()) / len(scored_fields) if scored_fields else 0.0
+
+    low_confidence = [k for k, s in scored_fields.items() if s < YELLOW_THRESHOLD]
     critical_failures = [k for k in effective_critical if scores.get(k, 0) < CRITICAL_FLOOR]
 
     if critical_failures:
@@ -186,7 +206,9 @@ def referee(state: TicketState) -> dict:
         "low_confidence_fields": low_confidence,
         "critical_failures": critical_failures,
         "effective_critical": list(effective_critical),
-        "field_scores": {k: round(v, 3) for k, v in scores.items()},
+        "scored_field_count": len(scored_fields),
+        "total_field_count": len(scores),
+        "field_scores": {k: round(v, 3) for k, v in scored_fields.items()},
         "notes": notes,
     })
 

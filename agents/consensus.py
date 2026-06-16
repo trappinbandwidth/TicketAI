@@ -39,7 +39,7 @@ _FIELD_KEYS = {
     # CDL License
     "CDL_License_Number__c", "CDL_State__c", "CDL_Class__c", "CDL_Expiration__c",
     "CDL_Endorsements__c", "CDL_Restrictions__c",
-    "Driver_First_Name__c", "Driver_Last_Name__c", "Driver_DOB__c",
+    "Driver_First_Name__c", "Driver_Last_Name__c", "Driver_DOB__c", "Driver_Address__c",
     # MVR
     "MVR_License_Number__c", "MVR_State__c", "MVR_Class__c", "MVR_Generated_Date__c",
     "MVR_Violations_Summary__c", "MVR_Total_Points__c", "MVR_Suspension_Count__c",

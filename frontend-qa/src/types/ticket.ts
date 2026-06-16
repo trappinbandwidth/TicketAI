@@ -117,6 +117,7 @@ export interface DocumentResult {
   Driver_First_Name__c?: FieldValue | null
   Driver_Last_Name__c?: FieldValue | null
   Driver_DOB__c?: FieldValue | null
+  Driver_Address__c?: FieldValue | null
 
   // MVR
   MVR_License_Number__c?: FieldValue | null
@@ -148,6 +149,7 @@ export interface PriceEstimate {
 export interface ProcessResponse {
   success: boolean
   mock: boolean
+  cached?: boolean
   filename: string
   pages_processed: number
   pass_status: 'green' | 'yellow' | 'red' | string
@@ -174,6 +176,7 @@ export interface QueueSummary {
 
 export interface QueueItem extends QueueSummary {
   image_b64: string
+  images_all: string[]
   process_response: ProcessResponse
 }
 
@@ -184,11 +187,15 @@ export const DOC_TYPE_FIELDS: Record<string, (keyof DocumentResult)[]> = {
     'Ticket_City__c', 'Violation_Category__c', 'Violation_Description__c',
     'Court_Date__c', 'Ticket_Court__c', 'Court_Phone_Number__c',
     'Accident__c', 'Drivers_License_Type__c', 'Insp_Report_Num__c',
+    'Driver_First_Name__c', 'Driver_Last_Name__c', 'Driver_DOB__c',
+    'Driver_Address__c', 'CDL_License_Number__c', 'CDL_Class__c',
   ],
   Warning: [
     'Date_of_Ticket__c', 'Citation_Number__c', 'Ticket_State__c', 'Ticket_County__c',
     'Ticket_City__c', 'Violation_Category__c', 'Violation_Description__c',
     'Accident__c', 'Drivers_License_Type__c',
+    'Driver_First_Name__c', 'Driver_Last_Name__c', 'Driver_DOB__c',
+    'Driver_Address__c', 'CDL_License_Number__c', 'CDL_Class__c',
   ],
   'Inspection Report': [
     'Inspection_Date__c', 'Inspection_Time__c', 'Insp_Report_Num__c',
@@ -278,6 +285,7 @@ export const FIELD_LABELS: Record<string, string> = {
   Driver_First_Name__c: 'First Name',
   Driver_Last_Name__c: 'Last Name',
   Driver_DOB__c: 'Date of Birth',
+  Driver_Address__c: 'Driver Address',
   // MVR
   MVR_License_Number__c: 'License Number',
   MVR_State__c: 'State',

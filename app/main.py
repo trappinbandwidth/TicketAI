@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="CDL Legal — AI Ticket Engine",
+    title="Rig Resolve — AI Ticket Engine",
     description="Multimodal document processing for CDL traffic tickets.",
     version="0.1.0",
     lifespan=lifespan,

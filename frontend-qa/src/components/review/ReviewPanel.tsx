@@ -12,13 +12,14 @@ import ActionBar from './ActionBar'
 
 interface Props {
   data: ProcessResponse
+  pages: string[]
   imageB64: string
   onDone: () => void
 }
 
 type FeedbackMap = Record<string, 'correct' | 'wrong' | null>
 
-export default function ReviewPanel({ data, imageB64, onDone }: Props) {
+export default function ReviewPanel({ data, pages, imageB64, onDone }: Props) {
   const [editedValues, setEditedValues] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -113,6 +114,7 @@ export default function ReviewPanel({ data, imageB64, onDone }: Props) {
         <div className="flex flex-col gap-4 sticky top-4 self-start">
           <DocumentViewer
             ref={viewerRef}
+            pages={pages}
             imageB64={imageB64}
             filename={data.filename}
             result={data.result}

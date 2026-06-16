@@ -1,16 +1,20 @@
+import hashlib
+import json
 import logging
 import os
 import uuid
 from typing import List
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
 
 from app.models.response import AttorneyMatch, DocumentResult, ProcessResponse, PriceEstimate, TicketResponse
 from app.services.attorney_matching import find_attorneys
 from app.services.doc_scoring import score_document
 from app.services.preprocessor import image_file_to_base64, pdf_to_images_and_text
 from app.services.pricing import get_price_estimate
-from app.services.queue_store import save_scan
+from app.services.queue_store import cache_get, cache_set, get_item, save_scan
 from app.services.textract_service import extract_word_positions
+from app.services.firebase_service import write_scan_result
 from orchestrator.graph import ticket_graph
 
 logger = logging.getLogger(__name__)
@@ -35,7 +39,9 @@ def _check_auth(x_api_key: str | None):
 async def process_ticket(
     files: List[UploadFile] = File(...),
     driver_name: str | None = Form(None),
-    prompt_version: str = Form("v1"),
+    driver_id: str | None = Form(None),   # Firebase Auth UID — used to write back to Firestore
+    ticket_id: str | None = Form(None),   # Firestore ticket document ID
+    prompt_version: str = Form("v2"),
     x_api_key: str | None = Header(None),
 ):
     _check_auth(x_api_key)
@@ -71,6 +77,31 @@ async def process_ticket(
 
     ocr_text = "\n\n---\n\n".join(ocr_parts) if ocr_parts else ""
     logger.warning("[process] file=%s total_pages=%d from %d file(s)", filename, len(images_b64), len(files))
+
+    # Check document cache — skip pipeline for identical uploads
+    content_hash = hashlib.sha256("".join(images_b64).encode()).hexdigest()
+    cached_scan_id = cache_get(content_hash)
+    if cached_scan_id:
+        cached_item = get_item(cached_scan_id)
+        if cached_item:
+            logger.warning("[process] CACHE HIT file=%s hash=%s → scan=%s", filename, content_hash[:12], cached_scan_id)
+            cached_resp = cached_item["process_response"]
+            new_queue_id = str(uuid.uuid4())
+            cached_resp["queue_id"] = new_queue_id
+            cached_resp["filename"] = filename
+            cached_resp["cached"] = True
+            save_scan(
+                id=new_queue_id,
+                filename=filename,
+                pass_status=cached_resp.get("pass_status", "unknown"),
+                images_b64=images_b64,
+                process_response_json=json.dumps(cached_resp),
+                doc_type=cached_resp.get("result", {}).get("file_type", "Ticket"),
+                prompt_version=prompt_version,
+            )
+            if driver_id and ticket_id:
+                write_scan_result(driver_id, ticket_id, cached_resp)
+            return JSONResponse(content=cached_resp)
 
     # Extract word-level bounding boxes via Textract (no-op if AWS creds not set)
     word_positions = extract_word_positions(images_b64)
@@ -201,7 +232,7 @@ async def process_ticket(
             id=queue_id,
             filename=filename,
             pass_status=final.get("pass_status", "unknown"),
-            image_b64=images_b64[0] if images_b64 else "",
+            images_b64=images_b64,
             process_response_json=response.model_dump_json(),
             pass1_extraction=result_state.get("pass1_extraction"),
             pass2_extraction=result_state.get("pass2_extraction"),
@@ -215,5 +246,11 @@ async def process_ticket(
         )
     except Exception as exc:
         logger.warning("Failed to save scan to queue (non-fatal): %s", exc)
+    else:
+        cache_set(content_hash, queue_id)
+
+    # Write results to Firestore so the driver app updates in real-time
+    if driver_id and ticket_id:
+        write_scan_result(driver_id, ticket_id, response.model_dump())
 
     return response

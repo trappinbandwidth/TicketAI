@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from app.services.queue_store import (
     TRAINING_FILE,
     approve_item,
+    get_field_audit,
     get_item,
     list_recent,
     reject_item,
@@ -26,6 +27,7 @@ def _check_auth(x_api_key: str | None):
 
 class ApproveRequest(BaseModel):
     edited_fields: dict[str, str] = {}
+    reviewer_id: str | None = None
 
 
 class RejectRequest(BaseModel):
@@ -59,7 +61,7 @@ async def approve_queue_item(
         raise HTTPException(status_code=404, detail="Queue item not found.")
 
     try:
-        approve_item(item_id, body.edited_fields)
+        approve_item(item_id, body.edited_fields, reviewer_id=body.reviewer_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -78,6 +80,12 @@ async def reject_queue_item(
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return {"success": True, "id": item_id, "status": "rejected"}
+
+
+@router.get("/queue/{item_id}/audit")
+async def get_queue_audit(item_id: str, x_api_key: str | None = Header(None)):
+    _check_auth(x_api_key)
+    return {"scan_id": item_id, "audit": get_field_audit(item_id)}
 
 
 @router.get("/training/export")

@@ -130,6 +130,7 @@ class DocumentResult(BaseModel):
     Driver_First_Name__c: Optional[ExtractedField] = None
     Driver_Last_Name__c: Optional[ExtractedField] = None
     Driver_DOB__c: Optional[ExtractedField] = None
+    Driver_Address__c: Optional[ExtractedField] = None
 
     # ── MVR fields ────────────────────────────────────────────────────────
     MVR_License_Number__c: Optional[ExtractedField] = None
@@ -176,4 +177,5 @@ class ProcessResponse(BaseModel):
     attorney_matches: list[AttorneyMatch] = []
     no_attorney_flag: bool = False
 
+    cached: bool = False
     result: DocumentResult

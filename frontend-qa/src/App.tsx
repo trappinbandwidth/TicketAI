@@ -12,6 +12,7 @@ type View = 'upload' | 'review' | 'admin'
 
 interface ReviewState {
   data: ProcessResponse
+  pages: string[]
   imageB64: string
 }
 
@@ -27,8 +28,9 @@ export default function App() {
     setUploadError(null)
     try {
       const result = await uploadTicket(files, driverName || undefined, promptVersion)
-      const imageB64 = await fileToBase64(files[0])
-      setReviewState({ data: result, imageB64 })
+      const allPages = await Promise.all(files.map(f => fileToBase64(f)))
+      const imageB64 = allPages[0] ?? ''
+      setReviewState({ data: result, pages: allPages, imageB64 })
       setView('review')
       setSidebarRefresh(n => n + 1)
     } catch (e: unknown) {
@@ -80,6 +82,7 @@ export default function App() {
           {view === 'review' && reviewState && (
             <ReviewPanel
               data={reviewState.data}
+              pages={reviewState.pages}
               imageB64={reviewState.imageB64}
               onDone={handleDone}
             />

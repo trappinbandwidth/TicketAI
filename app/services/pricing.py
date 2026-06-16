@@ -1,7 +1,7 @@
 """
 Pricing estimator — V1.
 Looks up historical attorney cost from Price_Summary__c snapshot (pricing_table.json),
-adds the CDL Legal service fee, and returns a 15–20% variance range.
+adds the Rig Resolve service fee, and returns a 15–20% variance range.
 
 The table is loaded once at import time. To refresh it after a Salesforce export,
 replace pricing_table.json and restart the server.
@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
-CDL_FEE = 400          # flat CDL Legal service fee added to every attorney cost
+CDL_FEE = 400          # flat Rig Resolve service fee added to every attorney cost
 MARGIN_LOW = 0.15      # lower bound: 15% below base
 MARGIN_HIGH = 0.20     # upper bound: 20% above base
 

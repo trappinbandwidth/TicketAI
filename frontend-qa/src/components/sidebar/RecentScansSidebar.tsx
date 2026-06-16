@@ -4,7 +4,7 @@ import { listQueue, getQueueItem } from '../../api/client'
 import { passStatusColors, statusBadge } from '../../utils/confidence'
 
 interface Props {
-  onLoadItem: (item: { data: import('../../types/ticket').ProcessResponse; imageB64: string }) => void
+  onLoadItem: (item: { data: import('../../types/ticket').ProcessResponse; pages: string[]; imageB64: string }) => void
   refreshTick: number
 }
 
@@ -34,7 +34,8 @@ export default function RecentScansSidebar({ onLoadItem, refreshTick }: Props) {
     setLoadingId(id)
     try {
       const item = await getQueueItem(id)
-      onLoadItem({ data: item.process_response, imageB64: item.image_b64 })
+      const pages = item.images_all?.length > 0 ? item.images_all : (item.image_b64 ? [item.image_b64] : [])
+      onLoadItem({ data: item.process_response, pages, imageB64: pages[0] ?? '' })
     } catch {
       // silently ignore
     } finally {
