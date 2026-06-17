@@ -138,4 +138,4 @@ yarn.lock
 
 dist
 /CDL_MVP_0.5
-.app-version.json
+.app-version.json.firebase/
