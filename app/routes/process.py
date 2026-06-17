@@ -11,7 +11,7 @@ from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 
 from app.models.response import AttorneyMatch, CourtInfo, CountyCourt, DocumentResult, ExtractedField, ProcessResponse, PriceEstimate, TicketResponse
-from app.services.attorney_matching import find_attorneys
+from app.services.attorney_matching import AttorneyMatch as RawAttorneyMatch
 from app.services.cdl_points import estimate_cdl_points
 from app.services.doc_scoring import score_document
 from app.services.payment_options import calculate_payment_options
@@ -201,6 +201,9 @@ async def process_ticket(
             "low_confidence_fields": [],
             "referee_notes": None,
             "cdl_point_impact": None,
+            "jurisdiction_context": None,
+            "attorney_matches": [],
+            "no_attorney_flag": True,
             "final_result": None,
             "escalation_reason": None,
         })
@@ -293,9 +296,10 @@ async def process_ticket(
                        filename, ticket_state, ticket_violation,
                        price_est.display, price_est.data_source)
 
-    # Attorney matching
+    # Attorney matching — results come from Team Quest graph node
     ticket_county = (ticket_fields.get("Ticket_County__c") or {}).get("value", "")
-    atty_matches_raw, no_atty = find_attorneys(ticket_state, ticket_county)
+    atty_matches_raw: list[RawAttorneyMatch] = result_state.get("attorney_matches") or []
+    no_atty: bool = result_state.get("no_attorney_flag", len(atty_matches_raw) == 0)
     atty_matches = [
         AttorneyMatch(
             attorney_id=m.attorney_id,

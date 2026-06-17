@@ -12,6 +12,8 @@ dist/
 
 # Runtime data — never commit the live DB or training output
 data/
+!data/court_rulebook.json
+!data/cdl_point_estimates.json
 training_data/
 
 # macOS

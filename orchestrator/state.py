@@ -35,6 +35,13 @@ class TicketState(TypedDict):
     # Book Worm output
     cdl_point_impact: Optional[dict]
 
+    # Research Ron output
+    jurisdiction_context: Optional[dict]
+
+    # Team Quest output
+    attorney_matches: list
+    no_attorney_flag: bool
+
     # Final
     final_result: Optional[dict]
     escalation_reason: Optional[str]

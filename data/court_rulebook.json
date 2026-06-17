@@ -1,0 +1,1758 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "CDL Legal court routing rulebook. Maps state/county/city to court info and online scheduling URLs.",
+    "cdl_serious_violations": [
+      "Speeding 15+ MPH Over",
+      "Reckless Driving",
+      "Improper Lane Change",
+      "Following Too Closely",
+      "Texting While Driving",
+      "Railroad Crossing Violation",
+      "Passing School Bus Illegally",
+      "Traffic Control Device Violation"
+    ],
+    "cdl_major_violations": [
+      "DUI / DWI",
+      "Leaving Scene of Accident",
+      "Using Vehicle in Commission of a Felony",
+      "Driving While Disqualified",
+      "Causing Fatality Through Negligent Operation"
+    ]
+  },
+  "AL": {
+    "name": "Alabama",
+    "court_system": "Alabama Unified Judicial System",
+    "state_portal": "https://alacourt.gov/",
+    "online_payment_url": "https://www.alacourt.gov/",
+    "cdl_info_url": "https://www.alea.gov/dps/driver-license/cdl",
+    "appear_required_for_serious": true,
+    "notes": "Minor violations may be paid at county courthouse or online. CDL holders must notify employer within 30 days of conviction.",
+    "counties": {
+      "Jefferson": {
+        "court_name": "Jefferson County District Court \u2014 Traffic",
+        "website": "https://www.jeffcointouch.com/",
+        "scheduling_url": "https://www.alacourt.gov/",
+        "phone": "205-325-5333",
+        "address": "716 N 21st St, Birmingham, AL 35263",
+        "notes": "I-20 and I-65 corridor. High CDL volume."
+      },
+      "Mobile": {
+        "court_name": "Mobile County District Court \u2014 Traffic",
+        "website": "https://www.mobilecounty.org/courts",
+        "scheduling_url": "https://www.alacourt.gov/",
+        "phone": "251-574-8488",
+        "address": "205 Government St, Mobile, AL 36602",
+        "notes": "I-10 and I-65 corridor. Major port/freight hub."
+      },
+      "Madison": {
+        "court_name": "Madison County District Court",
+        "website": "https://www.madisoncountyal.gov/courts",
+        "scheduling_url": "https://www.alacourt.gov/",
+        "phone": "256-532-3390",
+        "address": "100 Northside Square, Huntsville, AL 35801",
+        "notes": "I-65 and US-72 corridor."
+      }
+    }
+  },
+  "AK": {
+    "name": "Alaska",
+    "court_system": "Alaska Court System",
+    "state_portal": "https://courts.alaska.gov/",
+    "online_payment_url": "https://courts.alaska.gov/mainpage.htm",
+    "cdl_info_url": "https://doa.alaska.gov/dmv/cdl/index.htm",
+    "appear_required_for_serious": true,
+    "notes": "Many Alaska courts require in-person appearance. Contact the specific district court in the citation.",
+    "counties": {
+      "Anchorage": {
+        "court_name": "Anchorage Superior Court \u2014 Traffic",
+        "website": "https://courts.alaska.gov/courts/super/3an.htm",
+        "scheduling_url": "https://courts.alaska.gov/mainpage.htm",
+        "phone": "907-264-0400",
+        "address": "825 W 4th Ave, Anchorage, AK 99501",
+        "notes": "Primary CDL hub in Alaska. Most commercial traffic originates here."
+      },
+      "Fairbanks North Star": {
+        "court_name": "Fairbanks Superior Court",
+        "website": "https://courts.alaska.gov/courts/super/4fa.htm",
+        "scheduling_url": "https://courts.alaska.gov/mainpage.htm",
+        "phone": "907-452-9300",
+        "address": "101 Lacey St, Fairbanks, AK 99701",
+        "notes": "Dalton Highway and Alaska Railroad freight corridor."
+      }
+    }
+  },
+  "AZ": {
+    "name": "Arizona",
+    "court_system": "Arizona Judicial Branch",
+    "state_portal": "https://www.azcourts.gov/",
+    "online_payment_url": "https://apps.supremecourt.az.gov/publicaccess/",
+    "cdl_info_url": "https://azdot.gov/motor-vehicles/driver-services/commercial-driver-license",
+    "appear_required_for_serious": true,
+    "notes": "Most Arizona courts offer online payment through their individual court websites. Justice courts handle minor traffic violations; Superior Court handles more serious offenses.",
+    "counties": {
+      "Maricopa": {
+        "court_name": "Maricopa County Justice Courts / Superior Court",
+        "website": "https://superiorcourt.maricopa.gov/",
+        "scheduling_url": "https://superiorcourt.maricopa.gov/",
+        "phone": "602-506-3204",
+        "address": "201 W Jefferson St, Phoenix, AZ 85003",
+        "notes": "CDL violations typically handled in Justice Court of the precinct where ticket was issued."
+      },
+      "Pima": {
+        "court_name": "Pima County Justice Court",
+        "website": "https://pima.gov/Government/Courts/Justice-Court",
+        "scheduling_url": "https://pima.gov/Government/Courts/Justice-Court",
+        "phone": "520-724-3171",
+        "address": "240 N Court Ave, Tucson, AZ 85701"
+      }
+    }
+  },
+  "AR": {
+    "name": "Arkansas",
+    "court_system": "Arkansas Judiciary",
+    "state_portal": "https://courts.arcourts.gov/",
+    "online_payment_url": "https://courts.arcourts.gov/",
+    "cdl_info_url": "https://www.dfa.arkansas.gov/revenues/motor-vehicle/driver-services/",
+    "appear_required_for_serious": true,
+    "notes": "District Courts handle minor traffic violations. Circuit Courts handle serious offenses.",
+    "counties": {
+      "Pulaski": {
+        "court_name": "Pulaski County District Court \u2014 Traffic",
+        "website": "https://courts.arcourts.gov/",
+        "scheduling_url": "https://courts.arcourts.gov/",
+        "phone": "501-340-8700",
+        "address": "400 W Markham St, Little Rock, AR 72201",
+        "notes": "I-40 and I-30 interchange. Major CDL corridor."
+      },
+      "Sebastian": {
+        "court_name": "Sebastian County District Court",
+        "website": "https://courts.arcourts.gov/",
+        "scheduling_url": "https://courts.arcourts.gov/",
+        "phone": "479-783-4401",
+        "address": "35 S 6th St, Fort Smith, AR 72901",
+        "notes": "I-40 corridor (Oklahoma border)."
+      },
+      "Washington": {
+        "court_name": "Washington County District Court",
+        "website": "https://courts.arcourts.gov/",
+        "scheduling_url": "https://courts.arcourts.gov/",
+        "phone": "479-444-1707",
+        "address": "280 N College Ave, Fayetteville, AR 72701",
+        "notes": "I-49 corridor. NW Arkansas freight hub."
+      }
+    }
+  },
+  "CA": {
+    "name": "California",
+    "court_system": "California Courts \u2014 Superior Courts",
+    "state_portal": "https://www.courts.ca.gov/",
+    "online_payment_url": "https://www.courts.ca.gov/find-my-court.htm",
+    "cdl_info_url": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/commercial-driver-licenses-cdl/",
+    "appear_required_for_serious": true,
+    "notes": "California requires mandatory court appearance for most CDL traffic violations. Pay or schedule at the county Superior Court where ticket was issued.",
+    "counties": {
+      "Los Angeles": {
+        "court_name": "Los Angeles Superior Court \u2014 Traffic Division",
+        "website": "https://www.lacourt.org/division/traffic/traffic2.aspx",
+        "scheduling_url": "https://www.lacourt.org/division/traffic/traffic2.aspx",
+        "phone": "213-830-0803",
+        "address": "1945 S Hill St, Los Angeles, CA 90007",
+        "notes": "Use the county portal to find the specific courthouse. CA CDL holders forfeit right to traffic school."
+      },
+      "San Bernardino": {
+        "court_name": "San Bernardino Superior Court \u2014 Traffic",
+        "website": "https://www.sb-court.org/Divisions/Traffic",
+        "scheduling_url": "https://www.sb-court.org/Divisions/Traffic",
+        "phone": "909-521-3000",
+        "address": "247 W Third St, San Bernardino, CA 92415"
+      },
+      "Riverside": {
+        "court_name": "Riverside Superior Court \u2014 Traffic",
+        "website": "https://www.riverside.courts.ca.gov/Divisions/Traffic/traffic.shtml",
+        "scheduling_url": "https://www.riverside.courts.ca.gov/Divisions/Traffic/traffic.shtml",
+        "phone": "951-777-3147",
+        "address": "4100 Main St, Riverside, CA 92501"
+      },
+      "Sacramento": {
+        "court_name": "Sacramento Superior Court \u2014 Traffic",
+        "website": "https://www.saccourt.ca.gov/traffic/traffic.aspx",
+        "scheduling_url": "https://www.saccourt.ca.gov/traffic/traffic.aspx",
+        "phone": "916-875-3400",
+        "address": "720 9th St, Sacramento, CA 95814"
+      },
+      "Kern": {
+        "court_name": "Kern County Superior Court \u2014 Traffic",
+        "website": "https://www.kern.courts.ca.gov/",
+        "scheduling_url": "https://www.kern.courts.ca.gov/traffic",
+        "phone": "661-868-4747",
+        "address": "1415 Truxtun Ave, Bakersfield, CA 93301",
+        "notes": "Major I-5 and Hwy 99 corridor court."
+      }
+    }
+  },
+  "CO": {
+    "name": "Colorado",
+    "court_system": "Colorado Judicial Branch",
+    "state_portal": "https://www.courts.state.co.us/",
+    "online_payment_url": "https://www.courts.state.co.us/Courts/County/",
+    "cdl_info_url": "https://dmv.colorado.gov/cdl",
+    "appear_required_for_serious": true,
+    "notes": "Colorado County Courts handle traffic violations. Serious CDL violations require in-person appearance.",
+    "counties": {
+      "Weld": {
+        "court_name": "Weld County Court",
+        "website": "https://www.courts.state.co.us/Courts/County/Index.cfm?County_id=23",
+        "scheduling_url": "https://www.courts.state.co.us/Courts/County/Index.cfm?County_id=23",
+        "phone": "970-475-2400",
+        "address": "901 9th Ave, Greeley, CO 80631",
+        "notes": "Major I-76 and I-25 corridor."
+      },
+      "Adams": {
+        "court_name": "Adams County Court",
+        "website": "https://www.courts.state.co.us/Courts/County/Index.cfm?County_id=1",
+        "scheduling_url": "https://www.courts.state.co.us/Courts/County/Index.cfm?County_id=1",
+        "phone": "303-659-1161",
+        "address": "1100 Judicial Center Dr, Brighton, CO 80601"
+      }
+    }
+  },
+  "CT": {
+    "name": "Connecticut",
+    "court_system": "Connecticut Judicial Branch",
+    "state_portal": "https://www.jud.ct.gov/",
+    "online_payment_url": "https://www.jud.ct.gov/payticket/",
+    "cdl_info_url": "https://portal.ct.gov/dmv/licenses/licenses/cdl",
+    "appear_required_for_serious": true,
+    "notes": "Online ticket payment available at jud.ct.gov/payticket. CDL holders must appear for all moving violations.",
+    "counties": {
+      "Hartford": {
+        "court_name": "Hartford Geographical Area Court \u2014 Traffic",
+        "website": "https://www.jud.ct.gov/payticket/",
+        "scheduling_url": "https://www.jud.ct.gov/payticket/",
+        "phone": "860-548-2700",
+        "address": "95 Washington St, Hartford, CT 06106",
+        "notes": "I-84 and I-91 interchange. Primary CDL corridor."
+      },
+      "New Haven": {
+        "court_name": "New Haven Geographical Area Court \u2014 Traffic",
+        "website": "https://www.jud.ct.gov/payticket/",
+        "scheduling_url": "https://www.jud.ct.gov/payticket/",
+        "phone": "203-503-6800",
+        "address": "235 Church St, New Haven, CT 06510",
+        "notes": "I-95 and I-91 corridor."
+      },
+      "Fairfield": {
+        "court_name": "Bridgeport Geographical Area Court \u2014 Traffic",
+        "website": "https://www.jud.ct.gov/payticket/",
+        "scheduling_url": "https://www.jud.ct.gov/payticket/",
+        "phone": "203-579-6535",
+        "address": "1061 Main St, Bridgeport, CT 06604",
+        "notes": "I-95 corridor (NY border). High CDL volume."
+      }
+    }
+  },
+  "DE": {
+    "name": "Delaware",
+    "court_system": "Delaware Courts",
+    "state_portal": "https://courts.delaware.gov/",
+    "online_payment_url": "https://ejustice.courts.delaware.gov/",
+    "cdl_info_url": "https://www.dmv.de.gov/VehicleServices/index.shtml",
+    "appear_required_for_serious": true,
+    "notes": "Justice of the Peace Courts handle minor traffic. Court of Common Pleas handles more serious violations.",
+    "counties": {
+      "New Castle": {
+        "court_name": "New Castle County Justice of the Peace Courts",
+        "website": "https://ejustice.courts.delaware.gov/",
+        "scheduling_url": "https://ejustice.courts.delaware.gov/",
+        "phone": "302-255-0300",
+        "address": "500 N King St, Wilmington, DE 19801",
+        "notes": "I-95 and I-295 corridor. DE Memorial Bridge approach. High CDL volume."
+      },
+      "Kent": {
+        "court_name": "Kent County Justice of the Peace Court",
+        "website": "https://ejustice.courts.delaware.gov/",
+        "scheduling_url": "https://ejustice.courts.delaware.gov/",
+        "phone": "302-739-5332",
+        "address": "38 The Green, Dover, DE 19901"
+      }
+    }
+  },
+  "FL": {
+    "name": "Florida",
+    "court_system": "Florida Courts \u2014 Clerk of Courts",
+    "state_portal": "https://www.flcourts.org/",
+    "online_payment_url": "https://www.flclerks.com/",
+    "cdl_info_url": "https://www.flhsmv.gov/driver-licenses-id-cards/commercial-driver-license/",
+    "appear_required_for_serious": true,
+    "notes": "Pay through the Clerk of Court in the county where the ticket was issued. CDL holders cannot elect traffic school.",
+    "counties": {
+      "Hillsborough": {
+        "court_name": "Hillsborough County Clerk of Circuit Court \u2014 Traffic",
+        "website": "https://www.hillsclerk.com/Traffic-Citations",
+        "scheduling_url": "https://www.hillsclerk.com/Traffic-Citations",
+        "phone": "813-276-8100",
+        "address": "800 E Twiggs St, Tampa, FL 33602"
+      },
+      "Orange": {
+        "court_name": "Orange County Clerk of Courts \u2014 Traffic",
+        "website": "https://myeclerk.myorangeclerk.com/",
+        "scheduling_url": "https://myeclerk.myorangeclerk.com/",
+        "phone": "407-836-2000",
+        "address": "425 N Orange Ave, Orlando, FL 32801"
+      },
+      "Duval": {
+        "court_name": "Duval County Clerk of Courts \u2014 Traffic",
+        "website": "https://www.duvalclerk.com/",
+        "scheduling_url": "https://www.duvalclerk.com/traffic",
+        "phone": "904-255-2000",
+        "address": "501 W Adams St, Jacksonville, FL 32202"
+      },
+      "Miami-Dade": {
+        "court_name": "Miami-Dade Clerk of Courts \u2014 Traffic",
+        "website": "https://www.miamidadeclerk.gov/traffic/",
+        "scheduling_url": "https://www.miamidadeclerk.gov/traffic/",
+        "phone": "305-275-1155",
+        "address": "73 W Flagler St, Miami, FL 33130"
+      },
+      "Broward": {
+        "court_name": "Broward County Clerk of Courts \u2014 Traffic",
+        "website": "https://www.browardclerk.org/Traffic",
+        "scheduling_url": "https://www.browardclerk.org/Traffic",
+        "phone": "954-831-5671",
+        "address": "201 SE 6th St, Fort Lauderdale, FL 33301"
+      },
+      "Polk": {
+        "court_name": "Polk County Clerk of Courts \u2014 Traffic",
+        "website": "https://www.polkclerk.net/traffic.aspx",
+        "scheduling_url": "https://www.polkclerk.net/traffic.aspx",
+        "phone": "863-534-4000",
+        "address": "255 N Wilson Ave, Bartow, FL 33830",
+        "notes": "I-4 corridor. High CDL traffic volume."
+      }
+    }
+  },
+  "GA": {
+    "name": "Georgia",
+    "court_system": "Georgia Courts",
+    "state_portal": "https://georgiacourts.gov/",
+    "online_payment_url": "https://georgiacourts.gov/courts/",
+    "cdl_info_url": "https://dds.georgia.gov/commercial-driver-licenses",
+    "appear_required_for_serious": true,
+    "notes": "Magistrate Courts and State Courts handle traffic citations. Superior Court for serious offenses. CDL holders must appear for serious violations.",
+    "counties": {
+      "Fulton": {
+        "court_name": "Fulton County State Court \u2014 Traffic",
+        "website": "https://www.fultoncountyga.gov/inside-fulton-county/fulton-county-courts",
+        "scheduling_url": "https://www.fultoncountyga.gov/inside-fulton-county/fulton-county-courts",
+        "phone": "404-613-5040",
+        "address": "136 Pryor St SW, Atlanta, GA 30303"
+      },
+      "Gwinnett": {
+        "court_name": "Gwinnett County State Court \u2014 Traffic",
+        "website": "https://www.gwinnettcourts.com/",
+        "scheduling_url": "https://www.gwinnettcourts.com/",
+        "phone": "770-822-8100",
+        "address": "75 Langley Dr, Lawrenceville, GA 30046"
+      },
+      "Chatham": {
+        "court_name": "Chatham County State Court \u2014 Traffic",
+        "website": "https://chathamcourts.com/",
+        "scheduling_url": "https://chathamcourts.com/",
+        "phone": "912-652-7252",
+        "address": "133 Montgomery St, Savannah, GA 31401",
+        "notes": "Major I-16 and I-95 corridor."
+      }
+    }
+  },
+  "HI": {
+    "name": "Hawaii",
+    "court_system": "Hawaii State Judiciary",
+    "state_portal": "https://www.courts.state.hi.us/",
+    "online_payment_url": "https://www.courts.state.hi.us/legal_references/traffic_violations_bureau",
+    "cdl_info_url": "https://hidot.hawaii.gov/highways/drive-right/commercial-driver-licenses/",
+    "appear_required_for_serious": true,
+    "notes": "Traffic Violations Bureau handles minor violations. District Court handles more serious offenses.",
+    "counties": {
+      "Honolulu": {
+        "court_name": "Honolulu District Court \u2014 Traffic Violations Bureau",
+        "website": "https://www.courts.state.hi.us/legal_references/traffic_violations_bureau",
+        "scheduling_url": "https://www.courts.state.hi.us/legal_references/traffic_violations_bureau",
+        "phone": "808-538-5100",
+        "address": "1111 Alapai St, Honolulu, HI 96813",
+        "notes": "Primary CDL court for Hawaii. All inter-island freight originates on Oahu."
+      }
+    }
+  },
+  "ID": {
+    "name": "Idaho",
+    "court_system": "Idaho Supreme Court",
+    "state_portal": "https://isc.idaho.gov/",
+    "online_payment_url": "https://www.idcourts.us/repository/start.do",
+    "cdl_info_url": "https://itd.idaho.gov/dmv/cdl.htm",
+    "appear_required_for_serious": true,
+    "notes": "Magistrate Courts handle most traffic violations. Pay online through iCourt.",
+    "counties": {
+      "Ada": {
+        "court_name": "Ada County Magistrate Court \u2014 Traffic",
+        "website": "https://www.adacounty.id.gov/Court/",
+        "scheduling_url": "https://www.idcourts.us/repository/start.do",
+        "phone": "208-287-6900",
+        "address": "200 W Front St, Boise, ID 83702",
+        "notes": "I-84 and I-184 corridor. Major Idaho CDL hub."
+      },
+      "Canyon": {
+        "court_name": "Canyon County Magistrate Court \u2014 Traffic",
+        "website": "https://www.canyoncounty.id.gov/Departments/Courts",
+        "scheduling_url": "https://www.idcourts.us/repository/start.do",
+        "phone": "208-454-7300",
+        "address": "1115 Albany St, Caldwell, ID 83605",
+        "notes": "I-84 corridor (Oregon border)."
+      },
+      "Kootenai": {
+        "court_name": "Kootenai County Magistrate Court \u2014 Traffic",
+        "website": "https://kcgov.us/Court",
+        "scheduling_url": "https://www.idcourts.us/repository/start.do",
+        "phone": "208-446-1600",
+        "address": "501 N Government Way, Coeur d'Alene, ID 83814",
+        "notes": "I-90 corridor (Washington/Montana border)."
+      }
+    }
+  },
+  "IL": {
+    "name": "Illinois",
+    "court_system": "Illinois Courts",
+    "state_portal": "https://www.illinoiscourts.gov/",
+    "online_payment_url": "https://www.illinoiscourts.gov/",
+    "cdl_info_url": "https://www.ilsos.gov/facilities/cdl.html",
+    "appear_required_for_serious": true,
+    "notes": "Circuit Courts handle traffic violations at the county level. Cook County has its own system. CDL holders must appear for moving violations in many counties.",
+    "counties": {
+      "Cook": {
+        "court_name": "Cook County Circuit Court \u2014 Traffic Division",
+        "website": "https://www.cookcountycourt.org/ABOUT-THE-COURT/Court-Divisions/Traffic-Division",
+        "scheduling_url": "https://www.cookcountycourt.org/ABOUT-THE-COURT/Court-Divisions/Traffic-Division",
+        "phone": "312-603-5030",
+        "address": "16501 S Kedzie Pkwy, Markham, IL 60428",
+        "notes": "Major suburban traffic court. Chicago tickets go to 321 N LaSalle, Chicago IL 60654."
+      },
+      "Will": {
+        "court_name": "Will County Circuit Court \u2014 Traffic",
+        "website": "https://www.willcountycircuitclerk.com/",
+        "scheduling_url": "https://www.willcountycircuitclerk.com/",
+        "phone": "815-727-8592",
+        "address": "14 W Jefferson St, Joliet, IL 60432",
+        "notes": "Major I-80 and I-55 corridor court."
+      },
+      "Winnebago": {
+        "court_name": "Winnebago County Circuit Court \u2014 Traffic",
+        "website": "https://www.winnebagocircuitclerk.com/",
+        "scheduling_url": "https://www.winnebagocircuitclerk.com/",
+        "phone": "815-319-4800",
+        "address": "400 W State St, Rockford, IL 61101",
+        "notes": "I-90 corridor."
+      },
+      "Grundy": {
+        "court_name": "Grundy County Circuit Court",
+        "website": "https://grundycountyil.gov/circuit-clerk/",
+        "scheduling_url": "https://grundycountyil.gov/circuit-clerk/",
+        "phone": "815-941-3256",
+        "address": "111 E Washington St, Morris, IL 60450",
+        "notes": "I-80 major CDL corridor."
+      }
+    }
+  },
+  "IN": {
+    "name": "Indiana",
+    "court_system": "Indiana Courts \u2014 mycase.in.gov",
+    "state_portal": "https://public.courts.in.gov/",
+    "online_payment_url": "https://public.courts.in.gov/mycase",
+    "cdl_info_url": "https://www.in.gov/bmv/licenses-permits-ids/commercial-driver-license-cdl/",
+    "appear_required_for_serious": true,
+    "notes": "Indiana Superior Courts and County Courts handle traffic violations. Pay online at mycase.in.gov.",
+    "counties": {
+      "Lake": {
+        "court_name": "Lake County Superior Court \u2014 Traffic",
+        "website": "https://www.lakecountyin.org/courts",
+        "scheduling_url": "https://public.courts.in.gov/mycase",
+        "phone": "219-755-3390",
+        "address": "2293 N Main St, Crown Point, IN 46307",
+        "notes": "I-80/94 corridor. High CDL traffic."
+      },
+      "St. Joseph": {
+        "court_name": "St. Joseph County Superior Court \u2014 Traffic",
+        "website": "https://sjcindiana.com/Courts",
+        "scheduling_url": "https://public.courts.in.gov/mycase",
+        "phone": "574-235-9546",
+        "address": "101 S Main St, South Bend, IN 46601"
+      },
+      "Allen": {
+        "court_name": "Allen County Superior Court \u2014 Traffic",
+        "website": "https://www.allencountyindiana.gov/department/courts",
+        "scheduling_url": "https://public.courts.in.gov/mycase",
+        "phone": "260-449-7245",
+        "address": "715 S Calhoun St, Fort Wayne, IN 46802",
+        "notes": "I-69 and I-469 corridor."
+      }
+    }
+  },
+  "IA": {
+    "name": "Iowa",
+    "court_system": "Iowa Judicial Branch",
+    "state_portal": "https://www.iowacourts.gov/",
+    "online_payment_url": "https://www.iowacourts.gov/for-the-public/eservices/",
+    "cdl_info_url": "https://iowadot.gov/mvd/cdl",
+    "appear_required_for_serious": true,
+    "notes": "Iowa District Courts handle all traffic violations. Online payment through Iowa Courts eServices. Major I-80 corridor state.",
+    "counties": {
+      "Polk": {
+        "court_name": "Polk County District Court \u2014 Traffic",
+        "website": "https://www.iowacourts.gov/iowa-courts/district-courts/fifth-judicial-district/",
+        "scheduling_url": "https://www.iowacourts.gov/for-the-public/eservices/",
+        "phone": "515-286-3772",
+        "address": "500 Mulberry St, Des Moines, IA 50309"
+      },
+      "Woodbury": {
+        "court_name": "Woodbury County District Court",
+        "website": "https://www.iowacourts.gov/iowa-courts/district-courts/third-judicial-district/",
+        "scheduling_url": "https://www.iowacourts.gov/for-the-public/eservices/",
+        "phone": "712-279-6611",
+        "address": "620 Douglas St, Sioux City, IA 51101",
+        "notes": "I-29 corridor."
+      },
+      "Linn": {
+        "court_name": "Linn County District Court",
+        "website": "https://www.iowacourts.gov/iowa-courts/district-courts/sixth-judicial-district/",
+        "scheduling_url": "https://www.iowacourts.gov/for-the-public/eservices/",
+        "phone": "319-398-3411",
+        "address": "51 3rd Ave Bridge, Cedar Rapids, IA 52401",
+        "notes": "I-380 and I-380 corridor."
+      },
+      "Pottawattamie": {
+        "court_name": "Pottawattamie County District Court",
+        "website": "https://www.iowacourts.gov/iowa-courts/district-courts/fourth-judicial-district/",
+        "scheduling_url": "https://www.iowacourts.gov/for-the-public/eservices/",
+        "phone": "712-328-5604",
+        "address": "227 S 6th St, Council Bluffs, IA 51501",
+        "notes": "I-80 / I-29 interchange. Major CDL corridor."
+      }
+    }
+  },
+  "KS": {
+    "name": "Kansas",
+    "court_system": "Kansas Courts",
+    "state_portal": "https://www.kscourts.org/",
+    "online_payment_url": "https://www.kscourts.org/Public/eCourt-Public-Lookup",
+    "cdl_info_url": "https://www.kdor.ks.gov/Apps/DMV/CDL/Default.aspx",
+    "appear_required_for_serious": true,
+    "notes": "Municipal Courts handle minor violations. District Courts for serious offenses. I-70 and I-35 major CDL corridors.",
+    "counties": {
+      "Wyandotte": {
+        "court_name": "Wyandotte County District Court",
+        "website": "https://www.wycokck.org/departments/district-court",
+        "scheduling_url": "https://www.kscourts.org/Public/eCourt-Public-Lookup",
+        "phone": "913-573-2900",
+        "address": "710 N 7th St, Kansas City, KS 66101"
+      }
+    }
+  },
+  "KY": {
+    "name": "Kentucky",
+    "court_system": "Kentucky Court of Justice",
+    "state_portal": "https://courts.ky.gov/",
+    "online_payment_url": "https://kcoj.kycourts.net/ecourts/",
+    "cdl_info_url": "https://transportation.ky.gov/DriversLicensing/Pages/Commercial-Driver-License.aspx",
+    "appear_required_for_serious": true,
+    "notes": "District Courts handle traffic violations. Pay online at kcoj.kycourts.net. I-75, I-65, and I-64 major CDL corridors.",
+    "counties": {
+      "Jefferson": {
+        "court_name": "Jefferson County District Court \u2014 Traffic",
+        "website": "https://courts.ky.gov/",
+        "scheduling_url": "https://kcoj.kycourts.net/ecourts/",
+        "phone": "502-595-4425",
+        "address": "700 W Jefferson St, Louisville, KY 40202",
+        "notes": "I-64, I-65, and I-71 interchange. Major CDL hub."
+      },
+      "Fayette": {
+        "court_name": "Fayette County District Court \u2014 Traffic",
+        "website": "https://courts.ky.gov/",
+        "scheduling_url": "https://kcoj.kycourts.net/ecourts/",
+        "phone": "859-246-2281",
+        "address": "150 N Limestone, Lexington, KY 40507",
+        "notes": "I-75 and I-64 corridor."
+      },
+      "Boone": {
+        "court_name": "Boone County District Court \u2014 Traffic",
+        "website": "https://courts.ky.gov/",
+        "scheduling_url": "https://kcoj.kycourts.net/ecourts/",
+        "phone": "859-334-2100",
+        "address": "6025 Rogers Ln, Burlington, KY 41005",
+        "notes": "I-75 corridor (Ohio border). CVR inspection station nearby."
+      }
+    }
+  },
+  "LA": {
+    "name": "Louisiana",
+    "court_system": "Louisiana Supreme Court / Parish Courts",
+    "state_portal": "https://www.lasc.org/",
+    "online_payment_url": "https://www.lasc.org/",
+    "cdl_info_url": "https://www.expresslane.org/",
+    "appear_required_for_serious": true,
+    "notes": "City Courts and Parish Courts handle traffic violations. I-10, I-20, and I-49 major CDL corridors.",
+    "counties": {
+      "Orleans": {
+        "court_name": "Orleans Parish Criminal District Court \u2014 Traffic",
+        "website": "https://www.nola.gov/criminal-district-court/",
+        "scheduling_url": "https://www.lasc.org/",
+        "phone": "504-592-9100",
+        "address": "2700 Tulane Ave, New Orleans, LA 70119",
+        "notes": "I-10 corridor. Major port/freight hub."
+      },
+      "East Baton Rouge": {
+        "court_name": "East Baton Rouge Parish Court \u2014 Traffic",
+        "website": "https://www.ebrclerk.com/",
+        "scheduling_url": "https://www.lasc.org/",
+        "phone": "225-389-3950",
+        "address": "222 Saint Louis St, Baton Rouge, LA 70802",
+        "notes": "I-10 and I-12 corridor."
+      },
+      "Caddo": {
+        "court_name": "Caddo Parish District Court \u2014 Traffic",
+        "website": "https://www.caddoparish.com/courts",
+        "scheduling_url": "https://www.lasc.org/",
+        "phone": "318-226-6970",
+        "address": "501 Texas St, Shreveport, LA 71101",
+        "notes": "I-20 corridor (Texas border)."
+      },
+      "Jefferson": {
+        "court_name": "Jefferson Parish District Court \u2014 Traffic",
+        "website": "https://www.jpso.com/",
+        "scheduling_url": "https://www.lasc.org/",
+        "phone": "504-364-2900",
+        "address": "200 Derbigny St, Gretna, LA 70053",
+        "notes": "I-10 west of New Orleans. High CDL volume."
+      }
+    }
+  },
+  "ME": {
+    "name": "Maine",
+    "court_system": "Maine Judicial Branch",
+    "state_portal": "https://www.courts.maine.gov/",
+    "online_payment_url": "https://www.courts.maine.gov/fees-and-fines/fines-and-bail/",
+    "cdl_info_url": "https://www.maine.gov/sos/bmv/licenses/cdl.html",
+    "appear_required_for_serious": true,
+    "notes": "District Courts handle traffic violations.",
+    "counties": {
+      "Cumberland": {
+        "court_name": "Cumberland County District Court \u2014 Traffic",
+        "website": "https://www.courts.maine.gov/",
+        "scheduling_url": "https://www.courts.maine.gov/fees-and-fines/fines-and-bail/",
+        "phone": "207-822-4200",
+        "address": "205 Newbury St, Portland, ME 04101",
+        "notes": "I-95 corridor. Primary Maine CDL court."
+      },
+      "Penobscot": {
+        "court_name": "Penobscot County District Court",
+        "website": "https://www.courts.maine.gov/",
+        "scheduling_url": "https://www.courts.maine.gov/fees-and-fines/fines-and-bail/",
+        "phone": "207-561-2300",
+        "address": "78 Exchange St, Bangor, ME 04401",
+        "notes": "I-95 northern corridor."
+      }
+    }
+  },
+  "MD": {
+    "name": "Maryland",
+    "court_system": "Maryland Judiciary",
+    "state_portal": "https://mdcourts.gov/",
+    "online_payment_url": "https://mdcourts.gov/parking-traffic/payingviainternetphone",
+    "cdl_info_url": "https://mva.maryland.gov/drivers/Pages/cdl-info.aspx",
+    "appear_required_for_serious": true,
+    "notes": "District Courts of Maryland handle traffic violations. CDL holders waive right to traffic school. Pay online at mdcourts.gov.",
+    "counties": {
+      "Baltimore City": {
+        "court_name": "Baltimore City District Court \u2014 Traffic",
+        "website": "https://mdcourts.gov/",
+        "scheduling_url": "https://mdcourts.gov/parking-traffic/payingviainternetphone",
+        "phone": "410-333-3722",
+        "address": "520 N Charles St, Baltimore, MD 21201",
+        "notes": "I-95 and I-83 corridor. Port of Baltimore freight hub."
+      },
+      "Prince George's": {
+        "court_name": "Prince George's County District Court \u2014 Traffic",
+        "website": "https://mdcourts.gov/",
+        "scheduling_url": "https://mdcourts.gov/parking-traffic/payingviainternetphone",
+        "phone": "301-952-3318",
+        "address": "14735 Main St, Upper Marlboro, MD 20772",
+        "notes": "I-95 and Capital Beltway corridor."
+      },
+      "Frederick": {
+        "court_name": "Frederick County District Court \u2014 Traffic",
+        "website": "https://mdcourts.gov/",
+        "scheduling_url": "https://mdcourts.gov/parking-traffic/payingviainternetphone",
+        "phone": "301-694-2100",
+        "address": "100 W Patrick St, Frederick, MD 21701",
+        "notes": "I-70 and I-270 corridor. Heavy CDL traffic westbound."
+      }
+    }
+  },
+  "MA": {
+    "name": "Massachusetts",
+    "court_system": "Massachusetts Court System",
+    "state_portal": "https://www.mass.gov/courts",
+    "online_payment_url": "https://www.rmv.state.ma.us/",
+    "cdl_info_url": "https://www.mass.gov/info-details/commercial-drivers-license-cdl",
+    "appear_required_for_serious": true,
+    "notes": "District Courts handle traffic matters. RMV handles license impacts.",
+    "counties": {
+      "Suffolk": {
+        "court_name": "Boston Municipal Court \u2014 Traffic Division",
+        "website": "https://www.mass.gov/locations/boston-municipal-court",
+        "scheduling_url": "https://www.mass.gov/courts",
+        "phone": "617-788-8500",
+        "address": "24 New Chardon St, Boston, MA 02114",
+        "notes": "I-90 (Mass Pike) and I-93 corridor."
+      },
+      "Worcester": {
+        "court_name": "Worcester District Court \u2014 Traffic",
+        "website": "https://www.mass.gov/locations/worcester-district-court",
+        "scheduling_url": "https://www.mass.gov/courts",
+        "phone": "508-831-2000",
+        "address": "225 Main St, Worcester, MA 01608",
+        "notes": "I-90 and I-290 corridor. Central MA freight hub."
+      },
+      "Middlesex": {
+        "court_name": "Lowell District Court \u2014 Traffic",
+        "website": "https://www.mass.gov/locations/lowell-district-court",
+        "scheduling_url": "https://www.mass.gov/courts",
+        "phone": "978-459-4101",
+        "address": "41 Hurd St, Lowell, MA 01852",
+        "notes": "I-495 and Route 3 corridor."
+      }
+    }
+  },
+  "MI": {
+    "name": "Michigan",
+    "court_system": "Michigan Courts",
+    "state_portal": "https://courts.michigan.gov/",
+    "online_payment_url": "https://courts.michigan.gov/self-help/center/pages/pay-traffic-ticket.aspx",
+    "cdl_info_url": "https://www.michigan.gov/sos/vehicle-services/commercial-driver-license",
+    "appear_required_for_serious": true,
+    "notes": "District Courts handle traffic violations. I-75, I-94, I-96 major CDL corridors.",
+    "counties": {
+      "Wayne": {
+        "court_name": "Wayne County Third Circuit Court",
+        "website": "https://www.3rdcc.org/",
+        "scheduling_url": "https://courts.michigan.gov/self-help/center/pages/pay-traffic-ticket.aspx",
+        "phone": "313-224-5261",
+        "address": "2 Woodward Ave, Detroit, MI 48226"
+      },
+      "Macomb": {
+        "court_name": "Macomb County District Court",
+        "website": "https://www.macombgov.org/Courts",
+        "scheduling_url": "https://courts.michigan.gov/self-help/center/pages/pay-traffic-ticket.aspx",
+        "phone": "586-469-5200",
+        "address": "40 N Main St, Mount Clemens, MI 48043"
+      }
+    }
+  },
+  "MN": {
+    "name": "Minnesota",
+    "court_system": "Minnesota Judicial Branch",
+    "state_portal": "https://www.mncourts.gov/",
+    "online_payment_url": "https://www.mncourts.gov/fines",
+    "scheduling_url": "https://www.mncourts.gov/fines",
+    "cdl_info_url": "https://dps.mn.gov/divisions/dvs/Pages/cdl.aspx",
+    "appear_required_for_serious": true,
+    "notes": "All minor traffic fines payable online at mncourts.gov/fines. Serious violations require in-person appearance at the district court in the county where ticket was issued. Minnesota has 10 judicial districts.",
+    "counties": {
+      "Hennepin": {
+        "court_name": "Hennepin County District Court \u2014 4th Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/4th-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "612-348-6000",
+        "address": "300 S 6th St, Minneapolis, MN 55487",
+        "notes": "Online payment at mncourts.gov/fines for minor violations."
+      },
+      "Ramsey": {
+        "court_name": "Ramsey County District Court \u2014 2nd Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/2nd-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "651-266-8262",
+        "address": "15 W Kellogg Blvd, St. Paul, MN 55102",
+        "notes": "Online payment at mncourts.gov/fines for minor violations."
+      },
+      "Anoka": {
+        "court_name": "Anoka County District Court \u2014 10th Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/10th-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "763-422-7300",
+        "address": "325 E Main St, Anoka, MN 55303",
+        "notes": "I-35W corridor. Online payment at mncourts.gov/fines."
+      },
+      "Dakota": {
+        "court_name": "Dakota County District Court \u2014 1st Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/1st-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "651-438-8100",
+        "address": "1560 Hwy 55, Hastings, MN 55033",
+        "notes": "I-35E and Hwy 52 corridor."
+      },
+      "Washington": {
+        "court_name": "Washington County District Court \u2014 10th Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/10th-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "651-430-6340",
+        "address": "14949 62nd St N, Stillwater, MN 55082"
+      },
+      "Scott": {
+        "court_name": "Scott County District Court \u2014 1st Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/1st-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "952-496-8200",
+        "address": "200 4th Ave W, Shakopee, MN 55379",
+        "notes": "I-169 and Hwy 169 corridor."
+      },
+      "St. Louis": {
+        "court_name": "St. Louis County District Court \u2014 6th Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/6th-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "218-726-2460",
+        "address": "100 N 5th Ave W, Duluth, MN 55802",
+        "notes": "I-35 northern terminus corridor."
+      },
+      "Olmsted": {
+        "court_name": "Olmsted County District Court \u2014 3rd Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/3rd-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "507-285-8070",
+        "address": "151 4th St SE, Rochester, MN 55904",
+        "notes": "I-90 and Hwy 52 corridor."
+      },
+      "Stearns": {
+        "court_name": "Stearns County District Court \u2014 7th Judicial District",
+        "website": "https://www.mncourts.gov/Find-Courts/7th-Judicial-District.aspx",
+        "scheduling_url": "https://www.mncourts.gov/fines",
+        "phone": "320-656-3620",
+        "address": "725 Courthouse Sq, St. Cloud, MN 56303",
+        "notes": "I-94 corridor."
+      }
+    }
+  },
+  "MS": {
+    "name": "Mississippi",
+    "court_system": "Mississippi Courts",
+    "state_portal": "https://courts.ms.gov/",
+    "online_payment_url": "https://courts.ms.gov/mscourts/",
+    "cdl_info_url": "https://www.dps.ms.gov/driver-services/commercial-vehicle",
+    "appear_required_for_serious": true,
+    "notes": "Justice Courts and Municipal Courts handle traffic violations. I-20 and I-55 major CDL corridors.",
+    "counties": {
+      "Hinds": {
+        "court_name": "Hinds County Justice Court \u2014 Traffic",
+        "website": "https://courts.ms.gov/",
+        "scheduling_url": "https://courts.ms.gov/mscourts/",
+        "phone": "601-968-6500",
+        "address": "316 S President St, Jackson, MS 39201",
+        "notes": "I-20 and I-55 interchange. Major CDL hub."
+      },
+      "Harrison": {
+        "court_name": "Harrison County Justice Court \u2014 Traffic",
+        "website": "https://courts.ms.gov/",
+        "scheduling_url": "https://courts.ms.gov/mscourts/",
+        "phone": "228-865-4095",
+        "address": "1801 23rd Ave, Gulfport, MS 39501",
+        "notes": "I-10 corridor. Port of Gulfport freight hub."
+      },
+      "DeSoto": {
+        "court_name": "DeSoto County Justice Court \u2014 Traffic",
+        "website": "https://courts.ms.gov/",
+        "scheduling_url": "https://courts.ms.gov/mscourts/",
+        "phone": "662-469-8380",
+        "address": "2535 Highway 51, Hernando, MS 38632",
+        "notes": "I-55 Memphis corridor. Extremely high CDL volume."
+      }
+    }
+  },
+  "MO": {
+    "name": "Missouri",
+    "court_system": "Missouri Courts",
+    "state_portal": "https://www.courts.mo.gov/",
+    "online_payment_url": "https://www.courts.mo.gov/casenet/",
+    "cdl_info_url": "https://dor.mo.gov/driver-license/commercial/",
+    "appear_required_for_serious": true,
+    "notes": "Municipal Courts handle minor violations. Circuit Courts for serious offenses. Pay at casenet.mo.gov. I-70 and I-44 major CDL corridors.",
+    "counties": {
+      "St. Louis City": {
+        "court_name": "St. Louis City Circuit Court \u2014 Traffic",
+        "website": "https://www.stlcitycircuitcourt.com/",
+        "scheduling_url": "https://www.courts.mo.gov/casenet/",
+        "phone": "314-622-4405",
+        "address": "10 N Tucker Blvd, St. Louis, MO 63101"
+      },
+      "Jackson": {
+        "court_name": "Jackson County Circuit Court \u2014 Traffic",
+        "website": "https://www.16thcircuit.org/",
+        "scheduling_url": "https://www.courts.mo.gov/casenet/",
+        "phone": "816-881-3950",
+        "address": "415 E 12th St, Kansas City, MO 64106"
+      }
+    }
+  },
+  "MT": {
+    "name": "Montana",
+    "court_system": "Montana Courts",
+    "state_portal": "https://courts.mt.gov/",
+    "online_payment_url": "https://courts.mt.gov/",
+    "cdl_info_url": "https://dojmt.gov/driving/commercial-drivers-license/",
+    "appear_required_for_serious": true,
+    "notes": "Justice Courts handle minor traffic violations. District Courts for serious offenses. I-90 and I-15 major CDL corridors.",
+    "counties": {
+      "Yellowstone": {
+        "court_name": "Yellowstone County Justice Court \u2014 Traffic",
+        "website": "https://courts.mt.gov/",
+        "scheduling_url": "https://courts.mt.gov/",
+        "phone": "406-256-2862",
+        "address": "217 N 27th St, Billings, MT 59101",
+        "notes": "I-90 and I-94 interchange. Montana's primary CDL corridor."
+      },
+      "Cascade": {
+        "court_name": "Cascade County Justice Court",
+        "website": "https://courts.mt.gov/",
+        "scheduling_url": "https://courts.mt.gov/",
+        "phone": "406-454-6780",
+        "address": "415 2nd Ave N, Great Falls, MT 59401",
+        "notes": "I-15 corridor (Canada border)."
+      },
+      "Missoula": {
+        "court_name": "Missoula County Justice Court",
+        "website": "https://courts.mt.gov/",
+        "scheduling_url": "https://courts.mt.gov/",
+        "phone": "406-258-4774",
+        "address": "200 W Broadway, Missoula, MT 59801",
+        "notes": "I-90 corridor (Idaho border)."
+      }
+    }
+  },
+  "NE": {
+    "name": "Nebraska",
+    "court_system": "Nebraska Judicial Branch",
+    "state_portal": "https://supremecourt.nebraska.gov/",
+    "online_payment_url": "https://www.nebraska.gov/safety/",
+    "cdl_info_url": "https://dmv.nebraska.gov/cdl",
+    "appear_required_for_serious": true,
+    "notes": "County Courts handle traffic violations. I-80 is the primary CDL corridor across the state.",
+    "counties": {
+      "Douglas": {
+        "court_name": "Douglas County Court \u2014 Traffic",
+        "website": "https://www.douglascounty-ne.gov/county-court/",
+        "scheduling_url": "https://www.nebraskalegislature.gov/",
+        "phone": "402-444-7018",
+        "address": "1701 Farnam St, Omaha, NE 68183",
+        "notes": "I-80 and I-480 corridor."
+      },
+      "Lancaster": {
+        "court_name": "Lancaster County Court \u2014 Traffic",
+        "website": "https://lancaster.ne.gov/2065/County-Court",
+        "scheduling_url": "https://www.nebraska.gov/safety/",
+        "phone": "402-441-7321",
+        "address": "575 S 10th St, Lincoln, NE 68508"
+      }
+    }
+  },
+  "NV": {
+    "name": "Nevada",
+    "court_system": "Nevada Courts",
+    "state_portal": "https://nvcourts.gov/",
+    "online_payment_url": "https://nvcourts.gov/",
+    "cdl_info_url": "https://dmv.nv.gov/Licenses/CDL/",
+    "appear_required_for_serious": true,
+    "notes": "Justice Courts handle minor traffic violations. District Courts for serious offenses.",
+    "counties": {
+      "Clark": {
+        "court_name": "Las Vegas Justice Court / Clark County District Court",
+        "website": "https://lvjc.com/",
+        "scheduling_url": "https://lvjc.com/citationpayment",
+        "phone": "702-671-3200",
+        "address": "200 Lewis Ave, Las Vegas, NV 89155",
+        "notes": "I-15 and I-215 corridor."
+      },
+      "Washoe": {
+        "court_name": "Washoe County District Court \u2014 Traffic",
+        "website": "https://www.washoecourts.com/",
+        "scheduling_url": "https://www.washoecourts.com/",
+        "phone": "775-328-3110",
+        "address": "75 Court St, Reno, NV 89501",
+        "notes": "I-80 corridor."
+      }
+    }
+  },
+  "NH": {
+    "name": "New Hampshire",
+    "court_system": "New Hampshire Courts",
+    "state_portal": "https://www.courts.state.nh.us/",
+    "online_payment_url": "https://www.courts.state.nh.us/courtlocations/",
+    "cdl_info_url": "https://www.nh.gov/safety/divisions/dmv/driver-licensing/cdl/",
+    "appear_required_for_serious": true,
+    "notes": "Circuit Courts handle traffic violations.",
+    "counties": {
+      "Hillsborough": {
+        "court_name": "Hillsborough County Circuit Court \u2014 Manchester",
+        "website": "https://www.courts.state.nh.us/",
+        "scheduling_url": "https://www.courts.state.nh.us/courtlocations/",
+        "phone": "603-669-7410",
+        "address": "300 Chestnut St, Manchester, NH 03101",
+        "notes": "I-93 corridor. Largest NH CDL volume."
+      },
+      "Rockingham": {
+        "court_name": "Rockingham County Circuit Court",
+        "website": "https://www.courts.state.nh.us/",
+        "scheduling_url": "https://www.courts.state.nh.us/courtlocations/",
+        "phone": "603-642-5256",
+        "address": "10 Route 125, Brentwood, NH 03833",
+        "notes": "I-95 and I-93 corridor (MA border)."
+      },
+      "Merrimack": {
+        "court_name": "Merrimack County Circuit Court \u2014 Concord",
+        "website": "https://www.courts.state.nh.us/",
+        "scheduling_url": "https://www.courts.state.nh.us/courtlocations/",
+        "phone": "603-271-6418",
+        "address": "163 N Main St, Concord, NH 03301"
+      }
+    }
+  },
+  "NJ": {
+    "name": "New Jersey",
+    "court_system": "New Jersey Courts",
+    "state_portal": "https://www.njcourts.gov/",
+    "online_payment_url": "https://www.njcourts.gov/public/traffic.html",
+    "cdl_info_url": "https://www.nj.gov/mvc/license/cdl.htm",
+    "appear_required_for_serious": true,
+    "notes": "Municipal Courts handle all traffic violations. CDL holders must appear for moving violations. Pay or schedule at njcourts.gov.",
+    "counties": {
+      "Essex": {
+        "court_name": "Essex County Municipal Court \u2014 Newark",
+        "website": "https://www.njcourts.gov/",
+        "scheduling_url": "https://www.njcourts.gov/public/traffic.html",
+        "phone": "973-693-5700",
+        "address": "50 W Market St, Newark, NJ 07102",
+        "notes": "I-78 and NJ Turnpike. Port Newark freight hub."
+      },
+      "Bergen": {
+        "court_name": "Bergen County Municipal Court",
+        "website": "https://www.njcourts.gov/",
+        "scheduling_url": "https://www.njcourts.gov/public/traffic.html",
+        "phone": "201-527-2300",
+        "address": "10 Main St, Hackensack, NJ 07601",
+        "notes": "I-95 corridor (NY border). George Washington Bridge approaches."
+      },
+      "Middlesex": {
+        "court_name": "Middlesex County Municipal Court",
+        "website": "https://www.njcourts.gov/",
+        "scheduling_url": "https://www.njcourts.gov/public/traffic.html",
+        "phone": "732-519-3200",
+        "address": "56 Paterson St, New Brunswick, NJ 08903",
+        "notes": "I-95 and I-287 interchange. NJ Turnpike corridor."
+      },
+      "Burlington": {
+        "court_name": "Burlington County Municipal Court",
+        "website": "https://www.njcourts.gov/",
+        "scheduling_url": "https://www.njcourts.gov/public/traffic.html",
+        "phone": "609-518-2600",
+        "address": "49 Rancocas Rd, Mount Holly, NJ 08060",
+        "notes": "NJ Turnpike (I-295 corridor). High CDL volume."
+      }
+    }
+  },
+  "NM": {
+    "name": "New Mexico",
+    "court_system": "New Mexico Courts",
+    "state_portal": "https://www.nmcourts.gov/",
+    "online_payment_url": "https://www.nmcourts.gov/",
+    "cdl_info_url": "https://www.mvd.newmexico.gov/vehicles/commercial-vehicle/",
+    "appear_required_for_serious": true,
+    "notes": "Magistrate Courts handle minor traffic violations. District Courts for serious offenses. I-10, I-25, and I-40 major CDL corridors.",
+    "counties": {
+      "Bernalillo": {
+        "court_name": "Bernalillo County Metropolitan Court \u2014 Traffic",
+        "website": "https://www.nmcourts.gov/",
+        "scheduling_url": "https://www.nmcourts.gov/",
+        "phone": "505-841-8400",
+        "address": "401 Lomas Blvd NW, Albuquerque, NM 87102",
+        "notes": "I-25 and I-40 interchange. Major NM CDL hub."
+      },
+      "Do\u00f1a Ana": {
+        "court_name": "Do\u00f1a Ana County Magistrate Court \u2014 Traffic",
+        "website": "https://www.nmcourts.gov/",
+        "scheduling_url": "https://www.nmcourts.gov/",
+        "phone": "575-523-8200",
+        "address": "201 W Picacho Ave, Las Cruces, NM 88005",
+        "notes": "I-10 and I-25 corridor. Near Mexico border."
+      },
+      "San Juan": {
+        "court_name": "San Juan County Magistrate Court",
+        "website": "https://www.nmcourts.gov/",
+        "scheduling_url": "https://www.nmcourts.gov/",
+        "phone": "505-334-6151",
+        "address": "103 S Oliver Dr, Aztec, NM 87410",
+        "notes": "US-550 corridor. Heavy oil/gas industry CDL traffic."
+      }
+    }
+  },
+  "NY": {
+    "name": "New York",
+    "court_system": "New York State Unified Court System",
+    "state_portal": "https://iapps.courts.state.ny.us/",
+    "online_payment_url": "https://www.dmv.ny.gov/tickets",
+    "cdl_info_url": "https://dmv.ny.gov/cdl",
+    "appear_required_for_serious": true,
+    "notes": "Traffic Violations Bureau (TVB) handles NYC area tickets electronically. Upstate: Town/Village Justice Courts. CDL holders cannot be offered plea bargain in NY. NY CDL violations trigger FMCSA reporting.",
+    "counties": {
+      "Erie": {
+        "court_name": "Erie County Traffic Court",
+        "website": "https://www.erie.gov/courts",
+        "scheduling_url": "https://www.dmv.ny.gov/tickets",
+        "phone": "716-845-2500",
+        "address": "50 Delaware Ave, Buffalo, NY 14202",
+        "notes": "I-90 (NY Thruway) corridor."
+      }
+    }
+  },
+  "NC": {
+    "name": "North Carolina",
+    "court_system": "North Carolina Judicial Branch",
+    "state_portal": "https://www.nccourts.gov/",
+    "online_payment_url": "https://www.nccourts.gov/services/citation-payments",
+    "cdl_info_url": "https://www.ncdot.gov/dmv/license-id/driver-licenses/cdl/Pages/default.aspx",
+    "appear_required_for_serious": true,
+    "notes": "District Courts handle traffic violations. Online payment available at nccourts.gov. I-85, I-95, and I-77 major CDL corridors.",
+    "counties": {
+      "Mecklenburg": {
+        "court_name": "Mecklenburg County District Court \u2014 Traffic",
+        "website": "https://www.nccourts.gov/locations/mecklenburg-county",
+        "scheduling_url": "https://www.nccourts.gov/services/citation-payments",
+        "phone": "704-686-0400",
+        "address": "832 E 4th St, Charlotte, NC 28202"
+      },
+      "Wake": {
+        "court_name": "Wake County District Court \u2014 Traffic",
+        "website": "https://www.nccourts.gov/locations/wake-county",
+        "scheduling_url": "https://www.nccourts.gov/services/citation-payments",
+        "phone": "919-792-4200",
+        "address": "316 Fayetteville St, Raleigh, NC 27602"
+      },
+      "Guilford": {
+        "court_name": "Guilford County District Court \u2014 Traffic",
+        "website": "https://www.nccourts.gov/locations/guilford-county",
+        "scheduling_url": "https://www.nccourts.gov/services/citation-payments",
+        "phone": "336-412-7900",
+        "address": "201 S Eugene St, Greensboro, NC 27401",
+        "notes": "I-85 and I-40 corridor."
+      }
+    }
+  },
+  "ND": {
+    "name": "North Dakota",
+    "court_system": "North Dakota Courts",
+    "state_portal": "https://www.ndcourts.gov/",
+    "online_payment_url": "https://www.ndcourts.gov/media/",
+    "cdl_info_url": "https://www.dot.nd.gov/divisions/driverslicense/cdl.htm",
+    "appear_required_for_serious": true,
+    "notes": "County Courts handle traffic violations. I-94 and I-29 major CDL corridors.",
+    "counties": {
+      "Cass": {
+        "court_name": "Cass County District Court \u2014 Traffic",
+        "website": "https://www.ndcourts.gov/",
+        "scheduling_url": "https://www.ndcourts.gov/media/",
+        "phone": "701-297-2900",
+        "address": "211 9th St S, Fargo, ND 58103",
+        "notes": "I-94 and I-29 interchange. Primary ND CDL corridor."
+      },
+      "Burleigh": {
+        "court_name": "Burleigh County District Court \u2014 Traffic",
+        "website": "https://www.ndcourts.gov/",
+        "scheduling_url": "https://www.ndcourts.gov/media/",
+        "phone": "701-222-6690",
+        "address": "514 E Thayer Ave, Bismarck, ND 58501",
+        "notes": "I-94 corridor. State capital."
+      }
+    }
+  },
+  "OH": {
+    "name": "Ohio",
+    "court_system": "Ohio Courts \u2014 Supreme Court of Ohio",
+    "state_portal": "https://www.ohiocourts.gov/",
+    "online_payment_url": "https://www.ohiocourts.gov/",
+    "cdl_info_url": "https://www.bmv.ohio.gov/dl-cdl.aspx",
+    "appear_required_for_serious": true,
+    "notes": "Municipal Courts and County Courts handle traffic violations. I-70, I-75, I-71, I-77, and I-80/90 (Ohio Turnpike) major CDL corridors.",
+    "counties": {
+      "Franklin": {
+        "court_name": "Franklin County Municipal Court \u2014 Traffic",
+        "website": "https://www.fcmcclerk.com/traffic/",
+        "scheduling_url": "https://www.fcmcclerk.com/traffic/",
+        "phone": "614-645-8200",
+        "address": "375 S High St, Columbus, OH 43215"
+      },
+      "Cuyahoga": {
+        "court_name": "Cuyahoga County \u2014 Cleveland Municipal Court",
+        "website": "https://clevelandmunicipalcourt.org/",
+        "scheduling_url": "https://clevelandmunicipalcourt.org/",
+        "phone": "216-664-4996",
+        "address": "1200 Ontario St, Cleveland, OH 44113",
+        "notes": "I-90 and I-71 corridor."
+      },
+      "Hamilton": {
+        "court_name": "Hamilton County \u2014 Cincinnati Municipal Court",
+        "website": "https://www.courtclerk.org/",
+        "scheduling_url": "https://www.courtclerk.org/",
+        "phone": "513-946-5000",
+        "address": "1000 Main St, Cincinnati, OH 45202",
+        "notes": "I-75 and I-71 corridor."
+      },
+      "Montgomery": {
+        "court_name": "Dayton Municipal Court \u2014 Traffic",
+        "website": "https://www.daytonmunicipalcourt.org/",
+        "scheduling_url": "https://www.daytonmunicipalcourt.org/",
+        "phone": "937-333-4300",
+        "address": "301 W 3rd St, Dayton, OH 45402",
+        "notes": "I-75 and I-70 interchange corridor."
+      },
+      "Summit": {
+        "court_name": "Akron Municipal Court \u2014 Traffic",
+        "website": "https://akroncourt.org/",
+        "scheduling_url": "https://akroncourt.org/",
+        "phone": "330-375-2120",
+        "address": "217 S High St, Akron, OH 44308",
+        "notes": "I-76 and I-77 corridor."
+      }
+    }
+  },
+  "OK": {
+    "name": "Oklahoma",
+    "court_system": "Oklahoma Courts \u2014 OSCN",
+    "state_portal": "https://www.oscn.net/",
+    "online_payment_url": "https://www.oscn.net/dockets/",
+    "cdl_info_url": "https://oklahoma.gov/dps/driver-license-services/commercial-driver-license.html",
+    "appear_required_for_serious": true,
+    "notes": "District Courts and Municipal Courts handle traffic violations. Pay through OSCN. I-40 and I-35 major CDL corridors.",
+    "counties": {
+      "Oklahoma": {
+        "court_name": "Oklahoma County District Court \u2014 Traffic",
+        "website": "https://www.oscn.net/",
+        "scheduling_url": "https://www.oscn.net/dockets/",
+        "phone": "405-713-1700",
+        "address": "321 Park Ave, Oklahoma City, OK 73102",
+        "notes": "I-35 and I-40 interchange. Major CDL hub."
+      },
+      "Tulsa": {
+        "court_name": "Tulsa County District Court \u2014 Traffic",
+        "website": "https://www.oscn.net/",
+        "scheduling_url": "https://www.oscn.net/dockets/",
+        "phone": "918-596-5434",
+        "address": "500 S Denver Ave, Tulsa, OK 74103",
+        "notes": "I-44 and I-244 corridor."
+      },
+      "Cleveland": {
+        "court_name": "Cleveland County District Court \u2014 Traffic",
+        "website": "https://www.oscn.net/",
+        "scheduling_url": "https://www.oscn.net/dockets/",
+        "phone": "405-366-0530",
+        "address": "200 S Peters Ave, Norman, OK 73069",
+        "notes": "I-35 corridor south of OKC."
+      }
+    }
+  },
+  "OR": {
+    "name": "Oregon",
+    "court_system": "Oregon Judicial Department",
+    "state_portal": "https://www.courts.oregon.gov/",
+    "online_payment_url": "https://www.courts.oregon.gov/pay",
+    "cdl_info_url": "https://www.oregon.gov/odot/dmv/Pages/driverid/cdl.aspx",
+    "appear_required_for_serious": true,
+    "notes": "Circuit Courts handle traffic violations. Online payment at courts.oregon.gov/pay. I-5 and I-84 major CDL corridors.",
+    "counties": {
+      "Multnomah": {
+        "court_name": "Multnomah County Circuit Court \u2014 Traffic",
+        "website": "https://www.courts.oregon.gov/courts/multnomah",
+        "scheduling_url": "https://www.courts.oregon.gov/pay",
+        "phone": "503-988-3063",
+        "address": "1021 SW 4th Ave, Portland, OR 97204"
+      }
+    }
+  },
+  "PA": {
+    "name": "Pennsylvania",
+    "court_system": "Pennsylvania Unified Judicial System",
+    "state_portal": "https://ujsportal.pacourts.us/",
+    "online_payment_url": "https://ujsportal.pacourts.us/",
+    "cdl_info_url": "https://www.dmv.pa.gov/Driver-Licensing/CDL/Pages/default.aspx",
+    "appear_required_for_serious": true,
+    "notes": "Magisterial District Courts handle traffic violations. PA Turnpike (I-76), I-78, I-81, I-80 major CDL corridors. Online docket access at ujsportal.pacourts.us.",
+    "counties": {
+      "Philadelphia": {
+        "court_name": "Philadelphia Traffic Court / Municipal Court",
+        "website": "https://www.courts.phila.gov/",
+        "scheduling_url": "https://ujsportal.pacourts.us/",
+        "phone": "215-683-7267",
+        "address": "800 Spring Garden St, Philadelphia, PA 19123"
+      },
+      "Allegheny": {
+        "court_name": "Allegheny County Magisterial District Courts",
+        "website": "https://www.alleghenycourts.us/",
+        "scheduling_url": "https://ujsportal.pacourts.us/",
+        "phone": "412-350-5300",
+        "address": "436 Grant St, Pittsburgh, PA 15219",
+        "notes": "I-76 and I-79 corridor."
+      },
+      "Lehigh": {
+        "court_name": "Lehigh County Magisterial District Courts",
+        "website": "https://www.lehighcounty.org/Courts",
+        "scheduling_url": "https://ujsportal.pacourts.us/",
+        "phone": "610-782-3040",
+        "address": "455 W Hamilton St, Allentown, PA 18101",
+        "notes": "I-78 and I-476 corridor."
+      }
+    }
+  },
+  "RI": {
+    "name": "Rhode Island",
+    "court_system": "Rhode Island Judiciary",
+    "state_portal": "https://www.courts.ri.gov/",
+    "online_payment_url": "https://www.courts.ri.gov/PublicPortal/",
+    "cdl_info_url": "https://dmv.ri.gov/licenses-permits-ids/cdl",
+    "appear_required_for_serious": true,
+    "notes": "Traffic Tribunal handles all traffic violations.",
+    "counties": {
+      "Providence": {
+        "court_name": "Rhode Island Traffic Tribunal",
+        "website": "https://www.courts.ri.gov/PublicPortal/",
+        "scheduling_url": "https://www.courts.ri.gov/PublicPortal/",
+        "phone": "401-222-8710",
+        "address": "One Dorrance Plaza, Providence, RI 02903",
+        "notes": "Statewide traffic court. I-95 and I-195 corridor."
+      }
+    }
+  },
+  "SC": {
+    "name": "South Carolina",
+    "court_system": "South Carolina Judicial Department",
+    "state_portal": "https://www.sccourts.org/",
+    "online_payment_url": "https://www.sccourts.org/",
+    "cdl_info_url": "https://www.scdmvonline.com/Driver-Services/Commercial-Driver-License",
+    "appear_required_for_serious": true,
+    "notes": "Magistrate Courts and Municipal Courts handle traffic violations. I-95, I-85, and I-77 major CDL corridors.",
+    "counties": {
+      "Charleston": {
+        "court_name": "Charleston County Magistrate Court \u2014 Traffic",
+        "website": "https://www.sccourts.org/",
+        "scheduling_url": "https://www.sccourts.org/",
+        "phone": "843-958-5000",
+        "address": "100 Broad St, Charleston, SC 29401",
+        "notes": "I-26 and I-526 corridor. Port of Charleston freight hub."
+      },
+      "Richland": {
+        "court_name": "Richland County Magistrate Court \u2014 Traffic",
+        "website": "https://www.sccourts.org/",
+        "scheduling_url": "https://www.sccourts.org/",
+        "phone": "803-576-1860",
+        "address": "1701 Main St, Columbia, SC 29201",
+        "notes": "I-20, I-26, and I-77 interchange."
+      },
+      "Spartanburg": {
+        "court_name": "Spartanburg County Magistrate Court \u2014 Traffic",
+        "website": "https://www.sccourts.org/",
+        "scheduling_url": "https://www.sccourts.org/",
+        "phone": "864-596-2551",
+        "address": "180 Magnolia St, Spartanburg, SC 29306",
+        "notes": "I-85 and I-26 corridor."
+      },
+      "Horry": {
+        "court_name": "Horry County Magistrate Court \u2014 Traffic",
+        "website": "https://www.sccourts.org/",
+        "scheduling_url": "https://www.sccourts.org/",
+        "phone": "843-915-5080",
+        "address": "1301 2nd Ave, Conway, SC 29526",
+        "notes": "I-95 corridor (NC border)."
+      }
+    }
+  },
+  "SD": {
+    "name": "South Dakota",
+    "court_system": "South Dakota Unified Judicial System",
+    "state_portal": "https://ujs.sd.gov/",
+    "online_payment_url": "https://ujs.sd.gov/courtpayments/",
+    "cdl_info_url": "https://dps.sd.gov/driver-licensing/commercial-drivers-license",
+    "appear_required_for_serious": true,
+    "notes": "Magistrate Courts handle minor violations. Circuit Courts for serious offenses. I-90 and I-29 major CDL corridors.",
+    "counties": {
+      "Minnehaha": {
+        "court_name": "Minnehaha County Circuit Court \u2014 Traffic",
+        "website": "https://ujs.sd.gov/",
+        "scheduling_url": "https://ujs.sd.gov/courtpayments/",
+        "phone": "605-367-5900",
+        "address": "425 N Dakota Ave, Sioux Falls, SD 57104",
+        "notes": "I-29 and I-90 interchange. Primary SD CDL corridor."
+      },
+      "Pennington": {
+        "court_name": "Pennington County Circuit Court \u2014 Traffic",
+        "website": "https://ujs.sd.gov/",
+        "scheduling_url": "https://ujs.sd.gov/courtpayments/",
+        "phone": "605-394-2571",
+        "address": "315 Saint Joseph St, Rapid City, SD 57701",
+        "notes": "I-90 corridor."
+      }
+    }
+  },
+  "TN": {
+    "name": "Tennessee",
+    "court_system": "Tennessee State Courts",
+    "state_portal": "https://www.tncourts.gov/",
+    "online_payment_url": "https://www.tncourts.gov/",
+    "cdl_info_url": "https://www.tn.gov/safety/driver-services/cdl.html",
+    "appear_required_for_serious": true,
+    "notes": "General Sessions Courts handle traffic violations. I-40, I-65, I-24, and I-75 major CDL corridors.",
+    "counties": {
+      "Shelby": {
+        "court_name": "Shelby County General Sessions Court \u2014 Traffic",
+        "website": "https://www.shelbycountytn.gov/courts",
+        "scheduling_url": "https://www.tncourts.gov/",
+        "phone": "901-222-3700",
+        "address": "201 Poplar Ave, Memphis, TN 38103",
+        "notes": "I-40 and I-55 corridor. Major trucking hub."
+      },
+      "Davidson": {
+        "court_name": "Davidson County General Sessions Court \u2014 Traffic",
+        "website": "https://www.nashville.gov/courts",
+        "scheduling_url": "https://www.tncourts.gov/",
+        "phone": "615-862-5007",
+        "address": "1 Public Square, Nashville, TN 37201",
+        "notes": "I-40, I-65, and I-24 interchange."
+      },
+      "Hamilton": {
+        "court_name": "Hamilton County General Sessions Court \u2014 Traffic",
+        "website": "https://www.hamiltontn.gov/courts",
+        "scheduling_url": "https://www.tncourts.gov/",
+        "phone": "423-209-6700",
+        "address": "600 Market St, Chattanooga, TN 37402",
+        "notes": "I-75 and I-24 corridor."
+      },
+      "Knox": {
+        "court_name": "Knox County General Sessions Court \u2014 Traffic",
+        "website": "https://www.knoxcounty.org/courts",
+        "scheduling_url": "https://www.tncourts.gov/",
+        "phone": "865-215-2395",
+        "address": "400 W Main Ave, Knoxville, TN 37902",
+        "notes": "I-40 and I-75 corridor."
+      }
+    }
+  },
+  "TX": {
+    "name": "Texas",
+    "court_system": "Texas Courts \u2014 OCA",
+    "state_portal": "https://www.txcourts.gov/",
+    "online_payment_url": "https://www.txcourts.gov/about-texas-courts/courts/",
+    "cdl_info_url": "https://www.dps.texas.gov/section/driver-license/commercial-driver-licenses",
+    "appear_required_for_serious": true,
+    "notes": "Justice of the Peace Courts handle minor traffic violations. County Courts at Law for more serious violations. Texas CDL holders cannot take defensive driving for CDL-issued tickets. Each county has its own online payment portal. I-10, I-20, I-35, I-45, and I-40 major CDL corridors.",
+    "counties": {
+      "Harris": {
+        "court_name": "Harris County JP Courts / County Court at Law \u2014 Traffic",
+        "website": "https://www.harriscountytx.gov/services/courts",
+        "scheduling_url": "https://www.harriscountytx.gov/services/courts",
+        "phone": "713-274-0000",
+        "address": "201 Caroline St, Houston, TX 77002",
+        "notes": "I-10, I-45, I-69 corridor. Use county website to find specific JP precinct."
+      },
+      "Dallas": {
+        "court_name": "Dallas County JP Courts / Criminal District Court",
+        "website": "https://www.dallascounty.org/courts/",
+        "scheduling_url": "https://www.dallascounty.org/courts/",
+        "phone": "214-653-7011",
+        "address": "600 Commerce St, Dallas, TX 75202",
+        "notes": "I-35E, I-20, and I-30 corridor."
+      },
+      "Tarrant": {
+        "court_name": "Tarrant County JP Courts \u2014 Traffic",
+        "website": "https://www.tarrantcounty.com/en/criminal-courts.html",
+        "scheduling_url": "https://www.tarrantcounty.com/en/criminal-courts.html",
+        "phone": "817-884-1000",
+        "address": "100 W Weatherford St, Fort Worth, TX 76196",
+        "notes": "I-35W and I-20 corridor."
+      },
+      "Bexar": {
+        "court_name": "Bexar County JP Courts \u2014 Traffic",
+        "website": "https://www.bexar.org/courts",
+        "scheduling_url": "https://www.bexar.org/courts",
+        "phone": "210-335-2011",
+        "address": "100 Dolorosa, San Antonio, TX 78205",
+        "notes": "I-35, I-10, and I-37 corridor."
+      },
+      "El Paso": {
+        "court_name": "El Paso County JP Courts \u2014 Traffic",
+        "website": "https://www.epcounty.com/courts",
+        "scheduling_url": "https://www.epcounty.com/courts",
+        "phone": "915-546-2000",
+        "address": "500 E San Antonio Ave, El Paso, TX 79901",
+        "notes": "I-10 (New Mexico border) corridor. High CDL volume."
+      },
+      "Webb": {
+        "court_name": "Webb County JP Courts \u2014 Traffic",
+        "website": "https://www.webbcountytx.gov/courts/",
+        "scheduling_url": "https://www.webbcountytx.gov/courts/",
+        "phone": "956-523-4000",
+        "address": "1110 Victoria St, Laredo, TX 78040",
+        "notes": "I-35 Mexico border crossing. Extremely high CDL traffic volume."
+      },
+      "Nueces": {
+        "court_name": "Nueces County JP Courts \u2014 Traffic",
+        "website": "https://www.nuecesco.com/courts",
+        "scheduling_url": "https://www.nuecesco.com/courts",
+        "phone": "361-888-0444",
+        "address": "901 Leopard St, Corpus Christi, TX 78401"
+      },
+      "Cameron": {
+        "court_name": "Cameron County JP Courts \u2014 Traffic",
+        "website": "https://www.co.cameron.tx.us/courts",
+        "scheduling_url": "https://www.co.cameron.tx.us/courts",
+        "phone": "956-544-0815",
+        "address": "974 E Harrison St, Brownsville, TX 78520",
+        "notes": "I-69E Mexico border crossing corridor."
+      },
+      "Kaufman": {
+        "court_name": "Kaufman County JP Courts \u2014 Traffic",
+        "website": "https://www.kaufmancounty.net/courts",
+        "scheduling_url": "https://www.kaufmancounty.net/courts",
+        "phone": "972-932-4331",
+        "address": "100 W Mulberry St, Kaufman, TX 75142",
+        "notes": "I-20 corridor east of Dallas. High CDL volume."
+      }
+    }
+  },
+  "UT": {
+    "name": "Utah",
+    "court_system": "Utah Courts",
+    "state_portal": "https://www.utcourts.gov/",
+    "online_payment_url": "https://www.utcourts.gov/efiling/",
+    "cdl_info_url": "https://dld.utah.gov/driver-license-types/commercial-driver-license-cdl/",
+    "appear_required_for_serious": true,
+    "notes": "Justice Courts and District Courts handle traffic violations. I-15, I-80, and I-70 major CDL corridors.",
+    "counties": {
+      "Salt Lake": {
+        "court_name": "Salt Lake County Justice Court \u2014 Traffic",
+        "website": "https://www.utcourts.gov/",
+        "scheduling_url": "https://www.utcourts.gov/efiling/",
+        "phone": "801-238-7300",
+        "address": "450 S State St, Salt Lake City, UT 84111",
+        "notes": "I-15 and I-80 interchange. Primary UT CDL hub."
+      },
+      "Utah": {
+        "court_name": "Utah County Justice Court \u2014 Traffic",
+        "website": "https://www.utcourts.gov/",
+        "scheduling_url": "https://www.utcourts.gov/efiling/",
+        "phone": "801-429-1000",
+        "address": "125 N 100 W, Provo, UT 84601",
+        "notes": "I-15 corridor. High CDL volume."
+      },
+      "Weber": {
+        "court_name": "Weber County Justice Court \u2014 Traffic",
+        "website": "https://www.utcourts.gov/",
+        "scheduling_url": "https://www.utcourts.gov/efiling/",
+        "phone": "801-395-1050",
+        "address": "2525 Grant Ave, Ogden, UT 84401",
+        "notes": "I-15 and I-84 corridor (Idaho border)."
+      }
+    }
+  },
+  "VT": {
+    "name": "Vermont",
+    "court_system": "Vermont Judiciary",
+    "state_portal": "https://www.vermontjudiciary.org/",
+    "online_payment_url": "https://www.vermontjudiciary.org/courts/citations",
+    "cdl_info_url": "https://dmv.vermont.gov/licenses/cdl",
+    "appear_required_for_serious": true,
+    "notes": "Judicial Bureau handles minor traffic violations online.",
+    "counties": {
+      "Chittenden": {
+        "court_name": "Chittenden County Superior Court \u2014 Traffic",
+        "website": "https://www.vermontjudiciary.org/",
+        "scheduling_url": "https://www.vermontjudiciary.org/courts/citations",
+        "phone": "802-651-1950",
+        "address": "32 Cherry St, Burlington, VT 05401",
+        "notes": "I-89 corridor. Primary VT CDL court."
+      },
+      "Windsor": {
+        "court_name": "Windsor County Superior Court \u2014 Traffic",
+        "website": "https://www.vermontjudiciary.org/",
+        "scheduling_url": "https://www.vermontjudiciary.org/courts/citations",
+        "phone": "802-295-8865",
+        "address": "82 Railroad Row, White River Junction, VT 05001",
+        "notes": "I-91 and I-89 interchange."
+      }
+    }
+  },
+  "VA": {
+    "name": "Virginia",
+    "court_system": "Virginia Courts \u2014 Supreme Court of Virginia",
+    "state_portal": "https://eapps.courts.state.va.us/",
+    "online_payment_url": "https://eapps.courts.state.va.us/gdcourts/captcha.do",
+    "cdl_info_url": "https://www.dmv.virginia.gov/vehicles/#cdl.asp",
+    "appear_required_for_serious": true,
+    "notes": "General District Courts handle traffic violations. Pay online at eapps.courts.state.va.us. I-81, I-95, I-64, and I-85 major CDL corridors.",
+    "counties": {
+      "Fairfax": {
+        "court_name": "Fairfax County General District Court \u2014 Traffic",
+        "website": "https://www.fairfaxcounty.gov/courts/gdc/",
+        "scheduling_url": "https://eapps.courts.state.va.us/gdcourts/captcha.do",
+        "phone": "703-246-2153",
+        "address": "4110 Chain Bridge Rd, Fairfax, VA 22030"
+      },
+      "Roanoke": {
+        "court_name": "Roanoke City General District Court \u2014 Traffic",
+        "website": "https://roanokeva.gov/1756/General-District-Court",
+        "scheduling_url": "https://eapps.courts.state.va.us/gdcourts/captcha.do",
+        "phone": "540-853-2000",
+        "address": "315 W Church Ave SW, Roanoke, VA 24011",
+        "notes": "I-81 corridor."
+      }
+    }
+  },
+  "WA": {
+    "name": "Washington",
+    "court_system": "Washington State Courts",
+    "state_portal": "https://www.courts.wa.gov/",
+    "online_payment_url": "https://www.courts.wa.gov/court_dir/",
+    "cdl_info_url": "https://www.dol.wa.gov/driverslicense/cdl.html",
+    "appear_required_for_serious": true,
+    "notes": "District Courts and Municipal Courts handle traffic violations. I-5 and I-90 major CDL corridors.",
+    "counties": {
+      "King": {
+        "court_name": "King County District Court \u2014 Traffic",
+        "website": "https://kingcounty.gov/courts/DistrictCourt.aspx",
+        "scheduling_url": "https://kingcounty.gov/courts/DistrictCourt.aspx",
+        "phone": "206-296-3500",
+        "address": "516 3rd Ave, Seattle, WA 98104"
+      },
+      "Pierce": {
+        "court_name": "Pierce County District Court \u2014 Traffic",
+        "website": "https://www.piercecountywa.gov/1104/District-Court",
+        "scheduling_url": "https://www.piercecountywa.gov/1104/District-Court",
+        "phone": "253-798-6677",
+        "address": "930 Tacoma Ave S, Tacoma, WA 98402",
+        "notes": "I-5 corridor."
+      }
+    }
+  },
+  "WV": {
+    "name": "West Virginia",
+    "court_system": "West Virginia Courts",
+    "state_portal": "https://courts.wv.gov/",
+    "online_payment_url": "https://courts.wv.gov/lower-courts/magistrate-court/Pages/default.aspx",
+    "cdl_info_url": "https://transportation.wv.gov/DMV/DriversLicensing/Pages/CDL.aspx",
+    "appear_required_for_serious": true,
+    "notes": "Magistrate Courts handle minor traffic violations. Circuit Courts for serious offenses. I-64, I-77, and I-79 corridors.",
+    "counties": {
+      "Kanawha": {
+        "court_name": "Kanawha County Magistrate Court \u2014 Traffic",
+        "website": "https://courts.wv.gov/",
+        "scheduling_url": "https://courts.wv.gov/lower-courts/magistrate-court/Pages/default.aspx",
+        "phone": "304-357-0338",
+        "address": "111 Court St, Charleston, WV 25301",
+        "notes": "I-64 and I-77 interchange. Primary WV CDL hub."
+      },
+      "Cabell": {
+        "court_name": "Cabell County Magistrate Court \u2014 Traffic",
+        "website": "https://courts.wv.gov/",
+        "scheduling_url": "https://courts.wv.gov/lower-courts/magistrate-court/Pages/default.aspx",
+        "phone": "304-526-8625",
+        "address": "750 5th Ave, Huntington, WV 25701",
+        "notes": "I-64 corridor (Kentucky border)."
+      },
+      "Wood": {
+        "court_name": "Wood County Magistrate Court \u2014 Traffic",
+        "website": "https://courts.wv.gov/",
+        "scheduling_url": "https://courts.wv.gov/lower-courts/magistrate-court/Pages/default.aspx",
+        "phone": "304-424-1860",
+        "address": "1 Courthouse Sq, Parkersburg, WV 26101",
+        "notes": "I-77 corridor (Ohio border)."
+      }
+    }
+  },
+  "WI": {
+    "name": "Wisconsin",
+    "court_system": "Wisconsin Court System",
+    "state_portal": "https://wcca.wicourts.gov/",
+    "online_payment_url": "https://wcca.wicourts.gov/",
+    "cdl_info_url": "https://wisconsindot.gov/Pages/dmv/license-drvs-vehs/drvr-qualifications/cdl.aspx",
+    "appear_required_for_serious": true,
+    "notes": "Circuit Courts handle traffic violations. Pay online through Wisconsin Court System's eCourts. I-90, I-94, and I-43 major CDL corridors.",
+    "counties": {
+      "Milwaukee": {
+        "court_name": "Milwaukee County Circuit Court \u2014 Traffic",
+        "website": "https://county.milwaukee.gov/EN/Courts",
+        "scheduling_url": "https://wcca.wicourts.gov/",
+        "phone": "414-278-4120",
+        "address": "901 N 9th St, Milwaukee, WI 53233"
+      },
+      "Dane": {
+        "court_name": "Dane County Circuit Court \u2014 Traffic",
+        "website": "https://www.danecounty.gov/resident/courts",
+        "scheduling_url": "https://wcca.wicourts.gov/",
+        "phone": "608-266-4311",
+        "address": "215 S Hamilton St, Madison, WI 53703",
+        "notes": "I-90 and I-94 corridor."
+      },
+      "Kenosha": {
+        "court_name": "Kenosha County Circuit Court \u2014 Traffic",
+        "website": "https://www.kenoshacounty.org/courts",
+        "scheduling_url": "https://wcca.wicourts.gov/",
+        "phone": "262-653-2444",
+        "address": "912 56th St, Kenosha, WI 53140",
+        "notes": "I-94 corridor (IL/WI border). High CDL traffic volume."
+      },
+      "Rock": {
+        "court_name": "Rock County Circuit Court \u2014 Traffic",
+        "website": "https://www.co.rock.wi.us/departments/courts",
+        "scheduling_url": "https://wcca.wicourts.gov/",
+        "phone": "608-743-2200",
+        "address": "51 S Main St, Janesville, WI 53545",
+        "notes": "I-90 and I-39 corridor."
+      }
+    }
+  },
+  "WY": {
+    "name": "Wyoming",
+    "court_system": "Wyoming Courts",
+    "state_portal": "https://www.courts.state.wy.us/",
+    "online_payment_url": "https://www.courts.state.wy.us/",
+    "cdl_info_url": "https://dot.state.wy.us/home/drivers_license_home/commercial_driver_s_license.html",
+    "appear_required_for_serious": true,
+    "notes": "Circuit Courts handle traffic violations. I-80 and I-25 major CDL corridors.",
+    "counties": {
+      "Laramie": {
+        "court_name": "Laramie County Circuit Court \u2014 Traffic",
+        "website": "https://www.courts.state.wy.us/",
+        "scheduling_url": "https://www.courts.state.wy.us/",
+        "phone": "307-777-7801",
+        "address": "309 W 20th St, Cheyenne, WY 82001",
+        "notes": "I-25 and I-80 interchange. Primary WY CDL court."
+      },
+      "Natrona": {
+        "court_name": "Natrona County Circuit Court \u2014 Traffic",
+        "website": "https://www.courts.state.wy.us/",
+        "scheduling_url": "https://www.courts.state.wy.us/",
+        "phone": "307-235-9235",
+        "address": "220 N Center St, Casper, WY 82601",
+        "notes": "I-25 corridor."
+      },
+      "Sweetwater": {
+        "court_name": "Sweetwater County Circuit Court \u2014 Traffic",
+        "website": "https://www.courts.state.wy.us/",
+        "scheduling_url": "https://www.courts.state.wy.us/",
+        "phone": "307-872-6420",
+        "address": "50 W Flaming Gorge Way, Green River, WY 82935",
+        "notes": "I-80 corridor (Utah border). High CDL volume."
+      }
+    }
+  }
+}
