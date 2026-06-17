@@ -15,6 +15,14 @@ service cloud.firestore {
       }
     }
 
+    // Attorney + carrier portals: any authenticated user can read the top-level
+    // tickets collection. Status filtering (exclude "AI Review") is done in the
+    // portal query layer. Only the AI engine (Admin SDK) writes here.
+    match /tickets/{ticketId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
     // Block everything else
     match /{document=**} {
       allow read, write: if false;
