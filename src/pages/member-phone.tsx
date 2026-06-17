@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 import { AuthPageLayout } from 'src/components/layout';
 import LucideIcon from 'src/components/lucide-icon';
 import { Logo } from 'src/components/logo';
 import { Button } from 'src/components/ui';
-import { constants } from 'src/constants.value';
 import { isLoading } from 'src/store';
-import { SendOTP } from 'src/utils/api-service';
+import { auth } from 'src/lib/firebase';
+import { setConfirmation } from 'src/lib/phone-auth-state';
 
 import { formatPhoneNumber } from './signup/components/signup-flow';
 
@@ -21,6 +22,10 @@ export default function MemberPhone() {
 
   const [phoneNumber, setPhoneNumber] = useState(returnedPhone);
   const [showErrorState, setShowErrorState] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
   const isPhoneValid = cleanPhoneNumber.length === 10;
@@ -31,16 +36,47 @@ export default function MemberPhone() {
     }
   }, [returnedPhone]);
 
+  useEffect(() => {
+    if (recaptchaContainerRef.current && !recaptchaVerifierRef.current) {
+      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        size: 'invisible',
+      });
+    }
+    return () => {
+      recaptchaVerifierRef.current?.clear();
+      recaptchaVerifierRef.current = null;
+    };
+  }, []);
+
   const handleSubmit = async () => {
     if (!isPhoneValid || loading) return;
 
-    // Local test mode: skip API, navigate directly to verify with hardcoded OTP 123456
-    const reversed = cleanPhoneNumber.split('').reverse().join('');
-    const salt = 'local';
-    const obfuscated = btoa(btoa(`${salt}:${reversed}`));
-    navigate(`/member-verify?token=${encodeURIComponent(obfuscated)}`, {
-      state: { phoneNumber },
-    });
+    setIsLoading(true);
+    setShowErrorState(false);
+    setErrorMsg('');
+
+    try {
+      const intlPhone = `+1${cleanPhoneNumber}`;
+      if (!recaptchaVerifierRef.current) throw new Error('reCAPTCHA not ready');
+      const confirmation = await signInWithPhoneNumber(auth, intlPhone, recaptchaVerifierRef.current);
+      setConfirmation(confirmation);
+      navigate('/member-verify', { state: { phoneNumber } });
+    } catch (err: any) {
+      console.error('[Firebase Phone Auth]', err);
+      setShowErrorState(true);
+      setErrorMsg(
+        err?.code === 'auth/invalid-phone-number'
+          ? 'Invalid phone number. Check the number and try again.'
+          : err?.code === 'auth/too-many-requests'
+          ? 'Too many attempts. Please wait a few minutes and try again.'
+          : 'Failed to send verification code. Please try again.'
+      );
+      // Reset reCAPTCHA so it can be used again
+      recaptchaVerifierRef.current?.clear();
+      recaptchaVerifierRef.current = null;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -100,21 +136,13 @@ export default function MemberPhone() {
         <div className="mb-6 rounded-3xl border-2 border-red-400 bg-white/10 p-6 backdrop-blur-xl">
           <div className="flex items-start gap-3">
             <LucideIcon name="CircleAlert" size={20} className="mt-0.5 shrink-0 text-red-300" />
-            <div>
-              <p className="mb-2 text-base text-white">
-                We couldn&apos;t find an account associated with this phone number.
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate('/sign-up')}
-                className="text-sm text-white underline hover:no-underline"
-              >
-                Click here to sign up as a new member
-              </button>
-            </div>
+            <p className="text-base text-white">{errorMsg}</p>
           </div>
         </div>
       )}
+
+      {/* Invisible reCAPTCHA anchor — required by Firebase Phone Auth */}
+      <div ref={recaptchaContainerRef} />
 
       <Button
         type="button"

@@ -1,25 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { signInAnonymously } from 'firebase/auth';
 
-import { toasterService } from 'src/apiSetUp';
 import { setDataIntoStorage } from 'src/common-service/index.service';
 import { AuthPageLayout } from 'src/components/layout';
 import LucideIcon from 'src/components/lucide-icon';
 import { Logo } from 'src/components/logo';
 import { Button } from 'src/components/ui';
-import { VerifyOTP, SendOTP } from 'src/utils/api-service';
 import { isLoading, firebaseUid } from 'src/store';
-import { auth } from 'src/lib/firebase';
-import { constants } from 'src/constants.value';
+import { getConfirmation, clearConfirmation } from 'src/lib/phone-auth-state';
 
 const OTP_LENGTH = 6;
 const OTP_COOLDOWN = 60;
 const STORAGE_KEY_PREFIX = 'otp_last_sent_';
 
 export default function MemberVerify() {
-  const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setIsLoading] = useAtom(isLoading);
@@ -27,53 +22,38 @@ export default function MemberVerify() {
 
   const formattedPhoneFromState = (location.state as any)?.phoneNumber || '';
 
-  const phone = useMemo(() => {
-    const token = searchParams.get('token');
-    if (!token) return '';
-    try {
-      const decoded = atob(atob(token));
-      const [, reversed] = decoded.split(':');
-      return reversed ? reversed.split('').reverse().join('') : '';
-    } catch {
-      return '';
-    }
-  }, [searchParams]);
-
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [lastSentTime, setLastSentTime] = useState<number>(0);
   const [otpCode, setOtpCode] = useState('');
   const [hasCodeError, setHasCodeError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const isOtpValid = otpCode.length === OTP_LENGTH;
 
   const displayPhone = useMemo(() => {
-    if (formattedPhoneFromState) return formattedPhoneFromState;
-
-    const digits = phone.replace(/\D/g, '');
-    if (digits.length !== 10) return phone;
-
+    const digits = formattedPhoneFromState.replace(/\D/g, '');
+    if (digits.length !== 10) return formattedPhoneFromState;
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  }, [formattedPhoneFromState, phone]);
+  }, [formattedPhoneFromState]);
 
   useEffect(() => {
-    if (!phone) {
+    if (!formattedPhoneFromState && !getConfirmation()) {
       navigate('/member-phone');
       return;
     }
 
-    const storageKey = `${STORAGE_KEY_PREFIX}${phone}`;
+    const storageKey = `${STORAGE_KEY_PREFIX}${formattedPhoneFromState}`;
     const stored = localStorage.getItem(storageKey);
     let timestamp = 0;
 
     if (stored) {
       timestamp = parseInt(stored, 10);
     } else {
-      // If no timestamp for this specific phone, set it now
       timestamp = Date.now();
       localStorage.setItem(storageKey, timestamp.toString());
     }
     setLastSentTime(timestamp);
-  }, [phone, navigate]);
+  }, [formattedPhoneFromState, navigate]);
 
   useEffect(() => {
     if (!lastSentTime) return;
@@ -113,57 +93,42 @@ export default function MemberVerify() {
   const handleVerify = async () => {
     if (!isOtpValid || loading) return;
 
-    // Local test mode: accept hardcoded OTP 123456
-    if (otpCode !== '123456') {
-      setHasCodeError(true);
-      setOtpCode('');
+    const confirmation = getConfirmation();
+    if (!confirmation) {
+      navigate('/member-phone');
       return;
     }
 
     setIsLoading(true);
+    setHasCodeError(false);
+    setErrorMsg('');
+
     try {
-      // Store a local test session token
-      await setDataIntoStorage('driver_token', `local-test-${phone}`);
-      await setDataIntoStorage('driver_refresh_token', `local-refresh-${phone}`);
-
-      // Sign into Firebase anonymously to get a stable UID for Firestore
-      try {
-        const fbResult = await signInAnonymously(auth);
-        const uid = fbResult.user.uid;
-        setFirebaseUid(uid);
-        await setDataIntoStorage('firebase_uid', uid);
-      } catch (fbErr) {
-        console.warn('[firebase] anonymous sign-in failed (offline or not configured):', fbErr);
-      }
-
+      const result = await confirmation.confirm(otpCode);
+      const uid = result.user.uid;
+      setFirebaseUid(uid);
+      await setDataIntoStorage('firebase_uid', uid);
+      clearConfirmation();
       navigate('/dashboard');
+    } catch (err: any) {
+      console.error('[Firebase OTP confirm]', err);
+      setHasCodeError(true);
+      setOtpCode('');
+      setErrorMsg(
+        err?.code === 'auth/invalid-verification-code'
+          ? 'Incorrect code. Please try again.'
+          : err?.code === 'auth/code-expired'
+          ? 'Code expired. Please request a new one.'
+          : 'Verification failed. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const resend = async () => {
+  const resend = () => {
     if (secondsLeft > 0 || loading) return;
-
-    setIsLoading(true);
-    try {
-      const response = await SendOTP({ PhoneNumber: phone } as any);
-
-      if (response.StatusCode === constants.RESPONSE_STATUS.SUCCESS) {
-        const now = Date.now();
-        const storageKey = `${STORAGE_KEY_PREFIX}${phone}`;
-        localStorage.setItem(storageKey, now.toString());
-        setLastSentTime(now);
-        setOtpCode('');
-        setHasCodeError(false);
-      } else {
-        toasterService(response.Message, 4, response.Message);
-      }
-    } catch (error) {
-      toasterService('Failed to send verification code.', 4, error);
-    } finally {
-      setIsLoading(false);
-    }
+    navigate('/member-phone', { state: { phoneNumber: formattedPhoneFromState } });
   };
 
   const handleBack = () => {
@@ -230,7 +195,7 @@ export default function MemberVerify() {
           />
         </div>
 
-        {hasCodeError && <p className="mt-3 text-sm text-red-300">Incorrect code. Please try again.</p>}
+        {hasCodeError && <p className="mt-3 text-sm text-red-300">{errorMsg || 'Incorrect code. Please try again.'}</p>}
       </div>
 
       <Button
