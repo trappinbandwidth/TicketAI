@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAtom } from 'jotai';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
-import { toasterService } from 'src/apiSetUp';
 import { setDataIntoStorage } from 'src/common-service/index.service';
 import { AuthPageLayout } from 'src/components/layout';
 import LucideIcon from 'src/components/lucide-icon';
 import { Logo } from 'src/components/logo';
 import { Button } from 'src/components/ui';
-import { constants } from 'src/constants.value';
-import { VerifyOTP, SendOTP, driverUserSimpleRegistration, registerDriverUser } from 'src/utils/api-service';
+import { auth } from 'src/lib/firebase';
+import { setConfirmation, getConfirmation, clearConfirmation } from 'src/lib/phone-auth-state';
+import { firebaseUid } from 'src/store';
 
 import { formatPhoneNumber } from './signup-flow/formatters';
 
@@ -20,7 +22,10 @@ const OTP_COOLDOWN_SECONDS = 60;
 export default function NewMemberSignupFlow() {
   const navigate = useNavigate();
   const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
+  const [, setFirebaseUid] = useAtom(firebaseUid);
   const [step, setStep] = useState<SignupStep>('basic');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -69,30 +74,73 @@ export default function NewMemberSignupFlow() {
     handleExit();
   };
 
+  const initRecaptcha = () => {
+    if (!recaptchaContainerRef.current || recaptchaVerifierRef.current) return;
+    recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+      size: 'invisible',
+    });
+  };
+
+  const resetRecaptcha = () => {
+    recaptchaVerifierRef.current?.clear();
+    recaptchaVerifierRef.current = null;
+  };
+
   const sendOtp = async () => {
     if (!isBasicValid || isSendingOtp) return;
-    // Local test mode: skip API, go straight to OTP step
-    setOtpDigits(Array(OTP_LENGTH).fill(''));
+    initRecaptcha();
+    if (!recaptchaVerifierRef.current) return;
+
+    setIsSendingOtp(true);
     setOtpErrorMessage('');
-    setStep('otp');
+    try {
+      const confirmation = await signInWithPhoneNumber(auth, `+1${cleanPhone}`, recaptchaVerifierRef.current);
+      setConfirmation(confirmation);
+      setOtpDigits(Array(OTP_LENGTH).fill(''));
+      setSecondsLeft(OTP_COOLDOWN_SECONDS);
+      setStep('otp');
+    } catch (err: any) {
+      resetRecaptcha();
+      setOtpErrorMessage(
+        err?.code === 'auth/invalid-phone-number'
+          ? 'Invalid phone number. Please check and try again.'
+          : err?.code === 'auth/too-many-requests'
+          ? 'Too many attempts. Please wait a few minutes.'
+          : 'Failed to send code. Please try again.'
+      );
+    } finally {
+      setIsSendingOtp(false);
+    }
   };
 
   const verifyOtp = async () => {
     if (!isOtpValid || isVerifyingOtp) return;
 
-    // Local test mode: accept hardcoded OTP 123456
-    if (otpCode !== '123456') {
-      setOtpErrorMessage('Incorrect code. Use 123456 for local testing.');
-      setOtpDigits(Array(OTP_LENGTH).fill(''));
-      otpInputRefs.current[0]?.focus();
+    const confirmation = getConfirmation();
+    if (!confirmation) {
+      setStep('basic');
       return;
     }
 
     setIsVerifyingOtp(true);
+    setOtpErrorMessage('');
     try {
-      await setDataIntoStorage('driver_token', `local-test-${cleanPhone}`);
-      await setDataIntoStorage('driver_refresh_token', `local-refresh-${cleanPhone}`);
+      const result = await confirmation.confirm(otpCode);
+      const uid = result.user.uid;
+      setFirebaseUid(uid);
+      await setDataIntoStorage('firebase_uid', uid);
+      clearConfirmation();
       navigate('/dashboard', { replace: true });
+    } catch (err: any) {
+      setOtpDigits(Array(OTP_LENGTH).fill(''));
+      otpInputRefs.current[0]?.focus();
+      setOtpErrorMessage(
+        err?.code === 'auth/invalid-verification-code'
+          ? 'Incorrect code. Please try again.'
+          : err?.code === 'auth/code-expired'
+          ? 'Code expired. Tap Resend to get a new one.'
+          : 'Verification failed. Please try again.'
+      );
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -100,7 +148,8 @@ export default function NewMemberSignupFlow() {
 
   const resendOtp = async () => {
     if (secondsLeft > 0 || isSendingOtp) return;
-    await sendOtp();
+    resetRecaptcha();
+    setStep('basic');
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -148,6 +197,8 @@ export default function NewMemberSignupFlow() {
 
   return (
     <AuthPageLayout containerClassName="max-w-[393px]">
+      {/* Invisible reCAPTCHA anchor — must stay mounted while on basic step */}
+      <div ref={recaptchaContainerRef} />
       <div className="relative mx-auto w-full max-w-[393px]">
         <div className="px-6 pb-6 pt-[60px] text-center">
           <div className="mb-6 flex justify-center">

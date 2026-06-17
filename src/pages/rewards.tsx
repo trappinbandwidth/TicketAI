@@ -138,13 +138,14 @@ export default function RewardsPage() {
                     </p>
                     <Button
                         fullWidth
-                        disabled
+                        disabled={totalPoints < 2500}
                         size="lg"
                         variant="secondary"
-                        className="h-12 justify-center gap-2 rounded-xl border-white bg-white font-bold text-[#1a365d] hover:bg-white"
+                        onClick={() => setCashOutOpen(true)}
+                        className="h-12 justify-center gap-2 rounded-xl border-white bg-white font-bold text-[#1a365d] hover:bg-white disabled:opacity-60"
                     >
                         <LucideIcon name="DollarSign" size={20} />
-                        <span>Cash Out Coming Soon</span>
+                        <span>{totalPoints < 2500 ? `${2500 - totalPoints} pts to Cash Out` : 'Cash Out — Gift Card or Visa'}</span>
                         <LucideIcon name="ArrowRight" size={20} />
                     </Button>
                 </div>
