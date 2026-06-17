@@ -114,6 +114,7 @@ async def process_ticket(
     driver_id: Optional[str] = Form(None),
     ticket_id: Optional[str] = Form(None),
     prompt_version: str = Form("v2"),
+    source: str = Form("driver_upload"),
     x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
@@ -171,8 +172,8 @@ async def process_ticket(
                 doc_type=cached_resp.get("result", {}).get("file_type", "Ticket"),
                 prompt_version=prompt_version,
             )
-            if driver_id and ticket_id:
-                write_scan_result(driver_id, ticket_id, cached_resp)
+            effective_cached_ticket_id = ticket_id or new_queue_id
+            write_scan_result(driver_id, effective_cached_ticket_id, cached_resp, source=source)
             return JSONResponse(content=cached_resp)
 
     # Extract word-level bounding boxes via Textract (no-op if AWS creds not set)
@@ -437,8 +438,10 @@ async def process_ticket(
     else:
         cache_set(content_hash, queue_id)
 
-    # Write results to Firestore so the driver app updates in real-time
-    if driver_id and ticket_id:
-        write_scan_result(driver_id, ticket_id, response.model_dump())
+    # Write results to Firestore:
+    #   - drivers/{driver_id}/tickets/{ticket_id} if driver_id known (driver app)
+    #   - tickets/{effective_ticket_id} always (attorney portal queue)
+    effective_ticket_id = ticket_id or queue_id
+    write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source)
 
     return response

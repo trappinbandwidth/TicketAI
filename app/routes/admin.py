@@ -538,3 +538,114 @@ def export_training(x_api_key: Optional[str] = Header(None)):
         filename="approved_tickets.jsonl",
         media_type="application/x-ndjson",
     )
+
+
+# ── Reviewer: AI Review queue ────────────────────────────────────────────────
+
+@router.get("/admin/review-queue")
+def get_review_queue(x_api_key: Optional[str] = Header(None)):
+    """
+    Returns all tickets currently in 'AI Review' status —
+    manual scans waiting for Rig Resolve reviewer approval.
+    """
+    _check_auth(x_api_key)
+    from app.services.firebase_service import _init, _firestore_client
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+
+    try:
+        docs = _firestore_client.collection("tickets") \
+            .where("attorney_status", "==", "AI Review").stream()
+        tickets = []
+        for d in docs:
+            data = d.to_dict()
+            tickets.append({"ticket_id": d.id, **data})
+        return {"tickets": tickets, "total": len(tickets)}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/admin/approve-ticket/{ticket_id}")
+def approve_ticket(
+    ticket_id: str,
+    reviewer_id: Optional[str] = None,
+    x_api_key: Optional[str] = Header(None),
+):
+    """
+    Reviewer approves AI-extracted data for a manually scanned ticket.
+    Moves attorney_status from 'AI Review' → 'New' so attorneys can claim it.
+    """
+    _check_auth(x_api_key)
+    from app.services.firebase_service import _init, _firestore_client
+    from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+
+    try:
+        ref = _firestore_client.collection("tickets").document(ticket_id)
+        doc = ref.get()
+        if not doc.exists:
+            raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found.")
+
+        data = doc.to_dict()
+        if data.get("attorney_status") != "AI Review":
+            return {
+                "success": False,
+                "ticket_id": ticket_id,
+                "message": f"Ticket is not in AI Review (current: {data.get('attorney_status')}).",
+            }
+
+        ref.update({
+            "attorney_status": "New",
+            "reviewed_by": reviewer_id,
+            "reviewed_at": SERVER_TIMESTAMP,
+            "last_modified_date": SERVER_TIMESTAMP,
+        })
+
+        logger.warning("[reviewer] approved ticket=%s reviewer=%s → New", ticket_id, reviewer_id)
+        return {"success": True, "ticket_id": ticket_id, "attorney_status": "New"}
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/admin/reject-ticket/{ticket_id}")
+def reject_ticket(
+    ticket_id: str,
+    reason: Optional[str] = None,
+    x_api_key: Optional[str] = Header(None),
+):
+    """
+    Reviewer rejects a manually scanned ticket (e.g. bad image, wrong document).
+    Moves attorney_status to 'Rejected' — will not appear in attorney queue.
+    """
+    _check_auth(x_api_key)
+    from app.services.firebase_service import _init, _firestore_client
+    from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+
+    try:
+        ref = _firestore_client.collection("tickets").document(ticket_id)
+        doc = ref.get()
+        if not doc.exists:
+            raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found.")
+
+        ref.update({
+            "attorney_status": "Rejected",
+            "rejection_reason": reason,
+            "last_modified_date": SERVER_TIMESTAMP,
+        })
+
+        logger.warning("[reviewer] rejected ticket=%s reason=%r", ticket_id, reason)
+        return {"success": True, "ticket_id": ticket_id, "attorney_status": "Rejected"}
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc

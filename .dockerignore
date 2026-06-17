@@ -1,0 +1,17 @@
+.env
+.venv
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+.git/
+.gitignore
+.claude/
+training_data/
+tests/golden/
+frontend-qa/node_modules/
+frontend-qa/dist/
+docs/
+*.md
