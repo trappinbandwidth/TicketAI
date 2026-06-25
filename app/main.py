@@ -11,7 +11,9 @@ from app.routes.process import router
 from app.routes.queue import router as queue_router
 from app.routes.pricing import router as pricing_router
 from app.routes.admin import router as admin_router
+from app.routes.operations import router as operations_router
 from app.services.queue_store import init_db
+from app.services.firebase_service import _init as init_firebase
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,7 @@ def _check_env() -> None:
 async def lifespan(app: FastAPI):
     _check_env()
     init_db()
+    init_firebase()
     yield
 
 
@@ -77,6 +80,7 @@ app.include_router(router, prefix="/api/v1")
 app.include_router(queue_router, prefix="/api/v1")
 app.include_router(pricing_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(operations_router, prefix="/api/v1")
 
 
 @app.get("/health")
