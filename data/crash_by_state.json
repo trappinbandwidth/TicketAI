@@ -1,0 +1,506 @@
+{
+  "AK": {
+    "crash_count": 1628,
+    "fatal_count": 148,
+    "injury_count": 973,
+    "truck_count": 1628,
+    "federal_recordable": 1628,
+    "tow_away": 1484,
+    "hazmat": 20
+  },
+  "AL": {
+    "crash_count": 97844,
+    "fatal_count": 3815,
+    "injury_count": 51129,
+    "truck_count": 97844,
+    "federal_recordable": 97843,
+    "tow_away": 93577,
+    "hazmat": 367
+  },
+  "AR": {
+    "crash_count": 64970,
+    "fatal_count": 3009,
+    "injury_count": 31791,
+    "truck_count": 64970,
+    "federal_recordable": 64968,
+    "tow_away": 64712,
+    "hazmat": 121
+  },
+  "AS": {
+    "crash_count": 146,
+    "fatal_count": 21,
+    "injury_count": 211,
+    "truck_count": 146,
+    "federal_recordable": 146,
+    "tow_away": 114,
+    "hazmat": 0
+  },
+  "AZ": {
+    "crash_count": 52184,
+    "fatal_count": 2603,
+    "injury_count": 22716,
+    "truck_count": 52184,
+    "federal_recordable": 52166,
+    "tow_away": 51183,
+    "hazmat": 210
+  },
+  "CA": {
+    "crash_count": 318113,
+    "fatal_count": 11942,
+    "injury_count": 160683,
+    "truck_count": 318113,
+    "federal_recordable": 318110,
+    "tow_away": 304577,
+    "hazmat": 1497
+  },
+  "CO": {
+    "crash_count": 55175,
+    "fatal_count": 2402,
+    "injury_count": 18969,
+    "truck_count": 55175,
+    "federal_recordable": 55174,
+    "tow_away": 53469,
+    "hazmat": 281
+  },
+  "CT": {
+    "crash_count": 34255,
+    "fatal_count": 814,
+    "injury_count": 15684,
+    "truck_count": 34255,
+    "federal_recordable": 34237,
+    "tow_away": 32552,
+    "hazmat": 319
+  },
+  "DC": {
+    "crash_count": 6875,
+    "fatal_count": 110,
+    "injury_count": 9198,
+    "truck_count": 6875,
+    "federal_recordable": 6805,
+    "tow_away": 3587,
+    "hazmat": 10
+  },
+  "DE": {
+    "crash_count": 13525,
+    "fatal_count": 404,
+    "injury_count": 9502,
+    "truck_count": 13525,
+    "federal_recordable": 13525,
+    "tow_away": 12527,
+    "hazmat": 9
+  },
+  "FL": {
+    "crash_count": 184420,
+    "fatal_count": 8922,
+    "injury_count": 134903,
+    "truck_count": 184420,
+    "federal_recordable": 184280,
+    "tow_away": 162303,
+    "hazmat": 2877
+  },
+  "GA": {
+    "crash_count": 165683,
+    "fatal_count": 6082,
+    "injury_count": 108127,
+    "truck_count": 165683,
+    "federal_recordable": 165658,
+    "tow_away": 152124,
+    "hazmat": 744
+  },
+  "GU": {
+    "crash_count": 182,
+    "fatal_count": 2,
+    "injury_count": 186,
+    "truck_count": 182,
+    "federal_recordable": 181,
+    "tow_away": 137,
+    "hazmat": 0
+  },
+  "HI": {
+    "crash_count": 4993,
+    "fatal_count": 240,
+    "injury_count": 4362,
+    "truck_count": 4993,
+    "federal_recordable": 4993,
+    "tow_away": 3515,
+    "hazmat": 5
+  },
+  "IA": {
+    "crash_count": 53091,
+    "fatal_count": 2213,
+    "injury_count": 29879,
+    "truck_count": 53091,
+    "federal_recordable": 53091,
+    "tow_away": 49085,
+    "hazmat": 242
+  },
+  "ID": {
+    "crash_count": 19641,
+    "fatal_count": 975,
+    "injury_count": 14335,
+    "truck_count": 19641,
+    "federal_recordable": 19641,
+    "tow_away": 16014,
+    "hazmat": 283
+  },
+  "IL": {
+    "crash_count": 184058,
+    "fatal_count": 4646,
+    "injury_count": 105027,
+    "truck_count": 184058,
+    "federal_recordable": 183765,
+    "tow_away": 170965,
+    "hazmat": 570
+  },
+  "IN": {
+    "crash_count": 134830,
+    "fatal_count": 4452,
+    "injury_count": 63356,
+    "truck_count": 134830,
+    "federal_recordable": 134830,
+    "tow_away": 131981,
+    "hazmat": 411
+  },
+  "KS": {
+    "crash_count": 46684,
+    "fatal_count": 2352,
+    "injury_count": 19351,
+    "truck_count": 46684,
+    "federal_recordable": 46678,
+    "tow_away": 45867,
+    "hazmat": 71
+  },
+  "KY": {
+    "crash_count": 81318,
+    "fatal_count": 2952,
+    "injury_count": 47070,
+    "truck_count": 81318,
+    "federal_recordable": 81318,
+    "tow_away": 76796,
+    "hazmat": 294
+  },
+  "LA": {
+    "crash_count": 97124,
+    "fatal_count": 3380,
+    "injury_count": 91623,
+    "truck_count": 97124,
+    "federal_recordable": 97119,
+    "tow_away": 87783,
+    "hazmat": 728
+  },
+  "MA": {
+    "crash_count": 48602,
+    "fatal_count": 991,
+    "injury_count": 29096,
+    "truck_count": 48602,
+    "federal_recordable": 48600,
+    "tow_away": 45911,
+    "hazmat": 78
+  },
+  "MD": {
+    "crash_count": 73257,
+    "fatal_count": 2059,
+    "injury_count": 50103,
+    "truck_count": 73257,
+    "federal_recordable": 73241,
+    "tow_away": 66811,
+    "hazmat": 421
+  },
+  "ME": {
+    "crash_count": 20903,
+    "fatal_count": 540,
+    "injury_count": 12514,
+    "truck_count": 20903,
+    "federal_recordable": 20903,
+    "tow_away": 18666,
+    "hazmat": 130
+  },
+  "MI": {
+    "crash_count": 123874,
+    "fatal_count": 2948,
+    "injury_count": 47968,
+    "truck_count": 123874,
+    "federal_recordable": 123777,
+    "tow_away": 114024,
+    "hazmat": 405
+  },
+  "MN": {
+    "crash_count": 66601,
+    "fatal_count": 2055,
+    "injury_count": 31567,
+    "truck_count": 66601,
+    "federal_recordable": 66393,
+    "tow_away": 62731,
+    "hazmat": 335
+  },
+  "MO": {
+    "crash_count": 132588,
+    "fatal_count": 4131,
+    "injury_count": 79943,
+    "truck_count": 132588,
+    "federal_recordable": 132535,
+    "tow_away": 125184,
+    "hazmat": 380
+  },
+  "MS": {
+    "crash_count": 45200,
+    "fatal_count": 2473,
+    "injury_count": 29584,
+    "truck_count": 45200,
+    "federal_recordable": 45200,
+    "tow_away": 42868,
+    "hazmat": 21
+  },
+  "MT": {
+    "crash_count": 16956,
+    "fatal_count": 668,
+    "injury_count": 6886,
+    "truck_count": 16956,
+    "federal_recordable": 16955,
+    "tow_away": 16537,
+    "hazmat": 197
+  },
+  "NC": {
+    "crash_count": 167096,
+    "fatal_count": 4458,
+    "injury_count": 132599,
+    "truck_count": 167096,
+    "federal_recordable": 166814,
+    "tow_away": 155931,
+    "hazmat": 457
+  },
+  "ND": {
+    "crash_count": 14028,
+    "fatal_count": 724,
+    "injury_count": 7321,
+    "truck_count": 14028,
+    "federal_recordable": 13989,
+    "tow_away": 12309,
+    "hazmat": 117
+  },
+  "NE": {
+    "crash_count": 32008,
+    "fatal_count": 1506,
+    "injury_count": 19142,
+    "truck_count": 32008,
+    "federal_recordable": 31986,
+    "tow_away": 30444,
+    "hazmat": 417
+  },
+  "NH": {
+    "crash_count": 10890,
+    "fatal_count": 306,
+    "injury_count": 5267,
+    "truck_count": 10890,
+    "federal_recordable": 10890,
+    "tow_away": 10390,
+    "hazmat": 35
+  },
+  "NJ": {
+    "crash_count": 176138,
+    "fatal_count": 2415,
+    "injury_count": 120447,
+    "truck_count": 176138,
+    "federal_recordable": 176137,
+    "tow_away": 163804,
+    "hazmat": 397
+  },
+  "NM": {
+    "crash_count": 19957,
+    "fatal_count": 1997,
+    "injury_count": 11240,
+    "truck_count": 19957,
+    "federal_recordable": 19957,
+    "tow_away": 19330,
+    "hazmat": 72
+  },
+  "NV": {
+    "crash_count": 17015,
+    "fatal_count": 1047,
+    "injury_count": 10186,
+    "truck_count": 17015,
+    "federal_recordable": 17015,
+    "tow_away": 16080,
+    "hazmat": 37
+  },
+  "NY": {
+    "crash_count": 139503,
+    "fatal_count": 4392,
+    "injury_count": 119920,
+    "truck_count": 139503,
+    "federal_recordable": 139468,
+    "tow_away": 118154,
+    "hazmat": 644
+  },
+  "OH": {
+    "crash_count": 160515,
+    "fatal_count": 4638,
+    "injury_count": 104200,
+    "truck_count": 160515,
+    "federal_recordable": 160511,
+    "tow_away": 135254,
+    "hazmat": 3754
+  },
+  "OK": {
+    "crash_count": 71337,
+    "fatal_count": 3598,
+    "injury_count": 43535,
+    "truck_count": 71337,
+    "federal_recordable": 71213,
+    "tow_away": 64153,
+    "hazmat": 520
+  },
+  "OR": {
+    "crash_count": 41762,
+    "fatal_count": 1624,
+    "injury_count": 16814,
+    "truck_count": 41762,
+    "federal_recordable": 41762,
+    "tow_away": 40222,
+    "hazmat": 138
+  },
+  "PA": {
+    "crash_count": 196199,
+    "fatal_count": 5528,
+    "injury_count": 134995,
+    "truck_count": 196199,
+    "federal_recordable": 196170,
+    "tow_away": 156296,
+    "hazmat": 430
+  },
+  "PR": {
+    "crash_count": 277,
+    "fatal_count": 65,
+    "injury_count": 309,
+    "truck_count": 277,
+    "federal_recordable": 277,
+    "tow_away": 230,
+    "hazmat": 14
+  },
+  "RI": {
+    "crash_count": 6107,
+    "fatal_count": 131,
+    "injury_count": 4487,
+    "truck_count": 6107,
+    "federal_recordable": 6103,
+    "tow_away": 5569,
+    "hazmat": 30
+  },
+  "SC": {
+    "crash_count": 80847,
+    "fatal_count": 3184,
+    "injury_count": 60492,
+    "truck_count": 80847,
+    "federal_recordable": 80777,
+    "tow_away": 71366,
+    "hazmat": 623
+  },
+  "SD": {
+    "crash_count": 9834,
+    "fatal_count": 539,
+    "injury_count": 1789,
+    "truck_count": 9834,
+    "federal_recordable": 9833,
+    "tow_away": 9768,
+    "hazmat": 200
+  },
+  "TN": {
+    "crash_count": 102562,
+    "fatal_count": 4157,
+    "injury_count": 59042,
+    "truck_count": 102562,
+    "federal_recordable": 102555,
+    "tow_away": 96783,
+    "hazmat": 302
+  },
+  "TX": {
+    "crash_count": 472975,
+    "fatal_count": 18291,
+    "injury_count": 289111,
+    "truck_count": 472975,
+    "federal_recordable": 472203,
+    "tow_away": 425867,
+    "hazmat": 1659
+  },
+  "UT": {
+    "crash_count": 37032,
+    "fatal_count": 1136,
+    "injury_count": 20068,
+    "truck_count": 37032,
+    "federal_recordable": 36738,
+    "tow_away": 33649,
+    "hazmat": 473
+  },
+  "VA": {
+    "crash_count": 110534,
+    "fatal_count": 3015,
+    "injury_count": 62459,
+    "truck_count": 110534,
+    "federal_recordable": 110525,
+    "tow_away": 103682,
+    "hazmat": 414
+  },
+  "VT": {
+    "crash_count": 5241,
+    "fatal_count": 231,
+    "injury_count": 2477,
+    "truck_count": 5241,
+    "federal_recordable": 5235,
+    "tow_away": 4982,
+    "hazmat": 61
+  },
+  "WA": {
+    "crash_count": 49922,
+    "fatal_count": 1747,
+    "injury_count": 9244,
+    "truck_count": 49922,
+    "federal_recordable": 49922,
+    "tow_away": 48811,
+    "hazmat": 140
+  },
+  "WI": {
+    "crash_count": 75279,
+    "fatal_count": 2446,
+    "injury_count": 38558,
+    "truck_count": 75279,
+    "federal_recordable": 75237,
+    "tow_away": 71684,
+    "hazmat": 97
+  },
+  "WV": {
+    "crash_count": 27518,
+    "fatal_count": 1311,
+    "injury_count": 14925,
+    "truck_count": 27518,
+    "federal_recordable": 27518,
+    "tow_away": 26254,
+    "hazmat": 239
+  },
+  "WY": {
+    "crash_count": 26657,
+    "fatal_count": 1250,
+    "injury_count": 12214,
+    "truck_count": 26657,
+    "federal_recordable": 26657,
+    "tow_away": 26381,
+    "hazmat": 261
+  },
+  "VI": {
+    "crash_count": 13,
+    "fatal_count": 1,
+    "injury_count": 13,
+    "truck_count": 13,
+    "federal_recordable": 13,
+    "tow_away": 11,
+    "hazmat": 0
+  },
+  "MP": {
+    "crash_count": 4,
+    "fatal_count": 3,
+    "injury_count": 6,
+    "truck_count": 4,
+    "federal_recordable": 4,
+    "tow_away": 4,
+    "hazmat": 1
+  }
+}

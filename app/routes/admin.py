@@ -324,26 +324,55 @@ def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
 
     agents: dict[str, dict] = {
         "lone_ranger": {
-            "name": "🤠 Lone Ranger", "events": 0, "errors": 0,
+            "name": "Lone Ranger", "events": 0, "errors": 0,
             "pass1_fills": [], "pass1_empty_fields": defaultdict(int),
             "pass1_low_conf_fields": defaultdict(int),
             "pass2_fills": [], "improvements": [],
         },
         "referee": {
-            "name": "⚖️ Referee", "events": 0, "errors": 0,
+            "name": "Referee", "events": 0, "errors": 0,
             "scores": [], "critical_failures": defaultdict(int),
             "low_conf_fields": defaultdict(int),
             "false_escalations": 0,
         },
         "consensus": {
-            "name": "🔀 Consensus", "events": 0, "errors": 0,
+            "name": "Consensus", "events": 0, "errors": 0,
             "dual_conflicts": defaultdict(int),
             "improvements_per_scan": [],
         },
         "book_worm": {
-            "name": "📚 Book Worm", "events": 0, "errors": 0,
+            "name": "Book Worm", "events": 0, "errors": 0,
             "unknown_categories": [], "zero_point_tickets": 0,
             "attorney_recommended": 0,
+        },
+        # New agents
+        "case_intake": {
+            "name": "Case Intake", "events": 0, "errors": 0,
+            "passed": 0, "failed": 0,
+            "intake_error_counts": defaultdict(int),
+        },
+        "document_completeness": {
+            "name": "Document Completeness", "events": 0, "errors": 0,
+            "scores": [], "missing_field_counts": defaultdict(int),
+        },
+        "pii_match": {
+            "name": "PII Match", "events": 0, "errors": 0,
+            "matched": 0, "mismatched": 0, "unverified": 0,
+            "not_found": 0, "skipped": 0,
+        },
+        "mvr_request": {
+            "name": "MVR Request", "events": 0, "errors": 0,
+            "queued": 0, "skipped": 0,
+        },
+        "psp_request": {
+            "name": "PSP Request", "events": 0, "errors": 0,
+            "queued": 0, "skipped": 0,
+        },
+        "urgency_router": {
+            "name": "Urgency Router", "events": 0, "errors": 0,
+            "level_counts": defaultdict(int),
+            "no_court_date": 0,
+            "days_until_court": [],
         },
     }
 
@@ -392,6 +421,58 @@ def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
                 if detail.get("attorney_recommended"):
                     ag["attorney_recommended"] += 1
 
+        elif agent == "case_intake":
+            if event == "passed":
+                ag["passed"] += 1
+            elif event == "failed":
+                ag["failed"] += 1
+                for err in (detail.get("errors") or []):
+                    ag["intake_error_counts"][err] += 1
+
+        elif agent == "document_completeness":
+            if event == "complete":
+                score = detail.get("completeness_score")
+                if score is not None:
+                    ag["scores"].append(score)
+                for f in (detail.get("missing_fields") or []):
+                    ag["missing_field_counts"][f] += 1
+
+        elif agent == "pii_match":
+            if event == "complete":
+                match = detail.get("cdl_match", "unverified")
+                if match == "match":
+                    ag["matched"] += 1
+                elif match == "mismatch":
+                    ag["mismatched"] += 1
+                else:
+                    ag["unverified"] += 1
+            elif event == "no_profile":
+                ag["not_found"] += 1
+            elif event == "skipped":
+                ag["skipped"] += 1
+
+        elif agent == "mvr_request":
+            if event == "queued":
+                ag["queued"] += 1
+            elif event == "skipped":
+                ag["skipped"] += 1
+
+        elif agent == "psp_request":
+            if event == "queued":
+                ag["queued"] += 1
+            elif event == "skipped":
+                ag["skipped"] += 1
+
+        elif agent == "urgency_router":
+            if event == "complete":
+                level = detail.get("urgency_level", "LOW")
+                ag["level_counts"][level] += 1
+                if detail.get("reason") == "no_court_date":
+                    ag["no_court_date"] += 1
+                days = detail.get("days_until_court")
+                if days is not None:
+                    ag["days_until_court"].append(days)
+
     # Build summary per agent
     results = []
     for agent_key, ag in agents.items():
@@ -429,6 +510,50 @@ def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
             summary["unknown_categories"] = list(set(ag["unknown_categories"]))[:10]
             summary["zero_point_ticket_count"] = ag["zero_point_tickets"]
             summary["attorney_recommended_count"] = ag["attorney_recommended"]
+
+        elif agent_key == "case_intake":
+            total_decided = ag["passed"] + ag["failed"]
+            summary["passed"] = ag["passed"]
+            summary["failed"] = ag["failed"]
+            summary["fail_rate"] = round(ag["failed"] / total_decided, 3) if total_decided else 0
+            summary["top_intake_errors"] = sorted(
+                ag["intake_error_counts"].items(), key=lambda x: -x[1]
+            )[:5]
+
+        elif agent_key == "document_completeness":
+            scores = ag["scores"]
+            summary["avg_completeness_score"] = round(sum(scores) / len(scores), 3) if scores else 0
+            summary["top_missing_fields"] = sorted(
+                ag["missing_field_counts"].items(), key=lambda x: -x[1]
+            )[:10]
+
+        elif agent_key == "pii_match":
+            total_checked = ag["matched"] + ag["mismatched"] + ag["unverified"]
+            summary["matched"] = ag["matched"]
+            summary["mismatched"] = ag["mismatched"]
+            summary["unverified"] = ag["unverified"]
+            summary["not_found"] = ag["not_found"]
+            summary["skipped"] = ag["skipped"]
+            summary["mismatch_rate"] = round(ag["mismatched"] / total_checked, 3) if total_checked else 0
+
+        elif agent_key == "mvr_request":
+            total_mvr = ag["queued"] + ag["skipped"]
+            summary["queued"] = ag["queued"]
+            summary["skipped"] = ag["skipped"]
+            summary["queue_rate"] = round(ag["queued"] / total_mvr, 3) if total_mvr else 0
+
+        elif agent_key == "psp_request":
+            total_psp = ag["queued"] + ag["skipped"]
+            summary["queued"] = ag["queued"]
+            summary["skipped"] = ag["skipped"]
+            summary["queue_rate"] = round(ag["queued"] / total_psp, 3) if total_psp else 0
+
+        elif agent_key == "urgency_router":
+            days = ag["days_until_court"]
+            summary["level_distribution"] = dict(ag["level_counts"])
+            summary["no_court_date_count"] = ag["no_court_date"]
+            summary["avg_days_until_court"] = round(sum(days) / len(days), 1) if days else None
+            summary["critical_count"] = ag["level_counts"].get("CRITICAL", 0)
 
         results.append(summary)
 
@@ -526,6 +651,101 @@ def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
     return {"by_state": summary, "no_attorney_cases": no_attorney_cases}
 
 
+# ── Urgency breakdown ────────────────────────────────────────────────────────
+
+@router.get("/admin/stats/urgency")
+def get_urgency_stats(x_api_key: Optional[str] = Header(None)):
+    """
+    Live urgency breakdown of the current AI Review queue in Firestore.
+
+    Returns:
+      - count and list of tickets at each urgency level
+      - how many have no court date on file
+      - CDL mismatch alerts (needs human investigation before attorney sees it)
+      - average days until court for tickets in queue
+    """
+    _check_auth(x_api_key)
+    from app.services.firebase_service import _init, _firestore_client
+    from datetime import datetime, timezone
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+
+    try:
+        docs = _firestore_client.collection("tickets") \
+            .where("attorney_status", "==", "AI Review").stream()
+
+        level_buckets: dict[str, list] = {
+            "CRITICAL": [], "HIGH": [], "STANDARD": [], "LOW": [],
+        }
+        no_court_date: list[dict] = []
+        cdl_mismatches: list[dict] = []
+        days_list: list[int] = []
+        now = datetime.now(timezone.utc)
+
+        for d in docs:
+            data = d.to_dict()
+            ticket_id = d.id
+            urgency = data.get("urgency_level") or "LOW"
+            court_date = data.get("court_date") or ""
+            driver_profile = data.get("driver_profile") or {}
+            completeness = data.get("completeness_score")
+            missing = data.get("missing_fields") or []
+
+            card = {
+                "ticket_id": ticket_id,
+                "driver_name": data.get("driver_full_name") or data.get("driver_name") or "",
+                "violation": data.get("violation_category") or "",
+                "ticket_state": data.get("ticket_state") or "",
+                "court_date": court_date,
+                "urgency_reason": data.get("urgency_reason") or "",
+                "completeness_score": completeness,
+                "missing_fields": missing,
+                "cdl_match": driver_profile.get("cdl_match", "unverified"),
+                "created_at": data.get("created_at") or "",
+            }
+
+            level_buckets.setdefault(urgency, []).append(card)
+
+            if not court_date:
+                no_court_date.append(card)
+            else:
+                try:
+                    from dateutil import parser as du
+                    ct = du.parse(court_date, dayfirst=False)
+                    if ct.tzinfo is None:
+                        ct = ct.replace(tzinfo=timezone.utc)
+                    days = (ct - now).days
+                    days_list.append(days)
+                except Exception:
+                    pass
+
+            if driver_profile.get("cdl_match") == "mismatch":
+                cdl_mismatches.append({
+                    **card,
+                    "ticket_cdl": driver_profile.get("ticket_cdl", ""),
+                    "profile_cdl": driver_profile.get("profile_cdl", ""),
+                })
+
+        total = sum(len(v) for v in level_buckets.values())
+        return {
+            "total_in_review": total,
+            "avg_days_until_court": round(sum(days_list) / len(days_list), 1) if days_list else None,
+            "no_court_date_count": len(no_court_date),
+            "cdl_mismatch_count": len(cdl_mismatches),
+            "cdl_mismatches": cdl_mismatches,
+            "by_urgency": {
+                level: {
+                    "count": len(tickets),
+                    "tickets": sorted(tickets, key=lambda t: t.get("court_date") or "9999"),
+                }
+                for level, tickets in level_buckets.items()
+            },
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 # ── Training data export ────────────────────────────────────────────────────
 
 @router.get("/admin/training/export")
@@ -542,11 +762,45 @@ def export_training(x_api_key: Optional[str] = Header(None)):
 
 # ── Reviewer: AI Review queue ────────────────────────────────────────────────
 
+_URGENCY_ORDER = {"CRITICAL": 0, "HIGH": 1, "STANDARD": 2, "LOW": 3}
+
+
+def _review_queue_summary(data: dict) -> dict:
+    """Flatten agent outputs into a reviewer-friendly summary dict."""
+    sor = data.get("statement_of_record") or {}
+    driver_profile = data.get("driver_profile") or {}
+    mvr = data.get("mvr_request") or {}
+    psp = data.get("psp_request") or {}
+    return {
+        # Urgency
+        "urgency_level":    data.get("urgency_level", "LOW"),
+        "urgency_reason":   data.get("urgency_reason", ""),
+        # Completeness
+        "completeness_score": data.get("completeness_score"),
+        "missing_fields":     data.get("missing_fields", []),
+        # PII Match
+        "cdl_match":          driver_profile.get("cdl_match", "unverified"),
+        "profile_cdl":        driver_profile.get("profile_cdl", ""),
+        "ticket_cdl":         driver_profile.get("ticket_cdl", ""),
+        # Statement of Record
+        "conflict_count":     sor.get("conflict_count", 0),
+        "evidence_count":     sor.get("evidence_count", 0),
+        "conflict_types":     [c.get("conflict_type") for c in (sor.get("conflict_map") or [])],
+        # Pending requests
+        "mvr_status":         mvr.get("status"),
+        "psp_status":         psp.get("status"),
+    }
+
+
 @router.get("/admin/review-queue")
 def get_review_queue(x_api_key: Optional[str] = Header(None)):
     """
-    Returns all tickets currently in 'AI Review' status —
-    manual scans waiting for Rig Resolve reviewer approval.
+    Returns all tickets currently in 'AI Review' status, sorted by urgency
+    (CRITICAL first) then by court date proximity.
+
+    Each ticket includes a reviewer_summary with completeness score,
+    missing fields, CDL match status, conflict map summary, and MVR/PSP
+    request status — everything the reviewer needs before approve/reject.
     """
     _check_auth(x_api_key)
     from app.services.firebase_service import _init, _firestore_client
@@ -558,10 +812,34 @@ def get_review_queue(x_api_key: Optional[str] = Header(None)):
         docs = _firestore_client.collection("tickets") \
             .where("attorney_status", "==", "AI Review").stream()
         tickets = []
+        critical_count = 0
+        cdl_mismatch_count = 0
+
         for d in docs:
             data = d.to_dict()
-            tickets.append({"ticket_id": d.id, **data})
-        return {"tickets": tickets, "total": len(tickets)}
+            summary = _review_queue_summary(data)
+            if summary["urgency_level"] == "CRITICAL":
+                critical_count += 1
+            if summary["cdl_match"] == "mismatch":
+                cdl_mismatch_count += 1
+            tickets.append({
+                "ticket_id": d.id,
+                **data,
+                "reviewer_summary": summary,
+            })
+
+        # Sort: urgency level first, then by court date (soonest first)
+        tickets.sort(key=lambda t: (
+            _URGENCY_ORDER.get(t["reviewer_summary"]["urgency_level"], 3),
+            t.get("court_date") or "9999",
+        ))
+
+        return {
+            "tickets": tickets,
+            "total": len(tickets),
+            "critical_count": critical_count,
+            "cdl_mismatch_count": cdl_mismatch_count,
+        }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -603,6 +881,15 @@ def approve_ticket(
             "reviewed_at": SERVER_TIMESTAMP,
             "last_modified_date": SERVER_TIMESTAMP,
         })
+
+        # Notify driver that their ticket cleared review and is now in the attorney queue
+        driver_id = data.get("driver_id") or ""
+        if driver_id:
+            try:
+                from app.services.driver_concierge import notify_driver
+                notify_driver(driver_id, ticket_id, "New")
+            except Exception as exc:
+                logger.warning("[reviewer] driver_concierge failed ticket=%s: %s", ticket_id, exc)
 
         logger.warning("[reviewer] approved ticket=%s reviewer=%s → New", ticket_id, reviewer_id)
         return {"success": True, "ticket_id": ticket_id, "attorney_status": "New"}

@@ -13,6 +13,8 @@ from __future__ import annotations
 import logging
 
 from app.services.court_lookup import lookup_court
+from app.services.violation_corpus import lookup_violation_patterns, is_corpus_available
+from app.services.carrier_lookup import carrier_context_note, get_national_inspection_stats
 from app.services.queue_store import log_agent_event
 from orchestrator.state import TicketState
 
@@ -72,6 +74,7 @@ def research_ron(state: TicketState) -> dict:
     construction_zone = fv("Construction_Zone__c")
     court_date      = fv("Court_Date__c")
     citation_number = fv("Citation_Number__c")
+    dot_number      = fv("DOT_Number__c")
 
     if not ticket_state:
         logger.warning("[research_ron] file=%s — no state extracted, skipping jurisdiction lookup", filename)
@@ -104,6 +107,21 @@ def research_ron(state: TicketState) -> dict:
     else:
         timeline_note = "No court date or citation number — verify ticket details with driver."
 
+    # ── Carrier validation + crash history (Motus + FMCSA crash data) ───────
+    carrier_info  = carrier_context_note(dot_number)
+    insp_stats    = get_national_inspection_stats()   # most recent year's national rates
+
+    # ── Phase 2: Kaggle corpus pattern lookup ────────────────────────────────
+    corpus_patterns: dict | None = None
+    if is_corpus_available() and violation:
+        corpus_patterns = lookup_violation_patterns(ticket_state, violation, ticket_county)
+        if corpus_patterns:
+            logger.info(
+                "[research_ron] Phase 2 corpus hit: state=%r category=%r count=%d citation_rate=%.0f%%",
+                ticket_state, violation, corpus_patterns["count"],
+                corpus_patterns["citation_rate"] * 100,
+            )
+
     context = {
         "state": ticket_state,
         "county": ticket_county,
@@ -134,6 +152,26 @@ def research_ron(state: TicketState) -> dict:
             court_data["county_court"]["scheduling_url"]
             if court_data and court_data.get("county_court") else ""
         ),
+        # Phase 2 corpus fields (None when corpus not yet built)
+        "corpus_count":        corpus_patterns["count"]         if corpus_patterns else None,
+        "corpus_citation_rate": corpus_patterns["citation_rate"] if corpus_patterns else None,
+        "corpus_top_counties": corpus_patterns["top_counties"]  if corpus_patterns else None,
+        "corpus_county_rank":  corpus_patterns["county_rank"]   if corpus_patterns else None,
+        "corpus_defense_note": corpus_patterns["defense_note"]  if corpus_patterns else None,
+        "corpus_high_risk":    corpus_patterns["high_risk"]     if corpus_patterns else None,
+        # Carrier validation (None fields when motus_carriers.json not yet built)
+        "carrier_dot_number":  carrier_info.get("dot_number"),
+        "carrier_legal_name":  carrier_info.get("legal_name"),
+        "carrier_dba_name":    carrier_info.get("dba_name"),
+        "carrier_status":      carrier_info.get("status"),
+        "carrier_active":      carrier_info.get("active"),
+        "carrier_state":       carrier_info.get("state"),
+        "carrier_crash_count": carrier_info.get("crash_count"),
+        "carrier_fatal_count": carrier_info.get("fatal_count"),
+        "carrier_note":        carrier_info.get("note"),
+        # National inspection benchmark (most recent FMCSA year)
+        "national_violation_rate": insp_stats.get("violation_rate"),
+        "national_oos_rate":       insp_stats.get("oos_rate"),
     }
 
     logger.warning(
@@ -151,6 +189,10 @@ def research_ron(state: TicketState) -> dict:
         "court_found": bool(court_data),
         "county_court_found": bool(court_data and court_data.get("county_court")),
         "zone_flags": zone_notes,
+        "corpus_phase2":  bool(corpus_patterns),
+        "corpus_count":   corpus_patterns["count"] if corpus_patterns else 0,
+        "carrier_found":  carrier_info.get("found", False),
+        "carrier_active": carrier_info.get("active"),
     })
 
     return {"jurisdiction_context": context}

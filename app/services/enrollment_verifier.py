@@ -34,13 +34,15 @@ def verify_enrollment(driver_id: Optional[str]) -> dict:
       }
     """
     if not driver_id:
+        # Website form submissions and staff scans arrive without a driver_id.
+        # Let them through as "unknown" — the admin review queue is the gate.
         return {
-            "enrolled": False,
-            "status": "no_driver_id",
+            "enrolled": True,
+            "status": "unknown",
             "driver_name": "",
             "plan": "",
             "expires_at": None,
-            "message": "No driver_id provided — cannot verify enrollment.",
+            "message": "No driver_id provided — proceeding as unverified submission for admin review.",
         }
 
     try:

@@ -258,4 +258,11 @@ class ProcessResponse(BaseModel):
     court_info: Optional[CourtInfo] = None
     cdl_point_estimate: Optional[CdlPointEstimate] = None
     payment_options: Optional[PaymentOptions] = None
+
+    # New agent outputs
+    urgency_level: Optional[str] = None
+    urgency_reason: Optional[str] = None
+    completeness_score: Optional[float] = None
+    missing_fields: list[str] = []
+
     result: DocumentResult

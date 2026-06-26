@@ -180,6 +180,15 @@ def write_scan_result(
         logger.warning("[firebase] attorney queue write ticket=%s source=%s pass=%s",
                        ticket_id, source, result.get("pass_status"))
 
+        # Driver Concierge — notify driver of initial status
+        if driver_id:
+            try:
+                from app.services.driver_concierge import notify_driver
+                initial_status = atty_doc["attorney_status"]
+                notify_driver(driver_id, ticket_id, initial_status)
+            except Exception as exc:
+                logger.warning("[firebase] driver_concierge notify failed ticket=%s: %s", ticket_id, exc)
+
         return True
 
     except Exception as exc:

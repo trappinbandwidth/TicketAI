@@ -1,0 +1,3112 @@
+{
+  "Maryland": {
+    "Seatbelt": {
+      "count": 3590,
+      "citation_rate": 0.75,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1300,
+      "citation_rate": 0.372,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 10230,
+      "citation_rate": 0.864,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 10556,
+      "citation_rate": 0.406,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 8975,
+      "citation_rate": 0.065,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 15513,
+      "citation_rate": 0.58,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 9482,
+      "citation_rate": 0.399,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 2530,
+      "citation_rate": 0.598,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 2006,
+      "citation_rate": 0.989,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1791,
+      "citation_rate": 0.447,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 911,
+      "citation_rate": 0.716,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 319,
+      "citation_rate": 0.473,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 302,
+      "citation_rate": 0.884,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 698,
+      "citation_rate": 0.308,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to yield to emergency vehicle": {
+      "count": 15,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (15+)": {
+      "count": 13,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Pennsylvania": {
+    "Speeding (1-14)": {
+      "count": 205,
+      "citation_rate": 0.473,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 38,
+      "citation_rate": 0.579,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 81,
+      "citation_rate": 0.383,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 68,
+      "citation_rate": 0.779,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 44,
+      "citation_rate": 0.159,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 101,
+      "citation_rate": 0.376,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 10,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 56,
+      "citation_rate": 0.696,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 24,
+      "citation_rate": 0.458,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 7,
+      "citation_rate": 0.714,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 6,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 7,
+      "citation_rate": 0.286,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 3,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Virginia": {
+    "Registration Violations": {
+      "count": 551,
+      "citation_rate": 0.472,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 618,
+      "citation_rate": 0.869,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 715,
+      "citation_rate": 0.614,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 214,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 763,
+      "citation_rate": 0.436,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 247,
+      "citation_rate": 0.563,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 49,
+      "citation_rate": 0.327,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 141,
+      "citation_rate": 0.603,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 398,
+      "citation_rate": 0.121,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 77,
+      "citation_rate": 0.727,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 23,
+      "citation_rate": 0.87,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 23,
+      "citation_rate": 0.522,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 316,
+      "citation_rate": 0.794,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 81,
+      "citation_rate": 0.407,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Overweight/Overlength": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "California": {
+    "Driver license violation": {
+      "count": 15,
+      "citation_rate": 0.8,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 17,
+      "citation_rate": 0.529,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 37,
+      "citation_rate": 0.297,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 16,
+      "citation_rate": 0.375,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 4,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Washington": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 8,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 4,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 4,
+      "citation_rate": 0.75,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 6,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "District of Columbia": {
+    "Seatbelt": {
+      "count": 79,
+      "citation_rate": 0.734,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 250,
+      "citation_rate": 0.86,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 55,
+      "citation_rate": 0.6,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 235,
+      "citation_rate": 0.6,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 98,
+      "citation_rate": 0.122,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 318,
+      "citation_rate": 0.336,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 35,
+      "citation_rate": 0.486,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 178,
+      "citation_rate": 0.539,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 53,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 59,
+      "citation_rate": 0.61,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 25,
+      "citation_rate": 0.72,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 6,
+      "citation_rate": 0.833,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 6,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 30,
+      "citation_rate": 0.267,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to yield to emergency vehicle": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "North Carolina": {
+    "Driver license violation": {
+      "count": 71,
+      "citation_rate": 0.887,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 46,
+      "citation_rate": 0.457,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 68,
+      "citation_rate": 0.574,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 34,
+      "citation_rate": 0.382,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 4,
+      "citation_rate": 0.25,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 22,
+      "citation_rate": 0.909,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 5,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 18,
+      "citation_rate": 0.056,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 10,
+      "citation_rate": 0.6,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Oklahoma": {
+    "Speeding (1-14)": {
+      "count": 13,
+      "citation_rate": 0.769,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 16,
+      "citation_rate": 0.438,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 10,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 4,
+      "citation_rate": 0.75,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 6,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "New York": {
+    "Driver license violation": {
+      "count": 33,
+      "citation_rate": 0.818,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 30,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 17,
+      "citation_rate": 0.118,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 6,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 36,
+      "citation_rate": 0.417,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 5,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 53,
+      "citation_rate": 0.491,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 5,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to yield to emergency vehicle": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Georgia": {
+    "Driver license violation": {
+      "count": 22,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 15,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 44,
+      "citation_rate": 0.568,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 8,
+      "citation_rate": 0.875,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 12,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 17,
+      "citation_rate": 0.529,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 4,
+      "citation_rate": 0.25,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 10,
+      "citation_rate": 0.1,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 5,
+      "citation_rate": 0.8,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 3,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 2,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Michigan": {
+    "Lane Violation": {
+      "count": 4,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 13,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 11,
+      "citation_rate": 0.545,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 7,
+      "citation_rate": 0.571,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 8,
+      "citation_rate": 0.375,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 5,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Texas": {
+    "Registration Violations": {
+      "count": 93,
+      "citation_rate": 0.57,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 36,
+      "citation_rate": 0.556,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 79,
+      "citation_rate": 0.848,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 31,
+      "citation_rate": 0.677,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 16,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 6,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 4,
+      "citation_rate": 0.75,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 17,
+      "citation_rate": 0.235,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 5,
+      "citation_rate": 0.8,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 6,
+      "citation_rate": 0.167,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 8,
+      "citation_rate": 0.625,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 3,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Arizona": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 23,
+      "citation_rate": 0.261,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 4,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 4,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 24,
+      "citation_rate": 0.875,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 17,
+      "citation_rate": 0.529,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 4,
+      "citation_rate": 0.25,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 8,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Ohio": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 28,
+      "citation_rate": 0.429,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 14,
+      "citation_rate": 0.286,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 23,
+      "citation_rate": 0.783,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 5,
+      "citation_rate": 0.6,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 28,
+      "citation_rate": 0.214,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 5,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 12,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 5,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (15+)": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "South Carolina": {
+    "Equipment/Maintenance": {
+      "count": 6,
+      "citation_rate": 0.167,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 11,
+      "citation_rate": 0.727,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 18,
+      "citation_rate": 0.167,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 21,
+      "citation_rate": 0.952,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 13,
+      "citation_rate": 0.692,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 7,
+      "citation_rate": 0.286,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 3,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Xx": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 296,
+      "citation_rate": 0.655,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 8,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 31,
+      "citation_rate": 0.548,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 7,
+      "citation_rate": 0.571,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 35,
+      "citation_rate": 0.886,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 7,
+      "citation_rate": 0.571,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 18,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 4,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "New Jersey": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 46,
+      "citation_rate": 0.348,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 30,
+      "citation_rate": 0.9,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 25,
+      "citation_rate": 0.56,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 17,
+      "citation_rate": 0.824,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 24,
+      "citation_rate": 0.167,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 51,
+      "citation_rate": 0.49,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 12,
+      "citation_rate": 0.583,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 6,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 7,
+      "citation_rate": 0.286,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 11,
+      "citation_rate": 0.636,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 2,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 4,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Us": {
+    "Lane Violation": {
+      "count": 4,
+      "citation_rate": 0.25,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 20,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 16,
+      "citation_rate": 0.688,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 10,
+      "citation_rate": 0.8,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 5,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 4,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "West Virginia": {
+    "Driver license violation": {
+      "count": 52,
+      "citation_rate": 0.788,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 64,
+      "citation_rate": 0.562,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 83,
+      "citation_rate": 0.434,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 17,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 53,
+      "citation_rate": 0.377,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 17,
+      "citation_rate": 0.588,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 4,
+      "citation_rate": 0.75,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 32,
+      "citation_rate": 0.719,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 43,
+      "citation_rate": 0.233,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 15,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 6,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 11,
+      "citation_rate": 0.545,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Florida": {
+    "Driver license violation": {
+      "count": 59,
+      "citation_rate": 0.881,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 47,
+      "citation_rate": 0.362,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 73,
+      "citation_rate": 0.438,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 49,
+      "citation_rate": 0.49,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 29,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 6,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 22,
+      "citation_rate": 0.318,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 8,
+      "citation_rate": 0.375,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 11,
+      "citation_rate": 0.818,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 16,
+      "citation_rate": 0.812,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 4,
+      "citation_rate": 0.25,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 12,
+      "citation_rate": 0.583,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Minnesota": {
+    "Speeding (1-14)": {
+      "count": 5,
+      "citation_rate": 0.8,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 4,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 5,
+      "citation_rate": 0.8,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 3,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Connecticut": {
+    "Speeding (1-14)": {
+      "count": 12,
+      "citation_rate": 0.583,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 14,
+      "citation_rate": 0.857,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 12,
+      "citation_rate": 0.583,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 6,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 6,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 2,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Arkansas": {
+    "Alcohol / Drug related violation": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 5,
+      "citation_rate": 0.8,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 10,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Indiana": {
+    "Speeding (1-14)": {
+      "count": 19,
+      "citation_rate": 0.368,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 4,
+      "citation_rate": 0.75,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 20,
+      "citation_rate": 0.3,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 5,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 34,
+      "citation_rate": 0.294,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 15,
+      "citation_rate": 0.533,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 6,
+      "citation_rate": 0.833,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 8,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Louisiana": {
+    "Alcohol / Drug related violation": {
+      "count": 6,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 7,
+      "citation_rate": 0.429,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 6,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 4,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Massachusetts": {
+    "Equipment/Maintenance": {
+      "count": 7,
+      "citation_rate": 0.429,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 6,
+      "citation_rate": 0.167,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 15,
+      "citation_rate": 0.467,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 14,
+      "citation_rate": 0.714,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 6,
+      "citation_rate": 0.667,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Maine": {
+    "ELD/Logs": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 14,
+      "citation_rate": 0.143,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 6,
+      "citation_rate": 0.167,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 5,
+      "citation_rate": 0.8,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 10,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 5,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Delaware": {
+    "Parking": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 26,
+      "citation_rate": 0.923,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 31,
+      "citation_rate": 0.516,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 27,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 6,
+      "citation_rate": 0.833,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 6,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 17,
+      "citation_rate": 0.471,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 7,
+      "citation_rate": 0.571,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 7,
+      "citation_rate": 0.571,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 10,
+      "citation_rate": 0.1,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Tennessee": {
+    "Speeding (1-14)": {
+      "count": 20,
+      "citation_rate": 0.65,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 24,
+      "citation_rate": 0.917,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 8,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 9,
+      "citation_rate": 0.111,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 6,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 17,
+      "citation_rate": 0.529,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 6,
+      "citation_rate": 0.833,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 3,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Vermont": {
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 6,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 2,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Nb": {
+    "Alcohol / Drug related violation": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Idaho": {
+    "Alcohol / Drug related violation": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Iowa": {
+    "Driver license violation": {
+      "count": 4,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 6,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 5,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Illinois": {
+    "Driver license violation": {
+      "count": 12,
+      "citation_rate": 0.917,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 25,
+      "citation_rate": 0.32,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 17,
+      "citation_rate": 0.412,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 15,
+      "citation_rate": 0.067,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 7,
+      "citation_rate": 0.429,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (15+)": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 8,
+      "citation_rate": 0.125,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 4,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Kentucky": {
+    "Driver license violation": {
+      "count": 5,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 5,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "New Mexico": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Utah": {
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 5,
+      "citation_rate": 0.2,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 2,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Mb": {
+    "Speeding (1-14)": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Alabama": {
+    "Seatbelt": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 5,
+      "citation_rate": 0.2,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Alcohol / Drug related violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 5,
+      "citation_rate": 0.2,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 4,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 5,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Nf": {
+    "Driver license violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Nebraska": {
+    "Speeding (1-14)": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Wisconsin": {
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 5,
+      "citation_rate": 0.6,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 5,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 2,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Missouri": {
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 8,
+      "citation_rate": 0.375,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 3,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Wyoming": {
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Colorado": {
+    "Driver license violation": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 7,
+      "citation_rate": 0.857,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Seatbelt": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 4,
+      "citation_rate": 0.25,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 5,
+      "citation_rate": 0.2,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Qc": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "New Hampshire": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 4,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 12,
+      "citation_rate": 0.583,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 3,
+      "citation_rate": 0.333,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "ELD/Logs": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Oregon": {
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "On": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 4,
+      "citation_rate": 0.25,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 5,
+      "citation_rate": 0.4,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Alaska": {
+    "Speeding (1-14)": {
+      "count": 3,
+      "citation_rate": 0.667,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Rhode Island": {
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Nevada": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Kansas": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 2,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Cell Phone": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Mississippi": {
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Reckless Driving": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 6,
+      "citation_rate": 0.833,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 8,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Failure to Obey Traffic Control Device": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Parking": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "South Dakota": {
+    "Registration Violations": {
+      "count": 5,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 2,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Montana": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 4,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Speeding (1-14)": {
+      "count": 2,
+      "citation_rate": 0.5,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Following too close": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Careless Driving": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Lane Violation": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Nan": {
+    "Driver license violation": {
+      "count": 1,
+      "citation_rate": 1.0,
+      "high_risk": true,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "North Dakota": {
+    "Speeding (1-14)": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Vi": {
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Gu": {
+    "Equipment/Maintenance": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  },
+  "Hawaii": {
+    "Failure to Obey Traffic Control Device": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    },
+    "Registration Violations": {
+      "count": 1,
+      "citation_rate": 0.0,
+      "high_risk": false,
+      "source": "kaggle_traffic_violations_usa"
+    }
+  }
+}

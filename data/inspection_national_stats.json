@@ -1,0 +1,202 @@
+{
+  "2022": {
+    "total_inspections": {
+      "federal": 78687,
+      "state": 2815204,
+      "total": 2893891
+    },
+    "with_no_violations": {
+      "federal": 32062,
+      "state": 1159985,
+      "total": 1192047
+    },
+    "with_violations": {
+      "federal": 46625,
+      "state": 1655219,
+      "total": 1701844
+    },
+    "with_oos_violations": {
+      "federal": 16343,
+      "state": 584853,
+      "total": 601196
+    },
+    "total_violations": {
+      "federal": 182787,
+      "state": 4934712,
+      "total": 5117499
+    },
+    "oos_violations": {
+      "federal": 23535,
+      "state": 922616,
+      "total": 946151
+    },
+    "other_violations": {
+      "federal": 159252,
+      "state": 4012096,
+      "total": 4171348
+    },
+    "violation_rate": 0.5881,
+    "oos_rate": 0.2077,
+    "clean_rate": 0.4119
+  },
+  "2023": {
+    "total_inspections": {
+      "federal": 69186,
+      "state": 2849702,
+      "total": 2918888
+    },
+    "with_no_violations": {
+      "federal": 24890,
+      "state": 1202775,
+      "total": 1227665
+    },
+    "with_violations": {
+      "federal": 44296,
+      "state": 1646927,
+      "total": 1691223
+    },
+    "with_oos_violations": {
+      "federal": 16289,
+      "state": 569753,
+      "total": 586042
+    },
+    "total_violations": {
+      "federal": 179945,
+      "state": 4944743,
+      "total": 5124688
+    },
+    "oos_violations": {
+      "federal": 23417,
+      "state": 903485,
+      "total": 926902
+    },
+    "other_violations": {
+      "federal": 156528,
+      "state": 4041258,
+      "total": 4197786
+    },
+    "violation_rate": 0.5794,
+    "oos_rate": 0.2008,
+    "clean_rate": 0.4206
+  },
+  "2024": {
+    "total_inspections": {
+      "federal": 72630,
+      "state": 2839501,
+      "total": 2912131
+    },
+    "with_no_violations": {
+      "federal": 21646,
+      "state": 1215262,
+      "total": 1236908
+    },
+    "with_violations": {
+      "federal": 50984,
+      "state": 1624239,
+      "total": 1675223
+    },
+    "with_oos_violations": {
+      "federal": 19492,
+      "state": 558662,
+      "total": 578154
+    },
+    "total_violations": {
+      "federal": 217688,
+      "state": 4937415,
+      "total": 5155103
+    },
+    "oos_violations": {
+      "federal": 28316,
+      "state": 882386,
+      "total": 910702
+    },
+    "other_violations": {
+      "federal": 189372,
+      "state": 4055029,
+      "total": 4244401
+    },
+    "violation_rate": 0.5753,
+    "oos_rate": 0.1985,
+    "clean_rate": 0.4247
+  },
+  "2025": {
+    "total_inspections": {
+      "federal": 98927,
+      "state": 2970901,
+      "total": 3069828
+    },
+    "with_no_violations": {
+      "federal": 24750,
+      "state": 1277292,
+      "total": 1302042
+    },
+    "with_violations": {
+      "federal": 74177,
+      "state": 1693609,
+      "total": 1767786
+    },
+    "with_oos_violations": {
+      "federal": 25422,
+      "state": 614256,
+      "total": 639678
+    },
+    "total_violations": {
+      "federal": 331292,
+      "state": 5280232,
+      "total": 5611524
+    },
+    "oos_violations": {
+      "federal": 38664,
+      "state": 997508,
+      "total": 1036172
+    },
+    "other_violations": {
+      "federal": 292628,
+      "state": 4282724,
+      "total": 4575352
+    },
+    "violation_rate": 0.5759,
+    "oos_rate": 0.2084,
+    "clean_rate": 0.4241
+  },
+  "2026": {
+    "total_inspections": {
+      "federal": 29805,
+      "state": 1051533,
+      "total": 1081338
+    },
+    "with_no_violations": {
+      "federal": 7804,
+      "state": 433611,
+      "total": 441415
+    },
+    "with_violations": {
+      "federal": 22001,
+      "state": 617922,
+      "total": 639923
+    },
+    "with_oos_violations": {
+      "federal": 6555,
+      "state": 233591,
+      "total": 240146
+    },
+    "total_violations": {
+      "federal": 84369,
+      "state": 1984845,
+      "total": 2069214
+    },
+    "oos_violations": {
+      "federal": 9316,
+      "state": 384648,
+      "total": 393964
+    },
+    "other_violations": {
+      "federal": 75053,
+      "state": 1600197,
+      "total": 1675250
+    },
+    "violation_rate": 0.5918,
+    "oos_rate": 0.2221,
+    "clean_rate": 0.4082
+  }
+}

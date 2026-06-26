@@ -21,6 +21,7 @@ from app.services.queue_store import cache_get, cache_set, get_item, save_scan
 from app.services.textract_service import extract_word_positions
 from app.services.firebase_service import write_scan_result
 from app.services.court_lookup import lookup_court
+from app.services.enrollment_verifier import verify_enrollment
 from orchestrator.graph import ticket_graph
 
 logger = logging.getLogger(__name__)
@@ -115,9 +116,29 @@ async def process_ticket(
     ticket_id: Optional[str] = Form(None),
     prompt_version: str = Form("v2"),
     source: str = Form("driver_upload"),
+    driver_statement: Optional[str] = Form(None),      # JSON string from driver form
+    evidence_files_json: Optional[str] = Form(None),   # JSON string: [{url,caption,file_type,filename}]
     x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
+
+    # Enrollment gate — verify driver has an active subscription before processing
+    enrollment = verify_enrollment(driver_id)
+    if not enrollment["enrolled"]:
+        logger.warning(
+            "[process] ENROLLMENT BLOCKED driver_id=%s status=%s",
+            driver_id, enrollment["status"],
+        )
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "enrollment_required",
+                "status": enrollment["status"],
+                "message": enrollment["message"],
+            },
+        )
+    if enrollment["status"] == "unknown":
+        logger.warning("[process] enrollment unknown for driver_id=%s — proceeding with flag", driver_id)
 
     if not files:
         raise HTTPException(status_code=400, detail="No files provided.")
@@ -181,12 +202,29 @@ async def process_ticket(
 
     queue_id = str(uuid.uuid4())
 
+    # Parse driver-submitted intake data
+    parsed_statement: Optional[dict] = None
+    if driver_statement:
+        try:
+            parsed_statement = json.loads(driver_statement)
+        except Exception:
+            logger.warning("[process] driver_statement JSON parse failed — ignoring")
+
+    parsed_evidence: list = []
+    if evidence_files_json:
+        try:
+            parsed_evidence = json.loads(evidence_files_json)
+        except Exception:
+            logger.warning("[process] evidence_files_json parse failed — ignoring")
+
     # Run the full agent graph
     try:
         result_state = ticket_graph.invoke({
             "images_b64": images_b64,
             "ocr_text": ocr_text,
             "driver_name": driver_name,
+            "driver_id": driver_id,
+            "ticket_id": ticket_id,
             "filename": filename,
             "prompt_version": prompt_version,
             "scan_id": queue_id,
@@ -205,6 +243,17 @@ async def process_ticket(
             "jurisdiction_context": None,
             "attorney_matches": [],
             "no_attorney_flag": True,
+            "intake_errors": [],
+            "completeness_score": None,
+            "missing_fields": [],
+            "driver_profile": None,
+            "mvr_request": None,
+            "psp_request": None,
+            "urgency_level": None,
+            "urgency_reason": None,
+            "driver_statement": parsed_statement,
+            "evidence_files": parsed_evidence,
+            "statement_of_record": None,
             "final_result": None,
             "escalation_reason": None,
         })
@@ -413,6 +462,10 @@ async def process_ticket(
         court_info=court_info,
         cdl_point_estimate=cdl_point_est,
         payment_options=payment_opts,
+        urgency_level=final.get("urgency_level"),
+        urgency_reason=final.get("urgency_reason"),
+        completeness_score=final.get("completeness_score"),
+        missing_fields=final.get("missing_fields", []),
         result=ticket_result,
     )
 

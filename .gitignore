@@ -10,10 +10,17 @@ venv/
 *.egg-info/
 dist/
 
-# Runtime data — never commit the live DB or training output
-data/
+# Runtime data — exclude ephemeral files, keep reference datasets
+data/*
 !data/court_rulebook.json
 !data/cdl_point_estimates.json
+!data/motus_carriers.json
+!data/motus_suspended.json
+!data/violation_corpus.json
+!data/pricing_supplement.json
+!data/inspection_national_stats.json
+!data/crash_by_dot.json
+!data/crash_by_state.json
 training_data/
 
 # macOS

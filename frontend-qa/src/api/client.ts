@@ -52,3 +52,10 @@ export async function rejectItem(id: string, reason: string) {
   if (!res.ok) throw new Error('Reject failed')
   return res.json()
 }
+
+export async function getAuditTrail(id: string): Promise<any[]> {
+  const res = await fetch(`/api/v1/queue/${id}/audit`, { headers })
+  if (!res.ok) return []
+  const data = await res.json()
+  return Array.isArray(data) ? data : []
+}
