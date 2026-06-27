@@ -179,6 +179,7 @@ CRITICAL | HIGH | STANDARD | LOW
 | ticket_county | string | |
 | ticket_city | string | |
 | court_date | string | |
+| court_time | string | time of court appearance e.g. "9:00 AM"; empty if not printed |
 | date_of_ticket | string | |
 | citation_number | string | |
 | drivers_license_type | string | |
@@ -250,6 +251,7 @@ CRITICAL | HIGH | STANDARD | LOW
 | ticket_city | string | |
 | ticket_city_state | string | "City, ST" formatted |
 | court_date | string | |
+| court_time | string | time of court appearance e.g. "9:00 AM"; empty if not printed |
 | date_of_ticket | string | |
 | citation_number | string | |
 | name | string | citation_number or ticket_id |

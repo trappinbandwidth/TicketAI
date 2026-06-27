@@ -112,6 +112,7 @@ def write_scan_result(
                 "ticket_county": fv("Ticket_County__c"),
                 "ticket_city": fv("Ticket_City__c"),
                 "court_date": fv("Court_Date__c"),
+                "court_time": fv("Court_Time__c"),
                 "date_of_ticket": fv("Date_of_Ticket__c"),
                 "citation_number": fv("Citation_Number__c"),
                 "insp_report_num": fv("Insp_Report_Num__c"),
@@ -166,6 +167,7 @@ def write_scan_result(
                 ", ".join(filter(None, [fv("Ticket_City__c"), fv("Ticket_State__c")])) or None
             ),
             "court_date": fv("Court_Date__c"),
+            "court_time": fv("Court_Time__c"),
             "date_of_ticket": fv("Date_of_Ticket__c"),
             "citation_number": citation,
             "insp_report_num": fv("Insp_Report_Num__c"),

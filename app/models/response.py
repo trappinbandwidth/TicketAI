@@ -75,6 +75,7 @@ class DocumentResult(BaseModel):
     Violation_Description__c: ExtractedField
     Violation_Category__c: ExtractedField
     Court_Date__c: ExtractedField
+    Court_Time__c: ExtractedField
     Accident__c: ExtractedField
     Drivers_License_Type__c: ExtractedField
     Ticket_Court__c: ExtractedField

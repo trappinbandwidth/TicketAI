@@ -23,6 +23,7 @@ MOCK_RESPONSE = {
     "Violation_Description__c": {"value": "MOCK VIOLATION", "confidence_score": 0.0, "ai_reason": "Mock value."},
     "Violation_Category__c": {"value": "Speeding (15+)", "confidence_score": 0.0, "ai_reason": "Mock value."},
     "Court_Date__c": {"value": "02/01/2025", "confidence_score": 0.0, "ai_reason": "Mock value."},
+    "Court_Time__c": {"value": "9:00 AM", "confidence_score": 0.0, "ai_reason": "Mock value."},
     "Accident__c": {"value": "No", "confidence_score": 0.0, "ai_reason": "Mock value."},
     "Drivers_License_Type__c": {"value": "CDL", "confidence_score": 0.0, "ai_reason": "Mock value."},
     "Ticket_Court__c": {"value": "Mock County Court", "confidence_score": 0.0, "ai_reason": "Mock value."},
