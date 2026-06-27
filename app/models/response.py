@@ -86,7 +86,9 @@ class DocumentResult(BaseModel):
     Citation_Number__c: ExtractedField
 
     # ── Ticket defense / economic fields (Tier 1) ────────────────────────
-    Fine_Amount__c: Optional[ExtractedField] = None            # bail/bond/fine dollar amount on ticket
+    Fine_Amount__c: Optional[ExtractedField] = None            # base fine / bail / bond dollar amount
+    Penalty_Amount__c: Optional[ExtractedField] = None         # separate penalty/surcharge if listed distinctly
+    Fine_Printed_On_Ticket__c: Optional[ExtractedField] = None # "Yes" | "No" — builds state knowledge DB
     Statute_Code__c: Optional[ExtractedField] = None           # violation statute/ordinance code
     Mandatory_Appearance__c: Optional[ExtractedField] = None   # "Yes" | "No"
     School_Zone__c: Optional[ExtractedField] = None            # "Yes" | "No"

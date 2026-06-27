@@ -30,8 +30,11 @@ MOCK_RESPONSE = {
     "Ticket_City__c": {"value": "Mockville", "confidence_score": 0.0, "ai_reason": "Mock value."},
     "Ticket_County__c": {"value": "Mock County", "confidence_score": 0.0, "ai_reason": "Mock value."},
     "Ticket_State__c": {"value": "Kansas", "confidence_score": 0.0, "ai_reason": "Mock value."},
-    "Insp_Report_Num__c": {"value": "", "confidence_score": 0.0, "ai_reason": "Mock value."},
+    "Insp_Report_Num__c": {"value": "MOCK-12345", "confidence_score": 0.8, "ai_reason": "Mock: citation number used as inspection reference."},
     "Citation_Number__c": {"value": "MOCK-12345", "confidence_score": 0.0, "ai_reason": "Mock value."},
+    "Fine_Amount__c": {"value": "$238.00", "confidence_score": 0.0, "ai_reason": "Mock value."},
+    "Penalty_Amount__c": {"value": "", "confidence_score": 0.0, "ai_reason": "Mock value."},
+    "Fine_Printed_On_Ticket__c": {"value": "Yes", "confidence_score": 0.0, "ai_reason": "Mock value."},
 }
 
 

@@ -195,6 +195,11 @@ CRITICAL | HIGH | STANDARD | LOW
 | price_display | string | formatted string e.g. "$299–$499" |
 | price_low | number | |
 | price_high | number | |
+| insp_report_num | string | inspection report number; falls back to citation_number if not printed |
+| fine_amount | string | base fine/bail verbatim e.g. "$238.00"; empty if state doesn't print |
+| penalty_amount | string | separate penalty/surcharge if listed distinctly from fine; empty otherwise |
+| fine_printed_on_ticket | string | "Yes" \| "No" — builds state fine-printing knowledge database |
+| statute_code | string | violation statute or ordinance code |
 | referee_notes | string | |
 | low_confidence_fields | array | field names the AI flagged |
 | dual_conflicts | array | fields where pass 1 and pass 2 disagreed |
@@ -255,6 +260,11 @@ CRITICAL | HIGH | STANDARD | LOW
 | price_display | string | |
 | price_low | number | |
 | price_high | number | |
+| insp_report_num | string | inspection report number; falls back to citation_number if not printed |
+| fine_amount | string | base fine/bail e.g. "$238.00"; empty if state doesn't print |
+| penalty_amount | string | separate penalty/surcharge if listed distinctly; empty otherwise |
+| fine_printed_on_ticket | string | "Yes" \| "No" — state fine knowledge signal |
+| statute_code | string | violation statute or ordinance code |
 | reviewed_by | string | staff_id — set on approve |
 | reviewed_at | timestamp | set on approve |
 | rejection_reason | string | set on reject |
