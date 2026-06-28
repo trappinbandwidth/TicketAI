@@ -119,3 +119,32 @@ def analyze_photo(images_b64: list[str], filename: str) -> dict:
             "Photo analysis failed — attorney should review the original image directly."
         )
         return fallback
+
+
+# ── LangGraph node wrapper ─────────────────────────────────────────────────────
+
+from orchestrator.state import PassStatus, TicketState  # noqa: E402  (import after module-level constants)
+from app.services.queue_store import log_agent_event    # noqa: E402
+
+
+def photo_analyst_node(state: TicketState) -> dict:
+    """LangGraph node — runs photo analysis and sets final extraction."""
+    filename = state.get("filename", "unknown")
+    scan_id  = state.get("scan_id", "")
+    images   = state.get("images_b64", [])
+
+    result = analyze_photo(images, filename)
+
+    log_agent_event(scan_id, "photo_analyst", "ok", {
+        "photo_type": result.get("photo_type", "Unknown"),
+        "filename": filename,
+    })
+
+    return {
+        "extraction": result,
+        "pass_status": PassStatus.GREEN,
+        "low_confidence_fields": [],
+        "referee_notes": "Photo analysis complete — ticket extraction not applicable.",
+        "dual_conflicts": [],
+        "is_photo": True,
+    }

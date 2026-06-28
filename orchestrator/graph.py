@@ -34,8 +34,10 @@ from agents.book_worm import book_worm
 from agents.case_intake import case_intake
 from agents.consensus import consensus
 from agents.document_completeness import document_completeness
+from agents.document_gate import document_gate
 from agents.lone_ranger import lone_ranger, lone_ranger_2
 from agents.mvr_request import mvr_request
+from agents.photo_analyst import photo_analyst_node
 from agents.pii_match import pii_match
 from agents.psp_request import psp_request
 from agents.referee import referee
@@ -77,6 +79,22 @@ def _build_final_result(state: TicketState) -> dict:
     }
 
 
+def assemble_photo(state: TicketState) -> dict:
+    logger.warning("[graph] ROUTE → assemble_photo  file=%s  type=%s",
+                   state.get("filename", "unknown"),
+                   (state.get("extraction") or {}).get("photo_type", "unknown"))
+    return _build_final_result(state)
+
+
+def assemble_unknown(state: TicketState) -> dict:
+    logger.warning("[graph] ROUTE → assemble_unknown  file=%s", state.get("filename", "unknown"))
+    base = _build_final_result(state)
+    base["final_result"]["escalation_reason"] = (
+        "Unrecognized document type — not a legal document or photograph. Manual review required."
+    )
+    return base
+
+
 def assemble_green(state: TicketState) -> dict:
     logger.warning("[graph] ROUTE → assemble_green  file=%s", state.get("filename", "unknown"))
     return _build_final_result(state)
@@ -106,6 +124,16 @@ def route_after_case_intake(state: TicketState) -> str:
     return "ok"
 
 
+def route_after_document_gate(state: TicketState) -> str:
+    doc_type = state.get("doc_type", "document")
+    logger.warning("[graph] document_gate=%r  file=%s", doc_type, state.get("filename", "unknown"))
+    if doc_type == "photo":
+        return "photo"
+    if doc_type == "unknown":
+        return "unknown"
+    return "document"
+
+
 def route_after_first_referee(state: TicketState) -> str:
     status = state.get("pass_status", PassStatus.RED)
     if status == PassStatus.GREEN:
@@ -130,6 +158,10 @@ def build_graph() -> StateGraph:
 
     # ── Nodes ────────────────────────────────────────────────────────────────
     graph.add_node("case_intake", case_intake)
+    graph.add_node("document_gate", document_gate)
+    graph.add_node("photo_analyst", photo_analyst_node)
+    graph.add_node("assemble_photo", assemble_photo)
+    graph.add_node("assemble_unknown", assemble_unknown)
     graph.add_node("lone_ranger", lone_ranger)
     graph.add_node("referee", referee)
     graph.add_node("lone_ranger_2", lone_ranger_2)
@@ -156,10 +188,24 @@ def build_graph() -> StateGraph:
         "case_intake",
         route_after_case_intake,
         {
-            "ok": "lone_ranger",
+            "ok": "document_gate",
             "fail": "escalate_red",
         },
     )
+
+    # Document Gate — route photos/unknowns before running the full pipeline
+    graph.add_conditional_edges(
+        "document_gate",
+        route_after_document_gate,
+        {
+            "photo":    "photo_analyst",
+            "unknown":  "assemble_unknown",
+            "document": "lone_ranger",
+        },
+    )
+    graph.add_edge("photo_analyst", "assemble_photo")
+    graph.add_edge("assemble_photo", END)
+    graph.add_edge("assemble_unknown", END)
 
     # Pass 1
     graph.add_edge("lone_ranger", "referee")

@@ -71,6 +71,10 @@ class TicketState(TypedDict):
     # Statement of Record output
     statement_of_record: Optional[dict]
 
+    # Document Gate output
+    doc_type: Optional[str]   # "photo" | "document" | "unknown"
+    is_photo: Optional[bool]  # True when photo_analyst_node ran
+
     # Final
     final_result: Optional[dict]
     escalation_reason: Optional[str]
