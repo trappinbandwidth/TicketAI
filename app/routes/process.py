@@ -224,7 +224,7 @@ async def process_ticket(
             "ocr_text": ocr_text,
             "driver_name": driver_name,
             "driver_id": driver_id,
-            "ticket_id": ticket_id,
+            "ticket_id": ticket_id or queue_id,
             "filename": filename,
             "prompt_version": prompt_version,
             "scan_id": queue_id,
@@ -271,11 +271,25 @@ async def process_ticket(
                      "cdl_point_impact", "escalation_reason", "dual_conflicts"}
     }
 
+    # Patch any missing required ExtractedField entries with a blank placeholder
+    # so a Claude omission never causes a 422 — the field just shows as empty.
+    _EMPTY_FIELD = {"value": "", "confidence_score": 0.0,
+                    "ai_reason": "Field not returned by extraction.", "raw_evidence": None}
+    _REQUIRED_FIELDS = [
+        "Date_of_Ticket__c", "Violation_Description__c", "Violation_Category__c",
+        "Court_Date__c", "Accident__c", "Drivers_License_Type__c",
+        "Ticket_Court__c", "Court_Phone_Number__c", "Ticket_City__c",
+        "Ticket_County__c", "Ticket_State__c", "Insp_Report_Num__c", "Citation_Number__c",
+    ]
+    for field in _REQUIRED_FIELDS:
+        if field not in ticket_fields or ticket_fields[field] is None:
+            ticket_fields[field] = _EMPTY_FIELD
+            logger.warning("[process] patched missing required field %s with empty placeholder", field)
+
     try:
         ticket_result = DocumentResult(**ticket_fields)
     except Exception as exc:
-        logger.warning("TicketResponse validation failed, falling back to mock shape: %s", exc)
-        # Return partial data rather than a 500 — escalate so a human can review
+        logger.warning("TicketResponse validation failed: %s", exc)
         raise HTTPException(
             status_code=422,
             detail=f"Extraction produced incomplete fields: {exc}",
@@ -303,7 +317,7 @@ async def process_ticket(
                 ai_reason=(
                     f"ARTIFICIAL DATE — no court date found on document. {rule_note} "
                     f"(Ticket issued: {ticket_result.Date_of_Ticket__c.value}.) "
-                    "CDL Legal will contact the court to obtain and update the real court date. "
+                    "Rig Resolve will contact the court to obtain and update the real court date. "
                     "Attorney can update this date once confirmed."
                 ),
             )
