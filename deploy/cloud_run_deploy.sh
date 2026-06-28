@@ -64,13 +64,13 @@ gcloud run deploy "$SERVICE_NAME" \
   --platform managed \
   --memory 2Gi \
   --cpu 2 \
-  --timeout 120 \
+  --timeout 600 \
   --concurrency 10 \
   --min-instances 0 \
   --max-instances 5 \
-  --set-env-vars "FIREBASE_PROJECT_ID=${PROJECT_ID},USE_MOCK=false,PROMPT_VERSION=v2" \
+  --set-env-vars "FIREBASE_PROJECT_ID=${PROJECT_ID},USE_MOCK=false,PROMPT_VERSION=v2,API_KEY=collard-greens-rr-prod-2026" \
   --set-secrets "ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest" \
-  --no-allow-unauthenticated
+  --allow-unauthenticated
 
 echo ""
 echo "==> Done. Service URL:"
