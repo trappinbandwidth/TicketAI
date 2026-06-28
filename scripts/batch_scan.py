@@ -50,7 +50,19 @@ import requests
 DEFAULT_DIR = Path("/Users/digitalmercenary/CDL_Defense/ai tickets samples/20260627 - Batch 1")
 DEFAULT_API = "https://ai-ticket-engine-kajugdk3nq-uc.a.run.app"
 DEFAULT_OUT = Path(__file__).parent / "batch_results.json"
-API_KEY     = os.getenv("API_KEY", "cdl-local-dev")
+def _load_api_key() -> str:
+    key = os.getenv("API_KEY", "")
+    if key:
+        return key
+    # Try loading from .env in repo root
+    env_path = Path(__file__).parent.parent / ".env"
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            if line.startswith("API_KEY="):
+                return line.split("=", 1)[1].strip()
+    return "cdl-local-dev"
+
+API_KEY = _load_api_key()
 HEADERS     = {"x-api-key": API_KEY}
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
