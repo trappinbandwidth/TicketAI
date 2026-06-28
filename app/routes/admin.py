@@ -176,49 +176,49 @@ def get_field_stats(doc_type: Optional[str] = None, x_api_key: Optional[str] = H
         pass1 = rec.get("pass1_extraction", {})
         pass2 = rec.get("pass2_extraction", {})
 
-            for field in set(list(original.keys()) + list(final_vals.keys())):
-                if not field.endswith("__c") and field not in ("Insp_Report_Num__c",):
-                    continue
-                orig = original.get(field, {})
-                if not isinstance(orig, dict):
-                    continue
+        for field in set(list(original.keys()) + list(final_vals.keys())):
+            if not field.endswith("__c") and field not in ("Insp_Report_Num__c",):
+                continue
+            orig = original.get(field, {})
+            if not isinstance(orig, dict):
+                continue
 
-                fd = field_data[field]
-                fd["total"] += 1
+            fd = field_data[field]
+            fd["total"] += 1
 
-                ai_val = (orig.get("value") or "").strip()
-                final_val = (final_vals.get(field) or "").strip()
-                conf = orig.get("confidence_score", 0.0)
+            ai_val = (orig.get("value") or "").strip()
+            final_val = (final_vals.get(field) or "").strip()
+            conf = orig.get("confidence_score", 0.0)
 
-                if not ai_val:
-                    fd["empty"] += 1
-                else:
-                    fd["confidence_sum"] += conf
-                    fd["conf_samples"] += 1
+            if not ai_val:
+                fd["empty"] += 1
+            else:
+                fd["confidence_sum"] += conf
+                fd["conf_samples"] += 1
 
-                if ai_val != final_val and final_val:
-                    fd["edited"] += 1
+            if ai_val != final_val and final_val:
+                fd["edited"] += 1
 
-                # ✓/✗ explicit feedback
-                fb = feedback.get(field)
-                if fb == "correct":
-                    fd["correct"] += 1
-                elif fb == "wrong":
-                    fd["wrong"] += 1
-                elif ai_val and ai_val == final_val:
-                    fd["correct"] += 1  # no feedback but human didn't change it = correct
-                elif ai_val and ai_val != final_val:
-                    fd["wrong"] += 1
+            # ✓/✗ explicit feedback
+            fb = feedback.get(field)
+            if fb == "correct":
+                fd["correct"] += 1
+            elif fb == "wrong":
+                fd["wrong"] += 1
+            elif ai_val and ai_val == final_val:
+                fd["correct"] += 1  # no feedback but human didn't change it = correct
+            elif ai_val and ai_val != final_val:
+                fd["wrong"] += 1
 
-                # Pass 1 vs pass 2 fill tracking
-                p1 = pass1.get(field, {})
-                p2 = pass2.get(field, {})
-                if isinstance(p1, dict) and p1.get("value"):
-                    fd["pass1_filled"] += 1
-                if isinstance(p2, dict) and p2.get("value") and (
-                    not isinstance(p1, dict) or not p1.get("value")
-                ):
-                    fd["pass2_improved"] += 1
+            # Pass 1 vs pass 2 fill tracking
+            p1 = pass1.get(field, {})
+            p2 = pass2.get(field, {})
+            if isinstance(p1, dict) and p1.get("value"):
+                fd["pass1_filled"] += 1
+            if isinstance(p2, dict) and p2.get("value") and (
+                not isinstance(p1, dict) or not p1.get("value")
+            ):
+                fd["pass2_improved"] += 1
 
     results = []
     for field, fd in field_data.items():
