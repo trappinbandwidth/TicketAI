@@ -1,6 +1,6 @@
 import type { ProcessResponse, QueueItem, QueueSummary } from '../types/ticket'
 
-const API_KEY = 'cdl-local-dev'
+const API_KEY = import.meta.env.VITE_AI_ENGINE_API_KEY ?? 'cdl-local-dev'
 const headers = { 'x-api-key': API_KEY }
 
 export async function uploadTicket(

@@ -29,7 +29,7 @@ export default function Header({ onHome, onAdmin }: Props) {
           </button>
         )}
         <a
-          href="http://localhost:8000/docs"
+          href="https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/docs"
           target="_blank"
           rel="noreferrer"
           className="text-xs text-gray-400 hover:text-blue-500"

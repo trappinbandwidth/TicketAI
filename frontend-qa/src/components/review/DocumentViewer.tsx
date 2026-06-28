@@ -11,12 +11,16 @@ interface FieldOverlay {
 }
 
 interface Props {
-  pages: string[]           // all document pages as base64; index 0 = page 1
-  imageB64?: string         // legacy fallback (page 1)
+  scanId: string             // used to build /queue/{id}/image/{page} URLs
+  pageCount: number          // number of pages stored in Firebase Storage
   filename: string
   result?: DocumentResult
   activeField?: string | null
   onFieldBadgeClick?: (fieldKey: string) => void
+  /** @deprecated pass scanId+pageCount instead */
+  pages?: string[]
+  /** @deprecated */
+  imageB64?: string
 }
 
 export interface DocumentViewerHandle {
@@ -65,17 +69,20 @@ function confidenceDotColor(score: number): string {
 }
 
 const DocumentViewer = forwardRef<DocumentViewerHandle, Props>(
-  ({ pages, imageB64, filename, result, activeField, onFieldBadgeClick }, ref) => {
+  ({ scanId, pageCount, filename, result, activeField, onFieldBadgeClick }, ref) => {
     const [rotation, setRotation] = useState(0)
     const [highlight, setHighlight] = useState<string | null>(null)
     const [currentPage, setCurrentPage] = useState(0)
     const transformRef = useRef<any>(null)
     const imgRef = useRef<HTMLImageElement>(null)
 
-    const allPages = pages.length > 0 ? pages : (imageB64 ? [imageB64] : [])
-    const currentImage = allPages[currentPage] ?? ''
-    const isJpeg = currentImage?.startsWith('/9j/')
-    const mime = isJpeg ? 'image/jpeg' : 'image/png'
+    const API_KEY = import.meta.env.VITE_AI_ENGINE_API_KEY ?? 'cdl-local-dev'
+    const totalPages = pageCount > 0 ? pageCount : 0
+
+    function imageUrl(page: number): string {
+      const base = import.meta.env.VITE_API_BASE ?? ''
+      return `${base}/api/v1/queue/${scanId}/image/${page}?x-api-key=${encodeURIComponent(API_KEY)}`
+    }
 
     // Build overlay list from result fields that have bboxes
     const overlays: FieldOverlay[] = []
@@ -121,7 +128,7 @@ const DocumentViewer = forwardRef<DocumentViewerHandle, Props>(
 
     useImperativeHandle(ref, () => ({ zoomToField }), [zoomToField])
 
-    if (!currentImage) return (
+    if (totalPages === 0) return (
       <div className="flex items-center justify-center h-48 bg-gray-100 rounded-xl text-gray-400 text-sm">
         No preview available
       </div>
@@ -161,8 +168,8 @@ const DocumentViewer = forwardRef<DocumentViewerHandle, Props>(
                 >
                   <img
                     ref={imgRef}
-                    src={`data:${mime};base64,${currentImage}`}
-                    alt={filename}
+                    src={imageUrl(currentPage)}
+                    alt={`${filename} — page ${currentPage + 1}`}
                     className="w-full object-contain select-none"
                     draggable={false}
                   />
@@ -219,7 +226,7 @@ const DocumentViewer = forwardRef<DocumentViewerHandle, Props>(
         </TransformWrapper>
 
         {/* Page navigation — only when multi-page */}
-        {allPages.length > 1 && (
+        {totalPages > 1 && (
           <div className="flex items-center gap-2 px-3 py-2 border-t border-gray-200 bg-white justify-center text-sm">
             <button
               onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
@@ -227,11 +234,11 @@ const DocumentViewer = forwardRef<DocumentViewerHandle, Props>(
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 text-gray-600 text-xs"
             >← Prev</button>
             <span className="text-gray-500 text-xs font-medium">
-              Page {currentPage + 1} of {allPages.length}
+              Page {currentPage + 1} of {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage(p => Math.min(allPages.length - 1, p + 1))}
-              disabled={currentPage === allPages.length - 1}
+              onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+              disabled={currentPage === totalPages - 1}
               className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 text-gray-600 text-xs"
             >Next →</button>
           </div>
