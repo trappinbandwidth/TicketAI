@@ -34,12 +34,10 @@ const MEDALS = ['🥇', '🥈', '🥉']
 
 interface Props {
   data: ProcessResponse
-  pages: string[]
-  imageB64: string
   onDone: () => void
 }
 
-export default function ReviewPanel({ data, pages, imageB64, onDone }: Props) {
+export default function ReviewPanel({ data, onDone }: Props) {
   const [editedValues, setEditedValues]   = useState<Record<string, string>>({})
   const [saving, setSaving]               = useState(false)
   const [toast, setToast]                 = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
@@ -188,8 +186,8 @@ export default function ReviewPanel({ data, pages, imageB64, onDone }: Props) {
         <div className="flex flex-col gap-4" style={{ position: 'sticky', top: 16, alignSelf: 'start' }}>
           <DocumentViewer
             ref={viewerRef}
-            pages={pages}
-            imageB64={imageB64}
+            scanId={queueId}
+            pageCount={data.pages_processed ?? 0}
             filename={data.filename}
             result={data.result}
             activeField={activeField}

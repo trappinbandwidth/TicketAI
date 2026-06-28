@@ -6,6 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import Response
+from pydantic import BaseModel
 
 from app.services.queue_store import (
     approve_item,
@@ -34,9 +35,6 @@ class ApproveRequest(BaseModel):
 
 class RejectRequest(BaseModel):
     reason: str = ""
-
-
-from pydantic import BaseModel  # noqa: E402 — keep after class definitions above
 
 
 @router.get("/queue")
