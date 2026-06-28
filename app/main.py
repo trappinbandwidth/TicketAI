@@ -12,6 +12,10 @@ from app.routes.queue import router as queue_router
 from app.routes.pricing import router as pricing_router
 from app.routes.admin import router as admin_router
 from app.routes.operations import router as operations_router
+from app.routes.cases import router as cases_router
+from app.routes.users_admin import router as users_admin_router
+from app.routes.bids import router as bids_router
+from app.routes.attorneys import router as attorneys_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 
@@ -81,6 +85,10 @@ app.include_router(queue_router, prefix="/api/v1")
 app.include_router(pricing_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(operations_router, prefix="/api/v1")
+app.include_router(cases_router, prefix="/api/v1")
+app.include_router(users_admin_router, prefix="/api/v1")
+app.include_router(bids_router, prefix="/api/v1")
+app.include_router(attorneys_router, prefix="/api/v1")
 
 
 @app.get("/health")

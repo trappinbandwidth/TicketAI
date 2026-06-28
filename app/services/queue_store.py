@@ -1,14 +1,34 @@
-from __future__ import annotations
-import json
-import os
-import sqlite3
-from datetime import datetime, timezone
-from pathlib import Path
+"""
+Queue store — Firestore-backed.
 
-BASE_DIR = Path(__file__).parent.parent.parent
-DB_PATH = BASE_DIR / "data" / "queue.db"
-TRAINING_DIR = BASE_DIR / "training_data"
-TRAINING_FILE = TRAINING_DIR / "approved_tickets.jsonl"
+Previously used SQLite + a local JSONL file, both of which are ephemeral on
+Cloud Run (lost on container restart). All data now lives in Firestore so it
+survives restarts and scales horizontally.
+
+Collections:
+  scan_queue/{scan_id}                    — scan results pending/approved/rejected
+  scan_queue/{scan_id}/agent_events/      — per-scan agent performance log
+  scan_queue/{scan_id}/field_audit/       — reviewer edits per field
+  training_records/{scan_id}              — approved scan data (was approved_tickets.jsonl)
+  document_cache/{content_hash}           — dedup cache (hash → scan_id)
+  attorneys/{attorney_id}                 — managed via the Firestore attorneys/ collection
+
+Images are stored in Firebase Storage (GCS) at:
+  scan_images/{scan_id}/page_{n}.jpg
+"""
+from __future__ import annotations
+
+import base64
+import json
+import logging
+from datetime import datetime, timezone
+from typing import Optional
+
+logger = logging.getLogger(__name__)
+
+# Kept for import compatibility — both are now None (not file-backed)
+DB_PATH = None
+TRAINING_FILE = None
 
 EXTRACTED_FIELDS = [
     "Date_of_Ticket__c", "Violation_Description__c", "Violation_Category__c",
@@ -30,305 +50,248 @@ EXTRACTED_FIELDS = [
     "MVR_Violations_Summary__c", "MVR_Total_Points__c", "MVR_Suspension_Count__c",
 ]
 
-
 _SEED_ATTORNEYS = [
     # Florida
-    ("mock-fl-001", "James R. Holloway",   "jholloway@hollowaytransportlaw.com", "(850) 555-0142", "Florida", "", 4.8, 0.74, 312),
-    ("mock-fl-002", "Sandra M. Vega",      "svega@vegacdldefense.com",           "(407) 555-0219", "Florida", "", 4.6, 0.68, 187),
-    ("mock-fl-003", "Derek W. Fontaine",   "dfontaine@fontainelegal.com",        "(305) 555-0387", "Florida", "", 4.5, 0.61,  98),
+    ("mock-fl-001", "James R. Holloway",      "jholloway@hollowaytransportlaw.com", "(850) 555-0142", "Florida",     "", 4.8, 0.74, 312),
+    ("mock-fl-002", "Sandra M. Vega",         "svega@vegacdldefense.com",           "(407) 555-0219", "Florida",     "", 4.6, 0.68, 187),
+    ("mock-fl-003", "Derek W. Fontaine",      "dfontaine@fontainelegal.com",        "(305) 555-0387", "Florida",     "", 4.5, 0.61,  98),
     # Maryland
-    ("mock-md-001", "Patricia L. Nguyen",  "pnguyen@nguyen-trucklaw.com",        "(410) 555-0174", "Maryland", "", 4.9, 0.81, 445),
-    ("mock-md-002", "Thomas A. Griggs",    "tgriggs@griggslawmd.com",            "(301) 555-0263", "Maryland", "", 4.7, 0.72, 229),
-    ("mock-md-003", "Carol B. Simmons",    "csimmons@simmonstraffic.com",        "(443) 555-0318", "Maryland", "", 4.4, 0.65, 153),
+    ("mock-md-001", "Patricia L. Nguyen",     "pnguyen@nguyen-trucklaw.com",        "(410) 555-0174", "Maryland",    "", 4.9, 0.81, 445),
+    ("mock-md-002", "Thomas A. Griggs",       "tgriggs@griggslawmd.com",            "(301) 555-0263", "Maryland",    "", 4.7, 0.72, 229),
+    ("mock-md-003", "Carol B. Simmons",       "csimmons@simmonstraffic.com",        "(443) 555-0318", "Maryland",    "", 4.4, 0.65, 153),
     # Washington
-    ("mock-wa-001", "Marcus J. Breckenridge", "mbreckenridge@breckenridgecdl.com", "(206) 555-0492", "Washington", "", 4.7, 0.77, 381),
-    ("mock-wa-002", "Yuki T. Yamamoto",    "yyamamoto@yamamotolegal.com",        "(253) 555-0135", "Washington", "", 4.6, 0.71, 204),
-    ("mock-wa-003", "Brenda K. Okafor",    "bokafor@okafortrucklaw.com",         "(360) 555-0277", "Washington", "", 4.3, 0.58, 117),
-    ("mock-wa-004", "Kevin L. Sorensen",   "ksorensen@sorensentraffic.com",      "(509) 555-0348", "Washington", "", 4.5, 0.69, 278),
-    ("mock-wa-005", "Alicia R. Montoya",   "amontoya@montoyacdllaw.com",         "(425) 555-0461", "Washington", "", 4.8, 0.83, 512),
+    ("mock-wa-001", "Marcus J. Breckenridge", "mbreckenridge@breckenridgecdl.com",  "(206) 555-0492", "Washington",  "", 4.7, 0.77, 381),
+    ("mock-wa-002", "Yuki T. Yamamoto",       "yyamamoto@yamamotolegal.com",        "(253) 555-0135", "Washington",  "", 4.6, 0.71, 204),
+    ("mock-wa-003", "Brenda K. Okafor",       "bokafor@okafortrucklaw.com",         "(360) 555-0277", "Washington",  "", 4.3, 0.58, 117),
+    ("mock-wa-004", "Kevin L. Sorensen",      "ksorensen@sorensentraffic.com",      "(509) 555-0348", "Washington",  "", 4.5, 0.69, 278),
+    ("mock-wa-005", "Alicia R. Montoya",      "amontoya@montoyacdllaw.com",         "(425) 555-0461", "Washington",  "", 4.8, 0.83, 512),
 ]
 
 
-def init_db() -> None:
-    os.makedirs(DB_PATH.parent, exist_ok=True)
-    os.makedirs(TRAINING_DIR, exist_ok=True)
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS queue (
-                id                        TEXT PRIMARY KEY,
-                filename                  TEXT NOT NULL,
-                pass_status               TEXT NOT NULL,
-                status                    TEXT NOT NULL DEFAULT 'pending',
-                created_at                TEXT NOT NULL,
-                updated_at                TEXT NOT NULL,
-                image_b64                 TEXT,
-                process_response_json     TEXT NOT NULL,
-                reject_reason             TEXT,
-                edited_fields_json        TEXT,
-                pass1_extraction_json     TEXT,
-                pass2_extraction_json     TEXT,
-                consensus_extraction_json TEXT,
-                doc_type                  TEXT,
-                prompt_version            TEXT,
-                attorney_matched          INTEGER DEFAULT 0,
-                attorney_match_type       TEXT,
-                has_price_estimate        INTEGER DEFAULT 0,
-                price_estimate_json       TEXT
-            )
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS agent_events (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                scan_id     TEXT NOT NULL,
-                agent       TEXT NOT NULL,
-                event       TEXT NOT NULL,
-                detail_json TEXT,
-                created_at  TEXT NOT NULL,
-                FOREIGN KEY (scan_id) REFERENCES queue(id)
-            )
-        """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_agent_events_scan   ON agent_events(scan_id)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_agent_events_agent  ON agent_events(agent)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_queue_created       ON queue(created_at)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_queue_status        ON queue(status)")
+# ── Internal helpers ──────────────────────────────────────────────────────────
 
-        # Attorneys table — local replacement for Salesforce attorney records
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS attorneys (
-                id            TEXT PRIMARY KEY,
-                name          TEXT NOT NULL,
-                email         TEXT,
-                phone         TEXT,
-                state         TEXT NOT NULL,
-                county        TEXT NOT NULL DEFAULT '',
-                rating        REAL,
-                win_rate      REAL NOT NULL DEFAULT 0.0,
-                total_tickets INTEGER NOT NULL DEFAULT 0,
-                active        INTEGER NOT NULL DEFAULT 1,
-                notes         TEXT,
-                created_at    TEXT NOT NULL,
-                updated_at    TEXT NOT NULL
-            )
-        """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_attorneys_state ON attorneys(state)")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_attorneys_state_county ON attorneys(state, county)")
+def _fs():
+    """Return the Firestore client. Raises RuntimeError if not configured."""
+    from app.services.firebase_service import _firestore_client, _init
+    _init()
+    if _firestore_client is None:
+        raise RuntimeError("Firestore not configured — set FIREBASE_PROJECT_ID in environment.")
+    return _firestore_client
 
-        # Seed default attorneys if table is empty
-        count = conn.execute("SELECT COUNT(*) FROM attorneys").fetchone()[0]
-        if count == 0:
-            ts = _now()
-            conn.executemany(
-                """INSERT OR IGNORE INTO attorneys
-                   (id, name, email, phone, state, county, rating, win_rate, total_tickets, active, created_at, updated_at)
-                   VALUES (?,?,?,?,?,?,?,?,?,1,?,?)""",
-                [(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], ts, ts) for a in _SEED_ATTORNEYS],
-            )
 
-        # Non-destructive migration for existing databases
-        existing = {r[1] for r in conn.execute("PRAGMA table_info(queue)").fetchall()}
-        for col, typedef in [
-            ("pass1_extraction_json",     "TEXT"),
-            ("pass2_extraction_json",     "TEXT"),
-            ("consensus_extraction_json", "TEXT"),
-            ("doc_type",                  "TEXT"),
-            ("prompt_version",            "TEXT"),
-            ("attorney_matched",          "INTEGER DEFAULT 0"),
-            ("attorney_match_type",       "TEXT"),
-            ("has_price_estimate",        "INTEGER DEFAULT 0"),
-            ("price_estimate_json",       "TEXT"),
-            ("images_b64_json",           "TEXT"),
-        ]:
-            if col not in existing:
-                conn.execute(f"ALTER TABLE queue ADD COLUMN {col} {typedef}")
-
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_queue_doc_type ON queue(doc_type)")
-
-        # Document cache — prevents re-running pipeline for identical uploads
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS document_cache (
-                content_hash  TEXT PRIMARY KEY,
-                scan_id       TEXT NOT NULL,
-                created_at    TEXT NOT NULL
-            )
-        """)
-
-        # Field audit trail — every reviewer edit is logged here
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS field_audit (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                scan_id       TEXT NOT NULL,
-                field_key     TEXT NOT NULL,
-                old_value     TEXT,
-                new_value     TEXT NOT NULL,
-                reviewer_id   TEXT,
-                note          TEXT,
-                changed_at    TEXT NOT NULL
-            )
-        """)
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_field_audit_scan ON field_audit(scan_id)")
+def _bucket():
+    """Return the Firebase Storage bucket. Returns None if not configured."""
+    try:
+        from firebase_admin import storage
+        return storage.bucket()
+    except Exception:
+        return None
 
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def cache_get(content_hash: str) -> str | None:
-    """Return the scan_id for a previously processed document, or None."""
+def _serialize(doc) -> dict:
+    data = doc.to_dict() if hasattr(doc, "to_dict") else dict(doc)
+    data["id"] = doc.id if hasattr(doc, "id") else data.get("id", "")
+    if "process_response" not in data:
+        data["process_response"] = {}
+    return data
+
+
+# ── Startup ───────────────────────────────────────────────────────────────────
+
+def init_db() -> None:
+    """Called at app startup. Seeds the Firestore attorneys collection if empty."""
     try:
-        with sqlite3.connect(DB_PATH) as conn:
-            row = conn.execute(
-                "SELECT scan_id FROM document_cache WHERE content_hash = ?",
-                (content_hash,),
-            ).fetchone()
-        return row[0] if row else None
+        db = _fs()
+        col = db.collection("attorneys")
+        if not list(col.limit(1).stream()):
+            ts = _now()
+            for a in _SEED_ATTORNEYS:
+                col.document(a[0]).set({
+                    "attorney_id": a[0],
+                    "full_name": a[1],
+                    "email": a[2],
+                    "phone": a[3],
+                    "states_licensed": [a[4]],
+                    "counties_covered": [a[5]] if a[5] else [],
+                    "rating": a[6],
+                    "win_rate": a[7],
+                    "total_tickets": a[8],
+                    "status": "active",
+                    "cases_active": 0,
+                    "max_active_cases": 999,
+                    "preferred_contact_method": "phone",
+                    "created_at": ts,
+                    "updated_at": ts,
+                })
+            logger.warning("[queue_store] Seeded %d attorneys into Firestore", len(_SEED_ATTORNEYS))
+    except Exception as exc:
+        logger.warning("[queue_store] Attorney seed skipped: %s", exc)
+
+
+# ── Document cache (deduplication) ───────────────────────────────────────────
+
+def cache_get(content_hash: str) -> Optional[str]:
+    """Return scan_id for a previously processed document, or None."""
+    try:
+        doc = _fs().collection("document_cache").document(content_hash).get()
+        return doc.to_dict().get("scan_id") if doc.exists else None
     except Exception:
         return None
 
 
 def cache_set(content_hash: str, scan_id: str) -> None:
-    """Store a hash → scan_id mapping for future cache hits."""
     try:
-        with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
-                "INSERT OR IGNORE INTO document_cache (content_hash, scan_id, created_at) VALUES (?,?,?)",
-                (content_hash, scan_id, _now()),
-            )
+        _fs().collection("document_cache").document(content_hash).set({
+            "scan_id": scan_id,
+            "created_at": _now(),
+        })
     except Exception:
         pass
 
 
-def log_agent_event(scan_id: str, agent: str, event: str, detail: dict | None = None) -> None:
-    """Write a structured event for one agent step. Safe to call even if scan not yet committed."""
-    try:
-        with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
-                "INSERT INTO agent_events (scan_id, agent, event, detail_json, created_at) VALUES (?,?,?,?,?)",
-                (scan_id, agent, event, json.dumps(detail) if detail else None, _now()),
-            )
-    except Exception:
-        pass  # Never crash the pipeline over a logging failure
+# ── Agent event logging ───────────────────────────────────────────────────────
 
+def log_agent_event(scan_id: str, agent: str, event: str, detail: Optional[dict] = None) -> None:
+    """Append a structured agent event. Safe to call even if scan not yet written."""
+    try:
+        _fs().collection("scan_queue").document(scan_id).collection("agent_events").add({
+            "scan_id": scan_id,
+            "agent": agent,
+            "event": event,
+            "detail": detail or {},
+            "created_at": _now(),
+        })
+    except Exception:
+        pass  # Never crash the pipeline over a logging call
+
+
+# ── Scan persistence ──────────────────────────────────────────────────────────
 
 def save_scan(
     id: str,
     filename: str,
     pass_status: str,
     process_response_json: str,
-    images_b64: list[str] | None = None,
-    image_b64: str = "",  # deprecated — use images_b64
-    pass1_extraction: dict | None = None,
-    pass2_extraction: dict | None = None,
-    consensus_extraction: dict | None = None,
-    doc_type: str | None = None,
-    prompt_version: str | None = None,
+    images_b64: Optional[list[str]] = None,
+    image_b64: str = "",
+    pass1_extraction: Optional[dict] = None,
+    pass2_extraction: Optional[dict] = None,
+    consensus_extraction: Optional[dict] = None,
+    doc_type: Optional[str] = None,
+    prompt_version: Optional[str] = None,
     attorney_matched: bool = False,
-    attorney_match_type: str | None = None,
+    attorney_match_type: Optional[str] = None,
     has_price_estimate: bool = False,
-    price_estimate: dict | None = None,
+    price_estimate: Optional[dict] = None,
 ) -> None:
     ts = _now()
-    # Prefer images_b64 list; fall back to legacy image_b64 single string
     page_list = images_b64 if images_b64 else ([image_b64] if image_b64 else [])
-    legacy_b64 = page_list[0] if page_list else ""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            """INSERT INTO queue (
-                id, filename, pass_status, status, created_at, updated_at,
-                image_b64, images_b64_json, process_response_json,
-                pass1_extraction_json, pass2_extraction_json, consensus_extraction_json,
-                doc_type, prompt_version,
-                attorney_matched, attorney_match_type,
-                has_price_estimate, price_estimate_json
-            ) VALUES (?,?,?,  'pending',?,?,  ?,?,?,  ?,?,?,  ?,?,  ?,?,  ?,?)""",
-            (
-                id, filename, pass_status, ts, ts,
-                legacy_b64, json.dumps(page_list) if page_list else None, process_response_json,
-                json.dumps(pass1_extraction) if pass1_extraction else None,
-                json.dumps(pass2_extraction) if pass2_extraction else None,
-                json.dumps(consensus_extraction) if consensus_extraction else None,
-                doc_type, prompt_version,
-                int(attorney_matched), attorney_match_type,
-                int(has_price_estimate), json.dumps(price_estimate) if price_estimate else None,
-            ),
-        )
+
+    # Upload images to Firebase Storage (GCS) — avoids Firestore 1 MB doc limit
+    image_paths: list[str] = []
+    bucket = _bucket()
+    if bucket and page_list:
+        for i, b64_data in enumerate(page_list):
+            if not b64_data:
+                continue
+            try:
+                image_bytes = base64.b64decode(b64_data)
+                path = f"scan_images/{id}/page_{i}.jpg"
+                blob = bucket.blob(path)
+                blob.upload_from_string(image_bytes, content_type="image/jpeg")
+                image_paths.append(path)
+            except Exception as exc:
+                logger.warning("[queue_store] Image upload failed scan=%s page=%d: %s", id, i, exc)
+
+    _fs().collection("scan_queue").document(id).set({
+        "id": id,
+        "filename": filename,
+        "pass_status": pass_status,
+        "status": "pending",
+        "created_at": ts,
+        "updated_at": ts,
+        "image_paths": image_paths,
+        "process_response": json.loads(process_response_json),
+        "pass1_extraction": pass1_extraction or {},
+        "pass2_extraction": pass2_extraction or {},
+        "consensus_extraction": consensus_extraction or {},
+        "doc_type": doc_type,
+        "prompt_version": prompt_version,
+        "attorney_matched": attorney_matched,
+        "attorney_match_type": attorney_match_type,
+        "has_price_estimate": has_price_estimate,
+        "price_estimate": price_estimate or {},
+    })
 
 
 def list_recent(limit: int = 50) -> list[dict]:
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            """SELECT id, filename, pass_status, status, created_at, updated_at,
-               doc_type, prompt_version,
-               attorney_matched, attorney_match_type, has_price_estimate
-               FROM queue ORDER BY created_at DESC LIMIT ?""",
-            (limit,),
-        ).fetchall()
-    return [dict(r) for r in rows]
-
-
-def get_item(id: str) -> dict | None:
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        row = conn.execute("SELECT * FROM queue WHERE id = ?", (id,)).fetchone()
-    if row is None:
-        return None
-    item = dict(row)
-    item["process_response"] = json.loads(item["process_response_json"])
-    item["edited_fields"] = json.loads(item["edited_fields_json"]) if item["edited_fields_json"] else {}
-    item["pass1_extraction"] = json.loads(item["pass1_extraction_json"]) if item["pass1_extraction_json"] else {}
-    item["pass2_extraction"] = json.loads(item["pass2_extraction_json"]) if item["pass2_extraction_json"] else {}
-    item["consensus_extraction"] = json.loads(item["consensus_extraction_json"]) if item["consensus_extraction_json"] else {}
-    item["images_all"] = json.loads(item["images_b64_json"]) if item.get("images_b64_json") else (
-        [item["image_b64"]] if item.get("image_b64") else []
+    docs = (
+        _fs().collection("scan_queue")
+        .order_by("created_at", direction="DESCENDING")
+        .limit(limit)
+        .stream()
     )
-    return item
+    return [_serialize(d) for d in docs]
+
+
+def get_item(id: str) -> Optional[dict]:
+    doc = _fs().collection("scan_queue").document(id).get()
+    if not doc.exists:
+        return None
+    return _serialize(doc)
 
 
 def get_agent_events(scan_id: str) -> list[dict]:
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            "SELECT * FROM agent_events WHERE scan_id=? ORDER BY created_at ASC",
-            (scan_id,),
-        ).fetchall()
-    result = []
-    for r in rows:
-        row = dict(r)
-        row["detail"] = json.loads(row["detail_json"]) if row["detail_json"] else {}
-        result.append(row)
-    return result
+    docs = (
+        _fs().collection("scan_queue").document(scan_id)
+        .collection("agent_events")
+        .order_by("created_at")
+        .stream()
+    )
+    return [d.to_dict() for d in docs]
 
 
-def approve_item(id: str, edited_fields: dict, reviewer_id: str | None = None) -> None:
+def approve_item(id: str, edited_fields: dict, reviewer_id: Optional[str] = None) -> None:
     item = get_item(id)
     if item is None:
         raise ValueError(f"Queue item not found: {id}")
 
     ts = _now()
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            "UPDATE queue SET status='approved', updated_at=?, edited_fields_json=? WHERE id=?",
-            (ts, json.dumps(edited_fields), id),
-        )
+    db = _fs()
+    ref = db.collection("scan_queue").document(id)
 
-    process_response = item["process_response"]
-    original = process_response.get("result", {})
+    # Strip internal feedback key before storing edited_fields
+    field_feedback = edited_fields.pop("__feedback__", {})
 
-    # Log field-level changes to audit trail
-    if edited_fields:
-        with sqlite3.connect(DB_PATH) as conn:
-            for field, new_val in edited_fields.items():
-                if field.startswith("__"):
-                    continue
-                orig_field = original.get(field, {})
-                old_val = (orig_field.get("value", "") if isinstance(orig_field, dict) else "") or ""
-                if old_val != new_val:
-                    conn.execute(
-                        "INSERT INTO field_audit (scan_id, field_key, old_value, new_value, reviewer_id, changed_at) "
-                        "VALUES (?,?,?,?,?,?)",
-                        (id, field, old_val, new_val, reviewer_id, ts),
-                    )
+    ref.update({
+        "status": "approved",
+        "updated_at": ts,
+        "edited_fields": edited_fields,
+        "reviewed_by": reviewer_id,
+        "reviewed_at": ts,
+    })
 
+    # Per-field audit trail
+    original = item.get("process_response", {}).get("result", {})
+    for field, new_val in edited_fields.items():
+        if field.startswith("__"):
+            continue
+        orig_field = original.get(field, {})
+        old_val = (orig_field.get("value", "") if isinstance(orig_field, dict) else "") or ""
+        if old_val != new_val:
+            ref.collection("field_audit").add({
+                "field_key": field,
+                "old_value": old_val,
+                "new_value": new_val,
+                "reviewer_id": reviewer_id,
+                "changed_at": ts,
+            })
+
+    # Build final merged values for the training record
     final_values = {}
     for field in EXTRACTED_FIELDS:
         if field in edited_fields:
@@ -339,16 +302,13 @@ def approve_item(id: str, edited_fields: dict, reviewer_id: str | None = None) -
             final_values[field] = ""
 
     was_edited = any(
-        final_values.get(f) != (original.get(f, {}) or {}).get("value", "")
-        for f in EXTRACTED_FIELDS
-        if f in edited_fields
+        final_values.get(f) != (original.get(f) or {}).get("value", "")
+        for f in EXTRACTED_FIELDS if f in edited_fields
     )
 
-    # Per-field feedback from ✓/✗ buttons (stored in edited_fields as __feedback__ key)
-    field_feedback = edited_fields.pop("__feedback__", {})
-
-    record = {
-        "id": id,
+    # Write approved training record to Firestore (replaces approved_tickets.jsonl)
+    db.collection("training_records").document(id).set({
+        "scan_id": id,
         "filename": item["filename"],
         "approved_at": ts,
         "pass_status": item["pass_status"],
@@ -360,37 +320,47 @@ def approve_item(id: str, edited_fields: dict, reviewer_id: str | None = None) -
         "consensus_extraction": item.get("consensus_extraction", {}),
         "final_values": final_values,
         "was_edited": was_edited,
-        "field_feedback": field_feedback,  # {"Court_Date__c": "correct", "Violation_Description__c": "wrong"}
-    }
-
-    with open(TRAINING_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(record) + "\n")
+        "field_feedback": field_feedback,
+    })
 
 
 def get_field_audit(scan_id: str) -> list[dict]:
-    """Return all field edits logged for a given scan, oldest first."""
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            "SELECT * FROM field_audit WHERE scan_id=? ORDER BY changed_at ASC",
-            (scan_id,),
-        ).fetchall()
-    return [dict(r) for r in rows]
+    docs = (
+        _fs().collection("scan_queue").document(scan_id)
+        .collection("field_audit")
+        .order_by("changed_at")
+        .stream()
+    )
+    return [d.to_dict() for d in docs]
 
 
 def reject_item(id: str, reason: str) -> None:
-    ts = _now()
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            "UPDATE queue SET status='rejected', updated_at=?, reject_reason=? WHERE id=?",
-            (ts, reason, id),
-        )
+    _fs().collection("scan_queue").document(id).update({
+        "status": "rejected",
+        "updated_at": _now(),
+        "reject_reason": reason,
+    })
 
 
 def list_approved() -> list[dict]:
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            "SELECT * FROM queue WHERE status='approved' ORDER BY updated_at DESC"
-        ).fetchall()
-    return [dict(r) for r in rows]
+    docs = (
+        _fs().collection("scan_queue")
+        .where("status", "==", "approved")
+        .order_by("updated_at", direction="DESCENDING")
+        .stream()
+    )
+    return [_serialize(d) for d in docs]
+
+
+def get_image_bytes(scan_id: str, page: int) -> Optional[bytes]:
+    """Download a scan image from Firebase Storage. Used by the image proxy endpoint."""
+    bucket = _bucket()
+    if not bucket:
+        return None
+    try:
+        path = f"scan_images/{scan_id}/page_{page}.jpg"
+        blob = bucket.blob(path)
+        return blob.download_as_bytes()
+    except Exception as exc:
+        logger.warning("[queue_store] Image download failed scan=%s page=%d: %s", scan_id, page, exc)
+        return None

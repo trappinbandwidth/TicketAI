@@ -23,10 +23,6 @@ def case_intake(state: TicketState) -> dict:
 
     if not state.get("images_b64"):
         errors.append("no_images")
-    if not state.get("driver_id"):
-        errors.append("no_driver_id")
-    if not state.get("ticket_id"):
-        errors.append("no_ticket_id")
 
     if errors:
         logger.warning("[case_intake] FAIL file=%s errors=%s", filename, errors)

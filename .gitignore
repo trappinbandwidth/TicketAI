@@ -1,5 +1,8 @@
 # Environment & secrets
 .env
+.env.production
+.env.local
+.env.*.local
 
 # Python
 __pycache__/
@@ -37,3 +40,9 @@ tests/golden/*.png
 # Frontend build artifacts
 frontend-qa/node_modules/
 frontend-qa/dist/
+
+# Firebase debug logs and artifacts
+firebase-debug.log
+frontend-qa/.firebase/
+frontend-qa/.env.production
+frontend-qa/.env.local

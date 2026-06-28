@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": "1.0",
-    "description": "CDL Legal court routing rulebook. Maps state/county/city to court info and online scheduling URLs.",
+    "description": "Rig Resolve court routing rulebook. Maps state/county/city to court info and online scheduling URLs.",
     "cdl_serious_violations": [
       "Speeding 15+ MPH Over",
       "Reckless Driving",

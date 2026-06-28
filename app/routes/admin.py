@@ -6,15 +6,14 @@ from __future__ import annotations
 import json
 import logging
 import os
-import sqlite3
 from collections import defaultdict
-from pathlib import Path
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from fastapi.responses import FileResponse
 
-from app.services.queue_store import DB_PATH, TRAINING_FILE
+from app.services.queue_store import EXTRACTED_FIELDS
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -77,12 +76,13 @@ def _check_auth(x_api_key: Optional[str]):
         raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
-def _db():
-    if not DB_PATH.exists():
-        raise HTTPException(status_code=503, detail="No data yet — run a scan first.")
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def _fs():
+    """Return the Firestore client. Raises 503 if not configured."""
+    from app.services.firebase_service import _firestore_client, _init
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+    return _firestore_client
 
 
 # ── Overview stats ──────────────────────────────────────────────────────────
@@ -90,41 +90,41 @@ def _db():
 @router.get("/admin/stats/overview")
 def get_overview(days: int = 30, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
-    conn = _db()
+    db = _fs()
 
-    rows = conn.execute("""
-        SELECT pass_status, status, doc_type, attorney_matched, has_price_estimate,
-               created_at, attorney_match_type
-        FROM queue
-        WHERE created_at >= datetime('now', ? || ' days')
-        ORDER BY created_at DESC
-    """, (f"-{days}",)).fetchall()
-    conn.close()
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    docs = list(
+        db.collection("scan_queue")
+        .where("created_at", ">=", cutoff)
+        .order_by("created_at", direction="DESCENDING")
+        .stream()
+    )
 
-    total = len(rows)
+    total = len(docs)
     if total == 0:
         return {"total": 0, "days": days}
 
-    pass_counts = defaultdict(int)
-    doc_type_counts = defaultdict(int)
+    pass_counts: dict[str, int] = defaultdict(int)
+    doc_type_counts: dict[str, int] = defaultdict(int)
     daily_counts: dict[str, dict] = defaultdict(lambda: {"green": 0, "yellow": 0, "red": 0, "total": 0})
     attorney_matched = 0
     county_matches = 0
     price_estimated = 0
 
-    for r in rows:
-        ps = r["pass_status"] or "unknown"
+    for d in docs:
+        r = d.to_dict()
+        ps = r.get("pass_status") or "unknown"
         pass_counts[ps] += 1
-        doc_type_counts[r["doc_type"] or "Unknown"] += 1
-        day = (r["created_at"] or "")[:10]
+        doc_type_counts[r.get("doc_type") or "Unknown"] += 1
+        day = (r.get("created_at") or "")[:10]
         daily_counts[day]["total"] += 1
         if ps in ("green", "yellow", "red"):
             daily_counts[day][ps] += 1
-        if r["attorney_matched"]:
+        if r.get("attorney_matched"):
             attorney_matched += 1
-            if r["attorney_match_type"] == "county":
+            if r.get("attorney_match_type") == "county":
                 county_matches += 1
-        if r["has_price_estimate"]:
+        if r.get("has_price_estimate"):
             price_estimated += 1
 
     return {
@@ -138,9 +138,7 @@ def get_overview(days: int = 30, x_api_key: Optional[str] = Header(None)):
         "county_match_rate": round(county_matches / total, 3) if attorney_matched else 0,
         "price_estimate_rate": round(price_estimated / total, 3),
         "doc_type_breakdown": dict(doc_type_counts),
-        "daily_volume": [
-            {"date": d, **v} for d, v in sorted(daily_counts.items())
-        ],
+        "daily_volume": [{"date": d, **v} for d, v in sorted(daily_counts.items())],
     }
 
 
@@ -149,8 +147,14 @@ def get_overview(days: int = 30, x_api_key: Optional[str] = Header(None)):
 @router.get("/admin/stats/fields")
 def get_field_stats(doc_type: Optional[str] = None, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
+    db = _fs()
 
-    if not TRAINING_FILE.exists():
+    query = db.collection("training_records")
+    if doc_type:
+        query = query.where("doc_type", "==", doc_type)
+    records = list(query.stream())
+
+    if not records:
         return {"fields": [], "sample_size": 0}
 
     field_data: dict[str, dict] = defaultdict(lambda: {
@@ -160,21 +164,17 @@ def get_field_stats(doc_type: Optional[str] = None, x_api_key: Optional[str] = H
     })
 
     sample_size = 0
-    with open(TRAINING_FILE, encoding="utf-8") as f:
-        for line in f:
-            try:
-                rec = json.loads(line)
-            except Exception:
-                continue
-            if doc_type and rec.get("doc_type") != doc_type:
-                continue
-            sample_size += 1
+    for doc in records:
+        rec = doc.to_dict()
+        if doc_type and rec.get("doc_type") != doc_type:
+            continue
+        sample_size += 1
 
-            original = rec.get("original_extraction", {})
-            final_vals = rec.get("final_values", {})
-            feedback = rec.get("field_feedback", {})
-            pass1 = rec.get("pass1_extraction", {})
-            pass2 = rec.get("pass2_extraction", {})
+        original = rec.get("original_extraction", {})
+        final_vals = rec.get("final_values", {})
+        feedback = rec.get("field_feedback", {})
+        pass1 = rec.get("pass1_extraction", {})
+        pass2 = rec.get("pass2_extraction", {})
 
             for field in set(list(original.keys()) + list(final_vals.keys())):
                 if not field.endswith("__c") and field not in ("Insp_Report_Num__c",):
@@ -259,49 +259,43 @@ def get_field_stats(doc_type: Optional[str] = None, x_api_key: Optional[str] = H
 @router.get("/admin/stats/fields/{field_key}")
 def get_field_drilldown(field_key: str, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
+    db = _fs()
 
-    if not TRAINING_FILE.exists():
-        return {"field": field_key, "cases": []}
-
+    records = list(db.collection("training_records").stream())
     cases = []
-    with open(TRAINING_FILE, encoding="utf-8") as f:
-        for line in f:
-            try:
-                rec = json.loads(line)
-            except Exception:
-                continue
-            original = rec.get("original_extraction", {})
-            orig_field = original.get(field_key, {})
-            if not isinstance(orig_field, dict):
-                continue
+    for doc in records:
+        rec = doc.to_dict()
+        original = rec.get("original_extraction", {})
+        orig_field = original.get(field_key, {})
+        if not isinstance(orig_field, dict):
+            continue
 
-            ai_val = (orig_field.get("value") or "").strip()
-            final_val = (rec.get("final_values", {}).get(field_key) or "").strip()
-            feedback = rec.get("field_feedback", {}).get(field_key)
-            was_wrong = feedback == "wrong" or (ai_val != final_val and bool(final_val))
+        ai_val = (orig_field.get("value") or "").strip()
+        final_val = (rec.get("final_values", {}).get(field_key) or "").strip()
+        feedback = rec.get("field_feedback", {}).get(field_key)
+        was_wrong = feedback == "wrong" or (ai_val != final_val and bool(final_val))
 
-            pass1_val = ((rec.get("pass1_extraction") or {}).get(field_key) or {})
-            pass2_val = ((rec.get("pass2_extraction") or {}).get(field_key) or {})
+        pass1_val = ((rec.get("pass1_extraction") or {}).get(field_key) or {})
+        pass2_val = ((rec.get("pass2_extraction") or {}).get(field_key) or {})
 
-            cases.append({
-                "scan_id": rec.get("id"),
-                "filename": rec.get("filename"),
-                "approved_at": rec.get("approved_at"),
-                "doc_type": rec.get("doc_type"),
-                "pass_status": rec.get("pass_status"),
-                "ai_value": ai_val,
-                "final_value": final_val,
-                "confidence": orig_field.get("confidence_score", 0),
-                "ai_reason": orig_field.get("ai_reason", ""),
-                "was_wrong": was_wrong,
-                "feedback": feedback,
-                "pass1_value": pass1_val.get("value", "") if isinstance(pass1_val, dict) else "",
-                "pass1_confidence": pass1_val.get("confidence_score", 0) if isinstance(pass1_val, dict) else 0,
-                "pass2_value": pass2_val.get("value", "") if isinstance(pass2_val, dict) else "",
-                "pass2_confidence": pass2_val.get("confidence_score", 0) if isinstance(pass2_val, dict) else 0,
-            })
+        cases.append({
+            "scan_id": rec.get("scan_id") or doc.id,
+            "filename": rec.get("filename"),
+            "approved_at": rec.get("approved_at"),
+            "doc_type": rec.get("doc_type"),
+            "pass_status": rec.get("pass_status"),
+            "ai_value": ai_val,
+            "final_value": final_val,
+            "confidence": orig_field.get("confidence_score", 0),
+            "ai_reason": orig_field.get("ai_reason", ""),
+            "was_wrong": was_wrong,
+            "feedback": feedback,
+            "pass1_value": pass1_val.get("value", "") if isinstance(pass1_val, dict) else "",
+            "pass1_confidence": pass1_val.get("confidence_score", 0) if isinstance(pass1_val, dict) else 0,
+            "pass2_value": pass2_val.get("value", "") if isinstance(pass2_val, dict) else "",
+            "pass2_confidence": pass2_val.get("confidence_score", 0) if isinstance(pass2_val, dict) else 0,
+        })
 
-    # Sort wrong cases first
     cases.sort(key=lambda c: (not c["was_wrong"], c["approved_at"] or ""))
     prompt_info = PROMPT_SECTION_MAP.get(field_key, {"section": "Unknown", "step": 99})
     return {"field": field_key, "prompt_section": prompt_info["section"], "cases": cases}
@@ -312,15 +306,15 @@ def get_field_drilldown(field_key: str, x_api_key: Optional[str] = Header(None))
 @router.get("/admin/stats/agents")
 def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
-    conn = _db()
+    db = _fs()
 
-    events = conn.execute("""
-        SELECT ae.agent, ae.event, ae.detail_json, ae.created_at, q.pass_status, q.doc_type
-        FROM agent_events ae
-        JOIN queue q ON q.id = ae.scan_id
-        WHERE ae.created_at >= datetime('now', ? || ' days')
-    """, (f"-{days}",)).fetchall()
-    conn.close()
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    # Collection-group query across all scan_queue/{id}/agent_events subcollections
+    events = list(
+        db.collection_group("agent_events")
+        .where("created_at", ">=", cutoff)
+        .stream()
+    )
 
     agents: dict[str, dict] = {
         "lone_ranger": {
@@ -376,10 +370,11 @@ def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
         },
     }
 
-    for ev in events:
-        agent = ev["agent"]
-        event = ev["event"]
-        detail = json.loads(ev["detail_json"]) if ev["detail_json"] else {}
+    for ev_doc in events:
+        ev = ev_doc.to_dict() if hasattr(ev_doc, "to_dict") else ev_doc
+        agent = ev.get("agent", "")
+        event = ev.get("event", "")
+        detail = ev.get("detail") or {}
         ag = agents.get(agent)
         if not ag:
             continue
@@ -567,19 +562,29 @@ def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
 @router.get("/admin/stats/feed")
 def get_scan_feed(limit: int = 100, x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
-    conn = _db()
-    rows = conn.execute("""
-        SELECT id, filename, pass_status, status, doc_type, created_at,
-               attorney_matched, attorney_match_type, has_price_estimate, prompt_version
-        FROM queue ORDER BY created_at DESC LIMIT ?
-    """, (limit,)).fetchall()
-    conn.close()
+    db = _fs()
 
+    docs = list(
+        db.collection("scan_queue")
+        .order_by("created_at", direction="DESCENDING")
+        .limit(limit)
+        .stream()
+    )
     result = []
-    for r in rows:
-        d = dict(r)
-        # Parse confidence from process_response_json is expensive — skip for feed
-        result.append(d)
+    for d in docs:
+        r = d.to_dict()
+        result.append({
+            "id": d.id,
+            "filename": r.get("filename", ""),
+            "pass_status": r.get("pass_status", ""),
+            "status": r.get("status", ""),
+            "doc_type": r.get("doc_type"),
+            "created_at": r.get("created_at", ""),
+            "attorney_matched": r.get("attorney_matched", False),
+            "attorney_match_type": r.get("attorney_match_type"),
+            "has_price_estimate": r.get("has_price_estimate", False),
+            "prompt_version": r.get("prompt_version"),
+        })
     return {"scans": result, "total": len(result)}
 
 
@@ -588,27 +593,26 @@ def get_scan_feed(limit: int = 100, x_api_key: Optional[str] = Header(None)):
 @router.get("/admin/stats/attorneys")
 def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
     _check_auth(x_api_key)
-    conn = _db()
+    db = _fs()
 
-    rows = conn.execute("""
-        SELECT process_response_json, pass_status, doc_type
-        FROM queue WHERE doc_type = 'Ticket' OR doc_type IS NULL
-        ORDER BY created_at DESC LIMIT 500
-    """).fetchall()
-    conn.close()
+    docs = list(
+        db.collection("scan_queue")
+        .order_by("created_at", direction="DESCENDING")
+        .limit(500)
+        .stream()
+    )
 
     state_stats: dict[str, dict] = defaultdict(lambda: {
-        "total": 0, "matched": 0, "county_match": 0, "no_match": 0,
-        "win_rates": [],
+        "total": 0, "matched": 0, "county_match": 0, "no_match": 0, "win_rates": [],
     })
-
     no_attorney_cases = []
 
-    for row in rows:
-        try:
-            pr = json.loads(row["process_response_json"])
-        except Exception:
+    for d in docs:
+        r = d.to_dict()
+        doc_type = r.get("doc_type")
+        if doc_type and doc_type != "Ticket":
             continue
+        pr = r.get("process_response", {})
         result = pr.get("result", {})
         state = (result.get("Ticket_State__c") or {}).get("value", "Unknown")
         county = (result.get("Ticket_County__c") or {}).get("value", "")
@@ -617,7 +621,6 @@ def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
 
         ss = state_stats[state]
         ss["total"] += 1
-
         if matches:
             ss["matched"] += 1
             if any(m.get("match_type") == "county" for m in matches):
@@ -629,8 +632,7 @@ def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
             ss["no_match"] += 1
             if no_flag and len(no_attorney_cases) < 20:
                 no_attorney_cases.append({
-                    "state": state, "county": county,
-                    "filename": pr.get("filename", ""),
+                    "state": state, "county": county, "filename": pr.get("filename", ""),
                 })
 
     summary = []
@@ -646,7 +648,6 @@ def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
             "county_match_rate": round(ss["county_match"] / ss["matched"], 3) if ss["matched"] else 0,
             "avg_win_rate": round(sum(wr) / len(wr), 3) if wr else 0,
         })
-
     summary.sort(key=lambda s: s["match_rate"])
     return {"by_state": summary, "no_attorney_cases": no_attorney_cases}
 
@@ -844,18 +845,29 @@ def get_review_queue(x_api_key: Optional[str] = Header(None)):
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+def _notify_driver_background(driver_id: str, ticket_id: str) -> None:
+    """Runs after the HTTP response is sent — keeps approve fast."""
+    try:
+        from app.services.driver_concierge import notify_driver
+        notify_driver(driver_id, ticket_id, "New")
+    except Exception as exc:
+        logger.warning("[reviewer] driver_concierge failed ticket=%s: %s", ticket_id, exc)
+
+
 @router.post("/admin/approve-ticket/{ticket_id}")
 def approve_ticket(
     ticket_id: str,
+    background_tasks: BackgroundTasks,
     reviewer_id: Optional[str] = None,
     x_api_key: Optional[str] = Header(None),
 ):
     """
     Reviewer approves AI-extracted data for a manually scanned ticket.
     Moves attorney_status from 'AI Review' → 'New' so attorneys can claim it.
+    Returns immediately; driver notification runs in the background.
     """
     _check_auth(x_api_key)
-    from app.services.firebase_service import _init, _firestore_client
+    from app.services.firebase_service import _firestore_client, _init
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     _init()
     if _firestore_client is None:
@@ -882,14 +894,10 @@ def approve_ticket(
             "last_modified_date": SERVER_TIMESTAMP,
         })
 
-        # Notify driver that their ticket cleared review and is now in the attorney queue
+        # Fire-and-forget: notify the driver after we respond
         driver_id = data.get("driver_id") or ""
         if driver_id:
-            try:
-                from app.services.driver_concierge import notify_driver
-                notify_driver(driver_id, ticket_id, "New")
-            except Exception as exc:
-                logger.warning("[reviewer] driver_concierge failed ticket=%s: %s", ticket_id, exc)
+            background_tasks.add_task(_notify_driver_background, driver_id, ticket_id)
 
         logger.warning("[reviewer] approved ticket=%s reviewer=%s → New", ticket_id, reviewer_id)
         return {"success": True, "ticket_id": ticket_id, "attorney_status": "New"}
