@@ -500,7 +500,7 @@ def main():
         scan_queue = scan_queue[:args.limit]
 
     total = len(scan_queue)
-    already_done = sum(1 for s in scan_queue if s["key"] in results)
+    already_done = sum(1 for s in scan_queue if results.get(s["key"], {}).get("status") == "ok")
 
     print(f"\n{'='*60}")
     print(f"Named drivers   : {len(driver_groups)}")
@@ -528,7 +528,7 @@ def main():
     # ── Execute scans ────────────────────────────────────────────────────────
     done = errors = skipped = 0
     for i, scan in enumerate(scan_queue, 1):
-        if scan["key"] in results:
+        if results.get(scan["key"], {}).get("status") == "ok":
             skipped += 1
             continue
 
