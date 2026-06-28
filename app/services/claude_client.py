@@ -91,7 +91,13 @@ def process_document(
     create_kwargs: dict = dict(
         model="claude-sonnet-4-6",
         max_tokens=8192,
-        system=system_prompt,
+        system=[
+            {
+                "type": "text",
+                "text": system_prompt,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ],
         messages=[{"role": "user", "content": content}],
     )
     # temperature is only settable when using extended thinking is off; Claude's
@@ -114,7 +120,14 @@ def process_document(
                            attempt + 1, len(_RETRY_DELAYS), delay)
             time.sleep(delay)
 
-    logger.warning("Claude stop_reason=%s content_blocks=%d", message.stop_reason, len(message.content))
+    usage = message.usage
+    cache_read   = getattr(usage, "cache_read_input_tokens", 0) or 0
+    cache_write  = getattr(usage, "cache_creation_input_tokens", 0) or 0
+    logger.warning(
+        "Claude stop_reason=%s content_blocks=%d tokens_in=%d out=%d cache_read=%d cache_write=%d",
+        message.stop_reason, len(message.content),
+        usage.input_tokens, usage.output_tokens, cache_read, cache_write,
+    )
     block = message.content[0] if message.content else None
     if block is None or not hasattr(block, "text"):
         raise ValueError(f"Claude returned no text block. stop_reason={message.stop_reason} blocks={message.content!r}")

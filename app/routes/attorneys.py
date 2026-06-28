@@ -4,10 +4,11 @@ Attorney network routes — lead management, outreach tracking, ticket matching.
 from __future__ import annotations
 import logging
 import os
+import requests as _requests
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -287,3 +288,129 @@ async def state_coverage(x_api_key: Optional[str] = Header(None)):
             })
 
     return {"coverage": coverage}
+
+
+@router.get("/attorneys/jobs/history")
+async def job_history(limit: int = 10, x_api_key: Optional[str] = Header(None)):
+    """Recent attorney discovery job runs — for monitoring in the Network tab."""
+    _check_auth(x_api_key)
+    db = _db()
+    docs = (db.collection("job_runs")
+              .where("job", "==", "attorney_discovery")
+              .order_by("run_at", direction="DESCENDING")
+              .limit(limit)
+              .stream())
+    runs = []
+    for doc in docs:
+        d = doc.to_dict()
+        d["run_id"] = doc.id
+        # Convert Firestore timestamp to ISO string
+        if hasattr(d.get("run_at"), "isoformat"):
+            d["run_at"] = d["run_at"].isoformat()
+        runs.append(d)
+    return {"runs": runs}
+
+
+# ── On-demand discovery ────────────────────────────────────────────────────────
+
+def _trigger_discovery_job(state: str, ticket_id: str = ""):
+    """
+    Fire the attorney-discovery Cloud Run Job for a specific state.
+    Uses ADC — no service account key needed.
+    Logs result to Firestore job_runs/ for monitoring.
+    """
+    project = os.getenv("FIREBASE_PROJECT_ID", "rigresolve")
+    region  = os.getenv("CLOUD_RUN_REGION", "us-central1")
+    job     = os.getenv("DISCOVERY_JOB_NAME", "attorney-discovery")
+
+    try:
+        import google.auth
+        import google.auth.transport.requests
+        creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+        creds.refresh(google.auth.transport.requests.Request())
+        token = creds.token
+    except Exception as e:
+        logger.error("[discovery] Failed to get ADC token: %s", e)
+        return
+
+    url = (
+        f"https://run.googleapis.com/v2/projects/{project}/locations/{region}"
+        f"/jobs/{job}:run"
+    )
+    payload = {
+        "overrides": {
+            "containerOverrides": [{
+                "env": [{"name": "SINGLE_STATE", "value": state.upper()}]
+            }]
+        }
+    }
+    try:
+        resp = _requests.post(url, json=payload, headers={"Authorization": f"Bearer {token}"}, timeout=15)
+        resp.raise_for_status()
+        logger.warning("[discovery] Triggered job for state=%s ticket=%s", state, ticket_id)
+    except Exception as e:
+        logger.error("[discovery] Job trigger failed state=%s: %s", state, e)
+
+
+def _write_outreach_alert(db, state: str, ticket_id: str, ticket_county: str = ""):
+    """Write an alert to Firestore so the Network tab and Eniola can see it."""
+    db.collection("outreach_alerts").add({
+        "state": state,
+        "county": ticket_county,
+        "ticket_id": ticket_id,
+        "status": "open",
+        "created_at": datetime.now(timezone.utc),
+        "message": f"New ticket in {state} ({ticket_county}) — no onboarded attorney. Discovery job triggered.",
+    })
+
+
+def trigger_discovery_for_ticket(ticket_id: str, state: str, county: str = ""):
+    """
+    Called as a background task after ticket approval when no attorney is available.
+    Fires the Cloud Run Job and writes an alert.
+    """
+    db = _db()
+    if db is None:
+        return
+    _write_outreach_alert(db, state, ticket_id, county)
+    _trigger_discovery_job(state, ticket_id)
+
+
+@router.post("/attorneys/discover")
+async def trigger_discovery(
+    state: str,
+    background_tasks: BackgroundTasks,
+    ticket_id: str = "",
+    x_api_key: Optional[str] = Header(None),
+):
+    """
+    Manually trigger an on-demand attorney discovery scrape for a specific state.
+    Also called automatically when a ticket is approved with no onboarded attorney.
+    """
+    _check_auth(x_api_key)
+    if not state or len(state) != 2:
+        raise HTTPException(status_code=400, detail="state must be a 2-letter code (e.g. TX)")
+
+    background_tasks.add_task(_trigger_discovery_job, state.upper(), ticket_id)
+    logger.warning("[discovery] Queued on-demand scrape state=%s", state.upper())
+    return {"ok": True, "state": state.upper(), "message": "Discovery job queued"}
+
+
+@router.get("/attorneys/alerts")
+async def get_alerts(status: str = "open", limit: int = 20, x_api_key: Optional[str] = Header(None)):
+    """Outreach alerts — states with tickets but no onboarded attorney."""
+    _check_auth(x_api_key)
+    db = _db()
+    docs = (db.collection("outreach_alerts")
+              .where("status", "==", status)
+              .order_by("created_at", direction="DESCENDING")
+              .limit(limit)
+              .stream())
+    alerts = []
+    for doc in docs:
+        d = doc.to_dict()
+        d["alert_id"] = doc.id
+        if hasattr(d.get("created_at"), "isoformat"):
+            d["created_at"] = d["created_at"].isoformat()
+        alerts.append(d)
+    return {"alerts": alerts, "count": len(alerts)}

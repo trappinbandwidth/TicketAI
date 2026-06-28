@@ -65,36 +65,41 @@ def _fetch_attorneys(state: str, county: str) -> list[AttorneyMatch]:
     """Query local attorneys table. County matches first, then state fallback."""
     candidates: dict[str, dict] = {}
 
-    with _db() as conn:
-        # County-level match
-        if county:
-            rows = conn.execute(
-                """SELECT id, name, email, phone, rating, win_rate, total_tickets
-                   FROM attorneys
-                   WHERE state = ? AND (county = ? OR county = '')
-                   AND active = 1
-                   ORDER BY county DESC LIMIT 50""",
-                (state, county),
-            ).fetchall()
-            for r in rows:
-                row = dict(r)
-                match_type = "county" if row.get("county") == county else "state"
-                if row["id"] not in candidates:
-                    candidates[row["id"]] = {**row, "match_type": match_type}
+    try:
+        with _db() as conn:
+            # County-level match
+            if county:
+                rows = conn.execute(
+                    """SELECT id, name, email, phone, rating, win_rate, total_tickets
+                       FROM attorneys
+                       WHERE state = ? AND (county = ? OR county = '')
+                       AND active = 1
+                       ORDER BY county DESC LIMIT 50""",
+                    (state, county),
+                ).fetchall()
+                for r in rows:
+                    row = dict(r)
+                    match_type = "county" if row.get("county") == county else "state"
+                    if row["id"] not in candidates:
+                        candidates[row["id"]] = {**row, "match_type": match_type}
 
-        # State-level fallback
-        if len(candidates) < 3:
-            rows = conn.execute(
-                """SELECT id, name, email, phone, rating, win_rate, total_tickets
-                   FROM attorneys
-                   WHERE state = ? AND active = 1
-                   LIMIT 100""",
-                (state,),
-            ).fetchall()
-            for r in rows:
-                row = dict(r)
-                if row["id"] not in candidates:
-                    candidates[row["id"]] = {**row, "match_type": "state"}
+            # State-level fallback
+            if len(candidates) < 3:
+                rows = conn.execute(
+                    """SELECT id, name, email, phone, rating, win_rate, total_tickets
+                       FROM attorneys
+                       WHERE state = ? AND active = 1
+                       LIMIT 100""",
+                    (state,),
+                ).fetchall()
+                for r in rows:
+                    row = dict(r)
+                    if row["id"] not in candidates:
+                        candidates[row["id"]] = {**row, "match_type": "state"}
+
+    except sqlite3.OperationalError as exc:
+        logger.warning("[attorney] DB not ready (%s) — returning no_attorney for state=%r county=%r", exc, state, county)
+        return []
 
     return [
         AttorneyMatch(
