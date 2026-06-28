@@ -271,20 +271,36 @@ async def process_ticket(
                      "cdl_point_impact", "escalation_reason", "dual_conflicts"}
     }
 
-    # Patch any missing required ExtractedField entries with a blank placeholder
-    # so a Claude omission never causes a 422 — the field just shows as empty.
+    # Defensive patch — fill any missing required fields with safe defaults so
+    # a Claude omission or a red-escalation partial result never causes a 422.
     _EMPTY_FIELD = {"value": "", "confidence_score": 0.0,
                     "ai_reason": "Field not returned by extraction.", "raw_evidence": None}
-    _REQUIRED_FIELDS = [
+
+    # Top-level metadata defaults
+    ticket_fields.setdefault("file_type", "Unknown")
+    ticket_fields.setdefault("other_document_types", [])
+    ticket_fields.setdefault("file_name", filename)
+    ticket_fields.setdefault("document_text_format", "unknown")
+    if not isinstance(ticket_fields.get("file_type_analysis"), dict):
+        ticket_fields["file_type_analysis"] = {"confidence_score": 0.0, "ai_reason": "Not available."}
+    if not isinstance(ticket_fields.get("other_document_types"), list):
+        ticket_fields["other_document_types"] = []
+
+    # Required ExtractedField defaults
+    _REQUIRED_EXTRACTED = [
         "Date_of_Ticket__c", "Violation_Description__c", "Violation_Category__c",
         "Court_Date__c", "Accident__c", "Drivers_License_Type__c",
         "Ticket_Court__c", "Court_Phone_Number__c", "Ticket_City__c",
         "Ticket_County__c", "Ticket_State__c", "Insp_Report_Num__c", "Citation_Number__c",
     ]
-    for field in _REQUIRED_FIELDS:
-        if field not in ticket_fields or ticket_fields[field] is None:
+    for field in _REQUIRED_EXTRACTED:
+        if not isinstance(ticket_fields.get(field), dict):
             ticket_fields[field] = _EMPTY_FIELD
-            logger.warning("[process] patched missing required field %s with empty placeholder", field)
+            logger.warning("[process] patched missing field %s", field)
+
+    # Drop any keys that aren't DocumentResult fields to avoid unexpected-field errors
+    _valid_fields = DocumentResult.model_fields.keys()
+    ticket_fields = {k: v for k, v in ticket_fields.items() if k in _valid_fields}
 
     try:
         ticket_result = DocumentResult(**ticket_fields)
