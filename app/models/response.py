@@ -160,6 +160,12 @@ class DocumentResult(BaseModel):
     MVR_Total_Points__c: Optional[ExtractedField] = None
     MVR_Suspension_Count__c: Optional[ExtractedField] = None
 
+    # ── Photo fields (populated when file_type == "Photo") ───────────────────
+    Photo_Type__c: Optional[ExtractedField] = None          # Vehicle Damage | Accident Scene | Person/Injury | Equipment Damage | Road/Environment | Driver Documentation | Repair Documentation | Other
+    Photo_Summary__c: Optional[ExtractedField] = None       # Attorney-facing description of the photograph
+    Damage_Assessment__c: Optional[ExtractedField] = None   # Extent, location, and severity of visible damage
+    Attorney_Notes__c: Optional[ExtractedField] = None      # Defense-relevant observations from the image
+
 
 # Backward-compatible alias
 TicketResponse = DocumentResult

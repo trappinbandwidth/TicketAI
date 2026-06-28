@@ -11,7 +11,7 @@ API call (the /api/v1/process endpoint accepts up to 10 images per ticket).
 Unidentified files (UUID names, fax artifacts, HEIC, generic names) are
 queued individually so the AI can classify them.
 
-Scannable doc types : TK  IR  MVR  KT  DOC  CRASH
+Scannable doc types : TK  IR  MVR  KT  DOC  CRASH  PHOTO
 Skipped             : legal docs, pleas, dispositions, receipts, insurance
 
 Usage:
@@ -67,8 +67,26 @@ HEADERS     = {"x-api-key": API_KEY}
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
 PDF_EXTS   = {".pdf"}
-HEIC_EXTS  = {".heic"}
-SCAN_EXTS  = IMAGE_EXTS | PDF_EXTS
+HEIC_EXTS  = {".heic", ".heif"}
+SCAN_EXTS  = IMAGE_EXTS | PDF_EXTS | HEIC_EXTS  # HEIC converted via sips before posting
+
+# Filename patterns that identify a photograph rather than a scanned document
+_PHOTO_PATTERNS = [
+    re.compile(r'^img_\d+', re.I),                  # IMG_0083.jpeg
+    re.compile(r'^photo_\d{4}-\d{2}-\d{2}', re.I),  # photo_2025-10-30_14-54-09.jpg
+    re.compile(r'^\d{8}_\d{6}', re.I),              # 20260421_150835.heic
+    re.compile(r'_repair_', re.I),
+    re.compile(r'_damage_', re.I),
+]
+
+
+def _is_photo_filename(filename: str) -> bool:
+    """Return True if the filename pattern indicates a photograph vs. a scanned document."""
+    ext  = Path(filename).suffix.lower()
+    stem = Path(filename).stem.lower()
+    if ext in HEIC_EXTS:
+        return True
+    return any(p.search(stem) for p in _PHOTO_PATTERNS)
 
 # ── Filename intelligence ─────────────────────────────────────────────────────
 US_STATES = {
@@ -92,7 +110,7 @@ SKIP_KEYWORDS = [
     "payment receipt", "pti", "mdjdocketsheet", "oscn", "courtnet",
     "docket sheet", "docket", "case detail", "confirmation letter",
     "prosecutor", "bossier parish", "trial waiver", "court summary",
-    "htoo closing", "cdl legal mail", "tire receipt", "repair_tire",
+    "htoo closing", "cdl legal mail", "tire receipt",
     "plea in absentia", "plea offer", "plea agreement",
     "case over -", "case over-", "vitalii dispo", "pugh dispo",
     "pugh crisp", "jerrell pugh-crisp", "khayibaev disposition",
@@ -148,6 +166,13 @@ DRIVER_OVERRIDES: dict[str, str] = {
     "skmbt":                        "Unknown - Konica Scan",
     "camscanner 12-19-2023":        "Unknown - CamScanner",
     "xerox scan":                   "Unknown - Xerox Scan",
+    # Photo files — linked to Aldo Reveles (date 10-30-25 matches his TK)
+    "photo_2025-10-30_14-54-09":   "Aldo Reveles",
+    "photo_2025-10-30_14-54-13":   "Aldo Reveles",
+    "photo_2025-10-30_14-54-16":   "Aldo Reveles",
+    "531414_repair_tire":           "Unknown - Repair Photo",
+    "img_0083":                     "Unknown - Vehicle Photo",
+    "crash report":                 "Bway Htoo",
 }
 
 # Doc type override for specific filenames
@@ -175,6 +200,13 @@ DOCTYPE_OVERRIDES: dict[str, str] = {
     "roudeline zephirin id":        "DOC",
     "txdpslicenseemanager":         "MVR",
     "crystal johnson - wy":         "TK",
+    # Photo overrides
+    "photo_2025-10-30_14-54-09":   "PHOTO",
+    "photo_2025-10-30_14-54-13":   "PHOTO",
+    "photo_2025-10-30_14-54-16":   "PHOTO",
+    "531414_repair_tire":           "PHOTO",
+    "img_0083":                     "PHOTO",
+    "crash report":                 "PHOTO",
 }
 
 DATE_RE = re.compile(
@@ -195,11 +227,9 @@ def should_skip(filename: str) -> tuple[bool, str]:
             return True, f"legal/admin keyword '{kw}'"
     stem = Path(filename).stem.lower()
     if stem.startswith("child seat"):
-        return True, "child seat photo"
-    if stem.startswith("equipment"):
-        return True, "equipment photo"
-    if "repair_tire" in stem or "tire receipt" in stem:
-        return True, "tire receipt"
+        return True, "child seat photo — out of scope"
+    if stem.startswith("equipment") and "damage" not in stem:
+        return True, "generic equipment doc (no damage context)"
     if stem.startswith("insurance"):
         return True, "insurance document"
     if stem.startswith("screenshot_2026042"):
@@ -240,10 +270,17 @@ def parse_filename(filename: str) -> dict:
     if dt_override:
         info["doc_type"] = dt_override
 
-    # Detect UUID / fax / timestamp names → unknown
+    # Detect UUID / fax names → unknown
     if UUID_RE.match(stem) or FAX_RE.match(stem):
         info["is_unknown"] = True
         info["name"] = info["name"] or f"Unknown-{stem[:8]}"
+        return info
+
+    # Detect photograph patterns (HEIC, IMG_, photo_, timestamp) → PHOTO type
+    if _is_photo_filename(filename) and not info["doc_type"]:
+        info["doc_type"] = "PHOTO"
+        info["is_unknown"] = not bool(info["name"])
+        info["name"] = info["name"] or f"Unknown-Photo-{stem[:12]}"
         return info
 
     # Find date
@@ -431,6 +468,9 @@ def summarise(data: dict) -> dict:
         "state":                (result_obj.get("Ticket_State__c") or {}).get("value", ""),
         "court_date":           (result_obj.get("Court_Date__c") or {}).get("value", ""),
         "court_time":           (result_obj.get("Court_Time__c") or {}).get("value", ""),
+        # Photo-specific summary fields
+        "photo_type":           (result_obj.get("Photo_Type__c") or {}).get("value", ""),
+        "photo_summary":        (result_obj.get("Photo_Summary__c") or {}).get("value", "")[:120] if result_obj.get("Photo_Summary__c") else "",
     }
 
 

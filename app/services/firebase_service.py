@@ -215,3 +215,102 @@ def _pass_to_status(pass_status: str) -> str:
     if pass_status == "yellow":
         return "needs_review"
     return "needs_review"
+
+
+def upload_photo_to_storage(
+    raw_bytes: bytes,
+    photo_id: str,
+    filename: str,
+    content_type: str = "image/jpeg",
+) -> Optional[str]:
+    """
+    Upload a photo to Firebase Storage and return its public download URL.
+    Path: photos/{photo_id}/{filename}
+    Returns None if Storage is not configured or upload fails.
+    """
+    _init()
+    project_id = os.getenv("FIREBASE_PROJECT_ID", "")
+    if not project_id:
+        return None
+
+    try:
+        from firebase_admin import storage as admin_storage
+        bucket_name = f"{project_id}.appspot.com"
+        bucket = admin_storage.bucket(bucket_name)
+        blob_path = f"photos/{photo_id}/{filename}"
+        blob = bucket.blob(blob_path)
+        blob.upload_from_string(raw_bytes, content_type=content_type)
+        # Generate a signed-ish URL valid for 7 days; fall back to gs:// on failure
+        try:
+            download_url = blob.generate_signed_url(expiration=604800, method="GET", version="v4")
+        except Exception:
+            download_url = f"gs://{bucket_name}/{blob_path}"
+        logger.warning("[firebase] storage upload photo=%s url=%s", photo_id, download_url[:60])
+        return download_url
+    except Exception as exc:
+        logger.warning("[firebase] storage upload FAILED photo=%s: %s", photo_id, exc)
+        return None
+
+
+def write_photo_result(
+    photo_id: str,
+    driver_id: Optional[str],
+    analysis: dict,
+    source: str = "driver_upload",
+    storage_url: Optional[str] = None,
+) -> bool:
+    """
+    Write photo AI analysis to Firestore.
+
+    Two paths:
+      1. photos/{photo_id}                          — attorney portal access
+      2. drivers/{driver_id}/photos/{photo_id}      — driver app (when driver_id known)
+
+    analysis: the dict returned by agents.photo_analyst.analyze_photo()
+    storage_url: Firebase Storage download URL for the original image (optional)
+    """
+    _init()
+    if _firestore_client is None:
+        return False
+
+    try:
+        from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+
+        def fv(field: str) -> Optional[str]:
+            f = analysis.get(field)
+            if isinstance(f, dict):
+                return f.get("value") or None
+            return None
+
+        photo_doc = {
+            "photo_id": photo_id,
+            "driver_id": driver_id,
+            "file_name": analysis.get("file_name", ""),
+            "photo_type": analysis.get("photo_type", "Other"),
+            "photo_summary": fv("Photo_Summary__c"),
+            "damage_assessment": fv("Damage_Assessment__c"),
+            "attorney_notes": fv("Attorney_Notes__c"),
+            "storage_url": storage_url,
+            "source": source,
+            "pass_status": "green",
+            "full_analysis": analysis,
+            "created_at": SERVER_TIMESTAMP,
+        }
+
+        # Write 1: top-level photos collection (attorney portal queue)
+        _firestore_client.collection("photos").document(photo_id).set(photo_doc, merge=True)
+        logger.warning("[firebase] photo write photo=%s type=%s", photo_id, photo_doc["photo_type"])
+
+        # Write 2: driver subcollection (driver app real-time)
+        if driver_id:
+            _firestore_client \
+                .collection("drivers").document(driver_id) \
+                .collection("photos").document(photo_id) \
+                .set(photo_doc, merge=True)
+            logger.warning("[firebase] driver photo write driver=%s photo=%s", driver_id, photo_id)
+
+        return True
+
+    except Exception as exc:
+        logger.error("[firebase] write_photo_result FAILED photo=%s: %s", photo_id, exc)
+        return False

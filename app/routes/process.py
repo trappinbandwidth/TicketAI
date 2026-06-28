@@ -6,6 +6,7 @@ import os
 import re
 import uuid
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import List, Optional
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
@@ -19,7 +20,8 @@ from app.services.preprocessor import image_file_to_base64, pdf_to_images_and_te
 from app.services.pricing import get_price_estimate
 from app.services.queue_store import cache_get, cache_set, get_item, save_scan
 from app.services.textract_service import extract_word_positions
-from app.services.firebase_service import write_scan_result
+from app.services.firebase_service import write_scan_result, write_photo_result, upload_photo_to_storage
+from agents.photo_analyst import analyze_photo
 from app.services.court_lookup import lookup_court
 from app.services.enrollment_verifier import verify_enrollment
 from orchestrator.graph import ticket_graph
@@ -33,7 +35,37 @@ SUPPORTED_TYPES = {
     "image/jpeg": "image",
     "image/jpg": "image",
     "image/png": "image",
+    "image/heic": "image",
+    "image/heif": "image",
 }
+
+# Filename stems that indicate a photograph rather than a scanned document.
+# Claude will confirm, but this heuristic lets us skip the full 8-agent pipeline.
+_PHOTO_STEM_PATTERNS = [
+    re.compile(r'^img_\d+', re.I),                  # IMG_0083.jpeg — iPhone default
+    re.compile(r'^photo_\d{4}-\d{2}-\d{2}', re.I),  # photo_2025-10-30_14-54-09.jpg — Telegram
+    re.compile(r'^\d{8}_\d{6}', re.I),              # 20260421_150835.heic — Android/iPhone
+    re.compile(r'_repair_', re.I),
+    re.compile(r'_damage_', re.I),
+    re.compile(r'_scene', re.I),
+    re.compile(r'^crash[\s_-]?photo', re.I),
+]
+_PHOTO_EXTENSIONS = {".heic", ".heif"}
+
+
+def _is_photo_upload(filename: str, content_type: str) -> bool:
+    """
+    Return True when the file is almost certainly a photograph rather than a
+    scanned paper document.  Claude vision will do the definitive classification;
+    this heuristic just lets us skip 8 expensive agent steps for obvious cases.
+    """
+    ext = Path(filename).suffix.lower()
+    if ext in _PHOTO_EXTENSIONS:
+        return True
+    if content_type in ("image/heic", "image/heif"):
+        return True
+    stem = Path(filename).stem.lower()
+    return any(p.search(stem) for p in _PHOTO_STEM_PATTERNS)
 
 
 _DATE_FORMATS = [
@@ -148,11 +180,14 @@ async def process_ticket(
     # Use the first file's name as the ticket filename
     filename = files[0].filename or "unknown"
 
-    # Combine pages from all uploaded files in order
+    # Combine pages from all uploaded files in order.
+    # Track raw bytes for the first file so photos can be uploaded to Storage.
     images_b64: list[str] = []
     ocr_parts:  list[str] = []
+    first_raw_bytes: bytes = b""
+    first_content_type: str = ""
 
-    for f in files:
+    for idx, f in enumerate(files):
         content_type = f.content_type or ""
         file_kind = SUPPORTED_TYPES.get(content_type)
         if not file_kind:
@@ -161,6 +196,9 @@ async def process_ticket(
                 detail=f"Unsupported file type: {content_type} ({f.filename}). Send PDF, JPG, or PNG.",
             )
         raw_bytes = await f.read()
+        if idx == 0:
+            first_raw_bytes = raw_bytes
+            first_content_type = content_type
         if file_kind == "pdf":
             imgs, txt = pdf_to_images_and_text(raw_bytes)
         else:
@@ -170,6 +208,22 @@ async def process_ticket(
             ocr_parts.append(txt)
 
     ocr_text = "\n\n---\n\n".join(ocr_parts) if ocr_parts else ""
+
+    # ── Photo fast path ───────────────────────────────────────────────────────
+    # If the upload looks like a photograph (not a scanned document), bypass
+    # the full 8-agent ticket pipeline and run the photo analyst instead.
+    # Claude still does the definitive classification; the heuristic just
+    # avoids running lone_ranger / book_worm / research_ron on photos.
+    if _is_photo_upload(filename, first_content_type):
+        return await _handle_photo_upload(
+            images_b64=images_b64,
+            raw_bytes=first_raw_bytes,
+            content_type=first_content_type,
+            filename=filename,
+            driver_id=driver_id,
+            source=source,
+        )
+    # ─────────────────────────────────────────────────────────────────────────
     logger.warning("[process] file=%s total_pages=%d from %d file(s)", filename, len(images_b64), len(files))
 
     # Check document cache — skip pipeline for identical uploads
@@ -528,3 +582,110 @@ async def process_ticket(
     write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source)
 
     return response
+
+
+# ── Photo upload handler ──────────────────────────────────────────────────────
+
+async def _handle_photo_upload(
+    images_b64: list[str],
+    raw_bytes: bytes,
+    content_type: str,
+    filename: str,
+    driver_id: Optional[str],
+    source: str,
+) -> JSONResponse:
+    """
+    Photo fast path — bypasses the full ticket-extraction pipeline.
+    Runs photo_analyst (Claude vision), uploads to Firebase Storage,
+    writes to photos/{id} Firestore collection.
+    """
+    photo_id = str(uuid.uuid4())
+    logger.warning("[process] PHOTO path file=%s id=%s", filename, photo_id)
+
+    # Run Claude vision analysis
+    analysis = analyze_photo(images_b64, filename)
+
+    # Upload original image bytes to Firebase Storage
+    storage_url = upload_photo_to_storage(
+        raw_bytes=raw_bytes,
+        photo_id=photo_id,
+        filename=filename,
+        content_type=content_type,
+    )
+
+    # Write to Firestore
+    write_photo_result(
+        photo_id=photo_id,
+        driver_id=driver_id,
+        analysis=analysis,
+        source=source,
+        storage_url=storage_url,
+    )
+
+    # Build a ProcessResponse-compatible dict for API consistency.
+    # Ticket fields are all empty; photo fields are populated.
+    _empty = {"value": "", "confidence_score": 0.0, "ai_reason": "Not applicable to photo.", "raw_evidence": None}
+    ticket_fields: dict = {
+        "file_type": analysis.get("file_type", "Photo"),
+        "other_document_types": analysis.get("other_document_types", []),
+        "file_type_analysis": analysis.get("file_type_analysis", {"confidence_score": 0.0, "ai_reason": ""}),
+        "file_name": filename,
+        "document_text_format": "photo",
+        # Required ticket fields — all empty for photos
+        "Date_of_Ticket__c": _empty,
+        "Violation_Description__c": _empty,
+        "Violation_Category__c": _empty,
+        "Court_Date__c": _empty,
+        "Accident__c": _empty,
+        "Drivers_License_Type__c": _empty,
+        "Ticket_Court__c": _empty,
+        "Court_Phone_Number__c": _empty,
+        "Ticket_City__c": _empty,
+        "Ticket_County__c": _empty,
+        "Ticket_State__c": _empty,
+        "Insp_Report_Num__c": _empty,
+        "Citation_Number__c": _empty,
+        # Photo-specific fields
+        "Photo_Type__c": analysis.get("Photo_Type__c"),
+        "Photo_Summary__c": analysis.get("Photo_Summary__c"),
+        "Damage_Assessment__c": analysis.get("Damage_Assessment__c"),
+        "Attorney_Notes__c": analysis.get("Attorney_Notes__c"),
+    }
+
+    try:
+        doc_result = DocumentResult(**ticket_fields)
+    except Exception as exc:
+        logger.warning("[process] photo DocumentResult build failed: %s", exc)
+        doc_result = DocumentResult(**{k: v for k, v in ticket_fields.items()
+                                       if k in DocumentResult.model_fields})
+
+    response = ProcessResponse(
+        success=True,
+        mock=(os.getenv("USE_MOCK", "true").lower() == "true"),
+        filename=filename,
+        pages_processed=len(images_b64),
+        pass_status="green",
+        low_confidence_fields=[],
+        referee_notes=None,
+        cdl_point_impact=None,
+        doc_severity=None,
+        escalation_reason=None,
+        queue_id=photo_id,
+        price_estimate=None,
+        dual_conflicts=[],
+        attorney_matches=[],
+        no_attorney_flag=True,
+        artificial_court_date=False,
+        court_info=None,
+        cdl_point_estimate=None,
+        payment_options=None,
+        urgency_level=None,
+        urgency_reason=None,
+        completeness_score=None,
+        missing_fields=[],
+        result=doc_result,
+    )
+
+    logger.warning("[process] PHOTO complete file=%s id=%s type=%s storage=%s",
+                   filename, photo_id, analysis.get("photo_type"), bool(storage_url))
+    return JSONResponse(content=response.model_dump())
