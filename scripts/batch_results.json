@@ -14222,5 +14222,4350 @@
     "status": "error",
     "error": "500 Server Error: Internal Server Error for url: http://127.0.0.1:8000/api/v1/process",
     "elapsed_s": 11.1
+  },
+  "20260421_150835|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "20260421_150835",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "20260421_150835.jpg"
+    ],
+    "ticket_id": "aad3610d-8936-48e9-8c62-429c83706e63",
+    "elapsed_s": 242.6,
+    "pass_status": "red",
+    "queue_id": "8751abbf-9219-4987-8fca-afd8a06405bf",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.6,
+    "fields_filled": 2,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Crash Report",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "20260421_150842|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "20260421_150842",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "20260421_150842.jpg"
+    ],
+    "ticket_id": "e21107f8-d638-4ea4-8166-4b7e411f6336",
+    "elapsed_s": 103.3,
+    "pass_status": "red",
+    "queue_id": "16a9b0f2-ffd7-481c-8850-68522f3423f3",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.803,
+    "fields_filled": 2,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Inspection Report",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "20260421_151318|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "20260421_151318",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "20260421_151318.jpg"
+    ],
+    "ticket_id": "a91a74c1-fc71-462d-b835-7130982a4c45",
+    "elapsed_s": 84.4,
+    "pass_status": "red",
+    "queue_id": "91333de3-e8eb-4770-b349-58196a189a5f",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 0,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Unknown",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "20260422_121531|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "20260422_121531",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "20260422_121531.jpg"
+    ],
+    "ticket_id": "47fefd34-4238-45cc-ad55-f15c3775c167",
+    "elapsed_s": 93.4,
+    "pass_status": "red",
+    "queue_id": "7415ddab-4e49-44eb-a975-e2ba9256e604",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 0,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Other",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "20260422_121543 (1)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "20260422_121543 (1)",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "20260422_121543 (1).jpg"
+    ],
+    "ticket_id": "94d4a449-60df-4099-8b51-6f8afe5d6495",
+    "elapsed_s": 120.2,
+    "pass_status": "red",
+    "queue_id": "2b57910a-988a-4e88-99f6-6fb8a0d0efaf",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.435,
+    "fields_filled": 1,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Crash Report",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Abdi Ahmed|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "Abdi Ahmed",
+    "doc_type": "MVR",
+    "state": "Minnesota",
+    "date": "nodate",
+    "files": [
+      "AHMED ABDI DRIVING RECORD.pdf"
+    ],
+    "ticket_id": "2233a964-337b-4a08-bf1c-5ff08ea5b38a",
+    "elapsed_s": 115.0,
+    "pass_status": "red",
+    "queue_id": "bf9ebc46-01d9-493b-953c-afff3ef9c66c",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.987,
+    "fields_filled": 18,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Abdi Ahmed|IR|4.5.2024|KY": {
+    "status": "ok",
+    "driver": "Abdi Ahmed",
+    "doc_type": "IR",
+    "state": "Kentucky",
+    "date": "4.5.2024",
+    "files": [
+      "Abdi Ahmed 4.5.2024 KY IR.jpg"
+    ],
+    "ticket_id": "127ac028-f0af-4211-8fd5-c5e1f9398ad6",
+    "elapsed_s": 169.7,
+    "pass_status": "yellow",
+    "queue_id": "c2fcbd52-3b73-4b54-a3ff-6aa1da1e2777",
+    "urgency": "LOW",
+    "completeness": 0.5,
+    "avg_confidence": 0.898,
+    "fields_filled": 27,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Inspection Report",
+    "violation": "ELD/Logs",
+    "court_date": "04/15/2024",
+    "court_time": ""
+  },
+  "Abdi Ahmed|TK|4.5.2024|KY": {
+    "status": "ok",
+    "driver": "Abdi Ahmed",
+    "doc_type": "TK",
+    "state": "Kentucky",
+    "date": "4.5.2024",
+    "files": [
+      "Abdi Ahmed 4.5.2024 KY TK.jpg",
+      "Abdi Ahmed 4.5.2024 KY TK (2).jpg"
+    ],
+    "ticket_id": "4be61225-fc1c-4823-a805-0f413fd51170",
+    "elapsed_s": 128.8,
+    "pass_status": "green",
+    "queue_id": "d8a7996a-a9b6-4b2b-a36f-54bf7063c096",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.938,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "ELD/Logs",
+    "court_date": "05/08/2024",
+    "court_time": "8:30 AM"
+  },
+  "Aldo Reveles|TK|10-30-25|IN": {
+    "status": "ok",
+    "driver": "Aldo Reveles",
+    "doc_type": "TK",
+    "state": "Indiana",
+    "date": "10-30-25",
+    "files": [
+      "Aldo Reveles 10-30-25 IN TK.jpg"
+    ],
+    "ticket_id": "f2ebde31-6877-48eb-b984-c9d609fd2db8",
+    "elapsed_s": 72.6,
+    "pass_status": "green",
+    "queue_id": "96f818d4-ec92-4763-9816-010f24bb6c5e",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.959,
+    "fields_filled": 32,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "11/13/2025",
+    "court_time": "05:30 PM"
+  },
+  "Ali (Unknown Last Name - NC)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Ali (Unknown Last Name - NC)",
+    "doc_type": "UNK",
+    "state": "North Carolina",
+    "date": "nodate",
+    "files": [
+      "ali nc.pdf"
+    ],
+    "ticket_id": "510271db-17fb-45bb-8555-37ac5a70fc67",
+    "elapsed_s": 92.0,
+    "pass_status": "green",
+    "queue_id": "df9fd06f-0118-4725-9940-399c52b16216",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.973,
+    "fields_filled": 30,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "07/21/2023",
+    "court_time": "9:00 AM"
+  },
+  "Andre Roach|TK|1.26.2024|VA": {
+    "status": "ok",
+    "driver": "Andre Roach",
+    "doc_type": "TK",
+    "state": "Virginia",
+    "date": "1.26.2024",
+    "files": [
+      "Andre Roach 1.26.2024 VA TK.jpeg"
+    ],
+    "ticket_id": "c73620cd-919a-44b0-80a3-270476231997",
+    "elapsed_s": 160.8,
+    "pass_status": "yellow",
+    "queue_id": "2d1977c1-4486-4672-b9be-1013974e700e",
+    "urgency": "LOW",
+    "completeness": 0.5,
+    "avg_confidence": 0.799,
+    "fields_filled": 17,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Reckless Driving",
+    "court_date": "02/05/2024",
+    "court_time": ""
+  },
+  "Andre Roach|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "Andre Roach",
+    "doc_type": "MVR",
+    "state": "Texas",
+    "date": "nodate",
+    "files": [
+      "Andre Roach MVR.jpg"
+    ],
+    "ticket_id": "173388b4-2500-4b8f-a884-692062b3ec34",
+    "elapsed_s": 113.7,
+    "pass_status": "red",
+    "queue_id": "626576bb-77fc-4a69-ba05-311b7d05828a",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.987,
+    "fields_filled": 17,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Andre Roach|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Andre Roach",
+    "doc_type": "UNK",
+    "state": "Virginia",
+    "date": "nodate",
+    "files": [
+      "Roach_000643.pdf"
+    ],
+    "ticket_id": "2ce21c29-ec06-4b73-a46c-c20ea7d43c09",
+    "elapsed_s": 162.6,
+    "pass_status": "red",
+    "queue_id": "b4ec9519-b36d-4f04-ad87-faff31692ff7",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.941,
+    "fields_filled": 12,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Reckless Driving",
+    "court_date": "11/20/2024",
+    "court_time": ""
+  },
+  "anthony johnson VA|UNK|9.2.21|XX": {
+    "status": "ok",
+    "driver": "anthony johnson VA",
+    "doc_type": "UNK",
+    "state": "Virginia",
+    "date": "9.2.21",
+    "files": [
+      "anthony johnson VA 9.2.21.pdf"
+    ],
+    "ticket_id": "c6c3be64-3164-4c6c-87f4-d225da3b8f42",
+    "elapsed_s": 164.1,
+    "pass_status": "red",
+    "queue_id": "d716a010-1884-476e-80cb-3f2d721b7540",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.742,
+    "fields_filled": 13,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Violation_Category__c",
+      "Driver_Address__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Equipment/Maintenance",
+    "court_date": "10/01/2023",
+    "court_time": ""
+  },
+  "Anthony King|TK|5-18-26|TN": {
+    "status": "ok",
+    "driver": "Anthony King",
+    "doc_type": "TK",
+    "state": "Tennessee",
+    "date": "5-18-26",
+    "files": [
+      "Anthony King 5-18-26 TN Spouse TK 1.jpeg",
+      "Anthony King 5-18-26 TN Spouse TK 2.jpeg"
+    ],
+    "ticket_id": "d9fd2ce0-8d6d-4c7a-9097-16800f681bdc",
+    "elapsed_s": 187.4,
+    "pass_status": "red",
+    "queue_id": "6486a401-763e-4038-86c7-f1dc8d88a123",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.918,
+    "fields_filled": 15,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Speeding (1-14)",
+    "court_date": "07/08/2026",
+    "court_time": ""
+  },
+  "Antoine Moreland|TK|11-20-25|TN": {
+    "status": "ok",
+    "driver": "Antoine Moreland",
+    "doc_type": "TK",
+    "state": "Tennessee",
+    "date": "11-20-25",
+    "files": [
+      "Antoine Moreland 11-20-25 TN TK.jpeg"
+    ],
+    "ticket_id": "293d5524-c226-4560-bc74-329e35ea208e",
+    "elapsed_s": 138.6,
+    "pass_status": "green",
+    "queue_id": "afd7f271-1ff3-48b2-ade3-bd427dcf0fd5",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.858,
+    "fields_filled": 18,
+    "fields_total": 62,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "11/26/2025",
+    "court_time": ""
+  },
+  "Antonio Bruno|TK|2-04-26|UT": {
+    "status": "ok",
+    "driver": "Antonio Bruno",
+    "doc_type": "TK",
+    "state": "Utah",
+    "date": "2-04-26",
+    "files": [
+      "Antonio Bruno 2-04-26 UT TK.jpg"
+    ],
+    "ticket_id": "429d2629-bac6-43ab-9f4e-e5785f8bfd5c",
+    "elapsed_s": 164.9,
+    "pass_status": "yellow",
+    "queue_id": "41eab651-a57d-451c-a917-8a49dbc22486",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.921,
+    "fields_filled": 19,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (1-14)",
+    "court_date": "02/18/2026",
+    "court_time": ""
+  },
+  "Antonio Bruno|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "Antonio Bruno",
+    "doc_type": "MVR",
+    "state": "Utah",
+    "date": "nodate",
+    "files": [
+      "Antonio Bruno MVR.jpg"
+    ],
+    "ticket_id": "356227df-060d-4957-b4e4-bcaa2ab70330",
+    "elapsed_s": 114.2,
+    "pass_status": "red",
+    "queue_id": "b96c0427-b397-440c-a0b0-6456f04c7785",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.986,
+    "fields_filled": 10,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Benchika Doll CA Tckt|UNK|12.7.19|XX": {
+    "status": "ok",
+    "driver": "Benchika Doll CA Tckt",
+    "doc_type": "UNK",
+    "state": "California",
+    "date": "12.7.19",
+    "files": [
+      "Benchika Doll CA Tckt 12.7.19.pdf"
+    ],
+    "ticket_id": "98027bc0-1f73-4df8-8237-a700668c07f4",
+    "elapsed_s": 100.1,
+    "pass_status": "green",
+    "queue_id": "f0c66a7d-6de8-409b-9589-612b2dc3986d",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.909,
+    "fields_filled": 28,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "03/06/2020",
+    "court_time": "8:15 AM"
+  },
+  "Berlanda Ulysse|IR|07.20.2024|IA": {
+    "status": "ok",
+    "driver": "Berlanda Ulysse",
+    "doc_type": "IR",
+    "state": "Iowa",
+    "date": "07.20.2024",
+    "files": [
+      "Berlanda Ulysse 07.20.2024 IA IR.jpg"
+    ],
+    "ticket_id": "2d52c845-5305-45cd-b28c-4b2d38b408a8",
+    "elapsed_s": 156.2,
+    "pass_status": "red",
+    "queue_id": "25a96145-4685-4061-8dbe-f675df3b2144",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.953,
+    "fields_filled": 30,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Inspection Report",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "07/30/2024",
+    "court_time": ""
+  },
+  "Berlanda Ulysse|TK|07.20.2024|IA": {
+    "status": "ok",
+    "driver": "Berlanda Ulysse",
+    "doc_type": "TK",
+    "state": "Iowa",
+    "date": "07.20.2024",
+    "files": [
+      "Berlanda Ulysse 07.20.2024 IA TK.jpg"
+    ],
+    "ticket_id": "7436b833-5e29-47d8-a61b-017f7253f095",
+    "elapsed_s": 87.0,
+    "pass_status": "green",
+    "queue_id": "ddf13587-6709-4da5-8a46-c0621a29ce0e",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.979,
+    "fields_filled": 32,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "08/20/2024",
+    "court_time": "1:00 PM"
+  },
+  "Bret Pace|TK|04.03.2025|TN": {
+    "status": "ok",
+    "driver": "Bret Pace",
+    "doc_type": "TK",
+    "state": "Tennessee",
+    "date": "04.03.2025",
+    "files": [
+      "Bret Pace 04.03.2025 TN TK.jpg"
+    ],
+    "ticket_id": "ccb02219-3232-4f88-9bed-5a236a6e3ab6",
+    "elapsed_s": 74.9,
+    "pass_status": "green",
+    "queue_id": "35cf1bf2-3a21-43d7-be38-338548e63fae",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.974,
+    "fields_filled": 33,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "05/01/2025",
+    "court_time": "09:00 AM"
+  },
+  "Bway Htoo|CRASH|7-16-25|VA": {
+    "status": "ok",
+    "driver": "Bway Htoo",
+    "doc_type": "CRASH",
+    "state": "Virginia",
+    "date": "7-16-25",
+    "files": [
+      "Bway Htoo 7-16-25 VA Crash Report.jpg"
+    ],
+    "ticket_id": "179147fa-308c-470e-8f73-9fee493dc859",
+    "elapsed_s": 143.1,
+    "pass_status": "red",
+    "queue_id": "87e2ad8d-b539-43fc-9310-03dcf173482e",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.877,
+    "fields_filled": 11,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Crash Report",
+    "violation": "",
+    "court_date": "07/26/2025",
+    "court_time": ""
+  },
+  "Bway Htoo|UNK|7-16-25|VA": {
+    "status": "ok",
+    "driver": "Bway Htoo",
+    "doc_type": "UNK",
+    "state": "Texas",
+    "date": "7-16-25",
+    "files": [
+      "Bway Htoo 7-16-25 VA Exchange Report.jpg"
+    ],
+    "ticket_id": "8c058cd7-c3bf-42f7-95b7-122829931760",
+    "elapsed_s": 143.6,
+    "pass_status": "red",
+    "queue_id": "96137836-221a-4820-ad7e-dca5347c8ee5",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.872,
+    "fields_filled": 16,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Crash Report",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Bway Htoo|TK|7-16-25|VA": {
+    "status": "ok",
+    "driver": "Bway Htoo",
+    "doc_type": "TK",
+    "state": "Virginia",
+    "date": "7-16-25",
+    "files": [
+      "Bway Htoo 7-16-25 VA TK 1.jpg",
+      "Bway Htoo 7-16-25 VA TK 2.jpg"
+    ],
+    "ticket_id": "0d540cac-4175-4feb-a5a0-c2d3826fb583",
+    "elapsed_s": 182.9,
+    "pass_status": "green",
+    "queue_id": "83c054a9-5168-403d-8a94-a0d1528c3c40",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.86,
+    "fields_filled": 29,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Careless Driving",
+    "court_date": "10/20/2025",
+    "court_time": "12:30 PM"
+  },
+  "CASE|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "CASE",
+    "doc_type": "UNK",
+    "state": "Texas",
+    "date": "nodate",
+    "files": [
+      "CASE.pdf"
+    ],
+    "ticket_id": "8b5280d3-8c3e-4f80-abf9-77fa8b508d1a",
+    "elapsed_s": 69.7,
+    "pass_status": "green",
+    "queue_id": "6dab79e6-7fa4-45e8-bc41-67c98e93a49e",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.932,
+    "fields_filled": 22,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "04/11/2023",
+    "court_time": ""
+  },
+  "Charles (Unknown Last Name)|TK|nodate|XX": {
+    "status": "ok",
+    "driver": "Charles (Unknown Last Name)",
+    "doc_type": "TK",
+    "state": "Arkansas",
+    "date": "nodate",
+    "files": [
+      "CHARLES TICKET.pdf"
+    ],
+    "ticket_id": "fa2ea3a9-bd8f-4a22-ad2b-0a7ca1b7b3f9",
+    "elapsed_s": 84.3,
+    "pass_status": "green",
+    "queue_id": "5d6cd60e-602b-4db4-9b4b-b3e5244d8f71",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.976,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (1-14)",
+    "court_date": "10/03/2023",
+    "court_time": "1:30 PM"
+  },
+  "Christian Richards|TK|04.03.2025|NJ": {
+    "status": "ok",
+    "driver": "Christian Richards",
+    "doc_type": "TK",
+    "state": "New Jersey",
+    "date": "04.03.2025",
+    "files": [
+      "Christian Richards 04.03.2025 NJ TK.jpeg"
+    ],
+    "ticket_id": "8b378fe7-e285-4bb9-89c4-3b6320750c0c",
+    "elapsed_s": 155.1,
+    "pass_status": "green",
+    "queue_id": "dbb53eda-20fe-4695-a38d-6fd3f7681022",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.948,
+    "fields_filled": 22,
+    "fields_total": 62,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "04/17/2025",
+    "court_time": ""
+  },
+  "Claudy Jerome|TK|2.3.23|MN": {
+    "status": "ok",
+    "driver": "Claudy Jerome",
+    "doc_type": "TK",
+    "state": "Minnesota",
+    "date": "2.3.23",
+    "files": [
+      "Claudy Jerome 2.3.23 MN TK.jpg"
+    ],
+    "ticket_id": "17de31be-2c18-45dd-bb54-e8d09e93a2c2",
+    "elapsed_s": 99.2,
+    "pass_status": "green",
+    "queue_id": "68e4867d-c761-4d99-ae98-c94f409c4cea",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.942,
+    "fields_filled": 30,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "03/05/2023",
+    "court_time": ""
+  },
+  "Cory Mitchell|TK|03.11.2025|GA": {
+    "status": "ok",
+    "driver": "Cory Mitchell",
+    "doc_type": "TK",
+    "state": "Georgia",
+    "date": "03.11.2025",
+    "files": [
+      "Cory Mitchell 03.11.2025 GA TK.jpg"
+    ],
+    "ticket_id": "66e75d50-8683-43da-90ec-589f235f688b",
+    "elapsed_s": 78.1,
+    "pass_status": "green",
+    "queue_id": "459153c5-e919-49bd-8bc9-aa2c1215c024",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.935,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "05/09/2025",
+    "court_time": "9:00 AM"
+  },
+  "crash report|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "crash report",
+    "doc_type": "UNK",
+    "state": "Georgia",
+    "date": "nodate",
+    "files": [
+      "crash report.jpg"
+    ],
+    "ticket_id": "6f216b90-fb87-410d-9d23-1c2c98858426",
+    "elapsed_s": 158.1,
+    "pass_status": "yellow",
+    "queue_id": "7c236763-2d53-4f97-b5e2-bcb9671a8949",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.923,
+    "fields_filled": 33,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Crash Report",
+    "violation": "Lane Violation",
+    "court_date": "05/13/2023",
+    "court_time": ""
+  },
+  "Crystal Johnson|TK|nodate|XX": {
+    "status": "ok",
+    "driver": "Crystal Johnson",
+    "doc_type": "TK",
+    "state": "Wyoming",
+    "date": "nodate",
+    "files": [
+      "Crystal Johnson - WY - 12182023 - TK.pdf"
+    ],
+    "ticket_id": "c6681c7f-b3f2-4272-9a35-4441cbed194a",
+    "elapsed_s": 93.7,
+    "pass_status": "red",
+    "queue_id": "5bd7ba30-cb70-48d6-8206-c137ab1fc673",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.949,
+    "fields_filled": 19,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "01/09/2024",
+    "court_time": ""
+  },
+  "Crystal Johnson|PSP|nodate|XX": {
+    "status": "ok",
+    "driver": "Crystal Johnson",
+    "doc_type": "PSP",
+    "state": "California",
+    "date": "nodate",
+    "files": [
+      "Crystal Johnson PSP.jpg"
+    ],
+    "ticket_id": "3bc95c36-d306-42d1-8747-0d1cf6d0caac",
+    "elapsed_s": 121.6,
+    "pass_status": "red",
+    "queue_id": "749059a4-7bb4-4522-9bb6-c4acbd96a8e6",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.978,
+    "fields_filled": 11,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Dametrice Himes MI|TK|9.20.21|XX": {
+    "status": "ok",
+    "driver": "Dametrice Himes MI",
+    "doc_type": "TK",
+    "state": "Michigan",
+    "date": "9.20.21",
+    "files": [
+      "Dametrice Himes MI 9.20.21 TK.jpg"
+    ],
+    "ticket_id": "bf8f4d3d-458c-4933-b332-203ecbb72eab",
+    "elapsed_s": 80.4,
+    "pass_status": "green",
+    "queue_id": "bf9b6163-7996-48f1-92d3-08eb385dcdb3",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.947,
+    "fields_filled": 29,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Careless Driving",
+    "court_date": "09/30/2021",
+    "court_time": ""
+  },
+  "David Houston|MVR|10.31.2024|XX": {
+    "status": "ok",
+    "driver": "David Houston",
+    "doc_type": "MVR",
+    "state": "Florida",
+    "date": "10.31.2024",
+    "files": [
+      "David Houston 10.31.2024 TK & MVR.pdf"
+    ],
+    "ticket_id": "fc1c1bc0-2615-4f63-b354-8cda843c0ff5",
+    "elapsed_s": 113.3,
+    "pass_status": "green",
+    "queue_id": "8537a417-7bcd-4940-a544-8322a073f606",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.973,
+    "fields_filled": 41,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "11/30/2024",
+    "court_time": ""
+  },
+  "Dawit Faris GA|TK|8.7.23|XX": {
+    "status": "ok",
+    "driver": "Dawit Faris GA",
+    "doc_type": "TK",
+    "state": "Georgia",
+    "date": "8.7.23",
+    "files": [
+      "Dawit Faris GA 8.7.23 TK.jpg"
+    ],
+    "ticket_id": "294e2cad-cd23-4d8e-a527-de2a297049f5",
+    "elapsed_s": 157.3,
+    "pass_status": "yellow",
+    "queue_id": "4c869322-a87e-4300-a1e1-c5441e069f72",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.911,
+    "fields_filled": 22,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "08/17/2023",
+    "court_time": ""
+  },
+  "Derrick J Borum|TK|1.31.2024|TX": {
+    "status": "ok",
+    "driver": "Derrick J Borum",
+    "doc_type": "TK",
+    "state": "Texas",
+    "date": "1.31.2024",
+    "files": [
+      "Derrick J Borum 1.31.2024 TX TK.jpg"
+    ],
+    "ticket_id": "03a99d4e-0e71-4633-9214-a656e001fbee",
+    "elapsed_s": 75.7,
+    "pass_status": "green",
+    "queue_id": "e5cd897b-18bb-4eee-b98b-7db334335866",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.912,
+    "fields_filled": 28,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Careless Driving",
+    "court_date": "03/01/2024",
+    "court_time": ""
+  },
+  "doc00308920250605113325|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "doc00308920250605113325",
+    "doc_type": "UNK",
+    "state": "Georgia",
+    "date": "nodate",
+    "files": [
+      "doc00308920250605113325.pdf"
+    ],
+    "ticket_id": "15e7386c-0465-447a-b98f-f28d549b0f9c",
+    "elapsed_s": 118.7,
+    "pass_status": "red",
+    "queue_id": "250b269a-9473-49ce-9ff3-c2599b3b585d",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.658,
+    "fields_filled": 10,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c",
+      "Violation_Description__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "",
+    "court_date": "06/14/2025",
+    "court_time": ""
+  },
+  "Doniyor Khayitbaev|DOC|11.19.2024|GA": {
+    "status": "ok",
+    "driver": "Doniyor Khayitbaev",
+    "doc_type": "DOC",
+    "state": "",
+    "date": "11.19.2024",
+    "files": [
+      "Doniyor Khayitbaev 11.19.2024 GA DOC.jpg",
+      "Doniyor Khayitbaev 11.19.2024 GA DOC (2).jpg"
+    ],
+    "ticket_id": "56a9277b-042d-4aed-86a0-79ed7c6ebf8a",
+    "elapsed_s": 134.9,
+    "pass_status": "red",
+    "queue_id": "7d358692-c252-49e2-b917-39aca0937151",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.812,
+    "fields_filled": 11,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Drivers_License_Type__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Civil Penalty",
+    "violation": "ELD/Logs",
+    "court_date": "11/27/2024",
+    "court_time": ""
+  },
+  "Doniyor Khayitbaev|IR|11.19.2024|GA": {
+    "status": "ok",
+    "driver": "Doniyor Khayitbaev",
+    "doc_type": "IR",
+    "state": "Georgia",
+    "date": "11.19.2024",
+    "files": [
+      "Doniyor Khayitbaev 11.19.2024 GA IR.jpg"
+    ],
+    "ticket_id": "8594883f-257b-45b8-8f46-cb9a3d0f7558",
+    "elapsed_s": 156.1,
+    "pass_status": "red",
+    "queue_id": "da1c1709-4338-4eea-8dcd-d2daead85958",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.945,
+    "fields_filled": 28,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Inspection Report",
+    "violation": "Lane Violation",
+    "court_date": "11/29/2024",
+    "court_time": ""
+  },
+  "Doniyor Khayitbaev|TK|11.19.2024|GA": {
+    "status": "ok",
+    "driver": "Doniyor Khayitbaev",
+    "doc_type": "TK",
+    "state": "Georgia",
+    "date": "11.19.2024",
+    "files": [
+      "Doniyor Khayitbaev 11.19.2024 GA TK.jpg",
+      "Doniyor Khayitbaev 11.19.2024 GA TK (2).jpg"
+    ],
+    "ticket_id": "7e551c3c-ead6-437b-b089-0d094c12b03f",
+    "elapsed_s": 90.6,
+    "pass_status": "green",
+    "queue_id": "1d15612e-8b61-4dfb-b891-2ee463793417",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.968,
+    "fields_filled": 30,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "01/07/2025",
+    "court_time": "10:00 AM"
+  },
+  "driver record|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "driver record",
+    "doc_type": "UNK",
+    "state": "South Carolina",
+    "date": "nodate",
+    "files": [
+      "driver record.jpg"
+    ],
+    "ticket_id": "6d32ca1f-145c-492c-ac9a-b4ceeb7d10b6",
+    "elapsed_s": 127.5,
+    "pass_status": "red",
+    "queue_id": "6a644c01-39e1-419f-9c9a-289910d9dda3",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.985,
+    "fields_filled": 17,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Eliana Amortegui Barraza|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Eliana Amortegui Barraza",
+    "doc_type": "UNK",
+    "state": "Wyoming",
+    "date": "nodate",
+    "files": [
+      "ELIANA A.jpg"
+    ],
+    "ticket_id": "a4165217-a6dc-4be3-b6bc-a9b04d53e398",
+    "elapsed_s": 80.8,
+    "pass_status": "green",
+    "queue_id": "c10df13b-55f3-4a4c-94db-1496aa28b091",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.932,
+    "fields_filled": 30,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "05/31/2023",
+    "court_time": "9:00 AM"
+  },
+  "Emmanuel Nzomo|TK|04.23.2025|XX": {
+    "status": "ok",
+    "driver": "Emmanuel Nzomo",
+    "doc_type": "TK",
+    "state": "New York",
+    "date": "04.23.2025",
+    "files": [
+      "Emmanuel Nzomo 04.23.2025 TK & IR.pdf"
+    ],
+    "ticket_id": "28464c0d-9144-4a3b-82f8-3d33cfbdf6b8",
+    "elapsed_s": 134.7,
+    "pass_status": "green",
+    "queue_id": "65e6eaba-6f1b-40be-ad58-c2c4d480a30f",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.976,
+    "fields_filled": 44,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "05/19/2025",
+    "court_time": "5:00 PM"
+  },
+  "Faustino Garcia|IR|1.18.23|CO": {
+    "status": "ok",
+    "driver": "Faustino Garcia",
+    "doc_type": "IR",
+    "state": "Colorado",
+    "date": "1.18.23",
+    "files": [
+      "Faustino Garcia 1.18.23 CO IR.jpg"
+    ],
+    "ticket_id": "34de3261-2c99-49b5-83ba-9b3609658146",
+    "elapsed_s": 174.6,
+    "pass_status": "yellow",
+    "queue_id": "bcf1ab1a-aeb8-4c39-bfcb-cd301e7e36e3",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.943,
+    "fields_filled": 29,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Inspection Report",
+    "violation": "ELD/Logs",
+    "court_date": "01/28/2023",
+    "court_time": ""
+  },
+  "Faustino Garcia|TK|1.18.23|CO": {
+    "status": "ok",
+    "driver": "Faustino Garcia",
+    "doc_type": "TK",
+    "state": "Colorado",
+    "date": "1.18.23",
+    "files": [
+      "Faustino Garcia 1.18.23 CO TK.jpg"
+    ],
+    "ticket_id": "63063880-3818-48ae-b04c-4823e0678fec",
+    "elapsed_s": 110.4,
+    "pass_status": "green",
+    "queue_id": "b92a0942-8fd8-4d15-a9c7-60a9260425a0",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.912,
+    "fields_filled": 29,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Equipment/Maintenance",
+    "court_date": "04/12/2023",
+    "court_time": "9:00 AM"
+  },
+  "Felipe Ulloa Mirambeaux|TK|08-29-2025|PA": {
+    "status": "ok",
+    "driver": "Felipe Ulloa Mirambeaux",
+    "doc_type": "TK",
+    "state": "Pennsylvania",
+    "date": "08-29-2025",
+    "files": [
+      "Felipe Ulloa Mirambeaux 08-29-2025 PA TK.jpg",
+      "Felipe Ulloa Mirambeaux 08-29-2025 PA TK 2.jpg"
+    ],
+    "ticket_id": "03ddbfdc-160e-4607-8320-8c5efe45dfaf",
+    "elapsed_s": 171.2,
+    "pass_status": "red",
+    "queue_id": "9ce321b6-a557-4e5b-864b-4a825878ac86",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.895,
+    "fields_filled": 14,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "09/08/2025",
+    "court_time": ""
+  },
+  "Frelon (Unknown First Name)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Frelon (Unknown First Name)",
+    "doc_type": "UNK",
+    "state": "Delaware",
+    "date": "nodate",
+    "files": [
+      "FRELON.pdf"
+    ],
+    "ticket_id": "df149e67-3b83-4696-ace5-0f6024d3cddd",
+    "elapsed_s": 77.2,
+    "pass_status": "green",
+    "queue_id": "03ec8176-10cb-4409-884d-19bedfa4546a",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.975,
+    "fields_filled": 30,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "03/12/2025",
+    "court_time": ""
+  },
+  "GoranLapusina|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "GoranLapusina",
+    "doc_type": "UNK",
+    "state": "Oklahoma",
+    "date": "nodate",
+    "files": [
+      "GoranLapusina 9-3-23TK.pdf"
+    ],
+    "ticket_id": "1b50b4d7-b34b-4af5-9747-ae3b733269f5",
+    "elapsed_s": 97.4,
+    "pass_status": "green",
+    "queue_id": "600ab3e6-4278-411d-9793-aba8a9d88ffa",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.941,
+    "fields_filled": 32,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (1-14)",
+    "court_date": "11/17/2023",
+    "court_time": "9:00 AM"
+  },
+  "Gregory Pool|TK|03.10.2025|RI": {
+    "status": "ok",
+    "driver": "Gregory Pool",
+    "doc_type": "TK",
+    "state": "Rhode Island",
+    "date": "03.10.2025",
+    "files": [
+      "Gregory Pool 03.10.2025 RI TK.jpg"
+    ],
+    "ticket_id": "efb5dd24-0f62-4899-bf6d-82e246d67776",
+    "elapsed_s": 77.9,
+    "pass_status": "green",
+    "queue_id": "c9e14db5-be47-47d4-a25b-7482f26b5be8",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.983,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Overweight/Overlength",
+    "court_date": "04/07/2025",
+    "court_time": "10:00 AM"
+  },
+  "GUMJE (Unknown Full Name)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "GUMJE (Unknown Full Name)",
+    "doc_type": "UNK",
+    "state": "Missouri",
+    "date": "nodate",
+    "files": [
+      "GUMJE-Citation.jpg"
+    ],
+    "ticket_id": "3cc67de0-1188-4564-a455-25ecd4e25fbb",
+    "elapsed_s": 100.8,
+    "pass_status": "green",
+    "queue_id": "6056f005-4979-445a-80b9-6b6961e808a1",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.94,
+    "fields_filled": 30,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "10/14/2021",
+    "court_time": "11:00 AM"
+  },
+  "Gurmukh Singh|TK|06.25.2024|AR": {
+    "status": "ok",
+    "driver": "Gurmukh Singh",
+    "doc_type": "TK",
+    "state": "Arizona",
+    "date": "06.25.2024",
+    "files": [
+      "Gurmukh Singh 06.25.2024 AR TK.jpg"
+    ],
+    "ticket_id": "89bd15d7-b87b-49f1-be8e-33beabf98a6d",
+    "elapsed_s": 80.4,
+    "pass_status": "green",
+    "queue_id": "7c583513-46cd-494c-90d7-99088b729693",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.971,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Cell Phone",
+    "court_date": "08/09/2024",
+    "court_time": "9:00 AM"
+  },
+  "Harry Mitchell Weston Jr. GA|TK|5.3.23|XX": {
+    "status": "ok",
+    "driver": "Harry Mitchell Weston Jr. GA",
+    "doc_type": "TK",
+    "state": "Georgia",
+    "date": "5.3.23",
+    "files": [
+      "Harry Mitchell Weston Jr. GA 5.3.23 TK.jpg"
+    ],
+    "ticket_id": "a8820b64-bc49-4d65-b24d-1eb9acb8dec1",
+    "elapsed_s": 92.1,
+    "pass_status": "green",
+    "queue_id": "79010bc7-be96-48ee-bfe5-0a866ffb1673",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.937,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "06/26/2023",
+    "court_time": "9:00 AM"
+  },
+  "Hassan - OH|UNK|10-13-2023|XX": {
+    "status": "ok",
+    "driver": "Hassan - OH",
+    "doc_type": "UNK",
+    "state": "Ohio",
+    "date": "10-13-2023",
+    "files": [
+      "Hassan - OH - 10-13-2023 - OHP891402101320232010.jpeg"
+    ],
+    "ticket_id": "37b9f5ed-b1eb-46b2-b56f-694cefcd77bd",
+    "elapsed_s": 74.8,
+    "pass_status": "green",
+    "queue_id": "76f85352-7857-4fd5-8ca6-c546f73e15df",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.874,
+    "fields_filled": 28,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "01/01/2025",
+    "court_time": "9:00 AM"
+  },
+  "Hossain (Unknown Last Name)|TK|nodate|XX": {
+    "status": "ok",
+    "driver": "Hossain (Unknown Last Name)",
+    "doc_type": "TK",
+    "state": "Indiana",
+    "date": "nodate",
+    "files": [
+      "Hossain ticket.jpg"
+    ],
+    "ticket_id": "648816fa-177e-49dd-b5ad-398cd55d01c8",
+    "elapsed_s": 166.2,
+    "pass_status": "yellow",
+    "queue_id": "4ad12570-3e20-4680-91b5-04f4988c45f4",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.917,
+    "fields_filled": 22,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "09/04/2023",
+    "court_time": ""
+  },
+  "Houssein Jawhar|IR|nodate|XX": {
+    "status": "ok",
+    "driver": "Houssein Jawhar",
+    "doc_type": "IR",
+    "state": "Pennsylvania",
+    "date": "nodate",
+    "files": [
+      "Houssein Jawhar PA Inspection.pdf"
+    ],
+    "ticket_id": "27862c1b-38e5-41ce-a4d2-db6f8bca272e",
+    "elapsed_s": 163.4,
+    "pass_status": "yellow",
+    "queue_id": "0452aae3-ba45-4af7-94f0-a57324a0fa3c",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.943,
+    "fields_filled": 31,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Inspection Report",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "09/29/2019",
+    "court_time": ""
+  },
+  "Houssein Jawhar|TK|nodate|XX": {
+    "status": "ok",
+    "driver": "Houssein Jawhar",
+    "doc_type": "TK",
+    "state": "Pennsylvania",
+    "date": "nodate",
+    "files": [
+      "Houssein Jawhar PA Tckt.pdf"
+    ],
+    "ticket_id": "30c972c8-d27e-4248-aec3-9f2332054d1b",
+    "elapsed_s": 153.0,
+    "pass_status": "yellow",
+    "queue_id": "ba109173-f602-419b-a7e2-71ff841d3987",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.921,
+    "fields_filled": 19,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "09/29/2019",
+    "court_time": ""
+  },
+  "ILICHBEK SHERIPBAEV|TK|3-25-26|UT": {
+    "status": "ok",
+    "driver": "ILICHBEK SHERIPBAEV",
+    "doc_type": "TK",
+    "state": "Utah",
+    "date": "3-25-26",
+    "files": [
+      "ILICHBEK SHERIPBAEV 3-25-26 UT IR & TK.pdf"
+    ],
+    "ticket_id": "69d58da4-9ef1-4daa-b844-5bb56909ab7e",
+    "elapsed_s": 200.5,
+    "pass_status": "yellow",
+    "queue_id": "9087e623-e0e6-4607-b9a1-9defaac4c842",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.948,
+    "fields_filled": 34,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "04/04/2026",
+    "court_time": ""
+  },
+  "image0|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "image0",
+    "doc_type": "UNK",
+    "state": "Ohio",
+    "date": "nodate",
+    "files": [
+      "image0.jpeg",
+      "image0.png"
+    ],
+    "ticket_id": "9f5aa10a-fcae-4953-b7ca-cec3847e0e71",
+    "elapsed_s": 93.7,
+    "pass_status": "green",
+    "queue_id": "019c9f94-e6bc-4a8b-889f-734b5911add8",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.91,
+    "fields_filled": 35,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "10/26/2023",
+    "court_time": "9:00 AM"
+  },
+  "image001 (3)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "image001 (3)",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "image001 (3).png"
+    ],
+    "ticket_id": "735f2bf5-bd2b-49ca-aad1-c62ae0b4fd14",
+    "elapsed_s": 98.9,
+    "pass_status": "red",
+    "queue_id": "e6fdf565-c19d-41d4-ae63-d9b02c8a42a0",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.67,
+    "fields_filled": 2,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "image1|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "image1",
+    "doc_type": "UNK",
+    "state": "California",
+    "date": "nodate",
+    "files": [
+      "image1.png"
+    ],
+    "ticket_id": "8c762352-99f6-4f2f-92f3-4f1442780669",
+    "elapsed_s": 122.8,
+    "pass_status": "red",
+    "queue_id": "5707da87-cf4b-49bf-b7e9-9c193c6bb557",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.94,
+    "fields_filled": 14,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "image_6483441|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "image_6483441",
+    "doc_type": "UNK",
+    "state": "Washington",
+    "date": "nodate",
+    "files": [
+      "image_6483441.jpg"
+    ],
+    "ticket_id": "aaa69ecd-803b-49b5-a238-f8da55cff9a7",
+    "elapsed_s": 102.8,
+    "pass_status": "green",
+    "queue_id": "8aa79887-cd48-4eea-9b15-35c5e93096e0",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.955,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "ELD/Logs",
+    "court_date": "06/30/2023",
+    "court_time": ""
+  },
+  "image_6483441 (1)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "image_6483441 (1)",
+    "doc_type": "UNK",
+    "state": "Washington",
+    "date": "nodate",
+    "files": [
+      "image_6483441 (1).jpg"
+    ],
+    "ticket_id": "9d533410-a2b7-41ce-97cb-f5970e5540e0",
+    "elapsed_s": 171.8,
+    "pass_status": "yellow",
+    "queue_id": "962d1262-036b-4485-9119-c618cb1d1320",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.935,
+    "fields_filled": 30,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Inspection Report",
+    "violation": "ELD/Logs",
+    "court_date": "06/10/2023",
+    "court_time": ""
+  },
+  "IMG_0083|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "IMG_0083",
+    "doc_type": "UNK",
+    "state": "South Carolina",
+    "date": "nodate",
+    "files": [
+      "IMG_0083.jpeg"
+    ],
+    "ticket_id": "448b8560-8b1f-4944-8bf8-3219f28062a4",
+    "elapsed_s": 98.6,
+    "pass_status": "green",
+    "queue_id": "1d7f9665-63e6-429e-b2d2-02e130212d93",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.928,
+    "fields_filled": 22,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "02/16/2025",
+    "court_time": ""
+  },
+  "IMG_1935|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "IMG_1935",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "IMG_1935.pdf"
+    ],
+    "ticket_id": "c62f72f1-79bf-4f5f-94bb-bddec559235b",
+    "elapsed_s": 130.2,
+    "pass_status": "red",
+    "queue_id": "21dbad07-a4cc-46db-be89-3ac13789f891",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.628,
+    "fields_filled": 4,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Ion Blasco|TK|8-30-25|IL": {
+    "status": "ok",
+    "driver": "Ion Blasco",
+    "doc_type": "TK",
+    "state": "Illinois",
+    "date": "8-30-25",
+    "files": [
+      "Ion Blasco 8-30-25 IL TK.jpg"
+    ],
+    "ticket_id": "e6af540e-ab40-4a65-9755-f5455da59378",
+    "elapsed_s": 81.5,
+    "pass_status": "green",
+    "queue_id": "24b8f0a4-3eab-435c-b493-8046d409d59f",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.881,
+    "fields_filled": 26,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Seatbelt",
+    "court_date": "09/14/2025",
+    "court_time": "9:00 AM"
+  },
+  "Ion Blasco|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "Ion Blasco",
+    "doc_type": "MVR",
+    "state": "Illinois",
+    "date": "nodate",
+    "files": [
+      "PRE EMPLY MVR BLASCO (1).pdf"
+    ],
+    "ticket_id": "0ecb3443-982d-469b-aa12-3d1c161eb900",
+    "elapsed_s": 116.6,
+    "pass_status": "red",
+    "queue_id": "5c136690-2824-4439-b08f-27ecfd7172a6",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.974,
+    "fields_filled": 15,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Jack Malcolm OR|TK|3.15.21|XX": {
+    "status": "ok",
+    "driver": "Jack Malcolm OR",
+    "doc_type": "TK",
+    "state": "Oregon",
+    "date": "3.15.21",
+    "files": [
+      "Jack Malcolm OR 3.15.21 TK.pdf"
+    ],
+    "ticket_id": "09d63538-df3b-4bcd-8be7-9af0985bd8b4",
+    "elapsed_s": 98.0,
+    "pass_status": "green",
+    "queue_id": "06b5038c-8cb9-48e9-9487-f631baa42d4c",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.968,
+    "fields_filled": 33,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Registration Violations",
+    "court_date": "04/21/2021",
+    "court_time": "7:00 AM"
+  },
+  "Jacob Verett|TK|02.13.2025|IN": {
+    "status": "ok",
+    "driver": "Jacob Verett",
+    "doc_type": "TK",
+    "state": "Indiana",
+    "date": "02.13.2025",
+    "files": [
+      "Jacob Verett 02.13.2025 IN TK.jpg"
+    ],
+    "ticket_id": "ee5af8c6-ae1b-4b8a-bb02-21c8ec16ce08",
+    "elapsed_s": 79.0,
+    "pass_status": "green",
+    "queue_id": "84338313-5f8a-4f0a-a4db-641b1292370c",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.967,
+    "fields_filled": 32,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Following too close",
+    "court_date": "03/27/2025",
+    "court_time": "6:00 PM"
+  },
+  "James Suddath|IR|05.01.2025|AZ": {
+    "status": "ok",
+    "driver": "James Suddath",
+    "doc_type": "IR",
+    "state": "Arizona",
+    "date": "05.01.2025",
+    "files": [
+      "James Suddath 05.01.2025 AZ IR.jpg"
+    ],
+    "ticket_id": "8b510601-4466-4bd3-a841-d053cfc9a643",
+    "elapsed_s": 154.5,
+    "pass_status": "red",
+    "queue_id": "56ab1672-d74e-4b26-97f6-365c2029ac4c",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.947,
+    "fields_filled": 27,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Inspection Report",
+    "violation": "Speeding (15+)",
+    "court_date": "05/11/2025",
+    "court_time": ""
+  },
+  "James Suddath|TK|05.01.2025|AZ": {
+    "status": "ok",
+    "driver": "James Suddath",
+    "doc_type": "TK",
+    "state": "Arizona",
+    "date": "05.01.2025",
+    "files": [
+      "James Suddath 05.01.2025 AZ TK.jpg"
+    ],
+    "ticket_id": "48d3521c-1839-45e4-a012-c4a0fe0188c2",
+    "elapsed_s": 73.6,
+    "pass_status": "green",
+    "queue_id": "bd7f0033-bf85-4c49-b7e9-7f2e197243bc",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.972,
+    "fields_filled": 33,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "06/11/2025",
+    "court_time": "9:30 AM"
+  },
+  "Jashanpreet Singh|TK|9-24-25|OH": {
+    "status": "ok",
+    "driver": "Jashanpreet Singh",
+    "doc_type": "TK",
+    "state": "Ohio",
+    "date": "9-24-25",
+    "files": [
+      "Jashanpreet Singh 9-24-25 OH TK.jpg"
+    ],
+    "ticket_id": "7058b668-3b08-4e48-9866-d3bea1ed5117",
+    "elapsed_s": 95.3,
+    "pass_status": "green",
+    "queue_id": "dd690733-69b8-44d9-9cb2-cefb6a3e7dfe",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.932,
+    "fields_filled": 30,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Driver license violation",
+    "court_date": "09/29/2025",
+    "court_time": "9:00 AM"
+  },
+  "Jerrell Pugh|TK|4-09-26|GA": {
+    "status": "ok",
+    "driver": "Jerrell Pugh",
+    "doc_type": "TK",
+    "state": "Georgia",
+    "date": "4-09-26",
+    "files": [
+      "Jerrell Pugh 4-09-26 GA TK.jpg"
+    ],
+    "ticket_id": "b1d72f50-8079-4503-b36d-2b857cc074d2",
+    "elapsed_s": 78.6,
+    "pass_status": "green",
+    "queue_id": "78332586-6eaa-4ac4-a19e-fedf863ac648",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.945,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Alcohol / Drug related violation",
+    "court_date": "06/03/2026",
+    "court_time": "9:00 AM"
+  },
+  "Jessie Anderson|TK|11.22.2023|OK": {
+    "status": "ok",
+    "driver": "Jessie Anderson",
+    "doc_type": "TK",
+    "state": "Oklahoma",
+    "date": "11.22.2023",
+    "files": [
+      "Jessie Anderson 11.22.2023 OK TK.jpg"
+    ],
+    "ticket_id": "9ce5fa40-f9b4-4060-85c2-c2ececc59e59",
+    "elapsed_s": 77.6,
+    "pass_status": "green",
+    "queue_id": "91401d75-8751-4a89-ada5-052272d1f542",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.953,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (1-14)",
+    "court_date": "01/04/2024",
+    "court_time": "9:30 AM"
+  },
+  "John Moore OK|TK|8.20.21|XX": {
+    "status": "ok",
+    "driver": "John Moore OK",
+    "doc_type": "TK",
+    "state": "Oklahoma",
+    "date": "8.20.21",
+    "files": [
+      "John Moore OK 8.20.21 TK.jpg"
+    ],
+    "ticket_id": "8732d339-bce4-43af-b93e-14a3c13cd53e",
+    "elapsed_s": 94.4,
+    "pass_status": "green",
+    "queue_id": "96f6888e-e1a2-45be-9aa7-519e12f6d257",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.92,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Reckless Driving",
+    "court_date": "09/22/2021",
+    "court_time": "2:00 PM"
+  },
+  "John Silvernail|TK|8-13-25|KS": {
+    "status": "ok",
+    "driver": "John Silvernail",
+    "doc_type": "TK",
+    "state": "Kansas",
+    "date": "8-13-25",
+    "files": [
+      "John Silvernail 8-13-25 KS TK.jpg"
+    ],
+    "ticket_id": "2e88d814-7028-4615-88c2-1ad375b2bf38",
+    "elapsed_s": 164.6,
+    "pass_status": "red",
+    "queue_id": "2079f1b1-3fec-4471-ba5b-746db9042b4f",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.747,
+    "fields_filled": 14,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "08/29/2025",
+    "court_time": ""
+  },
+  "Jorge Garcia|KT|nodate|XX": {
+    "status": "ok",
+    "driver": "Jorge Garcia",
+    "doc_type": "KT",
+    "state": "Oregon",
+    "date": "nodate",
+    "files": [
+      "Jorge garcia 3.24 OR KT.jpg",
+      "Jorge garcia 3.24 OR KT 2.jpg"
+    ],
+    "ticket_id": "589d32fb-e06a-40c2-9fe4-c232c94007f1",
+    "elapsed_s": 115.4,
+    "pass_status": "green",
+    "queue_id": "1ece3aed-10cc-42df-b278-fcaeb38fb18a",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.952,
+    "fields_filled": 34,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "04/11/2023",
+    "court_time": "8:30 AM"
+  },
+  "Jozef Hubacek|UNK|2-13-26|PA": {
+    "status": "ok",
+    "driver": "Jozef Hubacek",
+    "doc_type": "UNK",
+    "state": "Pennsylvania",
+    "date": "2-13-26",
+    "files": [
+      "Jozef Hubacek 2-13-26 PA 2 Tickets.pdf"
+    ],
+    "ticket_id": "2e14e7ee-ae99-45ec-babb-52c65ccccc67",
+    "elapsed_s": 233.3,
+    "pass_status": "yellow",
+    "queue_id": "e59b4af5-e772-48f9-aef6-5828137d201e",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.926,
+    "fields_filled": 19,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Parking",
+    "court_date": "02/23/2026",
+    "court_time": ""
+  },
+  "Jozef Hubacek|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "Jozef Hubacek",
+    "doc_type": "MVR",
+    "state": "Pennsylvania",
+    "date": "nodate",
+    "files": [
+      "Jozef Hubacek MVR.pdf"
+    ],
+    "ticket_id": "119cd80e-a03c-47ad-b13a-68c8c4a482d6",
+    "elapsed_s": 129.1,
+    "pass_status": "red",
+    "queue_id": "36d76411-6482-45b7-a661-5b22a00673c8",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.985,
+    "fields_filled": 17,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Judeson Calixte|TK|6.16.25|VA": {
+    "status": "ok",
+    "driver": "Judeson Calixte",
+    "doc_type": "TK",
+    "state": "Virginia",
+    "date": "6.16.25",
+    "files": [
+      "Judeson Calixte 6.16.25 VA TK 1.jpg",
+      "Judeson Calixte 6.16.25 VA TK 2.jpg"
+    ],
+    "ticket_id": "b91b87b7-a5ea-4735-b446-0b962e5655d9",
+    "elapsed_s": 193.5,
+    "pass_status": "yellow",
+    "queue_id": "2a851358-c4bc-4cc8-ae8e-10445cf66414",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.828,
+    "fields_filled": 19,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "06/26/2025",
+    "court_time": ""
+  },
+  "Junior Frederic|IR|10.02.2024|SC": {
+    "status": "ok",
+    "driver": "Junior Frederic",
+    "doc_type": "IR",
+    "state": "South Carolina",
+    "date": "10.02.2024",
+    "files": [
+      "Junior Frederic 10.02.2024 SC IR.jpg"
+    ],
+    "ticket_id": "3b4e1b97-9b3d-4e02-a2e0-309847ed2595",
+    "elapsed_s": 132.6,
+    "pass_status": "red",
+    "queue_id": "dbf5f2ee-19fd-4023-bd47-520a5363de65",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.906,
+    "fields_filled": 28,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Inspection Report",
+    "violation": "Cell Phone",
+    "court_date": "10/12/2024",
+    "court_time": ""
+  },
+  "Junior Frederic|TK|10.02.2024|SC": {
+    "status": "ok",
+    "driver": "Junior Frederic",
+    "doc_type": "TK",
+    "state": "South Carolina",
+    "date": "10.02.2024",
+    "files": [
+      "Junior Frederic 10.02.2024 SC TK.jpg",
+      "Junior Frederic 10.02.2024 SC TK (2).jpg"
+    ],
+    "ticket_id": "a091441e-0443-489a-9b7d-bc19a177115f",
+    "elapsed_s": 83.2,
+    "pass_status": "green",
+    "queue_id": "d50c8009-2872-4ef1-9a39-8c67e37cbbc8",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.916,
+    "fields_filled": 28,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Cell Phone",
+    "court_date": "10/30/2024",
+    "court_time": "2:00 PM"
+  },
+  "Kabera Kdungutse|TK|4-15-26|AL": {
+    "status": "ok",
+    "driver": "Kabera Kdungutse",
+    "doc_type": "TK",
+    "state": "Alabama",
+    "date": "4-15-26",
+    "files": [
+      "Kabera Kdungutse 4-15-26 AL TK.jpg"
+    ],
+    "ticket_id": "c33868b4-c55b-42c5-9b32-13fd0cfba499",
+    "elapsed_s": 71.2,
+    "pass_status": "green",
+    "queue_id": "c6457666-4e92-4c82-b1ec-a1e1ecac5b4d",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.962,
+    "fields_filled": 31,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "06/25/2026",
+    "court_time": "6:00 PM"
+  },
+  "KASEEM JOHNSON|IR|nodate|XX": {
+    "status": "ok",
+    "driver": "KASEEM JOHNSON",
+    "doc_type": "IR",
+    "state": "Pennsylvania",
+    "date": "nodate",
+    "files": [
+      "KASEEM JOHNSON - PA - IR.pdf"
+    ],
+    "ticket_id": "3b8fbecf-3a2b-4a53-9830-7069a8640bc5",
+    "elapsed_s": 180.9,
+    "pass_status": "yellow",
+    "queue_id": "08be0a93-1e5f-4bb7-85a5-222cdd09f5b7",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.941,
+    "fields_filled": 32,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Inspection Report",
+    "violation": "ELD/Logs",
+    "court_date": "06/06/2023",
+    "court_time": ""
+  },
+  "KASEEM JOHNSON - PA|TK|06.05.23|XX": {
+    "status": "ok",
+    "driver": "KASEEM JOHNSON - PA",
+    "doc_type": "TK",
+    "state": "Pennsylvania",
+    "date": "06.05.23",
+    "files": [
+      "KASEEM JOHNSON - PA - 06.05.23 -TKs.pdf"
+    ],
+    "ticket_id": "eed43bb4-1c82-4126-9535-5103cca6c1f1",
+    "elapsed_s": 222.8,
+    "pass_status": "yellow",
+    "queue_id": "e3cd485a-e3f3-4edd-b124-e2d56dd62261",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.916,
+    "fields_filled": 20,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "ELD/Logs",
+    "court_date": "06/06/2023",
+    "court_time": ""
+  },
+  "Kristian Smith|TK|7.09.25|TX": {
+    "status": "ok",
+    "driver": "Kristian Smith",
+    "doc_type": "TK",
+    "state": "Texas",
+    "date": "7.09.25",
+    "files": [
+      "Kristian Smith 7.09.25 TX TK.jpg"
+    ],
+    "ticket_id": "0ac2c3c0-57b9-40ee-af99-f6dbf368c2c2",
+    "elapsed_s": 83.1,
+    "pass_status": "green",
+    "queue_id": "2e426562-ba8d-4aa2-b91d-bbb643f9761e",
+    "urgency": "CRITICAL",
+    "completeness": 0.6,
+    "avg_confidence": 0.927,
+    "fields_filled": 29,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Ticket_County__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Speeding (15+)",
+    "court_date": "08/19/2025",
+    "court_time": "7:30 AM"
+  },
+  "Leonel Ayuso|UNK|4-21-26|NV": {
+    "status": "ok",
+    "driver": "Leonel Ayuso",
+    "doc_type": "UNK",
+    "state": "Nevada",
+    "date": "4-21-26",
+    "files": [
+      "Leonel Ayuso 4-21-26 NV Exchange Report 1.jpg",
+      "Leonel Ayuso 4-21-26 NV Exchange Report 2.jpg"
+    ],
+    "ticket_id": "888522f3-ec4a-4be2-a410-1620c7f3a3e6",
+    "elapsed_s": 158.5,
+    "pass_status": "red",
+    "queue_id": "034e579c-ef07-4f2c-b1ce-9ec0dbff3327",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.831,
+    "fields_filled": 15,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Crash Report",
+    "violation": "",
+    "court_date": "05/01/2026",
+    "court_time": ""
+  },
+  "Leonel Ayuso|TK|4-21-26|NV": {
+    "status": "ok",
+    "driver": "Leonel Ayuso",
+    "doc_type": "TK",
+    "state": "Nevada",
+    "date": "4-21-26",
+    "files": [
+      "Leonel Ayuso 4-21-26 NV TK 1.jpg",
+      "Leonel Ayuso 4-21-26 NV TK 2.jpg"
+    ],
+    "ticket_id": "9bdcbf19-ebb7-44bb-af9c-8a5b068142b4",
+    "elapsed_s": 181.4,
+    "pass_status": "yellow",
+    "queue_id": "27750237-0865-4c5e-88be-591941ad7c7e",
+    "urgency": "LOW",
+    "completeness": 0.6,
+    "avg_confidence": 0.915,
+    "fields_filled": 23,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c"
+    ],
+    "missing_fields": [
+      "Court_Date__c",
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "05/01/2026",
+    "court_time": ""
+  },
+  "Leonel Ayuso|DOC|5-13-26|NV": {
+    "status": "ok",
+    "driver": "Leonel Ayuso",
+    "doc_type": "DOC",
+    "state": "Nevada",
+    "date": "5-13-26",
+    "files": [
+      "Leonel Ayuso 5-13-26 NV Court Doc.pdf"
+    ],
+    "ticket_id": "e84d0e37-c9a5-4e01-90cf-14b0927cd9e5",
+    "elapsed_s": 138.4,
+    "pass_status": "red",
+    "queue_id": "a354010c-daff-4b1f-a7e7-8fa515ca0e93",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.939,
+    "fields_filled": 13,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Lane Violation",
+    "court_date": "05/21/2026",
+    "court_time": ""
+  },
+  "Leonel Ayuso|DOC|6.30.26|XX": {
+    "status": "ok",
+    "driver": "Leonel Ayuso",
+    "doc_type": "DOC",
+    "state": "Nevada",
+    "date": "6.30.26",
+    "files": [
+      "Leonel Ayuso HEARING 6.30.26 9AM.pdf"
+    ],
+    "ticket_id": "fe1074ec-802d-4222-bb37-9d1b9fa8f7db",
+    "elapsed_s": 146.0,
+    "pass_status": "red",
+    "queue_id": "d40331cf-c900-4d93-a878-0b5fbd6579c9",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.881,
+    "fields_filled": 13,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c",
+      "Violation_Category__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "06/30/2026",
+    "court_time": ""
+  },
+  "LUBOMIR NONEV|TK|06.04.2024|TN": {
+    "status": "ok",
+    "driver": "LUBOMIR NONEV",
+    "doc_type": "TK",
+    "state": "Tennessee",
+    "date": "06.04.2024",
+    "files": [
+      "LUBOMIR NONEV 06.04.2024 TN TK & IR.pdf"
+    ],
+    "ticket_id": "fcb4b4e4-3739-47a4-8af9-d319cc8987fa",
+    "elapsed_s": 96.4,
+    "pass_status": "green",
+    "queue_id": "a38ab243-d3b1-4a64-ba30-8eb8d5e7cee6",
+    "urgency": "CRITICAL",
+    "completeness": 0.7,
+    "avg_confidence": 0.979,
+    "fields_filled": 32,
+    "fields_total": 75,
+    "low_confidence_fields": [],
+    "missing_fields": [
+      "Driver_Name__c",
+      "CDL_Number__c",
+      "Court_Location__c"
+    ],
+    "file_type": "Ticket",
+    "violation": "ELD/Logs",
+    "court_date": "08/15/2024",
+    "court_time": "1:30 PM"
+  },
+  "Maksud Jiyanmurodov|DOC|05.12.2025|PA": {
+    "status": "ok",
+    "driver": "Maksud Jiyanmurodov",
+    "doc_type": "DOC",
+    "state": "",
+    "date": "05.12.2025",
+    "files": [
+      "Maksud Jiyanmurodov 05.12.2025 PA DOC.jpg"
+    ],
+    "ticket_id": "835e59b1-3149-4e0a-b516-e36cbed32a42",
+    "elapsed_s": 105.7,
+    "pass_status": "red",
+    "queue_id": "98ba0267-4c8d-4427-8817-dbcb4840056f",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.25,
+    "fields_filled": 0,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Civil Penalty",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Maksud Jiyanmurodov|TK|05.12.2025|PA": {
+    "status": "ok",
+    "driver": "Maksud Jiyanmurodov",
+    "doc_type": "TK",
+    "state": "Pennsylvania",
+    "date": "05.12.2025",
+    "files": [
+      "Maksud Jiyanmurodov 05.12.2025 PA TK.jpg"
+    ],
+    "ticket_id": "7d1b6747-d9ef-422f-a692-134e11ecd2ad",
+    "elapsed_s": 154.8,
+    "pass_status": "red",
+    "queue_id": "d5d0d61d-c14d-4804-9b4e-e3f4f7cb7e79",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.953,
+    "fields_filled": 15,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Registration Violations",
+    "court_date": "05/22/2025",
+    "court_time": ""
+  },
+  "Malik Grier|TK|7-28-25|SC": {
+    "status": "ok",
+    "driver": "Malik Grier",
+    "doc_type": "TK",
+    "state": "South Carolina",
+    "date": "7-28-25",
+    "files": [
+      "Malik Grier 7-28-25 SC TK.jpg"
+    ],
+    "ticket_id": "81c8487d-bf21-47ea-bd4e-c1dd33edf6c8",
+    "elapsed_s": 161.0,
+    "pass_status": "red",
+    "queue_id": "f91ba354-679d-4dc7-b5ed-10103f22a505",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.948,
+    "fields_filled": 19,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Violation_Category__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "08/15/2025",
+    "court_time": ""
+  },
+  "Manjinder Singh|TK|01.14.2025|OR": {
+    "status": "error",
+    "driver": "Manjinder Singh",
+    "files": [
+      "Manjinder Singh 01.14.2025 OR TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 8.2
+  },
+  "Marquese Elam|TK|07.18.2024|TX": {
+    "status": "error",
+    "driver": "Marquese Elam",
+    "files": [
+      "Marquese Elam 07.18.2024 TX TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 4.6
+  },
+  "MdjCourtSummary_Final|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "MdjCourtSummary_Final",
+    "doc_type": "UNK",
+    "state": "Pennsylvania",
+    "date": "nodate",
+    "files": [
+      "MdjCourtSummary_Final.pdf"
+    ],
+    "ticket_id": "4b8e5085-a432-4247-91ad-ac0b36ed713f",
+    "elapsed_s": 154.9,
+    "pass_status": "red",
+    "queue_id": "efbc7dc5-9554-4ef6-87db-39e6ca8f7307",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.92,
+    "fields_filled": 16,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "Equipment/Maintenance",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Mesfin Ashsmte|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Mesfin Ashsmte",
+    "files": [
+      "Mesfin Ashsmte MD.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 25.7
+  },
+  "Michael Moses VA|TK|6.21.22|XX": {
+    "status": "error",
+    "driver": "Michael Moses VA",
+    "files": [
+      "Michael Moses VA 6.21.22 TK.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 13.7
+  },
+  "Michael Witchley AZ Tckt|UNK|12.7.19|XX": {
+    "status": "error",
+    "driver": "Michael Witchley AZ Tckt",
+    "files": [
+      "Michael Witchley AZ Tckt 12.7.19.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.2
+  },
+  "Muaiyed Al Nassih|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Muaiyed Al Nassih",
+    "files": [
+      "Muaiyed Al Nassih IR.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.0
+  },
+  "Muaiyed Al Nassih IL|TK|7.8.22|XX": {
+    "status": "error",
+    "driver": "Muaiyed Al Nassih IL",
+    "files": [
+      "Muaiyed Al Nassih IL 7.8.22 TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.7
+  },
+  "MVR|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "MVR",
+    "doc_type": "UNK",
+    "state": "Illinois",
+    "date": "nodate",
+    "files": [
+      "MVR.pdf"
+    ],
+    "ticket_id": "732e7899-b530-4913-b94c-5be7d4d843f6",
+    "elapsed_s": 132.4,
+    "pass_status": "red",
+    "queue_id": "0031cb31-db12-4162-a2a4-ef5affefc382",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.979,
+    "fields_filled": 17,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "mvr (6)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "mvr (6)",
+    "doc_type": "UNK",
+    "state": "Tennessee",
+    "date": "nodate",
+    "files": [
+      "mvr (6).pdf"
+    ],
+    "ticket_id": "4959a4e8-60f3-4755-9195-f819ba689f0e",
+    "elapsed_s": 113.3,
+    "pass_status": "red",
+    "queue_id": "6566851d-b823-40be-a1d3-6063c1191a7c",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.982,
+    "fields_filled": 17,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "MVR-1|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "MVR-1",
+    "doc_type": "UNK",
+    "state": "Missouri",
+    "date": "nodate",
+    "files": [
+      "MVR-1.pdf"
+    ],
+    "ticket_id": "98718f43-74c5-4ce9-af42-d0963851807a",
+    "elapsed_s": 115.3,
+    "pass_status": "red",
+    "queue_id": "86ebe8e8-ee6a-4571-8333-93c9dd179621",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.984,
+    "fields_filled": 13,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "NABIN THAPA SOTI|TK|01-08-2026|LA": {
+    "status": "error",
+    "driver": "NABIN THAPA SOTI",
+    "files": [
+      "NABIN THAPA SOTI 01-08-2026 LA TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 9.4
+  },
+  "NABIN THAPA SOTI|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "NABIN THAPA SOTI",
+    "doc_type": "MVR",
+    "state": "North Carolina",
+    "date": "nodate",
+    "files": [
+      "THAPA SOTI NABIN MVR.pdf"
+    ],
+    "ticket_id": "6498ef9a-eb6e-4e2f-b8e7-9b9819efa8ae",
+    "elapsed_s": 136.5,
+    "pass_status": "red",
+    "queue_id": "78596544-1f6b-49bc-86c4-81e4532a682c",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.981,
+    "fields_filled": 18,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Nathan Burns|TK|12.14.22|AL": {
+    "status": "error",
+    "driver": "Nathan Burns",
+    "files": [
+      "Nathan Burns 12.14.22 AL tk.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.8
+  },
+  "NC DOT Driver Record|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "NC DOT Driver Record",
+    "doc_type": "MVR",
+    "state": "North Carolina",
+    "date": "nodate",
+    "files": [
+      "1-NCDOT-Record12-03-2021.pdf",
+      "NCDOT-Record12-03-2021.pdf"
+    ],
+    "ticket_id": "295c59cf-9db4-416f-80ac-cb383bc036ad",
+    "elapsed_s": 137.3,
+    "pass_status": "red",
+    "queue_id": "c421a3e3-bd0c-4d4d-b452-dbb1f4da715d",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.986,
+    "fields_filled": 18,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Nickalus Harper|UNK|01.23.2025|KY": {
+    "status": "ok",
+    "driver": "Nickalus Harper",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "01.23.2025",
+    "files": [
+      "Nickalus Harper 01.23.2025 KY PHOTO.pdf"
+    ],
+    "ticket_id": "aae1951e-3fa2-47eb-a099-b9fc92a05a62",
+    "elapsed_s": 178.3,
+    "pass_status": "red",
+    "queue_id": "d0ebd0d3-1cc6-4258-a728-29dedc5f0824",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.1,
+    "fields_filled": 0,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Nickalus Harper|TK|01.23.2025|KY": {
+    "status": "error",
+    "driver": "Nickalus Harper",
+    "files": [
+      "Nickalus Harper 01.23.2025 KY TK.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.9
+  },
+  "OLTINBEK KALANDAROV|TK|12-19-25|WY": {
+    "status": "error",
+    "driver": "OLTINBEK KALANDAROV",
+    "files": [
+      "OLTINBEK KALANDAROV 12-19-25 WY TK 1.jpg",
+      "OLTINBEK KALANDAROV 12-19-25 WY TK 2.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 3.2
+  },
+  "Oluyesi Oyedele|TK|4-22-26|OH": {
+    "status": "error",
+    "driver": "Oluyesi Oyedele",
+    "files": [
+      "Oluyesi Oyedele 4-22-26 OH TK.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 7.3
+  },
+  "Oluyesi Oyedele|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Oluyesi Oyedele",
+    "doc_type": "UNK",
+    "state": "Ohio",
+    "date": "nodate",
+    "files": [
+      "Oluyesi_Oyedele_YEMC_Law_Office.pdf"
+    ],
+    "ticket_id": "e1e33cce-9e35-42c4-9915-26136d481187",
+    "elapsed_s": 148.9,
+    "pass_status": "red",
+    "queue_id": "59687133-81ea-4f0e-8f56-258e83ff1148",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.915,
+    "fields_filled": 9,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "",
+    "court_date": "06/23/2026",
+    "court_time": ""
+  },
+  "Oluyesi_Oyedele_|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Oluyesi_Oyedele_",
+    "files": [
+      "Oluyesi_Oyedele_.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 8.0
+  },
+  "Paule Francois FL|TK|4.4.22|XX": {
+    "status": "error",
+    "driver": "Paule Francois FL",
+    "files": [
+      "Paule Francois FL 4.4.22 TK.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 12.3
+  },
+  "Pavlo Makovskyi|IR|12.08.2024|IL": {
+    "status": "ok",
+    "driver": "Pavlo Makovskyi",
+    "doc_type": "IR",
+    "state": "Illinois",
+    "date": "12.08.2024",
+    "files": [
+      "Pavlo Makovskyi 12.08.2024 IL IR.jpg",
+      "Pavlo Makovskyi 12.08.2024 IL IR (2).jpg"
+    ],
+    "ticket_id": "e7aae5cb-4a9e-43c5-9117-6ebe97de973d",
+    "elapsed_s": 169.2,
+    "pass_status": "red",
+    "queue_id": "52e01285-2924-4407-a83d-317589bbfbb2",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.95,
+    "fields_filled": 31,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Court_Date__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Inspection Report",
+    "violation": "Failure to Obey Traffic Control Device",
+    "court_date": "12/18/2024",
+    "court_time": ""
+  },
+  "Pavlo Makovskyi|TK|12.08.2024|IL": {
+    "status": "error",
+    "driver": "Pavlo Makovskyi",
+    "files": [
+      "Pavlo Makovskyi 12.08.2024 IL TK.jpg",
+      "Pavlo Makovskyi 12.08.2024 IL TK (2).jpg",
+      "Pavlo Makovskyi 12.08.2024 IL TK (3).jpg",
+      "Pavlo Makovskyi 12.08.2024 IL TK (4).jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 16.3
+  },
+  "Pedro Mena NY|TK|12.16.21|XX": {
+    "status": "error",
+    "driver": "Pedro Mena NY",
+    "files": [
+      "Pedro Mena NY 12.16.21 TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 6.2
+  },
+  "Petro Matsedonskyi|TK|08.10.2024|DE": {
+    "status": "error",
+    "driver": "Petro Matsedonskyi",
+    "files": [
+      "Petro Matsedonskyi 08.10.2024 DE TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 4.3
+  },
+  "photo_2025-10-30_14-54-09|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "photo_2025-10-30_14-54-09",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "photo_2025-10-30_14-54-09.jpg"
+    ],
+    "ticket_id": "42982f06-7d56-435a-b661-2a06aec3f0f2",
+    "elapsed_s": 26.2,
+    "pass_status": "green",
+    "queue_id": "b4cb3fa1-89ab-455b-8bc8-d9a192a3d4ea",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.944,
+    "fields_filled": 3,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "photo_2025-10-30_14-54-13|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "photo_2025-10-30_14-54-13",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "photo_2025-10-30_14-54-13.jpg"
+    ],
+    "ticket_id": "3e483660-8010-4439-b9e4-f2169e827932",
+    "elapsed_s": 25.2,
+    "pass_status": "green",
+    "queue_id": "ee462c19-45fe-4a65-b331-123dd6eda5f3",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.944,
+    "fields_filled": 3,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "photo_2025-10-30_14-54-16|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "photo_2025-10-30_14-54-16",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "photo_2025-10-30_14-54-16.jpg"
+    ],
+    "ticket_id": "0189781a-a0b8-4c80-88c3-979f9edd74a3",
+    "elapsed_s": 19.3,
+    "pass_status": "green",
+    "queue_id": "67c27b03-9cec-4e69-9f13-af4f14df4fe2",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.934,
+    "fields_filled": 3,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "photo_2025-10-30_14-54-16 (1)|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "photo_2025-10-30_14-54-16 (1)",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "photo_2025-10-30_14-54-16 (1).jpg"
+    ],
+    "ticket_id": "582de2d5-adcd-44dd-88f7-bb516ff4e11e",
+    "elapsed_s": 21.3,
+    "pass_status": "green",
+    "queue_id": "1d0dbf5a-4e5d-4f6e-9d59-4483b8a83580",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.94,
+    "fields_filled": 3,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Quentin Moore|TK|4-01-26|GA": {
+    "status": "error",
+    "driver": "Quentin Moore",
+    "files": [
+      "Quentin Moore 4-01-26 GA TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 14.9
+  },
+  "RASSOUL FALL|UNK|09.26.2024|TX": {
+    "status": "ok",
+    "driver": "RASSOUL FALL",
+    "doc_type": "UNK",
+    "state": "Texas",
+    "date": "09.26.2024",
+    "files": [
+      "RASSOUL FALL 09.26.2024 TX COURT LETTER.jpg"
+    ],
+    "ticket_id": "e4a37f3d-eca8-49db-89f5-fc2c2fd2eb59",
+    "elapsed_s": 142.3,
+    "pass_status": "red",
+    "queue_id": "1076df8a-1ecb-40b5-888c-d532eae133ed",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.947,
+    "fields_filled": 13,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Too Fast for Conditions",
+    "court_date": "01/29/2025",
+    "court_time": ""
+  },
+  "RASSOUL FALL|TK|09.26.2024|TX": {
+    "status": "error",
+    "driver": "RASSOUL FALL",
+    "files": [
+      "RASSOUL FALL 09.26.2024 TX TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 11.0
+  },
+  "Raymond Conklin CA|TK|11.03.20|XX": {
+    "status": "ok",
+    "driver": "Raymond Conklin CA",
+    "doc_type": "TK",
+    "state": "California",
+    "date": "11.03.20",
+    "files": [
+      "Raymond Conklin CA 11.03.20 TK.jpeg"
+    ],
+    "ticket_id": "eb420ccc-f112-4a8b-844a-fa7709e69041",
+    "elapsed_s": 193.2,
+    "pass_status": "red",
+    "queue_id": "542de93f-6f8d-4789-88a5-e4b84e137b07",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.713,
+    "fields_filled": 14,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Violation_Category__c",
+      "Court_Date__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Equipment/Maintenance",
+    "court_date": "11/13/2020",
+    "court_time": ""
+  },
+  "Reciept court|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Reciept court",
+    "doc_type": "UNK",
+    "state": "Illinois",
+    "date": "nodate",
+    "files": [
+      "Reciept court.pdf"
+    ],
+    "ticket_id": "37701509-120b-48af-91c1-e79e7fa7763b",
+    "elapsed_s": 123.3,
+    "pass_status": "red",
+    "queue_id": "e887548c-259f-46ed-a3dd-cb7c721a646e",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.864,
+    "fields_filled": 7,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Resized_Screenshot_20230619-123901_Samsung_Notes|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Resized_Screenshot_20230619-123901_Samsung_Notes",
+    "doc_type": "UNK",
+    "state": "Wyoming",
+    "date": "nodate",
+    "files": [
+      "Resized_Screenshot_20230619-123901_Samsung_Notes.jpeg"
+    ],
+    "ticket_id": "7fecc15b-daad-4fcc-b17c-7971b816c9b8",
+    "elapsed_s": 137.0,
+    "pass_status": "red",
+    "queue_id": "184144ff-9d9e-4c31-9d4b-b89c0da56308",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.948,
+    "fields_filled": 8,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c",
+      "Citation_Number__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Parking",
+    "court_date": "07/13/2023",
+    "court_time": ""
+  },
+  "Resized_Screenshot_20230619-123907_Samsung_Notes|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Resized_Screenshot_20230619-123907_Samsung_Notes",
+    "doc_type": "UNK",
+    "state": "Wyoming",
+    "date": "nodate",
+    "files": [
+      "Resized_Screenshot_20230619-123907_Samsung_Notes.jpeg"
+    ],
+    "ticket_id": "223c02a8-5585-4a76-9237-408e21e2f5b2",
+    "elapsed_s": 134.1,
+    "pass_status": "red",
+    "queue_id": "0b127d62-adcf-4fbd-a948-d0c43fd1e285",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.866,
+    "fields_filled": 6,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "",
+    "court_date": "06/28/2023",
+    "court_time": ""
+  },
+  "Resized_Screenshot_20230619-123921_Samsung_Notes|UNK|nodate|XX": {
+    "status": "ok",
+    "driver": "Resized_Screenshot_20230619-123921_Samsung_Notes",
+    "doc_type": "UNK",
+    "state": "Wyoming",
+    "date": "nodate",
+    "files": [
+      "Resized_Screenshot_20230619-123921_Samsung_Notes.jpeg"
+    ],
+    "ticket_id": "0c9f0945-7ec7-43cb-880f-db878c978372",
+    "elapsed_s": 132.7,
+    "pass_status": "red",
+    "queue_id": "e07b228b-8685-4786-82e4-418966bedcbe",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.954,
+    "fields_filled": 10,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Ticket",
+    "violation": "Parking",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Roman Gamski|TK|nodate|XX": {
+    "status": "error",
+    "driver": "Roman Gamski",
+    "files": [
+      "Roman Gamski PA tic.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 5.5
+  },
+  "Ronald Forrest|TK|04.02.2025|TN": {
+    "status": "error",
+    "driver": "Ronald Forrest",
+    "files": [
+      "Ronald Forrest 04.02.2025 TN TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.8
+  },
+  "Ronald Forrest|MVR|nodate|XX": {
+    "status": "ok",
+    "driver": "Ronald Forrest",
+    "doc_type": "MVR",
+    "state": "Arkansas",
+    "date": "nodate",
+    "files": [
+      "Ronald Forrest MVR.pdf"
+    ],
+    "ticket_id": "884e4cc5-c14e-4b6d-86dd-75bc72b5579e",
+    "elapsed_s": 132.3,
+    "pass_status": "red",
+    "queue_id": "f6ba240d-7334-4a5b-ad67-9ea0ef495a3a",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.986,
+    "fields_filled": 17,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "MVR",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Roudeline Zepherin|TK|2.11.2024|CO": {
+    "status": "error",
+    "driver": "Roudeline Zepherin",
+    "files": [
+      "Roudeline Zepherin 2.11.2024 CO TK.jpg",
+      "Roudeline Zepherin 2.11.2024 CO TK (2).png"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 17.2
+  },
+  "Roudeline Zepherin|DOC|nodate|XX": {
+    "status": "ok",
+    "driver": "Roudeline Zepherin",
+    "doc_type": "DOC",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "Roudeline Zephirin ID.jpg",
+      "Roudeline Zephirin ID (2).jpg"
+    ],
+    "ticket_id": "668e5f74-265b-47e1-be91-15def486eeaf",
+    "elapsed_s": 153.9,
+    "pass_status": "red",
+    "queue_id": "099d8e74-8984-4da0-af7d-e8319a7ff0c1",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.968,
+    "fields_filled": 10,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Date_of_Ticket__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "CDL",
+    "violation": "",
+    "court_date": "",
+    "court_time": ""
+  },
+  "Ruben Florez CT|IR|6.14.21|XX": {
+    "status": "error",
+    "driver": "Ruben Florez CT",
+    "files": [
+      "Ruben Florez CT 6.14.21 IR(1).jpeg",
+      "Ruben Florez CT 6.14.21 IR(2).jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 18.1
+  },
+  "Ruben Florez CT|TK|6.14.21|XX": {
+    "status": "error",
+    "driver": "Ruben Florez CT",
+    "files": [
+      "Ruben Florez CT 6.14.21 TK(1).jpeg",
+      "Ruben Florez CT 6.14.21 TK(2).jpeg",
+      "Ruben Florez CT 6.14.21 TK(3).jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 30.6
+  },
+  "sadeq almathil MI|TK|1.29.22|XX": {
+    "status": "error",
+    "driver": "sadeq almathil MI",
+    "files": [
+      "sadeq almathil MI 1.29.22 TK.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.9
+  },
+  "SAFIR KHAN HAWADYAR|IR|10-29-25|NY": {
+    "status": "error",
+    "driver": "SAFIR KHAN HAWADYAR",
+    "files": [
+      "SAFIR KHAN HAWADYAR 10-29-25 NY IR 1.jpg",
+      "SAFIR KHAN HAWADYAR 10-29-25 NY IR 2.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 4.0
+  },
+  "SAFIR KHAN HAWADYAR|TK|10-29-25|NY": {
+    "status": "error",
+    "driver": "SAFIR KHAN HAWADYAR",
+    "files": [
+      "SAFIR KHAN HAWADYAR 10-29-25 NY TK 1.jpg",
+      "SAFIR KHAN HAWADYAR 10-29-25 NY TK 2.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 6.0
+  },
+  "SAFIR KHAN HAWADYAR|UNK|10-29-25|XX": {
+    "status": "ok",
+    "driver": "SAFIR KHAN HAWADYAR",
+    "doc_type": "UNK",
+    "state": "",
+    "date": "10-29-25",
+    "files": [
+      "SAFIR KHAN HAWADYAR 10-29-25 Receipt.jpg"
+    ],
+    "ticket_id": "921eb6f1-683b-4b9e-b4cf-9b69ac7daa8f",
+    "elapsed_s": 119.6,
+    "pass_status": "red",
+    "queue_id": "ad161a38-157f-4ff0-848c-c19b80bac6ff",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.779,
+    "fields_filled": 10,
+    "fields_total": 62,
+    "low_confidence_fields": [
+      "Citation_Number__c",
+      "Violation_Category__c",
+      "Court_Date__c",
+      "Drivers_License_Type__c"
+    ],
+    "missing_fields": [],
+    "file_type": "Inspection Report",
+    "violation": "",
+    "court_date": "11/08/2025",
+    "court_time": ""
+  },
+  "Salvatore Coladonato|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Salvatore Coladonato",
+    "files": [
+      "Salvatore Coladonato.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 6.2
+  },
+  "SARDOROV AKHROR|TK|12.28.2023|CA": {
+    "status": "error",
+    "driver": "SARDOROV AKHROR",
+    "files": [
+      "SARDOROV AKHROR 12.28.2023 CA TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 4.7
+  },
+  "Satvir Chakkal|TK|2-02-26|CA": {
+    "status": "error",
+    "driver": "Satvir Chakkal",
+    "files": [
+      "Satvir Chakkal 2-02-26 CA TK.jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 3.8
+  },
+  "Screenshot 2023-09-08 101824|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Screenshot 2023-09-08 101824",
+    "files": [
+      "Screenshot 2023-09-08 101824.png"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.1
+  },
+  "Screenshot 2025-05-07 144542|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Screenshot 2025-05-07 144542",
+    "files": [
+      "Screenshot 2025-05-07 144542.png"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.7
+  },
+  "Screenshot_2023|UNK|10-04-11|XX": {
+    "status": "error",
+    "driver": "Screenshot_2023",
+    "files": [
+      "Screenshot_2023-10-04-11-57-56-59_cf3cf72bd8e53b0db7ddb0a6f2208af9 (1).jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.4
+  },
+  "SHADERRICK WHITE|TK|12.15.2024|TX": {
+    "status": "error",
+    "driver": "SHADERRICK WHITE",
+    "files": [
+      "SHADERRICK WHITE 12.15.2024 TX TK.jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 6.6
+  },
+  "Aldo Reveles|PHOTO|nodate|XX": {
+    "status": "ok",
+    "driver": "Aldo Reveles",
+    "doc_type": "PHOTO",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "photo_2025-10-30_14-54-09.jpg",
+      "photo_2025-10-30_14-54-13.jpg",
+      "photo_2025-10-30_14-54-16 (1).jpg",
+      "photo_2025-10-30_14-54-16.jpg"
+    ],
+    "ticket_id": "5e1d451e-79d9-49d9-b197-0ff1c989a749",
+    "elapsed_s": 14.6,
+    "pass_status": "green",
+    "queue_id": "99d39508-5ec4-485b-93f4-f4fa7863873e",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "Bway Htoo|PHOTO|7-16-25|VA": {
+    "status": "error",
+    "driver": "Bway Htoo",
+    "files": [
+      "Bway Htoo 7-16-25 VA Crash Report.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 14.4
+  },
+  "Bway Htoo|PHOTO|nodate|XX": {
+    "status": "error",
+    "driver": "Bway Htoo",
+    "files": [
+      "crash report.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.5
+  },
+  "Shannon Perkins|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Shannon Perkins",
+    "files": [
+      "Shannon Perkins.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 32.2
+  },
+  "Sslvatore Coladonato|TK|10.14.2024|SC": {
+    "status": "error",
+    "driver": "Sslvatore Coladonato",
+    "files": [
+      "Sslvatore Coladonato 10.14.2024 SC TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.9
+  },
+  "Steven Enyinnaya|TK|8-15-25|TX": {
+    "status": "error",
+    "driver": "Steven Enyinnaya",
+    "files": [
+      "Steven Enyinnaya 8-15-25 TX TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 5.0
+  },
+  "Terrell Scott|IR|9-03-25|KY": {
+    "status": "error",
+    "driver": "Terrell Scott",
+    "files": [
+      "Terrell Scott 9-03-25 KY IR.jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 7.2
+  },
+  "Terrell Scott|TK|9-03-25|KY": {
+    "status": "error",
+    "driver": "Terrell Scott",
+    "files": [
+      "Terrell Scott 9-03-25 KY TK 1.jpg",
+      "Terrell Scott 9-03-25 KY TK 2.jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 7.7
+  },
+  "TERRY ROBINSON|IR|3-26-26|CA": {
+    "status": "error",
+    "driver": "TERRY ROBINSON",
+    "files": [
+      "TERRY ROBINSON 3-26-26 CA IR.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.8
+  },
+  "TERRY ROBINSON|TK|3-26-26|CA": {
+    "status": "error",
+    "driver": "TERRY ROBINSON",
+    "files": [
+      "Terry Robinson 3-26-26 CA TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.3
+  },
+  "Ticket 1|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Ticket 1",
+    "files": [
+      "Ticket 1.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.7
+  },
+  "Ticket 2|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Ticket 2",
+    "files": [
+      "Ticket 2.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.5
+  },
+  "Ticket 3|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Ticket 3",
+    "files": [
+      "Ticket 3.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.2
+  },
+  "Timothy Smith|TK|8.20.19|XX": {
+    "status": "error",
+    "driver": "Timothy Smith",
+    "files": [
+      "8.20.19 Timothy Smith Tckt.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 13.0
+  },
+  "Toby Fulmore|TK|3-11-26|SC": {
+    "status": "error",
+    "driver": "Toby Fulmore",
+    "files": [
+      "Toby Fulmore 3-11-26 SC TK.jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 5.1
+  },
+  "Tony Suttle|TK|1-22-26|MS": {
+    "status": "error",
+    "driver": "Tony Suttle",
+    "files": [
+      "Tony Suttle 1-22-26 MS TK.jpeg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.7
+  },
+  "TrafficNoticeOfHearing_11223134_12182413522.pdf 38694b7e-b428-4968-9eaa-24ed|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "TrafficNoticeOfHearing_11223134_12182413522.pdf 38694b7e-b428-4968-9eaa-24ed",
+    "files": [
+      "TrafficNoticeOfHearing_11223134_12182413522.pdf 38694b7e-b428-4968-9eaa-24ed.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.8
+  },
+  "TX DPS Driver Record|MVR|nodate|XX": {
+    "status": "error",
+    "driver": "TX DPS Driver Record",
+    "files": [
+      "TXDPSLicenseeManager.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.6
+  },
+  "Unknown - CamScanner|UNK|12-19-2023|XX": {
+    "status": "error",
+    "driver": "Unknown - CamScanner",
+    "files": [
+      "CamScanner 12-19-2023 11.45(2).pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 3.4
+  },
+  "Unknown - Konica Scan|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Unknown - Konica Scan",
+    "files": [
+      "SKMBT_C45225041009410.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 5.3
+  },
+  "Unknown - Repair Photo|PHOTO|nodate|XX": {
+    "status": "ok",
+    "driver": "Unknown - Repair Photo",
+    "doc_type": "PHOTO",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "531414_repair_tire.jpg"
+    ],
+    "ticket_id": "50837c25-196f-4e87-bb1b-359787fa19d6",
+    "elapsed_s": 1.1,
+    "pass_status": "green",
+    "queue_id": "5910850b-0406-440d-8f51-d61b5216e0db",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "Unknown - Vehicle Photo|PHOTO|nodate|XX": {
+    "status": "ok",
+    "driver": "Unknown - Vehicle Photo",
+    "doc_type": "PHOTO",
+    "state": "",
+    "date": "nodate",
+    "files": [
+      "IMG_0083.jpeg"
+    ],
+    "ticket_id": "06796ff5-c4c3-477c-9289-a02e11c33bff",
+    "elapsed_s": 17.9,
+    "pass_status": "green",
+    "queue_id": "c6be3c44-bbf4-487b-ae52-c95e3a7307b1",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "Unknown - Xerox Scan|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "Unknown - Xerox Scan",
+    "files": [
+      "Xerox Scan_02192026145132.PDF",
+      "Xerox Scan_02192026145218.PDF"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 3.3
+  },
+  "Valerie Conner|TK|2-26-26|FL": {
+    "status": "error",
+    "driver": "Valerie Conner",
+    "files": [
+      "Valerie Conner 2-26-26 FL TK.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 8.5
+  },
+  "Valeriy Barkhudaryan|MVR|nodate|XX": {
+    "status": "error",
+    "driver": "Valeriy Barkhudaryan",
+    "files": [
+      "MVR for VALERIY BARKHUDARYAN.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.2
+  },
+  "Valeriy Barkhudaryan|TK|11.15.2023|MO": {
+    "status": "error",
+    "driver": "Valeriy Barkhudaryan",
+    "files": [
+      "Valeriy Barkhudaryan 11.15.2023 MO TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.1
+  },
+  "Victor Snarskis|IR|11.15.2024|IN": {
+    "status": "error",
+    "driver": "Victor Snarskis",
+    "files": [
+      "Victor Snarskis 11.15.2024 IN IR.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.1
+  },
+  "Victor Snarskis|TK|11.15.2024|IN": {
+    "status": "error",
+    "driver": "Victor Snarskis",
+    "files": [
+      "Victor Snarskis 11.15.2024 IN TK.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 6.0
+  },
+  "ViewDocument|UNK|nodate|XX": {
+    "status": "error",
+    "driver": "ViewDocument",
+    "files": [
+      "ViewDocument.pdf"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.0
+  },
+  "Vitalii Kovtunov|TK|2.14.2024|ID": {
+    "status": "error",
+    "driver": "Vitalii Kovtunov",
+    "files": [
+      "Vitalii Kovtunov 2.14.2024 ID TK.jpg",
+      "Vitalii Kovtunov 2.14.2024 ID TK (2).jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 8.3
+  },
+  "UNKNOWN|0513034d-4ab8-444e-9cee-a1a89b04e855.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 0513034d-4ab8-444e-9cee-a1a89b04e855.jpg",
+    "files": [
+      "0513034d-4ab8-444e-9cee-a1a89b04e855.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.8
+  },
+  "UNKNOWN|1221231525.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 1221231525.jpg",
+    "files": [
+      "1221231525.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 7.3
+  },
+  "UNKNOWN|1d591f8e-5ad8-45b6-8ab2-24e95a57d07e.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 1d591f8e-5ad8-45b6-8ab2-24e95a57d07e.jpg",
+    "files": [
+      "1d591f8e-5ad8-45b6-8ab2-24e95a57d07e.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.7
+  },
+  "UNKNOWN|20260421_150835.jpg": {
+    "status": "ok",
+    "driver": "Unknown \u2014 20260421_150835.jpg",
+    "doc_type": "?",
+    "state": "",
+    "date": "?",
+    "files": [
+      "20260421_150835.jpg"
+    ],
+    "ticket_id": "abacec49-bc12-4620-8371-653275c23fe9",
+    "elapsed_s": 9.6,
+    "pass_status": "green",
+    "queue_id": "d3127066-3fad-4f7d-8678-0c2873f34e54",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "UNKNOWN|20260421_150842.jpg": {
+    "status": "ok",
+    "driver": "Unknown \u2014 20260421_150842.jpg",
+    "doc_type": "?",
+    "state": "",
+    "date": "?",
+    "files": [
+      "20260421_150842.jpg"
+    ],
+    "ticket_id": "c353f224-c1c6-4cc4-b3b5-689aaf84a142",
+    "elapsed_s": 2.6,
+    "pass_status": "green",
+    "queue_id": "f50069a8-bfb6-4d22-9597-0eb1fb24740d",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "UNKNOWN|20260421_151318.jpg": {
+    "status": "ok",
+    "driver": "Unknown \u2014 20260421_151318.jpg",
+    "doc_type": "?",
+    "state": "",
+    "date": "?",
+    "files": [
+      "20260421_151318.jpg"
+    ],
+    "ticket_id": "b746fe31-bac3-482a-a822-f0baf4d39db5",
+    "elapsed_s": 6.6,
+    "pass_status": "green",
+    "queue_id": "79ef5d44-0e73-4955-961e-52998ad3f0fd",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "UNKNOWN|20260422_121531.jpg": {
+    "status": "ok",
+    "driver": "Unknown \u2014 20260422_121531.jpg",
+    "doc_type": "?",
+    "state": "",
+    "date": "?",
+    "files": [
+      "20260422_121531.jpg"
+    ],
+    "ticket_id": "3d68d3e0-d51d-4578-aae8-6c4b37cd1d1b",
+    "elapsed_s": 18.1,
+    "pass_status": "green",
+    "queue_id": "e5e8c865-d8c3-4247-b13b-0da5e52abbdf",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "UNKNOWN|20260422_121543 (1).jpg": {
+    "status": "ok",
+    "driver": "Unknown \u2014 20260422_121543 (1).jpg",
+    "doc_type": "?",
+    "state": "",
+    "date": "?",
+    "files": [
+      "20260422_121543 (1).jpg"
+    ],
+    "ticket_id": "b6ae8d86-fb6d-42c8-a6da-dbc796f0939c",
+    "elapsed_s": 11.5,
+    "pass_status": "green",
+    "queue_id": "674f6699-4375-4770-89bf-55deaabc7761",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
+  },
+  "UNKNOWN|221984158005.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 221984158005.jpg",
+    "files": [
+      "221984158005.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 0.7
+  },
+  "UNKNOWN|3005208b-909a-46a5-8b6c-0fbb3d6245d9.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 3005208b-909a-46a5-8b6c-0fbb3d6245d9.jpg",
+    "files": [
+      "3005208b-909a-46a5-8b6c-0fbb3d6245d9.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.0
+  },
+  "UNKNOWN|626071494004.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 626071494004.jpg",
+    "files": [
+      "626071494004.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.3
+  },
+  "UNKNOWN|626071497004.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 626071497004.jpg",
+    "files": [
+      "626071497004.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 1.5
+  },
+  "UNKNOWN|654307506004.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 654307506004.jpg",
+    "files": [
+      "654307506004.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.9
+  },
+  "UNKNOWN|654313772004.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 654313772004.jpg",
+    "files": [
+      "654313772004.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 2.6
+  },
+  "UNKNOWN|681517122004.jpg": {
+    "status": "error",
+    "driver": "Unknown \u2014 681517122004.jpg",
+    "files": [
+      "681517122004.jpg"
+    ],
+    "error": "500 Server Error: Internal Server Error for url: https://ai-ticket-engine-kajugdk3nq-uc.a.run.app/api/v1/process",
+    "elapsed_s": 4.5
+  },
+  "UNKNOWN|IMG_1935.pdf": {
+    "status": "ok",
+    "driver": "Unknown \u2014 IMG_1935.pdf",
+    "doc_type": "?",
+    "state": "",
+    "date": "?",
+    "files": [
+      "IMG_1935.pdf"
+    ],
+    "ticket_id": "a6b1d162-a06d-4b5f-bca1-39d5c5f6434d",
+    "elapsed_s": 19.3,
+    "pass_status": "green",
+    "queue_id": "e382a4d9-d22a-4420-8472-e313f21ee1a5",
+    "urgency": null,
+    "completeness": null,
+    "avg_confidence": 0.0,
+    "fields_filled": 2,
+    "fields_total": 18,
+    "low_confidence_fields": [],
+    "missing_fields": [],
+    "file_type": "Photo",
+    "violation": "",
+    "court_date": "",
+    "court_time": "",
+    "photo_type": "Other",
+    "photo_summary": "Photo analysis failed \u2014 attorney should review the original image directly."
   }
 }

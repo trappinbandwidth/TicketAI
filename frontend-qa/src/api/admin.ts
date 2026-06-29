@@ -116,6 +116,7 @@ export const attorneyNetworkApi = {
     if (!res.ok) throw new Error(await res.text())
     return res.json()
   },
+  jobHistory:     (limit = 10) => get(`/attorneys/jobs/history?limit=${limit}`),
   updatePricing: async (id: string, body: {
     pricing_flat_rate?: string; pricing_volume?: string;
     pricing_per_type?: Record<string, string>;

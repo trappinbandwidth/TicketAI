@@ -854,6 +854,51 @@ def _notify_driver_background(driver_id: str, ticket_id: str) -> None:
         logger.warning("[reviewer] driver_concierge failed ticket=%s: %s", ticket_id, exc)
 
 
+def _match_and_discover_background(ticket_id: str, state: str, county: str) -> None:
+    """
+    After approval: match ticket to best onboarded attorney.
+    If none found, trigger on-demand scrape for that state and write alert.
+    """
+    try:
+        from app.services.firebase_service import _firestore_client, _init
+        from app.routes.attorneys import trigger_discovery_for_ticket
+        _init()
+        db = _firestore_client
+        if db is None:
+            return
+
+        # Tier 1: county match
+        onboarded = (db.collection("attorneys")
+                       .where("status", "==", "onboarded")
+                       .where("states_covered", "array_contains", state)
+                       .limit(5).stream())
+        matches = [d.to_dict() | {"attorney_id": d.id} for d in onboarded]
+
+        if matches:
+            # Write top match back to the ticket
+            best = sorted(matches, key=lambda x: float(x.get("google_rating") or 0), reverse=True)[0]
+            (db.collection("tickets").document(ticket_id)
+               .update({
+                   "matched_attorney_id":   best["attorney_id"],
+                   "matched_attorney_name": best.get("firm_name") or best.get("name", ""),
+                   "matched_attorney_phone": best.get("phone", ""),
+                   "matched_at": datetime.now(timezone.utc),
+               }))
+            logger.warning(
+                "[match] ticket=%s matched → %s (%s)",
+                ticket_id, best.get("firm_name"), state
+            )
+        else:
+            logger.warning(
+                "[match] ticket=%s state=%s — no onboarded attorney, triggering discovery",
+                ticket_id, state
+            )
+            trigger_discovery_for_ticket(ticket_id, state, county)
+
+    except Exception as exc:
+        logger.warning("[match] background match failed ticket=%s: %s", ticket_id, exc)
+
+
 @router.post("/admin/approve-ticket/{ticket_id}")
 def approve_ticket(
     ticket_id: str,
@@ -898,6 +943,14 @@ def approve_ticket(
         driver_id = data.get("driver_id") or ""
         if driver_id:
             background_tasks.add_task(_notify_driver_background, driver_id, ticket_id)
+
+        # Auto-match attorney and trigger discovery if none available
+        state  = (data.get("ticket_state") or "").upper().strip()
+        county = (data.get("ticket_county") or "").strip()
+        if state:
+            background_tasks.add_task(
+                _match_and_discover_background, ticket_id, state, county
+            )
 
         logger.warning("[reviewer] approved ticket=%s reviewer=%s → New", ticket_id, reviewer_id)
         return {"success": True, "ticket_id": ticket_id, "attorney_status": "New"}

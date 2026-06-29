@@ -54,10 +54,20 @@ interface Coverage {
   priority: string
 }
 
+interface JobRun {
+  run_id: string
+  run_at: string
+  states_scraped: string[]
+  attorneys_found: number
+  attorneys_imported: number
+  status: string
+}
+
 export default function AttorneyNetworkTab() {
   const [attorneys, setAttorneys] = useState<Attorney[]>([])
   const [pipeline, setPipeline] = useState<Pipeline | null>(null)
   const [coverage, setCoverage] = useState<Coverage[]>([])
+  const [jobRuns, setJobRuns] = useState<JobRun[]>([])
   const [loading, setLoading] = useState(true)
   const [filterState, setFilterState] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -90,10 +100,12 @@ export default function AttorneyNetworkTab() {
         }),
         attorneyNetworkApi.pipeline(),
         attorneyNetworkApi.coverage(),
+        attorneyNetworkApi.jobHistory(5),
       ])
       setAttorneys(attyRes.attorneys ?? [])
       setPipeline(pipeRes)
       setCoverage(covRes.coverage ?? [])
+      setJobRuns(jobRes.runs ?? [])
     } catch (e) {
       console.error(e)
     } finally {
@@ -447,7 +459,7 @@ www.rigresolve.com`
           </p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setView('list')} className={`text-sm px-3 py-1.5 rounded-lg ${view !== 'coverage' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Leads</button>
+          <button onClick={() => setView('list')} className={`text-sm px-3 py-1.5 rounded-lg ${view === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Leads</button>
           <button onClick={() => setView('coverage')} className={`text-sm px-3 py-1.5 rounded-lg ${view === 'coverage' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Coverage Map</button>
         </div>
       </div>
@@ -492,6 +504,26 @@ www.rigresolve.com`
       {!loading && view === 'coverage' && renderCoverage()}
       {view === 'detail' && renderDetail()}
       {renderEmailModal()}
+
+      {/* Discovery Job History */}
+      {view !== 'detail' && jobRuns.length > 0 && (
+        <div className="mt-8 border-t border-gray-200 pt-6">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Auto-Discovery Job History</h3>
+          <div className="space-y-2">
+            {jobRuns.map(r => (
+              <div key={r.run_id} className="flex items-center gap-3 text-sm bg-white border border-gray-200 rounded-lg px-4 py-2.5">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${r.status === 'success' ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className="text-gray-500 w-36 shrink-0">{r.run_at ? new Date(r.run_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</span>
+                <span className="text-gray-700 font-medium">{r.attorneys_imported} imported</span>
+                <span className="text-gray-400">·</span>
+                <span className="text-gray-500">{r.attorneys_found} found</span>
+                <span className="text-gray-400">·</span>
+                <span className="text-gray-400">{(r.states_scraped || []).join(', ')}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
