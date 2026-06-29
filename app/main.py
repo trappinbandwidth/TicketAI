@@ -17,6 +17,7 @@ from app.routes.users_admin import router as users_admin_router
 from app.routes.bids import router as bids_router
 from app.routes.attorneys import router as attorneys_router
 from app.routes.attorney_actions import router as attorney_actions_router
+from app.routes.stripe_webhooks import router as stripe_webhooks_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 
@@ -91,6 +92,7 @@ app.include_router(users_admin_router, prefix="/api/v1")
 app.include_router(bids_router, prefix="/api/v1")
 app.include_router(attorneys_router, prefix="/api/v1")
 app.include_router(attorney_actions_router, prefix="/api/v1")
+app.include_router(stripe_webhooks_router, prefix="/api/v1")
 
 
 @app.get("/health")

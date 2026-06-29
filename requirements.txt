@@ -11,3 +11,6 @@ Pillow==11.2.1
 pytesseract==0.3.13
 firebase-admin==6.5.0
 pandas==2.2.3
+stripe==11.6.0
+twilio==9.3.7
+sendgrid==6.11.0
