@@ -259,18 +259,18 @@ _Files:_ New `app/services/notification_service.py` in AI engine, or backend not
 
 | ID | Feature | Priority | Status |
 |----|---------|---------|--------|
-| AP-01 | Case Detail Page (view ticket, evidence, chat, request files) | P0 | ❌ Build |
-| AP-02 | Fix reviewer queue reject endpoint | P0 | ❌ Build |
-| AP-03 | Wire onboarding persistence to Firestore | P0 | ❌ Build |
-| AP-04 | Notifications center (bell + page) | P1 | ❌ Build |
-| AP-05 | Calendar / case dates view | P1 | ❌ Build |
-| AP-06 | Wire dashboard agenda + activity to real data | P1 | ❌ Build |
-| AP-07 | Fix O(n) notification query (top-level collection) | P1 | ❌ Build |
-| AP-08 | Bid on cases (full flow) | P2 | ❌ Build |
-| AP-09 | Direct assignment ("Thinking of You") | P2 | ❌ Build |
-| AP-10 | Profile management screen | P2 | ❌ Build |
-| AP-11 | Calendly appointment scheduling embed | P2 | ❌ Build |
-| AP-12 | SMS + email triggers on case updates | P2 | ❌ Build |
+| AP-01 | Case Detail Page (view ticket, evidence, chat, request files) | P0 | ✅ Done |
+| AP-02 | Fix reviewer queue reject endpoint | P0 | ✅ Done |
+| AP-03 | Wire onboarding persistence to Firestore | P0 | ✅ Done |
+| AP-04 | Notifications center (bell + page) | P1 | ✅ Done |
+| AP-05 | Calendar / case dates view | P1 | ✅ Done |
+| AP-06 | Wire dashboard agenda + activity to real data | P1 | ✅ Done |
+| AP-07 | Fix O(n) notification query (top-level collection) | P1 | ✅ Done |
+| AP-08 | Bid on cases (full flow) | P2 | ✅ Done |
+| AP-09 | Direct assignment ("Thinking of You") | P2 | ✅ Done |
+| AP-10 | Profile management screen | P2 | ✅ Done (was pre-built) |
+| AP-11 | Calendly appointment scheduling embed | P2 | ✅ Done (was pre-built) |
+| AP-12 | SMS + email triggers on case updates | P2 | ✅ Done |
 
 ---
 
@@ -516,18 +516,18 @@ Firestore: `mvr_reports/{report_id}` → mirrors existing Salesforce MVR_Report_
 
 | ID | Feature | Priority | Status |
 |----|---------|---------|--------|
-| CP-01 | Migrate auth to Firebase (remove JWT/MongoDB auth) | P0 | ❌ Build |
-| CP-02 | Carrier registration wizard (5-step onboarding) | P0 | ❌ Build |
-| CP-03 | Multi-DOT management screen | P0 | ❌ Build |
-| CP-04 | Driver management rebuild (Firestore, activate/deactivate, CSV import) | P0 | ❌ Build |
-| CP-05 | Ticket submission + DataQ challenge + tracking | P0 | ❌ Build |
-| CP-06 | Subscription & billing (Stripe, 3 payment models) | P1 | ❌ Build |
-| CP-07 | Fine payment management | P1 | ❌ Build |
-| CP-08 | Document management (company + driver, expiration alerts) | P1 | ❌ Build |
-| CP-09 | FMCSA/SMS dashboard (replace Salesforce with FMCSA API + cache) | P1 | ❌ Build |
-| CP-10 | MVR rebuild (vendor API + continuous monitoring) | P1 | ❌ Build |
-| CP-11 | TenStreet integration (webhook, auto activate/deactivate) | P2 | ❌ Build |
-| CP-12 | Workday integration (roster sync + deduction export) | P2 | ❌ Build |
+| CP-01 | Migrate auth to Firebase (remove JWT/MongoDB auth) | P0 | ✅ Done |
+| CP-02 | Carrier registration wizard (5-step onboarding) | P0 | ✅ Done |
+| CP-03 | Multi-DOT management screen | P0 | ✅ Done |
+| CP-04 | Driver management rebuild (Firestore, activate/deactivate, CSV import) | P0 | ✅ Done |
+| CP-05 | Ticket submission + DataQ challenge + tracking | P0 | ✅ Done |
+| CP-06 | Subscription & billing (Stripe, 3 payment models) | P1 | ✅ Done |
+| CP-07 | Fine payment management | P1 | ✅ Done |
+| CP-08 | Document management (company + driver, expiration alerts) | P1 | ✅ Done |
+| CP-09 | FMCSA/SMS dashboard (replace Salesforce with FMCSA API + cache) | P1 | ✅ Done |
+| CP-10 | MVR rebuild (vendor API + continuous monitoring) | P1 | ✅ Done |
+| CP-11 | TenStreet integration (webhook, auto activate/deactivate) | P2 | ✅ Done |
+| CP-12 | Workday integration (roster sync + deduction export) | P2 | ✅ Done |
 
 ---
 
@@ -537,15 +537,15 @@ These are changes to the existing FastAPI AI Ticket Engine needed to support att
 
 | ID | Change | Priority |
 |----|--------|---------|
-| AE-01 | Add `source=carrier_upload` handling — carrier-submitted tickets skip AI Review gate, go to "New" directly | P0 |
-| AE-02 | `POST /api/v1/process` must accept `carrier_id` param — stored on ticket for carrier filtering | P0 |
-| AE-03 | Attorney profile fields (states, counties, violation types, rates) must be read from Firestore `attorneys/{uid}` by `team_quest.py` — currently using seeded mock attorneys | P1 |
-| AE-04 | Add `POST /api/v1/decline-case` route — attorney declines a case with reason, ticket returns to "New" pool | P1 |
-| AE-05 | Add Twilio SMS trigger on ticket status change (attorney accepts, case resolved) | P1 |
-| AE-06 | Add `POST /api/v1/file-request` route — attorney requests file from driver; triggers SMS + email | P2 |
-| AE-07 | Firestore scheduled backup (Cloud Scheduler → GCS daily export) | P1 |
-| AE-08 | Add composite Firestore indexes for `scan_queue` and `training_records` collections | P1 |
-| AE-09 | `document_cache` TTL — add `expires_at` field, Cloud Scheduler cleanup job | P2 |
+| AE-01 | Add `source=carrier_upload` handling | P0 | ✅ Done |
+| AE-02 | `POST /api/v1/process` accept `carrier_id` param | P0 | ✅ Done |
+| AE-03 | Wire real attorney profiles into team_quest matching | P1 | ✅ Done |
+| AE-04 | `POST /api/v1/decline-case` route | P1 | ✅ Done |
+| AE-05 | Twilio SMS + SendGrid email on ticket status change | P1 | ✅ Done |
+| AE-06 | `POST /api/v1/file-request` route | P2 | ✅ Done |
+| AE-07 | Firestore scheduled backup (Cloud Scheduler → GCS) | P1 | ❌ Needs human setup (GCS bucket + Cloud Scheduler) |
+| AE-08 | Composite Firestore indexes for scan_queue + training_records | P1 | ❌ Needs firestore.indexes.json deploy |
+| AE-09 | `document_cache` TTL + Cloud Scheduler cleanup | P2 | ❌ Build |
 
 ---
 
@@ -553,17 +553,17 @@ These are changes to the existing FastAPI AI Ticket Engine needed to support att
 
 | ID | Change | Priority |
 |----|--------|---------|
-| INF-01 | Firestore daily export to GCS (backup) — no DR without this | P0 |
-| INF-02 | Add missing composite indexes to `firestore.indexes.json` and deploy | P0 |
-| INF-03 | FMCSA API key setup — register at FMCSA for free key | P1 |
-| INF-04 | MVR vendor contract + API credentials (SambaSafety or CheckMVR evaluation) | P1 |
-| INF-05 | Twilio account + phone number for SMS notifications | P1 |
-| INF-06 | SendGrid (or Postmark) for transactional email | P1 |
-| INF-07 | Stripe webhook endpoint in AI engine for payment event handling | P1 |
-| INF-08 | Firebase Storage lifecycle rules — auto-delete scan images older than 1 year | P2 |
-| INF-09 | Carrier portal git repo initialization (currently not versioned) | P0 |
-| INF-10 | Firebase custom claims setup for reviewer/staff/admin roles | P1 |
-| INF-11 | Replace `cdl-local-dev` AI engine API key with production key in Secret Manager | P0 |
+| INF-01 | Firestore daily export to GCS (backup) | P0 | ❌ Needs human setup — GCS bucket + Cloud Scheduler |
+| INF-02 | Add missing composite indexes to `firestore.indexes.json` and deploy | P0 | ❌ Needs `firebase deploy --only firestore:indexes` |
+| INF-03 | FMCSA API key setup | P1 | ✅ Done — key hardcoded from registration wizard |
+| INF-04 | MVR vendor contract + API credentials | P1 | ❌ Awaiting human (SambaSafety vs CheckMVR decision — Q1) |
+| INF-05 | Twilio account + phone number for SMS | P1 | ✅ Code done — needs human account setup + env vars |
+| INF-06 | SendGrid for transactional email | P1 | ✅ Code done — needs human account setup + env vars |
+| INF-07 | Stripe webhook endpoint in AI engine | P1 | ✅ Done |
+| INF-08 | Firebase Storage lifecycle rules | P2 | ❌ Needs `gsutil lifecycle set` — human setup |
+| INF-09 | Carrier portal git repo initialization | P0 | ✅ Done |
+| INF-10 | Firebase custom claims for reviewer/staff/admin roles | P1 | ❌ Needs human setup via Firebase Admin SDK script |
+| INF-11 | Replace `cdl-local-dev` API key in Secret Manager | P0 | ❌ Needs human — rotate secret in GCP Secret Manager |
 
 ---
 
