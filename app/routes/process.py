@@ -148,8 +148,9 @@ async def process_ticket(
     ticket_id: Optional[str] = Form(None),
     prompt_version: str = Form("v2"),
     source: str = Form("driver_upload"),
-    driver_statement: Optional[str] = Form(None),      # JSON string from driver form
-    evidence_files_json: Optional[str] = Form(None),   # JSON string: [{url,caption,file_type,filename}]
+    carrier_id: Optional[str] = Form(None),
+    driver_statement: Optional[str] = Form(None),
+    evidence_files_json: Optional[str] = Form(None),
     x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
@@ -248,7 +249,7 @@ async def process_ticket(
                 prompt_version=prompt_version,
             )
             effective_cached_ticket_id = ticket_id or new_queue_id
-            write_scan_result(driver_id, effective_cached_ticket_id, cached_resp, source=source)
+            write_scan_result(driver_id, effective_cached_ticket_id, cached_resp, source=source, carrier_id=carrier_id)
             return JSONResponse(content=cached_resp)
 
     # Extract word-level bounding boxes via Textract (no-op if AWS creds not set)
@@ -579,7 +580,7 @@ async def process_ticket(
     #   - drivers/{driver_id}/tickets/{ticket_id} if driver_id known (driver app)
     #   - tickets/{effective_ticket_id} always (attorney portal queue)
     effective_ticket_id = ticket_id or queue_id
-    write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source)
+    write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source, carrier_id=carrier_id)
 
     return response
 

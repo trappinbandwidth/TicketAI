@@ -65,6 +65,7 @@ def write_scan_result(
     ticket_id: str,
     result: dict,
     source: str = "driver_upload",
+    carrier_id: Optional[str] = None,
 ) -> bool:
     """
     Write AI scan results to Firestore after processing.
@@ -73,8 +74,10 @@ def write_scan_result(
       1. drivers/{driver_id}/tickets/{ticket_id} — driver app (only when driver_id known)
       2. tickets/{ticket_id}                      — attorney portal available-cases queue
 
-    source: "driver_upload" (driver submitted via app/form)
-            "manual"        (Rig Resolve staff scanned on behalf of driver)
+    source: "driver_upload"   (driver submitted via app/form)
+            "manual"          (Rig Resolve staff scanned on behalf of driver)
+            "carrier_upload"  (carrier submitted on behalf of a driver)
+    carrier_id: UID of the carrier who submitted (stored on ticket for carrier filtering)
     """
     _init()
     if _firestore_client is None:
@@ -174,6 +177,7 @@ def write_scan_result(
             "name": citation or ticket_id,
             "region": fv("Ticket_State__c"),
             "source": source,
+            "carrier_id": carrier_id,
             "ai_scan_id": result.get("queue_id"),
             "pass_status": result.get("pass_status"),
             "price_display": price.get("display"),
