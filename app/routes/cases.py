@@ -420,3 +420,96 @@ def log_activity(
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ── Direct assignment ("Thinking of You") ─────────────────────────────────────
+
+class DirectAssignBody(BaseModel):
+    ticket_id: str
+    attorney_id: str
+    assigned_by: str
+    message: Optional[str] = None  # personal note to attorney
+
+
+@router.post("/admin/direct-assign")
+def direct_assign(body: DirectAssignBody, x_api_key: Optional[str] = Header(None)):
+    """
+    AP-09 — Direct assignment ("Thinking of You").
+    Staff assigns a specific attorney without claim/bid flow.
+    Sets direct_assignment=True; attorney portal shows 'Directly Assigned' badge.
+    """
+    _check_auth(x_api_key)
+    db = _db()
+    from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+
+    try:
+        ticket_ref = db.collection("tickets").document(body.ticket_id)
+        ticket_doc = ticket_ref.get()
+        if not ticket_doc.exists:
+            raise HTTPException(status_code=404, detail=f"Ticket {body.ticket_id} not found.")
+        ticket_data = ticket_doc.to_dict()
+
+        if ticket_data.get("attorney_status") not in ("New", "AI Review", "Admin Assigned"):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot directly assign — status is '{ticket_data.get('attorney_status')}'.",
+            )
+
+        atty_ref = db.collection("attorneys").document(body.attorney_id)
+        atty_doc = atty_ref.get()
+        if not atty_doc.exists:
+            raise HTTPException(status_code=404, detail=f"Attorney {body.attorney_id} not found.")
+        atty_data = atty_doc.to_dict()
+
+        case_id = str(uuid.uuid4())
+        atty_name = atty_data.get("full_name", "")
+        atty_phone = atty_data.get("phone", "")
+        atty_email = atty_data.get("email", "")
+        personal_msg = body.message or f"{body.assigned_by} has selected you for this case."
+
+        db.collection("cases").document(case_id).set({
+            "ticket_id": body.ticket_id, "attorney_id": body.attorney_id,
+            "assigned_by": body.assigned_by, "assigned_at": SERVER_TIMESTAMP,
+            "status": "active", "direct_assignment": True,
+            "direct_assignment_message": personal_msg,
+            "attorney_name": atty_name, "attorney_phone": atty_phone,
+            "driver_name": ticket_data.get("driver_full_name") or "",
+            "violation": ticket_data.get("violation_category") or "",
+            "ticket_state": ticket_data.get("ticket_state") or "",
+            "court_date": ticket_data.get("court_date") or "",
+            "last_updated_by": body.assigned_by, "last_updated_at": SERVER_TIMESTAMP,
+            "created_at": SERVER_TIMESTAMP,
+        })
+
+        ticket_ref.update({
+            "attorney_status": "Accepted", "attorney_name": atty_name,
+            "attorney_phone": atty_phone, "attorney_email": atty_email,
+            "assigned_attorney_id": body.attorney_id, "direct_assignment": True,
+            "case_id": case_id, "last_modified_date": SERVER_TIMESTAMP,
+        })
+
+        try:
+            notif_id = str(uuid.uuid4())
+            db.collection("attorney_notifications").document(body.attorney_id)\
+              .collection("items").document(notif_id).set({
+                "notif_id": notif_id, "type": "direct_assignment",
+                "ticket_id": body.ticket_id, "title": "New Case — Directly Assigned to You",
+                "body": personal_msg, "read": False, "created_at": SERVER_TIMESTAMP,
+              })
+            from app.services.notifications import send_sms, send_email
+            if atty_phone:
+                send_sms(atty_phone, f"Rig Resolve: {personal_msg} Log in: rigresolve-attorney.web.app")
+            if atty_email:
+                send_email(atty_email, "You've been selected for a new case",
+                           f"<p>{personal_msg}</p><p><a href='https://rigresolve-attorney.web.app'>View case →</a></p>")
+        except Exception as notif_exc:
+            logger.warning("[direct_assign] notification failed: %s", notif_exc)
+
+        logger.warning("[cases] direct_assign ticket=%s attorney=%s by=%s case=%s",
+                       body.ticket_id, body.attorney_id, body.assigned_by, case_id)
+        return {"success": True, "case_id": case_id, "ticket_id": body.ticket_id,
+                "attorney_id": body.attorney_id, "attorney_name": atty_name}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
