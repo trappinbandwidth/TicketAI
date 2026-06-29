@@ -110,7 +110,22 @@ def notify_driver(
             "[driver_concierge] SENT driver_id=%s ticket_id=%s status=%r notif_id=%s",
             driver_id, ticket_id, attorney_status, notif_id,
         )
-        # TODO: trigger SMS via Twilio / email via SendGrid here using `message`
+
+        # Fire SMS + email — best-effort, non-blocking
+        try:
+            from app.services.notifications import notify_status_change
+            driver_doc = db.collection("drivers").document(driver_id).get()
+            driver_data = driver_doc.to_dict() if driver_doc.exists else {}
+            notify_status_change(
+                new_status=attorney_status,
+                driver_phone=driver_data.get("phone") or driver_data.get("Phone") or "",
+                driver_email=driver_data.get("email") or driver_data.get("Email") or "",
+                driver_name=driver_data.get("full_name") or driver_data.get("Name") or "Driver",
+                attorney_name=ctx.get("attorney_name", ""),
+            )
+        except Exception as sms_exc:
+            logger.warning("[driver_concierge] notification send failed: %s", sms_exc)
+
         return True
 
     except Exception as exc:
