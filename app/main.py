@@ -20,6 +20,8 @@ from app.routes.attorney_actions import router as attorney_actions_router
 from app.routes.stripe_webhooks import router as stripe_webhooks_router
 from app.routes.file_requests import router as file_requests_router
 from app.routes.attorney_bids import router as attorney_bids_router
+from app.routes.tenstreet import router as tenstreet_router
+from app.routes.workday import router as workday_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 
@@ -97,6 +99,8 @@ app.include_router(attorney_actions_router, prefix="/api/v1")
 app.include_router(stripe_webhooks_router, prefix="/api/v1")
 app.include_router(file_requests_router, prefix="/api/v1")
 app.include_router(attorney_bids_router, prefix="/api/v1")
+app.include_router(tenstreet_router, prefix="/api/v1")
+app.include_router(workday_router, prefix="/api/v1")
 
 
 @app.get("/health")
