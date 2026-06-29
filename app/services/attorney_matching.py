@@ -1,14 +1,16 @@
 """
 Attorney Matching Engine — finds the top 3 best-fit attorneys for a ticket.
 
-Data source: local SQLite `attorneys` table (no Salesforce dependency).
+Data sources (in priority order):
+  1. Firestore `attorneys/` collection — real onboarded attorney profiles
+  2. Local SQLite `attorneys` table — seeded fallback when Firestore is empty
 
 Matching strategy:
-  1. Find all attorneys covering the ticket's state + county.
-  2. Fall back to state-level coverage if fewer than 3 county matches found.
-  3. Rank by: (a) county match before state-only, (b) win_rate desc,
-     (c) total_tickets desc, (d) avg_rating desc.
-  4. Return top 3. If zero found, return empty list and no_attorney = True.
+  1. Find all attorneys covering the ticket's state (licensed_states array_contains).
+  2. Prefer county-level match (ticket county in attorney's counties list).
+  3. Fall back to state-only if fewer than 3 county matches found.
+  4. Rank by: (a) county match before state-only, (b) win_rate desc.
+  5. Return top 3. If zero found, return empty list and no_attorney = True.
 
 Results are cached in memory for 4 hours per (state, county) pair.
 Cache is cleared on server restart or via invalidate_cache().
@@ -59,6 +61,44 @@ def _db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def _fetch_attorneys_firestore(state: str, county: str) -> list[AttorneyMatch] | None:
+    """Query Firestore attorneys/ collection. Returns None if Firestore unavailable."""
+    try:
+        import firebase_admin
+        from firebase_admin import firestore as admin_firestore
+
+        if not firebase_admin._apps:
+            return None
+
+        db = admin_firestore.client()
+        query = (
+            db.collection("attorneys")
+            .where("onboarding_complete", "==", True)
+            .where("licensed_states", "array_contains", state)
+        )
+        docs = query.stream()
+        results: list[AttorneyMatch] = []
+        for doc in docs:
+            d = doc.to_dict()
+            name = f"{d.get('first_name', '')} {d.get('last_name', '')}".strip() or d.get('firm_name', '')
+            counties: list = d.get("counties") or []
+            match_type = "county" if (county and county.lower() in [c.lower() for c in counties]) else "state"
+            results.append(AttorneyMatch(
+                attorney_id=doc.id,
+                name=name,
+                email=d.get("email", ""),
+                phone=d.get("phone", "") or d.get("firm_phone", ""),
+                rating=None,
+                win_rate=0.0,
+                total_tickets=0,
+                match_type=match_type,
+            ))
+        return results
+    except Exception as exc:
+        logger.warning("[attorney] Firestore fetch failed: %s", exc)
+        return None
 
 
 def _fetch_attorneys(state: str, county: str) -> list[AttorneyMatch]:
@@ -130,7 +170,13 @@ def find_attorneys(state: str, county: str) -> tuple[list[AttorneyMatch], bool]:
     if cached is not None:
         return cached, len(cached) == 0
 
-    matches = _fetch_attorneys(state, county or "")
+    # Try Firestore first (real attorney profiles); fall back to SQLite seed data
+    fs_matches = _fetch_attorneys_firestore(state, county or "")
+    matches = fs_matches if fs_matches else _fetch_attorneys(state, county or "")
+    if fs_matches is not None and not fs_matches:
+        # Firestore available but no attorneys in this region — also check SQLite seed
+        sqlite_matches = _fetch_attorneys(state, county or "")
+        matches = sqlite_matches
 
     if not matches:
         logger.warning("[attorney] no attorneys found state=%r county=%r", state, county)
