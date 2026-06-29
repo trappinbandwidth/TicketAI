@@ -71,6 +71,7 @@ class RequestBidsBody(BaseModel):
     requested_by: str
     note: Optional[str] = None
     override_deadline_hours: Optional[int] = None  # default 72
+    attorney_ids: Optional[List[str]] = None       # send bid invitations to these attorneys
 
 
 @router.post("/admin/cases/{case_id}/request-bids")
@@ -110,11 +111,45 @@ def request_bids(case_id: str, body: RequestBidsBody, x_api_key: Optional[str] =
             "created_at": SERVER_TIMESTAMP,
         })
 
-        logger.warning("[bids] bid window opened case=%s deadline=%s by=%s", case_id, deadline.isoformat(), body.requested_by)
+        # Write bid_invitation notifications to specified attorneys
+        invited_count = 0
+        if body.attorney_ids:
+            from google.cloud.firestore_v1 import SERVER_TIMESTAMP as STS
+            case_snap = case_ref.get().to_dict() or {}
+            ticket_state = case_snap.get("ticket_state", "")
+            violation = case_snap.get("violation", "")
+            driver_name = case_snap.get("driver_name", "")
+            deadline_str = deadline.strftime("%a %b %d %I:%M %p UTC")
+            for atty_id in body.attorney_ids:
+                notif_id = str(uuid.uuid4())
+                try:
+                    db.collection("attorney_notifications").document(atty_id).collection("items").document(notif_id).set({
+                        "notif_id": notif_id,
+                        "type": "bid_invitation",
+                        "case_id": case_id,
+                        "ticket_id": case_snap.get("ticket_id"),
+                        "title": "Bid Invitation",
+                        "message": (
+                            f"You've been invited to bid on a {ticket_state} {violation} case for {driver_name}. "
+                            f"Deadline: {deadline_str}."
+                        ),
+                        "violation": violation,
+                        "ticket_state": ticket_state,
+                        "bid_deadline": deadline.isoformat(),
+                        "read": False,
+                        "created_at": STS,
+                    })
+                    invited_count += 1
+                except Exception as exc:
+                    logger.warning("[bids] failed to notify attorney=%s: %s", atty_id, exc)
+
+        logger.warning("[bids] bid window opened case=%s deadline=%s by=%s invited=%d",
+                       case_id, deadline.isoformat(), body.requested_by, invited_count)
         return {
             "success": True,
             "bid_deadline": deadline.isoformat(),
             "business_hours": hours,
+            "attorneys_notified": invited_count,
         }
     except HTTPException:
         raise
