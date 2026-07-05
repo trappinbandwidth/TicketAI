@@ -17,22 +17,17 @@ export default function ReviewQueueTab({ onCountChange, reviewer }: Props) {
   const [rejectReason, setRejectReason] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
+  const [search, setSearch] = useState('')
+  const [filterPass, setFilterPass] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<'urgency' | 'confidence' | 'court_date'>('confidence')
 
   const load = useCallback(() => {
     setLoading(true)
     adminApi.reviewQueue()
       .then((data: any) => {
         const raw: any[] = data.tickets ?? []
-        const sorted = [...raw].sort((a, b) => {
-          const ua = URGENCY_ORDER[a.reviewer_summary?.urgency_level ?? a.urgency_level ?? 'STANDARD'] ?? 2
-          const ub = URGENCY_ORDER[b.reviewer_summary?.urgency_level ?? b.urgency_level ?? 'STANDARD'] ?? 2
-          if (ua !== ub) return ua - ub
-          const da = a.court_date ?? '9999'
-          const db = b.court_date ?? '9999'
-          return da.localeCompare(db)
-        })
-        setTickets(sorted)
-        onCountChange(sorted.length)
+        setTickets(raw)
+        onCountChange(raw.length)
       })
       .catch(() => setTickets([]))
       .finally(() => setLoading(false))
@@ -78,7 +73,40 @@ export default function ReviewQueueTab({ onCountChange, reviewer }: Props) {
 
   if (loading) return <Spinner />
 
-  const criticals = tickets.filter(t => {
+  // Apply filters + sort
+  const filtered = tickets
+    .filter(t => {
+      if (filterPass !== 'all' && (t.pass_status ?? '').toLowerCase() !== filterPass) return false
+      if (search) {
+        const q = search.toLowerCase()
+        return (
+          (t.driver_full_name ?? '').toLowerCase().includes(q) ||
+          (t.ticket_state ?? '').toLowerCase().includes(q) ||
+          (t.ticket_county ?? '').toLowerCase().includes(q) ||
+          (t.violation_category ?? '').toLowerCase().includes(q) ||
+          (t.citation_number ?? '').toLowerCase().includes(q)
+        )
+      }
+      return true
+    })
+    .sort((a, b) => {
+      if (sortBy === 'confidence') {
+        const ca = a.reviewer_summary?.completeness_score ?? a.confidence_score ?? 1
+        const cb = b.reviewer_summary?.completeness_score ?? b.confidence_score ?? 1
+        return ca - cb // lowest confidence first (needs most attention)
+      }
+      if (sortBy === 'urgency') {
+        const ua = URGENCY_ORDER[a.reviewer_summary?.urgency_level ?? a.urgency_level ?? 'STANDARD'] ?? 2
+        const ub = URGENCY_ORDER[b.reviewer_summary?.urgency_level ?? b.urgency_level ?? 'STANDARD'] ?? 2
+        if (ua !== ub) return ua - ub
+      }
+      // court_date sort (ascending)
+      const da = a.court_date ?? '9999'
+      const db = b.court_date ?? '9999'
+      return da.localeCompare(db)
+    })
+
+  const criticals = filtered.filter(t => {
     const u = t.reviewer_summary?.urgency_level ?? t.urgency_level ?? ''
     if (u === 'CRITICAL') return true
     if (t.court_date) {
@@ -103,7 +131,7 @@ export default function ReviewQueueTab({ onCountChange, reviewer }: Props) {
         <div>
           <h2 className="text-lg font-bold" style={{ color: BRAND.ink }}>Ticket Review Queue</h2>
           <p className="text-sm text-gray-400 mt-0.5">
-            Reviewing as <span className="font-semibold" style={{ color: BRAND.teal }}>{reviewer}</span> · Approve to send to attorney queue, reject to discard
+            Reviewing as <span className="font-semibold" style={{ color: BRAND.teal }}>{reviewer}</span> · {filtered.length} of {tickets.length} ticket{tickets.length !== 1 ? 's' : ''}
           </p>
         </div>
         <button
@@ -112,6 +140,41 @@ export default function ReviewQueueTab({ onCountChange, reviewer }: Props) {
         >
           ↻ Refresh
         </button>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search driver, state, violation…"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm w-56 focus:outline-none focus:ring-1"
+          style={{ '--tw-ring-color': BRAND.teal } as any}
+        />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-gray-400 font-medium">Pass:</span>
+          {['all', 'green', 'yellow', 'red'].map(p => (
+            <button key={p} onClick={() => setFilterPass(p)}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold capitalize transition-all"
+              style={filterPass === p
+                ? { background: p === 'all' ? BRAND.teal : p === 'green' ? '#16A34A' : p === 'yellow' ? '#D97706' : '#DC2626', color: '#fff' }
+                : { background: '#F1F5F9', color: '#64748B' }}>
+              {p}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-gray-400 font-medium">Sort:</span>
+          {([['confidence', 'Low Confidence First'], ['urgency', 'Urgency'], ['court_date', 'Court Date']] as const).map(([val, label]) => (
+            <button key={val} onClick={() => setSortBy(val)}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
+              style={sortBy === val
+                ? { background: BRAND.teal, color: '#fff' }
+                : { background: '#F1F5F9', color: '#64748B' }}>
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Critical alert banner */}
@@ -136,15 +199,15 @@ export default function ReviewQueueTab({ onCountChange, reviewer }: Props) {
         </div>
       )}
 
-      {tickets.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 py-20 text-center">
-          <div className="text-3xl mb-3">✓</div>
-          <p className="text-gray-500 font-medium">Queue is clear</p>
-          <p className="text-gray-300 text-xs mt-1">Upload a ticket with source=manual — it will appear here for review.</p>
+          <div className="text-3xl mb-3">{tickets.length === 0 ? '✓' : '🔍'}</div>
+          <p className="text-gray-500 font-medium">{tickets.length === 0 ? 'Queue is clear' : 'No tickets match your filters'}</p>
+          <p className="text-gray-300 text-xs mt-1">{tickets.length === 0 ? 'Upload a ticket with source=manual — it will appear here for review.' : 'Try adjusting the pass filter or search.'}</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {tickets.map((t: any) => {
+          {filtered.map((t: any) => {
             const isOpen       = expanded === t.ticket_id
             const isRejectOpen = rejecting === t.ticket_id
             const isBusy       = busy === t.ticket_id

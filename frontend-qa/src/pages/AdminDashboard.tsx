@@ -11,8 +11,16 @@ import AttorneysStatsTab from './AttorneysStatsTab'
 import CasesTab from './CasesTab'
 import OperationsTab from './OperationsTab'
 import AttorneyNetworkTab from './AttorneyNetworkTab'
+import CarrierNetworkTab from './CarrierNetworkTab'
+import AttorneyApplicationsTab from './AttorneyApplicationsTab'
+import PendingClaimsTab from './PendingClaimsTab'
+import PayoutRequestsTab from './PayoutRequestsTab'
 
-const TABS = ['Scanner', 'Review Queue', 'Cases', 'Operations', 'Overview', 'Fields', 'Agents', 'Scan Feed', 'Attorneys', 'Network'] as const
+const TABS = [
+  'Scanner', 'Review Queue', 'Cases', 'Operations',
+  'Applications', 'Claims', 'Payouts',
+  'Overview', 'Fields', 'Agents', 'Scan Feed', 'Attorneys', 'Network', 'Carriers',
+] as const
 type Tab = typeof TABS[number]
 
 const NAV_ICONS: Record<Tab, React.ReactNode> = {
@@ -64,6 +72,26 @@ const NAV_ICONS: Record<Tab, React.ReactNode> = {
   'Network': (
     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  'Carriers': (
+    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+    </svg>
+  ),
+  'Applications': (
+    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  ),
+  'Claims': (
+    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7l2 2 4-4" />
+    </svg>
+  ),
+  'Payouts': (
+    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   ),
 }
@@ -142,37 +170,50 @@ export default function AdminDashboard() {
         <nav className="w-52 shrink-0 flex flex-col overflow-y-auto py-3"
           style={{ background: BRAND.inkDeep, borderRight: '1px solid rgba(255,255,255,0.05)' }}>
 
-          <div className="px-4 mb-3">
-            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#334155' }}>Navigation</span>
-          </div>
-
-          {TABS.map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-left w-full transition-all"
-              style={tab === t
-                ? { background: 'rgba(46,196,165,0.1)', color: BRAND.teal, borderLeft: `3px solid ${BRAND.teal}`, paddingLeft: '13px' }
-                : { color: '#64748B', borderLeft: '3px solid transparent', paddingLeft: '13px' }}>
-              {NAV_ICONS[t]}
-              <span className="flex-1">{t}</span>
-              {t === 'Review Queue' && queueCount !== null && queueCount > 0 && (
-                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">{queueCount}</span>
-              )}
-            </button>
+          {([
+            { label: 'Intake', tabs: ['Scanner', 'Review Queue'] },
+            { label: 'Case Ops', tabs: ['Cases', 'Operations'] },
+            { label: 'Approvals', tabs: ['Applications', 'Claims', 'Payouts'] },
+            { label: 'Analytics', tabs: ['Overview', 'Fields', 'Agents', 'Scan Feed'] },
+            { label: 'Network', tabs: ['Attorneys', 'Network', 'Carriers'] },
+          ] as { label: string; tabs: Tab[] }[]).map(({ label, tabs: groupTabs }) => (
+            <div key={label}>
+              <div className="px-4 pt-4 pb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#334155' }}>{label}</span>
+              </div>
+              {groupTabs.map(t => (
+                <button key={t} onClick={() => setTab(t)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-left w-full transition-all"
+                  style={tab === t
+                    ? { background: 'rgba(46,196,165,0.1)', color: BRAND.teal, borderLeft: `3px solid ${BRAND.teal}`, paddingLeft: '13px' }
+                    : { color: '#64748B', borderLeft: '3px solid transparent', paddingLeft: '13px' }}>
+                  {NAV_ICONS[t]}
+                  <span className="flex-1">{t}</span>
+                  {t === 'Review Queue' && queueCount !== null && queueCount > 0 && (
+                    <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">{queueCount}</span>
+                  )}
+                </button>
+              ))}
+            </div>
           ))}
         </nav>
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto p-6">
-          {tab === 'Scanner'      && <ScannerTab />}
-          {tab === 'Review Queue' && <ReviewQueueTab onCountChange={setQueueCount} reviewer={reviewer} />}
-          {tab === 'Cases'        && <CasesTab reviewer={reviewer} />}
-          {tab === 'Operations'   && <OperationsTab />}
-          {tab === 'Overview'     && <OverviewTab days={days} />}
-          {tab === 'Fields'       && <FieldsTab days={days} />}
-          {tab === 'Agents'       && <AgentsTab days={days} />}
-          {tab === 'Scan Feed'    && <ScanFeedTab />}
-          {tab === 'Attorneys'    && <AttorneysStatsTab />}
-          {tab === 'Network'      && <AttorneyNetworkTab />}
+          {tab === 'Scanner'       && <ScannerTab />}
+          {tab === 'Review Queue'  && <ReviewQueueTab onCountChange={setQueueCount} reviewer={reviewer} />}
+          {tab === 'Cases'         && <CasesTab reviewer={reviewer} />}
+          {tab === 'Operations'    && <OperationsTab />}
+          {tab === 'Applications'  && <AttorneyApplicationsTab reviewer={reviewer} />}
+          {tab === 'Claims'        && <PendingClaimsTab reviewer={reviewer} />}
+          {tab === 'Payouts'       && <PayoutRequestsTab reviewer={reviewer} />}
+          {tab === 'Overview'      && <OverviewTab days={days} />}
+          {tab === 'Fields'        && <FieldsTab days={days} />}
+          {tab === 'Agents'        && <AgentsTab days={days} />}
+          {tab === 'Scan Feed'     && <ScanFeedTab />}
+          {tab === 'Attorneys'     && <AttorneysStatsTab />}
+          {tab === 'Network'       && <AttorneyNetworkTab />}
+          {tab === 'Carriers'      && <CarrierNetworkTab />}
         </main>
 
       </div>

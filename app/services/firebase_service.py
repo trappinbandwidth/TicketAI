@@ -66,6 +66,8 @@ def write_scan_result(
     result: dict,
     source: str = "driver_upload",
     carrier_id: Optional[str] = None,
+    attorney_id: Optional[str] = None,
+    external_client_id: Optional[str] = None,
 ) -> bool:
     """
     Write AI scan results to Firestore after processing.
@@ -74,10 +76,13 @@ def write_scan_result(
       1. drivers/{driver_id}/tickets/{ticket_id} — driver app (only when driver_id known)
       2. tickets/{ticket_id}                      — attorney portal available-cases queue
 
-    source: "driver_upload"   (driver submitted via app/form)
-            "manual"          (Rig Resolve staff scanned on behalf of driver)
-            "carrier_upload"  (carrier submitted on behalf of a driver)
+    source: "driver_upload"           (driver submitted via app/form)
+            "manual"                  (Rig Resolve staff scanned on behalf of driver)
+            "carrier_upload"          (carrier submitted on behalf of a driver)
+            "attorney_self_sourced"   (attorney's own outside case — BYOC, Dashboard §3.1)
     carrier_id: UID of the carrier who submitted (stored on ticket for carrier filtering)
+    attorney_id/external_client_id: set only for attorney_self_sourced — the case is
+        already the attorney's, so it lands as "Accepted" with origin "attorney_self_sourced".
     """
     _init()
     if _firestore_client is None:
@@ -154,8 +159,17 @@ def write_scan_result(
         # Manual scans land in "AI Review" — hidden from attorneys until reviewer approves.
         # Driver uploads go straight to "New" — no review step required.
         citation = fv("Citation_Number__c")
+        if source == "attorney_self_sourced":
+            _attorney_status = "Accepted"    # already the attorney's case — no queue
+        elif source in ("manual", "carrier_upload"):
+            _attorney_status = "AI Review"   # staff/carrier scan — hidden until reviewer approves
+        else:
+            _attorney_status = "New"         # driver upload — available immediately
         atty_doc = {
-            "attorney_status": "AI Review" if source == "manual" else "New",
+            "attorney_status": _attorney_status,
+            "origin": "attorney_self_sourced" if source == "attorney_self_sourced" else "rr_pipeline",
+            "external_client_id": external_client_id,
+            "attorney_id": attorney_id,
             "driver_id": driver_id,
             "driver_full_name": full_name,
             "driver_cdl": fv("CDL_License_Number__c"),

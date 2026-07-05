@@ -21,8 +21,11 @@ def _check_auth(x_api_key: Optional[str]):
 
 
 def _db():
-    from app.services.firebase_service import db
-    return db
+    from app.services.firebase_service import _init, _firestore_client
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+    return _firestore_client
 
 
 # ── Models ────────────────────────────────────────────────────────────────────

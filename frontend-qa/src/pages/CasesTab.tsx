@@ -924,7 +924,7 @@ function BidsPanel({ caseData, caseId, reviewer, onRefresh, onToast }: {
 
 // ── Case Detail Drawer ────────────────────────────────────────────────────
 
-type DrawerTab = 'bids' | 'activity'
+type DrawerTab = 'bids' | 'activity' | 'documents'
 
 function CaseDrawer({
   caseId,
@@ -939,6 +939,14 @@ function CaseDrawer({
 }) {
   const [caseData, setCaseData] = useState<any>(null)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('bids')
+  const [docRequests, setDocRequests] = useState<any[]>([])
+  const [docsLoading, setDocsLoading] = useState(false)
+  const [showDocForm, setShowDocForm] = useState(false)
+  const [docType, setDocType] = useState('')
+  const [docFrom, setDocFrom] = useState('driver')
+  const [docDue, setDocDue] = useState('')
+  const [docNote, setDocNote] = useState('')
+  const [docBusy, setDocBusy] = useState(false)
   const [logNote, setLogNote] = useState('')
   const [logType, setLogType] = useState('note_added')
   const [logStatus, setLogStatus] = useState('')
@@ -957,7 +965,39 @@ function CaseDrawer({
     adminApi.getCase(caseId).then(setCaseData).catch(console.error)
   }, [caseId])
 
+  const loadDocs = useCallback(() => {
+    setDocsLoading(true)
+    adminApi.listDocRequests(caseId)
+      .then((r: any) => setDocRequests(r.document_requests ?? r.requests ?? []))
+      .catch(() => setDocRequests([]))
+      .finally(() => setDocsLoading(false))
+  }, [caseId])
+
   useEffect(() => { load() }, [load])
+  useEffect(() => { if (drawerTab === 'documents') loadDocs() }, [drawerTab, loadDocs])
+
+  async function handleRequestDoc() {
+    if (!docType.trim()) return
+    setDocBusy(true)
+    try {
+      await adminApi.requestDocument(caseId, {
+        doc_type: docType.trim(),
+        requested_from: docFrom,
+        due_date: docDue || undefined,
+        note: docNote || undefined,
+      })
+      showToast('Document requested', true)
+      setShowDocForm(false)
+      setDocType('')
+      setDocNote('')
+      setDocDue('')
+      loadDocs()
+    } catch (e: any) {
+      showToast(e.message || 'Failed', false)
+    } finally {
+      setDocBusy(false)
+    }
+  }
 
   async function handleLogActivity() {
     if (!logNote.trim()) return
@@ -1024,7 +1064,11 @@ function CaseDrawer({
 
               {/* Drawer tab bar */}
               <div className="flex gap-1 mt-3 -mb-px">
-                {([['bids', 'Bids & Attorney Selection'], ['activity', 'Activity Log']] as [DrawerTab, string][]).map(([t, lbl]) => (
+                {([
+                  ['bids', 'Bids & Assignment'],
+                  ['documents', 'Documents'],
+                  ['activity', 'Activity Log'],
+                ] as [DrawerTab, string][]).map(([t, lbl]) => (
                   <button key={t} onClick={() => setDrawerTab(t)}
                     className="px-4 py-2 text-xs font-semibold border-b-2 transition-colors"
                     style={drawerTab === t
@@ -1049,6 +1093,109 @@ function CaseDrawer({
                   onRefresh={load}
                   onToast={showToast}
                 />
+              </div>
+            )}
+
+            {/* ── Documents tab ── */}
+            {drawerTab === 'documents' && (
+              <div className="flex-1 px-6 py-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Document Requests</p>
+                  <button onClick={() => setShowDocForm(v => !v)}
+                    className="text-xs px-3 py-1.5 rounded-lg font-semibold text-white"
+                    style={{ background: BRAND.teal }}>
+                    + Request Document
+                  </button>
+                </div>
+
+                {showDocForm && (
+                  <div className="mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="col-span-2">
+                        <label className="block text-xs text-gray-500 mb-1">Document Type *</label>
+                        <input value={docType} onChange={e => setDocType(e.target.value)}
+                          placeholder="e.g. Accident Report, W-9, Court Notice…"
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Request From</label>
+                        <select value={docFrom} onChange={e => setDocFrom(e.target.value)}
+                          className="w-full border border-gray-200 rounded-lg px-2 py-2 text-sm focus:outline-none">
+                          <option value="driver">Driver</option>
+                          <option value="carrier">Carrier</option>
+                          <option value="attorney">Attorney</option>
+                          <option value="court">Court</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Due Date</label>
+                        <input type="date" value={docDue} onChange={e => setDocDue(e.target.value)}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-xs text-gray-500 mb-1">Note (optional)</label>
+                        <input value={docNote} onChange={e => setDocNote(e.target.value)}
+                          placeholder="Instructions or context for the requestee…"
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none" />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={handleRequestDoc} disabled={docBusy || !docType.trim()}
+                        className="flex-1 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
+                        style={{ background: BRAND.teal }}>
+                        {docBusy ? 'Requesting…' : 'Send Request'}
+                      </button>
+                      <button onClick={() => setShowDocForm(false)}
+                        className="px-4 py-2 rounded-lg text-sm border border-gray-200 text-gray-500">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {docsLoading && <Spinner />}
+                {!docsLoading && docRequests.length === 0 && (
+                  <div className="text-center py-12 text-gray-400">
+                    <div className="text-3xl mb-2">📄</div>
+                    <p className="text-sm">No document requests yet</p>
+                    <p className="text-xs mt-1">Use "Request Document" to start a document checklist for this case</p>
+                  </div>
+                )}
+                {!docsLoading && docRequests.length > 0 && (
+                  <div className="space-y-2">
+                    {docRequests.map((doc: any, i: number) => {
+                      const statusColors: Record<string, string> = {
+                        requested: 'bg-amber-100 text-amber-700',
+                        uploaded: 'bg-blue-100 text-blue-700',
+                        approved: 'bg-green-100 text-green-700',
+                        rejected: 'bg-red-100 text-red-600',
+                      }
+                      const sc = statusColors[doc.status] ?? 'bg-gray-100 text-gray-600'
+                      return (
+                        <div key={doc.request_id ?? i}
+                          className="p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-medium text-gray-800">{doc.doc_type}</div>
+                            <div className="text-xs text-gray-400 mt-0.5 flex gap-2 flex-wrap">
+                              <span>From: {doc.requested_from}</span>
+                              {doc.due_date && <span>Due: {doc.due_date}</span>}
+                              {doc.note && <span className="italic">"{doc.note}"</span>}
+                            </div>
+                            {doc.file_url && (
+                              <a href={doc.file_url} target="_blank" rel="noopener noreferrer"
+                                className="text-xs text-blue-500 underline mt-1 inline-block">
+                                View uploaded file
+                              </a>
+                            )}
+                          </div>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${sc}`}>
+                            {doc.status}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             )}
 

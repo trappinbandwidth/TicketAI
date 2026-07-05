@@ -149,29 +149,41 @@ async def process_ticket(
     prompt_version: str = Form("v2"),
     source: str = Form("driver_upload"),
     carrier_id: Optional[str] = Form(None),
+    attorney_id: Optional[str] = Form(None),
+    external_client_id: Optional[str] = Form(None),
     driver_statement: Optional[str] = Form(None),
     evidence_files_json: Optional[str] = Form(None),
     x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
 
-    # Enrollment gate — verify driver has an active subscription before processing
-    enrollment = verify_enrollment(driver_id)
-    if not enrollment["enrolled"]:
-        logger.warning(
-            "[process] ENROLLMENT BLOCKED driver_id=%s status=%s",
-            driver_id, enrollment["status"],
-        )
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "error": "enrollment_required",
-                "status": enrollment["status"],
-                "message": enrollment["message"],
-            },
-        )
-    if enrollment["status"] == "unknown":
-        logger.warning("[process] enrollment unknown for driver_id=%s — proceeding with flag", driver_id)
+    # Enrollment gate — verify driver has an active subscription before processing.
+    # Skipped for attorney self-sourced (BYOC, Dashboard §3.1): the case belongs to
+    # an outside client with no Rig Resolve subscription, so there's nothing to verify.
+    if source != "attorney_self_sourced":
+        enrollment = verify_enrollment(driver_id)
+        if not enrollment["enrolled"]:
+            logger.warning(
+                "[process] ENROLLMENT BLOCKED driver_id=%s status=%s",
+                driver_id, enrollment["status"],
+            )
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "enrollment_required",
+                    "status": enrollment["status"],
+                    "message": enrollment["message"],
+                },
+            )
+        if enrollment["status"] == "unknown":
+            logger.warning("[process] enrollment unknown for driver_id=%s — proceeding with flag", driver_id)
+    else:
+        if not attorney_id:
+            raise HTTPException(
+                status_code=400,
+                detail="attorney_id is required for source=attorney_self_sourced.",
+            )
+        logger.warning("[process] SELF-SOURCED attorney_id=%s client=%s", attorney_id, external_client_id)
 
     if not files:
         raise HTTPException(status_code=400, detail="No files provided.")
@@ -249,7 +261,9 @@ async def process_ticket(
                 prompt_version=prompt_version,
             )
             effective_cached_ticket_id = ticket_id or new_queue_id
-            write_scan_result(driver_id, effective_cached_ticket_id, cached_resp, source=source, carrier_id=carrier_id)
+            write_scan_result(driver_id, effective_cached_ticket_id, cached_resp, source=source,
+                              carrier_id=carrier_id, attorney_id=attorney_id,
+                              external_client_id=external_client_id)
             return JSONResponse(content=cached_resp)
 
     # Extract word-level bounding boxes via Textract (no-op if AWS creds not set)
@@ -580,7 +594,9 @@ async def process_ticket(
     #   - drivers/{driver_id}/tickets/{ticket_id} if driver_id known (driver app)
     #   - tickets/{effective_ticket_id} always (attorney portal queue)
     effective_ticket_id = ticket_id or queue_id
-    write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source, carrier_id=carrier_id)
+    write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source,
+                      carrier_id=carrier_id, attorney_id=attorney_id,
+                      external_client_id=external_client_id)
 
     return response
 

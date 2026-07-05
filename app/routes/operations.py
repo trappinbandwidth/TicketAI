@@ -86,7 +86,8 @@ def run_court_deadline_monitor(
     db = _firestore_client()
     now = datetime.now(timezone.utc)
 
-    open_statuses = ["New", "Accepted", "AI Review"]
+    from app.services.case_lifecycle import WORK_QUEUE_STATUSES
+    open_statuses = WORK_QUEUE_STATUSES  # includes v2 quote/assignment intermediate states
     buckets: dict[str, list] = {"CRITICAL": [], "HIGH": [], "STANDARD": [], "LOW": [], "NO_DATE": []}
     reminders_sent = 0
 
@@ -210,13 +211,17 @@ def record_outcome(
         driver_id = data.get("driver_id") or ""
         atty_name = body.attorney_name or data.get("attorney_name") or ""
 
+        # v2 lifecycle: outcome moves the case to "Outcome Logged" (payout comes next),
+        # not straight to Closed. The driver-facing subcollection write below keeps its
+        # own "Ticket Closed" status so the Driver App's badge mapping is unaffected.
         outcome_payload = {
-            "attorney_status": "Ticket Closed",
+            "attorney_status": "Outcome Logged",
             "outcome": body.outcome,
             "outcome_notes": body.outcome_notes,
             "final_charge": body.final_charge,
             "closed_by_attorney_id": body.attorney_id,
             "closed_by_attorney_name": atty_name,
+            "outcome_logged_at": SERVER_TIMESTAMP,
             "closed_at": SERVER_TIMESTAMP,
             "last_modified_date": SERVER_TIMESTAMP,
         }
@@ -244,6 +249,22 @@ def record_outcome(
                 driver_id, ticket_id, "Ticket Closed",
                 context={"outcome": _outcome_display(body.outcome, body.final_charge)},
             )
+
+        # Attorney performance tracking (Attorney Levels spec §4): decrement active
+        # caseload, increment lifetime counters, enqueue for the nightly Performance
+        # Level Recalculator. Non-fatal — never let this break outcome recording.
+        try:
+            atty_id = (
+                body.attorney_id
+                or data.get("closed_by_attorney_id")
+                or data.get("attorney_id")
+            )
+            if atty_id:
+                from app.services.attorney_levels import apply_case_outcome
+                apply_case_outcome(db, atty_id, body.outcome)
+        except Exception as exc:
+            logger.warning("[outcome_recorder] attorney level update failed ticket=%s: %s",
+                           ticket_id, exc)
 
         logger.warning(
             "[outcome_recorder] ticket=%s outcome=%r attorney=%r driver=%s",
@@ -330,9 +351,10 @@ def get_payment_alerts(x_api_key: Optional[str] = Header(None)):
 
             if sub_status in ("lapsed", "cancelled"):
                 # Check for open cases — these are the most urgent
+                from app.services.case_lifecycle import WORK_QUEUE_STATUSES
                 open_cases = db.collection("tickets") \
                     .where("driver_id", "==", driver_id) \
-                    .where("attorney_status", "in", ["New", "Accepted", "AI Review"]) \
+                    .where("attorney_status", "in", WORK_QUEUE_STATUSES) \
                     .limit(1).stream()
                 open_case_ids = [c.id for c in open_cases]
                 if open_case_ids:
@@ -390,7 +412,8 @@ def get_case_status(
     db = _firestore_client()
     now = datetime.now(timezone.utc)
 
-    active_statuses = ["AI Review", "New", "Accepted"]
+    from app.services.case_lifecycle import WORK_QUEUE_STATUSES
+    active_statuses = WORK_QUEUE_STATUSES  # v2 intermediate states included
     by_status: dict[str, list] = {s: [] for s in active_statuses}
     urgency_counts: dict[str, int] = {"CRITICAL": 0, "HIGH": 0, "STANDARD": 0, "LOW": 0}
     all_cases: list[dict] = []

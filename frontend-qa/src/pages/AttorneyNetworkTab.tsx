@@ -90,7 +90,7 @@ export default function AttorneyNetworkTab() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [attyRes, pipeRes, covRes] = await Promise.all([
+      const [attyRes, pipeRes, covRes, jobRes] = await Promise.all([
         attorneyNetworkApi.list({
           state: filterState || undefined,
           status: filterStatus || undefined,

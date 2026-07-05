@@ -48,6 +48,7 @@ async function del(path: string) {
 export const adminApi = {
   // Analytics
   overview:       (days = 30) => get(`/admin/stats/overview?days=${days}`),
+  urgency:        () => get('/admin/stats/urgency'),
   fields:         (docType?: string) => get(`/admin/stats/fields${docType ? `?doc_type=${encodeURIComponent(docType)}` : ''}`),
   fieldDrilldown: (field: string) => get(`/admin/stats/fields/${encodeURIComponent(field)}`),
   agents:         (days = 30) => get(`/admin/stats/agents?days=${days}`),
@@ -84,6 +85,34 @@ export const adminApi = {
     const qs = params.toString()
     return get(`/operations/case-status${qs ? `?${qs}` : ''}`)
   },
+
+  // Attorney Applications (staff review queue)
+  listApplications: (status?: string) =>
+    get(`/admin/attorney-applications${status ? `?status=${encodeURIComponent(status)}` : ''}`),
+  interviewComplete: (appId: string) =>
+    post(`/admin/attorney-applications/${encodeURIComponent(appId)}/interview-complete`),
+  approveApplication: (appId: string, assignedTo?: string) =>
+    post(`/admin/attorney-applications/${encodeURIComponent(appId)}/approve`, assignedTo ? { assigned_to: assignedTo } : {}),
+  rejectApplication: (appId: string, reason: string) =>
+    post(`/admin/attorney-applications/${encodeURIComponent(appId)}/reject`, { reason }),
+
+  // Pending Claims (attorney portal claims awaiting AM approval)
+  pendingClaims:  () => get('/admin/claims/pending'),
+  approveClaim:   (ticketId: string, approvedBy: string) =>
+    post(`/admin/cases/${encodeURIComponent(ticketId)}/approve-claim`, { approved_by: approvedBy }),
+  rejectClaim:    (ticketId: string, reason: string, rejectedBy: string) =>
+    post(`/admin/cases/${encodeURIComponent(ticketId)}/reject-claim`, { reason, rejected_by: rejectedBy }),
+
+  // Payout Requests
+  payoutRequests: (status?: string) =>
+    get(`/admin/payout-requests${status ? `?status=${encodeURIComponent(status)}` : ''}`),
+  markPayoutPaid: (payoutId: string, paidBy: string) =>
+    post(`/admin/payout-requests/${encodeURIComponent(payoutId)}/mark-paid`, { paid_by: paidBy }),
+
+  // Document Requests (per case)
+  listDocRequests: (ticketId: string) => get(`/cases/${encodeURIComponent(ticketId)}/document-requests`),
+  requestDocument: (ticketId: string, body: { doc_type: string; requested_from: string; due_date?: string; note?: string }) =>
+    post(`/cases/${encodeURIComponent(ticketId)}/document-requests`, body),
 }
 
 // ── Attorney Network API ───────────────────────────────────────────────────────
@@ -123,6 +152,47 @@ export const attorneyNetworkApi = {
     states_covered?: string[]; counties_covered?: string[];
   }) => {
     const res = await fetch(`${baseUrl()}/api/v1/attorneys/${encodeURIComponent(id)}/pricing`, {
+      method: 'PATCH',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new Error(await res.text())
+    return res.json()
+  },
+}
+
+// ── Carrier CRM API ───────────────────────────────────────────────────────────
+export const carrierCrmApi = {
+  list: (params?: { state?: string; status?: string; assigned_to?: string; min_drivers?: number; oos_only?: boolean; limit?: number }) => {
+    const qs = new URLSearchParams()
+    if (params?.state)       qs.set('state', params.state)
+    if (params?.status)      qs.set('status', params.status)
+    if (params?.assigned_to) qs.set('assigned_to', params.assigned_to)
+    if (params?.min_drivers) qs.set('min_drivers', String(params.min_drivers))
+    if (params?.oos_only)    qs.set('oos_only', 'true')
+    if (params?.limit)       qs.set('limit', String(params.limit))
+    return get(`/carriers?${qs.toString()}`)
+  },
+  get:      (dot: string) => get(`/carriers/${encodeURIComponent(dot)}`),
+  pipeline: ()            => get('/carriers/pipeline'),
+  coverage: ()            => get('/carriers/coverage'),
+  jobHistory: (limit = 10) => get(`/carriers/jobs/history?limit=${limit}`),
+  updateOutreach: async (dot: string, body: {
+    status?: string; assigned_to?: string; outreach_notes?: string; follow_up_at?: string
+  }) => {
+    const res = await fetch(`${baseUrl()}/api/v1/carriers/${encodeURIComponent(dot)}/outreach`, {
+      method: 'PATCH',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new Error(await res.text())
+    return res.json()
+  },
+  updateEnrollment: async (dot: string, body: {
+    monthly_rate?: string; driver_count_enrolled?: number;
+    billing_contact?: string; billing_email?: string
+  }) => {
+    const res = await fetch(`${baseUrl()}/api/v1/carriers/${encodeURIComponent(dot)}/enrollment`, {
       method: 'PATCH',
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

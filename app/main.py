@@ -22,6 +22,16 @@ from app.routes.file_requests import router as file_requests_router
 from app.routes.attorney_bids import router as attorney_bids_router
 from app.routes.tenstreet import router as tenstreet_router
 from app.routes.workday import router as workday_router
+from app.routes.attorney_performance import router as attorney_performance_router
+from app.routes.admin_performance import router as admin_performance_router
+from app.routes.attorney_profile import router as attorney_profile_router
+from app.routes.attorney_applications import router as attorney_applications_router
+from app.routes.attorney_self_sourced import router as attorney_self_sourced_router
+from app.routes.attorney_cases import router as attorney_cases_router
+from app.routes.quote_engine import router as quote_engine_router
+from app.routes.attorney_workspace import router as attorney_workspace_router
+from app.routes.attorney_auth import router as attorney_auth_router
+from app.routes.carriers_crm import router as carriers_crm_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 
@@ -101,6 +111,16 @@ app.include_router(file_requests_router, prefix="/api/v1")
 app.include_router(attorney_bids_router, prefix="/api/v1")
 app.include_router(tenstreet_router, prefix="/api/v1")
 app.include_router(workday_router, prefix="/api/v1")
+app.include_router(attorney_performance_router, prefix="/api/v1")
+app.include_router(admin_performance_router, prefix="/api/v1")
+app.include_router(attorney_profile_router, prefix="/api/v1")
+app.include_router(attorney_applications_router, prefix="/api/v1")
+app.include_router(attorney_self_sourced_router, prefix="/api/v1")
+app.include_router(attorney_cases_router, prefix="/api/v1")
+app.include_router(quote_engine_router, prefix="/api/v1")
+app.include_router(attorney_workspace_router, prefix="/api/v1")
+app.include_router(attorney_auth_router, prefix="/api/v1")
+app.include_router(carriers_crm_router, prefix="/api/v1")
 
 
 @app.get("/health")
