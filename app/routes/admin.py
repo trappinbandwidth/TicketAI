@@ -1,6 +1,7 @@
 """
 Admin dashboard API routes.
-All endpoints require the same API key as the process endpoint.
+All endpoints require a Firebase Bearer token for a staff-role account
+(see app/routes/_common.py require_staff -- STAFF_ROLES).
 """
 from __future__ import annotations
 import json
@@ -13,6 +14,7 @@ from typing import Optional
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from fastapi.responses import FileResponse
 
+from app.routes._common import require_staff
 from app.services.queue_store import EXTRACTED_FIELDS
 
 logger = logging.getLogger(__name__)
@@ -70,12 +72,6 @@ PROMPT_SECTION_MAP = {
 }
 
 
-def _check_auth(x_api_key: Optional[str]):
-    expected = os.getenv("API_KEY", "cdl-local-dev")
-    if x_api_key != expected:
-        raise HTTPException(status_code=401, detail="Invalid API key.")
-
-
 def _fs():
     """Return the Firestore client. Raises 503 if not configured."""
     from app.services.firebase_service import _firestore_client, _init
@@ -88,8 +84,8 @@ def _fs():
 # ── Overview stats ──────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/overview")
-def get_overview(days: int = 30, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_overview(days: int = 30, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _fs()
 
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
@@ -145,8 +141,8 @@ def get_overview(days: int = 30, x_api_key: Optional[str] = Header(None)):
 # ── Field performance ───────────────────────────────────────────────────────
 
 @router.get("/admin/stats/fields")
-def get_field_stats(doc_type: Optional[str] = None, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_field_stats(doc_type: Optional[str] = None, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _fs()
 
     query = db.collection("training_records")
@@ -257,8 +253,8 @@ def get_field_stats(doc_type: Optional[str] = None, x_api_key: Optional[str] = H
 # ── Field drill-down ────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/fields/{field_key}")
-def get_field_drilldown(field_key: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_field_drilldown(field_key: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _fs()
 
     records = list(db.collection("training_records").stream())
@@ -304,8 +300,8 @@ def get_field_drilldown(field_key: str, x_api_key: Optional[str] = Header(None))
 # ── Agent scorecard ─────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/agents")
-def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _fs()
 
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
@@ -560,8 +556,8 @@ def get_agent_stats(days: int = 30, x_api_key: Optional[str] = Header(None)):
 # ── Scan feed ────────────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/feed")
-def get_scan_feed(limit: int = 100, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_scan_feed(limit: int = 100, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _fs()
 
     docs = list(
@@ -591,8 +587,8 @@ def get_scan_feed(limit: int = 100, x_api_key: Optional[str] = Header(None)):
 # ── Attorney coverage ────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/attorneys")
-def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_attorney_stats(authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _fs()
 
     docs = list(
@@ -655,7 +651,7 @@ def get_attorney_stats(x_api_key: Optional[str] = Header(None)):
 # ── Urgency breakdown ────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/urgency")
-def get_urgency_stats(x_api_key: Optional[str] = Header(None)):
+def get_urgency_stats(authorization: Optional[str] = Header(None)):
     """
     Live urgency breakdown of the current AI Review queue in Firestore.
 
@@ -665,7 +661,7 @@ def get_urgency_stats(x_api_key: Optional[str] = Header(None)):
       - CDL mismatch alerts (needs human investigation before attorney sees it)
       - average days until court for tickets in queue
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     from app.services.firebase_service import _init, _firestore_client
     from datetime import datetime, timezone
     _init()
@@ -750,8 +746,8 @@ def get_urgency_stats(x_api_key: Optional[str] = Header(None)):
 # ── Training data export ────────────────────────────────────────────────────
 
 @router.get("/admin/training/export")
-def export_training(x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def export_training(authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     if not TRAINING_FILE.exists():
         raise HTTPException(status_code=404, detail="No training data yet.")
     return FileResponse(
@@ -794,7 +790,7 @@ def _review_queue_summary(data: dict) -> dict:
 
 
 @router.get("/admin/review-queue")
-def get_review_queue(x_api_key: Optional[str] = Header(None)):
+def get_review_queue(authorization: Optional[str] = Header(None)):
     """
     Returns all tickets currently in 'AI Review' status, sorted by urgency
     (CRITICAL first) then by court date proximity.
@@ -803,7 +799,7 @@ def get_review_queue(x_api_key: Optional[str] = Header(None)):
     missing fields, CDL match status, conflict map summary, and MVR/PSP
     request status — everything the reviewer needs before approve/reject.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     from app.services.firebase_service import _init, _firestore_client
     _init()
     if _firestore_client is None:
@@ -904,14 +900,14 @@ def approve_ticket(
     ticket_id: str,
     background_tasks: BackgroundTasks,
     reviewer_id: Optional[str] = None,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Reviewer approves AI-extracted data for a manually scanned ticket.
     Moves attorney_status from 'AI Review' → 'New' so attorneys can claim it.
     Returns immediately; driver notification runs in the background.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     from app.services.firebase_service import _firestore_client, _init
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     _init()
@@ -965,13 +961,13 @@ def approve_ticket(
 def reject_ticket(
     ticket_id: str,
     reason: Optional[str] = None,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Reviewer rejects a manually scanned ticket (e.g. bad image, wrong document).
     Moves attorney_status to 'Rejected' — will not appear in attorney queue.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     from app.services.firebase_service import _init, _firestore_client
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     _init()
