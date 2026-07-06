@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
+from app.routes._common import require_staff
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -36,11 +37,6 @@ _TICKET_STATUS_MAP = {
 }
 
 
-def _check_auth(x_api_key: Optional[str]):
-    expected = os.getenv("API_KEY", "cdl-local-dev")
-    if x_api_key != expected:
-        raise HTTPException(status_code=401, detail="Invalid API key.")
-
 
 def _db():
     from app.services.firebase_service import _init, _firestore_client
@@ -53,9 +49,9 @@ def _db():
 # ── Attorneys list (for assignment dropdown) ──────────────────────────────────
 
 @router.get("/admin/attorneys/list")
-def list_attorneys(x_api_key: Optional[str] = Header(None)):
+def list_attorneys(authorization: Optional[str] = Header(None)):
     """Active attorneys for the case assignment dropdown."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     try:
         docs = db.collection("attorneys").where("status", "==", "active").stream()
@@ -87,9 +83,9 @@ def list_attorneys(x_api_key: Optional[str] = Header(None)):
 # ── Available tickets (New — awaiting attorney assignment) ────────────────────
 
 @router.get("/admin/cases/available")
-def get_available_tickets(x_api_key: Optional[str] = Header(None)):
+def get_available_tickets(authorization: Optional[str] = Header(None)):
     """Tickets in 'New' status that haven't been assigned to a case yet."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     try:
         # Get New tickets
@@ -138,10 +134,10 @@ def get_available_tickets(x_api_key: Optional[str] = Header(None)):
 @router.get("/admin/cases")
 def list_cases(
     status: Optional[str] = None,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """List cases, optionally filtered by status."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     try:
         query = db.collection("cases")
@@ -175,12 +171,12 @@ class CreateCaseBody(BaseModel):
 
 
 @router.post("/admin/cases")
-def create_case(body: CreateCaseBody, x_api_key: Optional[str] = Header(None)):
+def create_case(body: CreateCaseBody, authorization: Optional[str] = Header(None)):
     """
     Assign an attorney to a ticket. Creates a cases/ document and updates
     the ticket's attorney_status from 'New' to 'Admin Assigned'.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
@@ -282,9 +278,9 @@ def create_case(body: CreateCaseBody, x_api_key: Optional[str] = Header(None)):
 # ── Get case detail + activity log ───────────────────────────────────────────
 
 @router.get("/admin/cases/{case_id}")
-def get_case(case_id: str, x_api_key: Optional[str] = Header(None)):
+def get_case(case_id: str, authorization: Optional[str] = Header(None)):
     """Case detail including full activity log."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     try:
         case_ref = db.collection("cases").document(case_id)
@@ -347,13 +343,13 @@ class ActivityBody(BaseModel):
 def log_activity(
     case_id: str,
     body: ActivityBody,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Log an activity entry on a case. Optionally updates case status and the
     linked ticket's attorney_status.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
@@ -432,13 +428,13 @@ class DirectAssignBody(BaseModel):
 
 
 @router.post("/admin/direct-assign")
-def direct_assign(body: DirectAssignBody, x_api_key: Optional[str] = Header(None)):
+def direct_assign(body: DirectAssignBody, authorization: Optional[str] = Header(None)):
     """
     AP-09 — Direct assignment ("Thinking of You").
     Staff assigns a specific attorney without claim/bid flow.
     Sets direct_assignment=True; attorney portal shows 'Directly Assigned' badge.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 

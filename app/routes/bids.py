@@ -21,16 +21,12 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Header, HTTPException
+from app.routes._common import require_staff
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-
-def _check_auth(x_api_key: Optional[str]) -> None:
-    expected = os.getenv("API_KEY", "cdl-local-dev")
-    if x_api_key != expected:
-        raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
 def _db():
@@ -75,9 +71,9 @@ class RequestBidsBody(BaseModel):
 
 
 @router.post("/admin/cases/{case_id}/request-bids")
-def request_bids(case_id: str, body: RequestBidsBody, x_api_key: Optional[str] = Header(None)):
+def request_bids(case_id: str, body: RequestBidsBody, authorization: Optional[str] = Header(None)):
     """Open the bid window for a case. Sets a 72-business-hour deadline."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
@@ -160,8 +156,8 @@ def request_bids(case_id: str, body: RequestBidsBody, x_api_key: Optional[str] =
 # ── List bids for a case ──────────────────────────────────────────────────────
 
 @router.get("/admin/cases/{case_id}/bids")
-def list_bids(case_id: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def list_bids(case_id: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     try:
         docs = db.collection("cases").document(case_id).collection("bids").stream()
@@ -215,8 +211,8 @@ class SubmitBidBody(BaseModel):
 
 
 @router.post("/admin/cases/{case_id}/bids")
-def submit_bid(case_id: str, body: SubmitBidBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def submit_bid(case_id: str, body: SubmitBidBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
@@ -293,8 +289,8 @@ class UpdateBidBody(BaseModel):
 
 
 @router.put("/admin/cases/{case_id}/bids/{bid_id}")
-def update_bid(case_id: str, bid_id: str, body: UpdateBidBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def update_bid(case_id: str, bid_id: str, body: UpdateBidBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
@@ -313,8 +309,8 @@ def update_bid(case_id: str, bid_id: str, body: UpdateBidBody, x_api_key: Option
 # ── Delete a bid ──────────────────────────────────────────────────────────────
 
 @router.delete("/admin/cases/{case_id}/bids/{bid_id}")
-def delete_bid(case_id: str, bid_id: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def delete_bid(case_id: str, bid_id: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     try:
         db.collection("cases").document(case_id).collection("bids").document(bid_id).delete()
@@ -334,12 +330,12 @@ class SelectBidBody(BaseModel):
 
 
 @router.post("/admin/cases/{case_id}/bids/{bid_id}/select")
-def select_bid(case_id: str, bid_id: str, body: SelectBidBody, x_api_key: Optional[str] = Header(None)):
+def select_bid(case_id: str, bid_id: str, body: SelectBidBody, authorization: Optional[str] = Header(None)):
     """
     Select a bid: marks bid as 'selected', updates case with attorney info,
     marks other bids 'rejected', and logs activity.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
@@ -415,14 +411,14 @@ def search_bids(
     county: Optional[str] = None,
     violation: Optional[str] = None,
     limit: int = 20,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Search past attorney bids for intelligence on future case assignment.
     Filter by state, county, and/or violation category.
     Returns bids with actual outcomes (post-case data) for informed decisions.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     try:
         query = db.collection("bids")

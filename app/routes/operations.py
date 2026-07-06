@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
+from app.routes._common import require_staff
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -32,11 +33,6 @@ _DATE_FORMATS = [
 ]
 _URGENCY_ORDER = {"CRITICAL": 0, "HIGH": 1, "STANDARD": 2, "LOW": 3}
 
-
-def _check_auth(x_api_key: Optional[str]):
-    expected = os.getenv("API_KEY", "cdl-local-dev")
-    if x_api_key != expected:
-        raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
 def _parse_date(s: str) -> Optional[datetime]:
@@ -70,7 +66,7 @@ def _firestore_client():
 @router.post("/operations/court-deadlines")
 def run_court_deadline_monitor(
     send_driver_reminders: bool = True,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Scans all open tickets in Firestore for approaching court dates.
@@ -82,7 +78,7 @@ def run_court_deadline_monitor(
     STANDARD  21–60 days
     LOW       > 60 days or no date
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _firestore_client()
     now = datetime.now(timezone.utc)
 
@@ -183,7 +179,7 @@ _VALID_OUTCOMES = {"won", "dismissed", "reduced", "lost", "transferred"}
 def record_outcome(
     ticket_id: str,
     body: OutcomeRequest,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Records the final case outcome after an attorney closes a case.
@@ -191,7 +187,7 @@ def record_outcome(
     Triggers Driver Concierge to notify the driver.
     Feeds outcome data back for attorney performance tracking.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     if body.outcome not in _VALID_OUTCOMES:
         raise HTTPException(
             status_code=400,
@@ -298,7 +294,7 @@ def _outcome_display(outcome: str, final_charge: Optional[str]) -> str:
 # ── Agent 5: Payment Alert ────────────────────────────────────────────────────
 
 @router.get("/operations/payment-alerts")
-def get_payment_alerts(x_api_key: Optional[str] = Header(None)):
+def get_payment_alerts(authorization: Optional[str] = Header(None)):
     """
     Scans all driver profiles for subscription issues:
       - lapsed / cancelled subscriptions
@@ -307,7 +303,7 @@ def get_payment_alerts(x_api_key: Optional[str] = Header(None)):
 
     Returns a prioritized alert list for the accounting team.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _firestore_client()
     now = datetime.now(timezone.utc)
 
@@ -398,7 +394,7 @@ def get_payment_alerts(x_api_key: Optional[str] = Header(None)):
 def get_case_status(
     state: Optional[str] = None,
     urgency: Optional[str] = None,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Case manager's unified work queue — all active cases across all statuses,
@@ -408,7 +404,7 @@ def get_case_status(
       ?state=TX          filter by ticket state
       ?urgency=CRITICAL  filter by urgency level
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _firestore_client()
     now = datetime.now(timezone.utc)
 

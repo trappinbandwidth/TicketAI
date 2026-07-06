@@ -11,16 +11,12 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Header, HTTPException
+from app.routes._common import require_staff
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-
-def _check_auth(x_api_key: Optional[str]) -> None:
-    expected = os.getenv("API_KEY", "cdl-local-dev")
-    if x_api_key != expected:
-        raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
 def _db():
@@ -47,9 +43,9 @@ def _serialize(data: dict) -> dict:
 # ── KPI Dashboard ──────────────────────────────────────────────────────────────
 
 @router.get("/admin/kpi")
-def get_kpi(x_api_key: Optional[str] = Header(None)):
+def get_kpi(authorization: Optional[str] = Header(None)):
     """Business KPI summary for the control panel dashboard."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     try:
         drivers     = list(db.collection("drivers").stream())
@@ -104,8 +100,8 @@ def get_kpi(x_api_key: Optional[str] = Header(None)):
 # ── Drivers ────────────────────────────────────────────────────────────────────
 
 @router.get("/admin/drivers")
-def list_drivers(x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def list_drivers(authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     try:
         docs = list(db.collection("drivers").stream())
@@ -119,8 +115,8 @@ def list_drivers(x_api_key: Optional[str] = Header(None)):
 
 
 @router.get("/admin/drivers/{driver_id}")
-def get_driver(driver_id: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_driver(driver_id: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     try:
         ref = db.collection("drivers").document(driver_id)
@@ -161,8 +157,8 @@ class CreateDriverBody(BaseModel):
 
 
 @router.post("/admin/drivers")
-def create_driver(body: CreateDriverBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def create_driver(body: CreateDriverBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:
@@ -195,8 +191,8 @@ class UpdateDriverBody(BaseModel):
 
 
 @router.put("/admin/drivers/{driver_id}")
-def update_driver(driver_id: str, body: UpdateDriverBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def update_driver(driver_id: str, body: UpdateDriverBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:
@@ -216,9 +212,9 @@ def update_driver(driver_id: str, body: UpdateDriverBody, x_api_key: Optional[st
 # ── Attorneys Management ───────────────────────────────────────────────────────
 
 @router.get("/admin/attorneys-mgmt")
-def list_attorneys_mgmt(x_api_key: Optional[str] = Header(None)):
+def list_attorneys_mgmt(authorization: Optional[str] = Header(None)):
     """List all attorneys (any status) for admin management."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     try:
         docs = list(db.collection("attorneys").stream())
@@ -248,8 +244,8 @@ class CreateAttorneyBody(BaseModel):
 
 
 @router.post("/admin/attorneys-mgmt")
-def create_attorney(body: CreateAttorneyBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def create_attorney(body: CreateAttorneyBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:
@@ -285,8 +281,8 @@ class UpdateAttorneyBody(BaseModel):
 
 
 @router.put("/admin/attorneys-mgmt/{attorney_id}")
-def update_attorney(attorney_id: str, body: UpdateAttorneyBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def update_attorney(attorney_id: str, body: UpdateAttorneyBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:
@@ -304,8 +300,8 @@ def update_attorney(attorney_id: str, body: UpdateAttorneyBody, x_api_key: Optio
 
 
 @router.delete("/admin/attorneys-mgmt/{attorney_id}")
-def remove_attorney(attorney_id: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def remove_attorney(attorney_id: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     try:
         ref = db.collection("attorneys").document(attorney_id)
@@ -325,8 +321,8 @@ def remove_attorney(attorney_id: str, x_api_key: Optional[str] = Header(None)):
 # ── Carriers ───────────────────────────────────────────────────────────────────
 
 @router.get("/admin/carriers")
-def list_carriers(x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def list_carriers(authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     try:
         docs = list(db.collection("carriers").stream())
@@ -354,8 +350,8 @@ class CreateCarrierBody(BaseModel):
 
 
 @router.post("/admin/carriers")
-def create_carrier(body: CreateCarrierBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def create_carrier(body: CreateCarrierBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:
@@ -386,8 +382,8 @@ class UpdateCarrierBody(BaseModel):
 
 
 @router.put("/admin/carriers/{carrier_id}")
-def update_carrier(carrier_id: str, body: UpdateCarrierBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def update_carrier(carrier_id: str, body: UpdateCarrierBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:
@@ -405,8 +401,8 @@ def update_carrier(carrier_id: str, body: UpdateCarrierBody, x_api_key: Optional
 
 
 @router.delete("/admin/carriers/{carrier_id}")
-def remove_carrier(carrier_id: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def remove_carrier(carrier_id: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     try:
         ref = db.collection("carriers").document(carrier_id)
@@ -432,8 +428,8 @@ class UpdateFeesBody(BaseModel):
 
 
 @router.put("/admin/cases/{case_id}/fees")
-def update_case_fees(case_id: str, body: UpdateFeesBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def update_case_fees(case_id: str, body: UpdateFeesBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:
@@ -461,8 +457,8 @@ class PayoutBody(BaseModel):
 
 
 @router.post("/admin/cases/{case_id}/payout")
-def record_payout(case_id: str, body: PayoutBody, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def record_payout(case_id: str, body: PayoutBody, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     try:

@@ -9,15 +9,12 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
+from app.routes._common import require_staff
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-
-def _check_auth(x_api_key: Optional[str]):
-    if x_api_key != os.getenv("API_KEY", "cdl-local-dev"):
-        raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
 def _db():
@@ -53,10 +50,10 @@ async def list_attorneys(
     cdl_specialist: Optional[bool] = None,
     assigned_to: Optional[str] = None,
     limit: int = 100,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """List attorney leads with optional filters."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     query = db.collection("attorneys")
 
@@ -84,14 +81,14 @@ async def match_attorneys(
     state: str,
     county: Optional[str] = None,
     practice: Optional[str] = None,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Find onboarded attorneys for a given ticket's state/county.
     Used by the ticket engine to surface attorneys at intake.
     Falls back: county match → state match → CDL specialists in state.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
 
     state = state.upper()
@@ -140,9 +137,9 @@ async def match_attorneys(
 
 
 @router.get("/attorneys/pipeline")
-async def pipeline_summary(x_api_key: Optional[str] = Header(None)):
+async def pipeline_summary(authorization: Optional[str] = Header(None)):
     """Dashboard summary — counts by status and state."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
 
     docs = db.collection("attorneys").stream()
@@ -171,8 +168,8 @@ async def pipeline_summary(x_api_key: Optional[str] = Header(None)):
 
 
 @router.get("/attorneys/{attorney_id}")
-async def get_attorney(attorney_id: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+async def get_attorney(attorney_id: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     doc = _db().collection("attorneys").document(attorney_id).get()
     if not doc.exists:
         raise HTTPException(status_code=404, detail="Attorney not found")
@@ -183,10 +180,10 @@ async def get_attorney(attorney_id: str, x_api_key: Optional[str] = Header(None)
 async def update_outreach(
     attorney_id: str,
     body: OutreachUpdate,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """Update outreach status, assignment, notes."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     ref = db.collection("attorneys").document(attorney_id)
     if not ref.get().exists:
@@ -214,10 +211,10 @@ async def update_outreach(
 async def update_pricing(
     attorney_id: str,
     body: PricingUpdate,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """Record pricing collected during outreach."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     ref = db.collection("attorneys").document(attorney_id)
     if not ref.get().exists:
@@ -243,12 +240,12 @@ async def update_pricing(
 
 
 @router.get("/attorneys/states/coverage")
-async def state_coverage(x_api_key: Optional[str] = Header(None)):
+async def state_coverage(authorization: Optional[str] = Header(None)):
     """
     Which states have scanned tickets vs which have onboarded attorneys.
     Drives outreach prioritization — shows gaps.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
 
     # States with tickets
@@ -294,9 +291,9 @@ async def state_coverage(x_api_key: Optional[str] = Header(None)):
 
 
 @router.get("/attorneys/jobs/history")
-async def job_history(limit: int = 10, x_api_key: Optional[str] = Header(None)):
+async def job_history(limit: int = 10, authorization: Optional[str] = Header(None)):
     """Recent attorney discovery job runs — for monitoring in the Network tab."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     docs = (db.collection("job_runs")
               .where("job", "==", "attorney_discovery")
@@ -384,13 +381,13 @@ async def trigger_discovery(
     state: str,
     background_tasks: BackgroundTasks,
     ticket_id: str = "",
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """
     Manually trigger an on-demand attorney discovery scrape for a specific state.
     Also called automatically when a ticket is approved with no onboarded attorney.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     if not state or len(state) != 2:
         raise HTTPException(status_code=400, detail="state must be a 2-letter code (e.g. TX)")
 
@@ -400,9 +397,9 @@ async def trigger_discovery(
 
 
 @router.get("/attorneys/alerts")
-async def get_alerts(status: str = "open", limit: int = 20, x_api_key: Optional[str] = Header(None)):
+async def get_alerts(status: str = "open", limit: int = 20, authorization: Optional[str] = Header(None)):
     """Outreach alerts — states with tickets but no onboarded attorney."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     docs = (db.collection("outreach_alerts")
               .where("status", "==", status)

@@ -22,6 +22,7 @@ import firebase_admin.auth as fb_auth
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
+from app.routes._common import require_staff
 from app.services import attorney_dashboard as dash
 from app.services import attorney_levels as levels
 
@@ -38,11 +39,6 @@ def _db():
     if _firestore_client is None:
         raise HTTPException(status_code=503, detail="Firestore not configured.")
     return _firestore_client
-
-
-def _check_admin(x_api_key: Optional[str]):
-    if x_api_key != os.getenv("API_KEY", "cdl-local-dev"):
-        raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
 def _iso(v):
@@ -125,8 +121,8 @@ def submit_application(body: ApplicationSubmission):
 # ── Staff review queue ────────────────────────────────────────────────────────
 @router.get("/admin/attorney-applications")
 def list_applications(status: Optional[str] = None, limit: int = 100,
-                      x_api_key: Optional[str] = Header(None)):
-    _check_admin(x_api_key)
+                      authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     query = db.collection("attorney_applications")
     if status:
@@ -149,8 +145,8 @@ class InterviewComplete(BaseModel):
 
 @router.post("/admin/attorney-applications/{application_id}/interview-complete")
 def mark_interview_complete(application_id: str, body: InterviewComplete,
-                            x_api_key: Optional[str] = Header(None)):
-    _check_admin(x_api_key)
+                            authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     ref = db.collection("attorney_applications").document(application_id)
     if not ref.get().exists:
@@ -172,8 +168,8 @@ class ApproveApplication(BaseModel):
 
 @router.post("/admin/attorney-applications/{application_id}/approve")
 def approve_application(application_id: str, body: ApproveApplication,
-                        x_api_key: Optional[str] = Header(None)):
-    _check_admin(x_api_key)
+                        authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 

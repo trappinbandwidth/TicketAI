@@ -15,7 +15,7 @@ from typing import List, Optional
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from app.routes._common import get_db, verify_token, require_api_key, iso
+from app.routes._common import get_db, verify_token, require_staff, iso
 from app.services import case_lifecycle as cl
 
 logger = logging.getLogger(__name__)
@@ -45,11 +45,10 @@ def wallet_checkout(authorization: Optional[str] = Header(None)):
                               "typically within 5–7 business days."}
 
 
-# Admin-console routes (frontend-qa): x-api-key auth, actor passed explicitly in the
-# body since the console has no per-staff Firebase login (see _common.py note).
+# Admin-console routes (frontend-qa): staff Firebase Bearer token auth.
 @router.get("/admin/payout-requests")
-def admin_payout_requests(status: Optional[str] = None, x_api_key: Optional[str] = Header(None)):
-    require_api_key(x_api_key)
+def admin_payout_requests(status: Optional[str] = None, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     return {"payout_requests": cl.list_payout_requests(get_db(), status)}
 
 
@@ -59,8 +58,8 @@ class MarkPaid(BaseModel):
 
 
 @router.post("/admin/payout-requests/{payout_id}/mark-paid")
-def admin_mark_paid(payout_id: str, body: MarkPaid, x_api_key: Optional[str] = Header(None)):
-    require_api_key(x_api_key)
+def admin_mark_paid(payout_id: str, body: MarkPaid, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     try:
         return cl.mark_payout_paid(get_db(), payout_id, body.payout_method, body.paid_by)
     except ValueError as e:

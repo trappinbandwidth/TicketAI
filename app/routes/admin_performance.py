@@ -1,8 +1,9 @@
 """
 Admin / staff Performance Level routes — Slice 1.
 
-x-api-key auth (same as operations.py / cases.py). These are the AM/staff tuning
-and monitoring surfaces plus the nightly recalculator cron.
+Staff Firebase Bearer token auth for the AM/staff tuning and monitoring surfaces.
+The nightly recalculator cron keeps x-api-key auth since Cloud Scheduler invokes
+it directly with no per-staff Firebase login.
 
   GET  /admin/attorneys/{id}/performance   Full detail incl raw_lifetime_win_rate (staff-only)
   POST /admin/attorneys/{id}/nominate-diamond
@@ -10,7 +11,7 @@ and monitoring surfaces plus the nightly recalculator cron.
   PUT  /admin/level-config                 Tune thresholds (no deploy needed)
   GET  /admin/stats/performance-levels      Distribution across levels
   POST /admin/attorneys/backfill-levels     One-time backfill of new fields + config seed
-  POST /operations/recalculate-levels       Performance Level Recalculator (cron: daily 6am)
+  POST /operations/recalculate-levels       Performance Level Recalculator (cron: daily 6am, x-api-key)
 """
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ from typing import Optional
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
+from app.routes._common import require_staff
 from app.services import attorney_levels as levels
 
 logger = logging.getLogger(__name__)
@@ -47,8 +49,8 @@ def _iso(v):
 
 # ── GET full attorney performance (staff view) ────────────────────────────────
 @router.get("/admin/attorneys/{attorney_id}/performance")
-def admin_get_performance(attorney_id: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def admin_get_performance(attorney_id: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     snap = db.collection("attorneys").document(attorney_id).get()
     if not snap.exists:
@@ -88,10 +90,10 @@ class DiamondNomination(BaseModel):
 def nominate_diamond(
     attorney_id: str,
     body: DiamondNomination,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """Set the AM nomination that Diamond requires alongside its metrics."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     ref = db.collection("attorneys").document(attorney_id)
     if not ref.get().exists:
@@ -110,8 +112,8 @@ def nominate_diamond(
 
 # ── Level config (the tuning surface) ─────────────────────────────────────────
 @router.get("/admin/level-config")
-def get_level_config(x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def get_level_config(authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     return {"config": levels.get_level_config(db)}
 
@@ -133,10 +135,10 @@ class LevelConfigUpdate(BaseModel):
 def update_level_config(
     level: str,
     body: LevelConfigUpdate,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """Tune one level's thresholds without a deploy. Seeds config first if empty."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     if level not in levels.DEFAULT_LEVEL_CONFIG:
         raise HTTPException(
             status_code=400,
@@ -154,8 +156,8 @@ def update_level_config(
 
 # ── Distribution stats ────────────────────────────────────────────────────────
 @router.get("/admin/stats/performance-levels")
-def performance_level_stats(x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def performance_level_stats(authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     dist = {lvl: 0 for lvl in levels.ALL_LEVELS}
     provisional = 0
@@ -172,8 +174,8 @@ def performance_level_stats(x_api_key: Optional[str] = Header(None)):
 
 # ── Backfill (one-time / idempotent) ──────────────────────────────────────────
 @router.post("/admin/attorneys/backfill-levels")
-def backfill_levels(x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+def backfill_levels(authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     db = _db()
     return levels.backfill_attorney_fields(db)
 

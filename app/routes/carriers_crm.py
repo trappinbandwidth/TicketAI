@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
+from app.routes._common import require_staff
 from pydantic import BaseModel
 
 log = logging.getLogger(__name__)
@@ -25,10 +26,6 @@ router = APIRouter()
 
 CARRIER_STATUSES = ["lead", "contacted", "demo_scheduled", "enrolled", "declined"]
 
-
-def _check_auth(x_api_key: Optional[str]):
-    if x_api_key != os.getenv("API_KEY", "cdl-local-dev"):
-        raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
 def _db():
@@ -61,10 +58,10 @@ async def list_carriers(
     min_drivers: Optional[int] = None,
     oos_only: bool = False,
     limit: int = 100,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """List carrier prospects with optional filters."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     query = db.collection("carriers")
 
@@ -94,9 +91,9 @@ async def list_carriers(
 
 
 @router.get("/carriers/pipeline")
-async def pipeline_summary(x_api_key: Optional[str] = Header(None)):
+async def pipeline_summary(authorization: Optional[str] = Header(None)):
     """Dashboard counts — by status, by state, OOS flags."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
 
     by_status: dict[str, int] = {}
@@ -137,12 +134,12 @@ async def pipeline_summary(x_api_key: Optional[str] = Header(None)):
 
 
 @router.get("/carriers/coverage")
-async def state_coverage(x_api_key: Optional[str] = Header(None)):
+async def state_coverage(authorization: Optional[str] = Header(None)):
     """
     Which states have the most uncontacted carrier prospects.
     Drives outreach prioritization — sorts by lead density.
     """
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
 
     by_state: dict[str, dict] = {}
@@ -172,8 +169,8 @@ async def state_coverage(x_api_key: Optional[str] = Header(None)):
 
 
 @router.get("/carriers/{dot_number}")
-async def get_carrier(dot_number: str, x_api_key: Optional[str] = Header(None)):
-    _check_auth(x_api_key)
+async def get_carrier(dot_number: str, authorization: Optional[str] = Header(None)):
+    require_staff(authorization)
     doc = _db().collection("carriers").document(dot_number).get()
     if not doc.exists:
         raise HTTPException(status_code=404, detail="Carrier not found")
@@ -189,10 +186,10 @@ async def get_carrier(dot_number: str, x_api_key: Optional[str] = Header(None)):
 async def update_outreach(
     dot_number: str,
     body: OutreachUpdate,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """Update outreach status, assignment, notes."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     ref = db.collection("carriers").document(dot_number)
     if not ref.get().exists:
@@ -222,10 +219,10 @@ async def update_outreach(
 async def update_enrollment(
     dot_number: str,
     body: EnrollmentUpdate,
-    x_api_key: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ):
     """Record enrollment details after a carrier signs up."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     ref = db.collection("carriers").document(dot_number)
     if not ref.get().exists:
@@ -250,9 +247,9 @@ async def update_enrollment(
 
 
 @router.get("/carriers/jobs/history")
-async def job_history(limit: int = 10, x_api_key: Optional[str] = Header(None)):
+async def job_history(limit: int = 10, authorization: Optional[str] = Header(None)):
     """Recent FMCSA job runs — for monitoring in the Carriers tab."""
-    _check_auth(x_api_key)
+    require_staff(authorization)
     db = _db()
     docs = (db.collection("job_runs")
               .where("job", "in", ["fmcsa_carrier_full", "fmcsa_oos_delta"])
