@@ -323,6 +323,19 @@ def decline_case(ticket_id: str, body: DeclineBody, authorization: Optional[str]
     return {"ok": True, "ticket_id": ticket_id}
 
 
+# ── Reference data ──────────────────────────────────────────────────────────────
+@router.get("/counties/{state}")
+def counties_by_state(state: str, authorization: Optional[str] = Header(None)):
+    """Real US county list for a given 2-letter state code, seeded from the
+    Census Bureau FIPS reference set (us_counties/{state} in Firestore)."""
+    _verify_token(authorization)
+    db = _db()
+    snap = db.collection("us_counties").document(state.upper()).get()
+    if not snap.exists:
+        return {"state": state.upper(), "counties": []}
+    return snap.to_dict()
+
+
 # ── Current user ──────────────────────────────────────────────────────────────
 @router.get("/me")
 def me(authorization: Optional[str] = Header(None)):
