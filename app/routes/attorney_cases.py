@@ -168,9 +168,24 @@ def case_detail(ticket_id: str, authorization: Optional[str] = Header(None)):
     if not owns and data.get("attorney_status") != _AVAILABLE_STATUS:
         raise HTTPException(status_code=403, detail="Not authorized to view this case.")
 
+    # Resolve carrier enrollment (if any) before stripping driver_id -- the
+    # attorney-facing response never includes driver_id itself, so this lookup
+    # has to happen now or not at all.
+    carrier_name = None
+    driver_id = data.get("driver_id")
+    if driver_id:
+        driver_snap = db.collection("drivers").document(driver_id).get()
+        if driver_snap.exists:
+            carrier_id = driver_snap.to_dict().get("carrier_id")
+            if carrier_id:
+                carrier_snap = db.collection("carriers").document(carrier_id).get()
+                if carrier_snap.exists:
+                    carrier_name = carrier_snap.to_dict().get("company_name")
+
     # Strip all driver PII before returning to the attorney — masked display name only.
     from app.services.case_lifecycle import strip_driver_pii
     safe = strip_driver_pii(data)
+    safe["carrier_name"] = carrier_name
     out = {k: _iso(v) for k, v in safe.items()}
     out["ticket_id"] = ticket_id
     out["owned_by_me"] = owns
