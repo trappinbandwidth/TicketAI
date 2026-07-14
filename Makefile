@@ -14,8 +14,8 @@ smoke:
 	$(PYTEST) tests/test_process.py::test_auth_required tests/test_process.py::test_unsupported_file_type -q
 
 secret-scan:
-	! grep -R "firebase-adminsdk" -n . --exclude=.gitignore --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude-dir=__pycache__
-	! grep -R -E "BEGIN [A-Z ]*PRIVATE KEY" -n . --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude-dir=__pycache__
+	! grep -R "firebase-adminsdk" -n . --exclude=Makefile --exclude=.gitignore --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude-dir=__pycache__
+	! grep -R -E "BEGIN [A-Z ]*PRIVATE KEY" -n . --exclude=Makefile --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude-dir=__pycache__
 	! grep -R "cdl-local-dev" -n frontend
 
 check: syntax test smoke secret-scan
