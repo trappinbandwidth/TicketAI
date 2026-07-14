@@ -1,5 +1,5 @@
 [Unit]
-Description=CDL Legal — AI Ticket Scanner API
+Description=Rig Resolve — AI Ticket Scanner API
 After=network.target
 Wants=network-online.target
 

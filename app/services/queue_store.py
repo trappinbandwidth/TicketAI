@@ -169,6 +169,21 @@ def log_agent_event(scan_id: str, agent: str, event: str, detail: Optional[dict]
         pass  # Never crash the pipeline over a logging call
 
 
+# ── Agent on/off config ─────────────────────────────────────────────────────
+# Only enrichment agents (no structural/routing role) are toggleable — see
+# TOGGLEABLE_AGENTS in app/routes/admin_agent_config.py for the full rationale.
+def is_agent_enabled(agent_name: str) -> bool:
+    """Defaults to enabled — a missing config doc or a Firestore hiccup must never
+    silently disable a pipeline step."""
+    try:
+        snap = _fs().collection("agent_config").document(agent_name).get()
+        if not snap.exists:
+            return True
+        return snap.to_dict().get("enabled", True)
+    except Exception:
+        return True
+
+
 # ── Scan persistence ──────────────────────────────────────────────────────────
 
 def save_scan(

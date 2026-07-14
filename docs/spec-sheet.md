@@ -1,11 +1,11 @@
-# CDL Legal — AI Ticket Scanner
+# Rig Resolve — AI Ticket Scanner
 ### Product Spec Sheet · June 2026
 
 ---
 
 ## What Is It?
 
-The CDL Legal AI Ticket Scanner is an internal tool that reads traffic citations — uploaded as a photo, scan, or PDF — and automatically extracts every field a reviewer or case manager would need: ticket date, court date, violation type, citation number, court location, and more. It scores its own confidence on every field, flags anything uncertain, estimates what the driver will pay, and suggests the right attorneys to handle the case.
+The Rig Resolve AI Ticket Scanner is an internal tool that reads traffic citations — uploaded as a photo, scan, or PDF — and automatically extracts every field a reviewer or case manager would need: ticket date, court date, violation type, citation number, court location, and more. It scores its own confidence on every field, flags anything uncertain, estimates what the driver will pay, and suggests the right attorneys to handle the case.
 
 The goal is to cut manual data entry from minutes to seconds and feed clean, verified data directly into Salesforce.
 
@@ -89,7 +89,7 @@ The AI knows that different states handle court dates differently:
 
 ### 4. Driver Price Estimator
 
-Automatically calculates what the driver will likely pay CDL Legal, shown on every scan:
+Automatically calculates what the driver will likely pay Rig Resolve, shown on every scan:
 
 - **Formula:** Attorney avg cost + $400 CDL fee = base price ±15–20%
 - **Color coded:** Green = standard risk, Orange = high risk violation
@@ -244,4 +244,4 @@ Every approved ticket (with any reviewer corrections applied) is appended to a l
 
 ---
 
-*CDL Legal — Internal Use Only · ai-ticket-engine · github.com/CDL-Legal/ai-ticket-engine*
+*Rig Resolve — Internal Use Only · ai-ticket-engine · github.com/RigResolve/ai-ticket-engine*

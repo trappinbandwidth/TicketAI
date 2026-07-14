@@ -5,7 +5,7 @@ Runs after Referee on green/yellow passes.
 """
 import logging
 
-from app.services.queue_store import log_agent_event
+from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 AGENT_NAME = "book_worm"
@@ -41,6 +41,10 @@ MUST_APPEAR_CATEGORIES = {
 
 
 def book_worm(state: TicketState) -> dict:
+    if not is_agent_enabled(AGENT_NAME):
+        log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
+        return {}
+
     filename = state.get("filename", "unknown")
     extraction = state.get("extraction") or {}
     category_field = extraction.get("Violation_Category__c", {})

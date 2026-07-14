@@ -52,9 +52,11 @@ def process_document(
     driver_name: str | None = None,
     prompt_version: str = "v1",
     temperature: float = 1.0,
-) -> tuple[dict, bool]:
+) -> tuple[dict, bool, dict | None]:
     """
-    Returns (parsed_json, is_mock).
+    Returns (parsed_json, is_mock, usage). usage is None for mock responses, otherwise
+    {"model": str, "input_tokens": int, "output_tokens": int,
+     "cache_read_input_tokens": int, "cache_creation_input_tokens": int}.
     Uses mock when USE_MOCK=true or ANTHROPIC_API_KEY is missing.
     """
     use_mock = os.getenv("USE_MOCK", "true").lower() == "true"
@@ -63,7 +65,7 @@ def process_document(
     logger.warning("process_document: use_mock=%s api_key_set=%s key_prefix=%s", use_mock, bool(api_key), api_key[:12] if api_key else "NONE")
 
     if use_mock or not api_key:
-        return MOCK_RESPONSE, True
+        return MOCK_RESPONSE, True, None
 
     import anthropic
 
@@ -123,6 +125,13 @@ def process_document(
     usage = message.usage
     cache_read   = getattr(usage, "cache_read_input_tokens", 0) or 0
     cache_write  = getattr(usage, "cache_creation_input_tokens", 0) or 0
+    usage_info = {
+        "model": create_kwargs["model"],
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+        "cache_read_input_tokens": cache_read,
+        "cache_creation_input_tokens": cache_write,
+    }
     logger.warning(
         "Claude stop_reason=%s content_blocks=%d tokens_in=%d out=%d cache_read=%d cache_write=%d",
         message.stop_reason, len(message.content),
@@ -140,14 +149,14 @@ def process_document(
     raw = re.sub(r"\s*```$", "", raw)
     raw = raw.strip()
     try:
-        return json.loads(raw), False
+        return json.loads(raw), False, usage_info
     except json.JSONDecodeError:
         # Claude returned prose + JSON (chain-of-thought leak). Extract the first { ... } block.
         logger.warning("Top-level JSON parse failed — attempting to extract embedded JSON. raw[:300]=%r", raw[:300])
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             try:
-                return json.loads(match.group()), False
+                return json.loads(match.group()), False, usage_info
             except json.JSONDecodeError:
                 pass
         logger.warning("JSON extraction fallback also failed. raw=%r", raw[:500])

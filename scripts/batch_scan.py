@@ -110,7 +110,7 @@ SKIP_KEYWORDS = [
     "payment receipt", "pti", "mdjdocketsheet", "oscn", "courtnet",
     "docket sheet", "docket", "case detail", "confirmation letter",
     "prosecutor", "bossier parish", "trial waiver", "court summary",
-    "htoo closing", "cdl legal mail", "tire receipt",
+    "htoo closing", "legacy payment mail", "tire receipt",
     "plea in absentia", "plea offer", "plea agreement",
     "case over -", "case over-", "vitalii dispo", "pugh dispo",
     "pugh crisp", "jerrell pugh-crisp", "khayibaev disposition",

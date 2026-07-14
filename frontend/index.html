@@ -212,7 +212,7 @@
     </div>
     <div class="ml-auto flex items-center gap-3 flex-wrap">
       <label class="section-label text-slate-300">API Key</label>
-      <input id="api-key-input" type="password" value="cdl-local-dev"
+      <input id="api-key-input" type="password" value=""
         class="px-2.5 py-1.5 rounded text-sm bg-slate-700 text-white border border-slate-600 focus:outline-none focus:border-yellow-400 w-40" />
       <label class="section-label text-slate-300 ml-1">Backend</label>
       <input id="backend-url-input" type="text" value=""
@@ -771,7 +771,7 @@ const SEVERITY_COLORS = {
   CRITICAL: { bg:'#ef4444', text:'#ffffff', label:'Critical' },
 };
 
-function apiKey()  { return document.getElementById('api-key-input').value.trim() || 'cdl-local-dev'; }
+function apiKey()  { return document.getElementById('api-key-input').value.trim(); }
 function baseUrl() {
   const v = document.getElementById('backend-url-input').value.trim().replace(/\/$/, '');
   if (v) return v;

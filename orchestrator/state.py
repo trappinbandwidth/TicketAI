@@ -28,6 +28,7 @@ class TicketState(TypedDict):
     consensus_extraction: Optional[dict]
     dual_conflicts: list
     is_mock: bool
+    token_usage: list  # per-Claude-call usage dicts, accumulated across document_gate/lone_ranger passes
 
     # Referee output
     pass_status: Optional[str]

@@ -1,0 +1,14 @@
+# Rig Resolve default code owners.
+# Keep this aligned with GitHub branch protection so security-sensitive changes get review.
+
+* @trappinbandwidth
+
+# Runtime and security-sensitive surfaces.
+/app/ @trappinbandwidth
+/agents/ @trappinbandwidth
+/orchestrator/ @trappinbandwidth
+/deploy/ @trappinbandwidth
+/.github/ @trappinbandwidth
+/Dockerfile @trappinbandwidth
+/requirements*.txt @trappinbandwidth
+

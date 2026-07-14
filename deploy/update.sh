@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CDL Legal — AI Ticket Scanner
+# Rig Resolve — AI Ticket Scanner
 # Deploy latest code from GitHub.
 # Run as: sudo bash update.sh
 

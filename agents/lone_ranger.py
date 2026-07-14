@@ -3,6 +3,8 @@ Lone Ranger — primary extraction agent.
 Runs the master prompt against the ticket image + OCR text.
 First agent in the pipeline.
 """
+from __future__ import annotations
+
 import logging
 
 from app.services.claude_client import process_document
@@ -27,7 +29,7 @@ def _field_summary(extraction: dict) -> dict:
     return summary
 
 
-def _run_extraction(state: TicketState, pass_num: int, temperature: float) -> tuple[dict, bool]:
+def _run_extraction(state: TicketState, pass_num: int, temperature: float) -> tuple[dict, bool, dict | None]:
     filename = state.get("filename", "unknown")
     scan_id = state.get("scan_id", "")
     prompt_version = state.get("prompt_version", "v1")
@@ -41,7 +43,7 @@ def _run_extraction(state: TicketState, pass_num: int, temperature: float) -> tu
     })
 
     try:
-        extraction, is_mock = process_document(
+        extraction, is_mock, usage = process_document(
             images_b64=state["images_b64"],
             ocr_text=state["ocr_text"],
             driver_name=state.get("driver_name"),
@@ -65,8 +67,9 @@ def _run_extraction(state: TicketState, pass_num: int, temperature: float) -> tu
             "low_confidence_fields": low_conf_fields,
             "doc_type": extraction.get("file_type", "unknown"),
             "field_summary": field_summary,
+            "usage": usage,
         })
-        return extraction, is_mock
+        return extraction, is_mock, usage
 
     except Exception as exc:
         logger.error("[lone_ranger] pass=%d FAILED file=%s error=%s", pass_num, filename, exc, exc_info=True)
@@ -82,11 +85,20 @@ def lone_ranger(state: TicketState) -> dict:
                    filename,
                    len(state.get("images_b64", [])),
                    len(state.get("ocr_text", "")))
-    extraction, is_mock = _run_extraction(state, pass_num=1, temperature=1.0)
-    return {"extraction": extraction, "is_mock": is_mock, "pass1_extraction": extraction}
+    extraction, is_mock, usage = _run_extraction(state, pass_num=1, temperature=1.0)
+    token_usage = list(state.get("token_usage") or [])
+    if usage:
+        token_usage.append(usage)
+    return {
+        "extraction": extraction, "is_mock": is_mock, "pass1_extraction": extraction,
+        "token_usage": token_usage,
+    }
 
 
 def lone_ranger_2(state: TicketState) -> dict:
     """Second extraction pass — only runs for non-green tickets (fast-path skip for green)."""
-    extraction, _ = _run_extraction(state, pass_num=2, temperature=0.4)
-    return {"extraction_2": extraction, "pass2_extraction": extraction}
+    extraction, _, usage = _run_extraction(state, pass_num=2, temperature=0.4)
+    token_usage = list(state.get("token_usage") or [])
+    if usage:
+        token_usage.append(usage)
+    return {"extraction_2": extraction, "pass2_extraction": extraction, "token_usage": token_usage}

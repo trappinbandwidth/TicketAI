@@ -45,6 +45,28 @@ def wallet_checkout(authorization: Optional[str] = Header(None)):
                               "typically within 5–7 business days."}
 
 
+# ── Availability (self-toggle) ────────────────────────────────────────────────
+class AcceptingCasesUpdate(BaseModel):
+    accepting_cases: bool
+
+
+@router.get("/profile/accepting-cases")
+def get_accepting_cases(authorization: Optional[str] = Header(None)):
+    decoded = verify_token(authorization)
+    snap = get_db().collection("attorneys").document(decoded["uid"]).get()
+    accepting = snap.to_dict().get("accepting_cases", True) if snap.exists else True
+    return {"accepting_cases": accepting}
+
+
+@router.patch("/profile/accepting-cases")
+def update_accepting_cases(body: AcceptingCasesUpdate, authorization: Optional[str] = Header(None)):
+    """Attorney self-toggle for whether they're currently accepting new cases."""
+    decoded = verify_token(authorization)
+    ref = get_db().collection("attorneys").document(decoded["uid"])
+    ref.set({"accepting_cases": body.accepting_cases, "updated_at": _now()}, merge=True)
+    return {"ok": True, "accepting_cases": body.accepting_cases}
+
+
 # Admin-console routes (frontend-qa): staff Firebase Bearer token auth.
 @router.get("/admin/payout-requests")
 def admin_payout_requests(status: Optional[str] = None, authorization: Optional[str] = Header(None)):

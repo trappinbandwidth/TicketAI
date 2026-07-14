@@ -15,7 +15,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from app.services.queue_store import log_agent_event
+from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
@@ -52,6 +52,10 @@ def _fv(extraction: dict, field: str) -> str:
 
 
 def urgency_router(state: TicketState) -> dict:
+    if not is_agent_enabled(AGENT_NAME):
+        log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
+        return {}
+
     filename   = state.get("filename", "unknown")
     scan_id    = state.get("scan_id", "")
     extraction = state.get("extraction") or {}

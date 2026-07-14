@@ -75,6 +75,7 @@ def _build_final_result(state: TicketState) -> dict:
             "urgency_level": state.get("urgency_level"),
             "urgency_reason": state.get("urgency_reason"),
             "statement_of_record": state.get("statement_of_record"),
+            "token_usage": state.get("token_usage", []),
         }
     }
 
@@ -157,6 +158,9 @@ def build_graph() -> StateGraph:
     graph = StateGraph(TicketState)
 
     # ── Nodes ────────────────────────────────────────────────────────────────
+    # Future agents should be added with a stable AGENT_NAME, state field,
+    # identity metadata, admin visibility, and tests. See
+    # docs/agent-extension-guide.md before changing graph control flow.
     graph.add_node("case_intake", case_intake)
     graph.add_node("document_gate", document_gate)
     graph.add_node("photo_analyst", photo_analyst_node)

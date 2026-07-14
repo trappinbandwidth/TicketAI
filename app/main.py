@@ -24,6 +24,7 @@ from app.routes.tenstreet import router as tenstreet_router
 from app.routes.workday import router as workday_router
 from app.routes.attorney_performance import router as attorney_performance_router
 from app.routes.admin_performance import router as admin_performance_router
+from app.routes.admin_agent_config import router as admin_agent_config_router
 from app.routes.attorney_profile import router as attorney_profile_router
 from app.routes.attorney_applications import router as attorney_applications_router
 from app.routes.attorney_self_sourced import router as attorney_self_sourced_router
@@ -61,6 +62,12 @@ def _check_env() -> None:
         )
 
     api_key = os.getenv("API_KEY", "")
+    app_env = os.getenv("APP_ENV", "development").lower()
+    is_production = app_env in {"production", "prod"}
+    if is_production and (not api_key or api_key == "cdl-local-dev"):
+        raise RuntimeError(
+            "Refusing to start in production with missing or default API_KEY."
+        )
     if api_key == "cdl-local-dev":
         warnings.append(
             "API_KEY is still the default 'cdl-local-dev'. "
@@ -113,6 +120,7 @@ app.include_router(tenstreet_router, prefix="/api/v1")
 app.include_router(workday_router, prefix="/api/v1")
 app.include_router(attorney_performance_router, prefix="/api/v1")
 app.include_router(admin_performance_router, prefix="/api/v1")
+app.include_router(admin_agent_config_router, prefix="/api/v1")
 app.include_router(attorney_profile_router, prefix="/api/v1")
 app.include_router(attorney_applications_router, prefix="/api/v1")
 app.include_router(attorney_self_sourced_router, prefix="/api/v1")

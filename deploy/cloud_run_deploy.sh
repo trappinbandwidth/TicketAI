@@ -1,6 +1,6 @@
 #!/bin/bash
 # One-time Cloud Run setup for ai-ticket-engine on GCP project: rigresolve
-# Run this from the repo root after setting ANTHROPIC_API_KEY below.
+# Run this from the repo root after setting ANTHROPIC_API_KEY and API_KEY.
 #
 # Prerequisites:
 #   gcloud auth login
@@ -12,14 +12,24 @@ PROJECT_ID="rigresolve"
 REGION="us-central1"
 SERVICE_NAME="ai-ticket-engine"
 
-# Read key from shell env, then fall back to .env file in repo root
+# Read keys from shell env, then fall back to .env file in repo root
 ANTHROPIC_KEY="${ANTHROPIC_API_KEY:-}"
 if [[ -z "$ANTHROPIC_KEY" ]] && [[ -f ".env" ]]; then
   ANTHROPIC_KEY=$(grep "^ANTHROPIC_API_KEY=" .env | head -1 | cut -d= -f2-)
 fi
 
+AI_ENGINE_API_KEY="${API_KEY:-}"
+if [[ -z "$AI_ENGINE_API_KEY" ]] && [[ -f ".env" ]]; then
+  AI_ENGINE_API_KEY=$(grep "^API_KEY=" .env | head -1 | cut -d= -f2-)
+fi
+
 if [[ -z "$ANTHROPIC_KEY" ]]; then
   echo "ERROR: ANTHROPIC_API_KEY not found in shell environment or .env"
+  exit 1
+fi
+
+if [[ -z "$AI_ENGINE_API_KEY" || "$AI_ENGINE_API_KEY" == "cdl-local-dev" ]]; then
+  echo "ERROR: API_KEY must be set to a strong non-default value in shell environment or .env"
   exit 1
 fi
 
@@ -38,6 +48,13 @@ echo -n "$ANTHROPIC_KEY" | gcloud secrets create ANTHROPIC_API_KEY \
   --data-file=- \
   --project="$PROJECT_ID" 2>/dev/null \
   || echo -n "$ANTHROPIC_KEY" | gcloud secrets versions add ANTHROPIC_API_KEY \
+       --data-file=- --project="$PROJECT_ID"
+
+echo "==> Storing AI Engine API_KEY in Secret Manager..."
+echo -n "$AI_ENGINE_API_KEY" | gcloud secrets create AI_ENGINE_API_KEY \
+  --data-file=- \
+  --project="$PROJECT_ID" 2>/dev/null \
+  || echo -n "$AI_ENGINE_API_KEY" | gcloud secrets versions add AI_ENGINE_API_KEY \
        --data-file=- --project="$PROJECT_ID"
 
 echo "==> Granting Cloud Run default SA access to secrets and Firestore..."
@@ -68,8 +85,8 @@ gcloud run deploy "$SERVICE_NAME" \
   --concurrency 10 \
   --min-instances 0 \
   --max-instances 5 \
-  --set-env-vars "FIREBASE_PROJECT_ID=${PROJECT_ID},USE_MOCK=false,PROMPT_VERSION=v2,API_KEY=collard-greens-rr-prod-2026" \
-  --set-secrets "ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest" \
+  --set-env-vars "FIREBASE_PROJECT_ID=${PROJECT_ID},USE_MOCK=false,PROMPT_VERSION=v2" \
+  --set-secrets "ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,API_KEY=AI_ENGINE_API_KEY:latest" \
   --allow-unauthenticated
 
 echo ""
@@ -79,6 +96,7 @@ gcloud run services describe "$SERVICE_NAME" \
   --format="value(status.url)"
 
 echo ""
-echo "NOTE: --no-allow-unauthenticated means only requests with a valid"
-echo "      Bearer token (or your API_KEY header) will be accepted."
-echo "      To open it publicly: gcloud run services add-iam-policy-binding ..."
+echo "NOTE: this script deploys with --allow-unauthenticated."
+echo "      Application routes still require their configured x-api-key or"
+echo "      Firebase Bearer token, but Cloud Run itself is publicly reachable."
+echo "      To require Cloud Run IAM, change the deploy flag to --no-allow-unauthenticated."

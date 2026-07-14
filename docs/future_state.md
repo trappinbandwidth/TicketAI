@@ -275,7 +275,7 @@ Powers: Automated prompt improvement analysis, fine-tuning dataset
 | Driver app: web vs. native | Current PWA vs. React Native | 6-month decision |
 | MVR pull provider | SambaSafety, Verisk, Motorists | Before v2 |
 | SMS provider | Twilio, Amazon SNS, Plivo | Before v2 |
-| Competitive claim review | Legal review of "vs. CDL Legal" copy | Before public marketing |
+| Competitive claim review | Legal review of "vs. Rig Resolve" copy | Before public marketing |
 | Carrier portal git repo | Initialize and push to GitHub | Now |
 
 ---
@@ -284,7 +284,7 @@ Powers: Automated prompt improvement analysis, fine-tuning dataset
 
 | Item | Location | Impact | Priority |
 |------|----------|--------|---------|
-| CDL Legal → Rig Resolve branding | All code comments, class names | Low (internal) | Low |
+| Prior brand → Rig Resolve branding | All code comments, class names | Low (internal) | Low |
 | `cdl-local-dev` API key | `.env`, `deploy/cloud_run_deploy.sh` | Security | Medium |
 | Service account key `3c82463f` | Prior session logs | Security | Critical |
 | Admin dashboard not deployed | `frontend-qa/` | Only Quest has access | High |
