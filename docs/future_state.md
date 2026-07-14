@@ -128,14 +128,14 @@ Rig Resolve is in early QA / pre-launch. The core infrastructure is built and de
 - **Attorney payment automation:** Stripe Connect or Rainforest Payouts
 - **MVR pull integration:** SambaSafety or equivalent API
 - **PSP pull integration:** FMCSA PSP API with driver consent workflow
-- **Research Ron Phase 2:** Violation corpus from Kaggle CDL dataset (ClickUp #86b9ryenz)
+- **Banneker Phase 2:** Violation corpus from Kaggle CDL dataset (ClickUp #86b9ryenz)
 - **SMS notifications:** Twilio for court reminders and case updates (replaces in-app only)
 - **Email notifications:** SendGrid for attorney outreach confirmations
 - **Cloud Scheduler:** Automate court deadline monitor (daily 8am) and payment alerts (daily)
 
 ### Long-Term (v3 — 12 months)
 - **Court research agent:** Auto-populate `courts/` collection from public court websites
-- **Document classification:** Pre-filter to route by doc type before Lone Ranger
+- **Document classification:** Pre-filter to route by doc type before Carver
 - **Attorney match learning:** Outcome-based attorney selection (best attorney per violation+state)
 - **Driver mobile app:** Dedicated iOS/Android app (current is PWA/web)
 - **Carrier self-serve:** Carriers add/remove drivers without staff involvement
@@ -180,8 +180,8 @@ Attorney Portal (Cloud Run / React)
 Carrier Portal (Cloud Run / React)
 Admin Dashboard (Firebase Hosting / internal)
 Cloud Scheduler
-    → Court Deadline Monitor (daily 8am)
-    → Payment Alert (daily)
+    → Bessie Coleman (daily 8am)
+    → Maggie Walker (daily)
     → MVR/PSP result polling (as needed)
     → Attorney assignment follow-up (3 days post-assign)
 ```
@@ -195,18 +195,18 @@ Cloud Scheduler
 **`courts/` — Court Reference Database**  
 Currently: empty, populated manually  
 Target: 3,000+ county court records covering all states where CDL tickets are common  
-Method: Attorney network contributes records; staff verifies; Research Ron queries on every scan  
+Method: Attorney network contributes records; staff verifies; Banneker queries on every scan  
 Future: API product for CDL defense platforms
 
 **`violations/` — CDL Violation Code Reference**  
 Currently: empty  
 Target: All state-specific violation codes mapped to FMCSA categories  
 Method: FMCSA data imports + attorney-contributed state-specific codes  
-Future: Powers Research Ron corpus analysis
+Future: Powers Banneker corpus analysis
 
 **`ai_scans/` — Full Scan Archive**  
-Currently: Schema defined but not yet written to (Lone Ranger outputs go to SQLite only)  
-Target: Every scan writes full pass-1, pass-2, consensus to Firestore for long-term training data retention
+Currently: Schema defined but not yet written to (Carver outputs go to SQLite only)  
+Target: Every scan writes full pass-1, pass-2, bunche to Firestore for long-term training data retention
 
 **`ticket_corrections/` — Training Signal**  
 Currently: Schema defined but correction UI not yet built  
@@ -232,7 +232,7 @@ Powers: Automated prompt improvement analysis, fine-tuning dataset
 ### Short-Term (Before First Real Carriers)
 5. **Rate limiting** on `/api/v1/process` — prevent abuse; each driver gets N scans per day
 6. **Audit logging** — all admin actions (approve, reject, assign, outcome) logged to `staff_audit/` collection
-7. **Driver consent record** — explicit consent for PSP pull required before MVR/PSP Request agents activate
+7. **Driver consent record** — explicit consent for PSP pull required before MVR/Bass Reeves agents activate
 
 ### Long-Term
 8. **SOC 2 Type I** — when carrier contracts require it (~12 months)
@@ -290,7 +290,7 @@ Powers: Automated prompt improvement analysis, fine-tuning dataset
 | Admin dashboard not deployed | `frontend-qa/` | Only Quest has access | High |
 | `ai_scans/` collection not written to | `app/services/firebase_service.py` | Training data gap | Medium |
 | `ticket_corrections/` UI not built | Admin dashboard | Training signal lost | Medium |
-| Research Ron Phase 2 corpus | `agents/research_ron.py` | Defense intelligence not firing | Medium |
+| Banneker Phase 2 corpus | `agents/banneker.py` | Defense intelligence not firing | Medium |
 | Attorney role claim check on `/review-queue` | `app/routes/admin.py` | Any auth'd user can access | Medium |
 | Carrier portal not in git | `/carrier-portal-*/` | Not versioned | High |
 | SQLite queue vs. Firestore `ai_scans/` | Dual storage of scan data | Sync risk | Medium |

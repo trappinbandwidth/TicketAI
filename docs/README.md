@@ -47,10 +47,10 @@ driver upload →           New ────────────────
 
 ### AI Pipeline (14 agents)
 ```
-Case Intake → Lone Ranger → Referee →
-  Document Completeness → Book Worm → PII Match →
-  MVR Request → PSP Request → Research Ron → Team Quest →
-  Urgency Router → Statement of Record → assemble
+Roux → Carver → Bolin →
+  Ida Wells → Charlotte Ray → Jollof →
+  Stagecoach Mary → Bass Reeves → Banneker → Madam Walker →
+  Tubman → Douglass → assemble
 ```
 
 Future agent work should follow [agent-extension-guide.md](agent-extension-guide.md).

@@ -1,6 +1,6 @@
 """
-Referee — confidence scoring and pass/fail routing agent.
-Reads Lone Ranger's extraction, calibrates scores, assigns pass status.
+Bolin — confidence scoring and pass/fail routing agent.
+Reads Carver's extraction, calibrates scores, assigns pass status.
 
 Green  (avg ≥ 0.85, no critical field < 0.70) → zero human intervention
 Yellow (avg ≥ 0.60, or any non-critical field low) → flag for review
@@ -14,7 +14,7 @@ from app.services.queue_store import log_agent_event
 from orchestrator.state import PassStatus, TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "referee"
+AGENT_NAME = "bolin"
 
 CRITICAL_FIELDS = {
     "Court_Date__c",
@@ -113,14 +113,14 @@ def _calibrate_scores(data_fields: dict, effective_critical: set | None = None) 
             capped.append(f"{field}=empty_critical")
 
     if capped:
-        logger.warning("[referee] score_caps applied: %s", ", ".join(capped))
+        logger.warning("[bolin_score] score_caps applied: %s", ", ".join(capped))
 
     return scores
 
 
-def referee(state: TicketState) -> dict:
+def bolin_score(state: TicketState) -> dict:
     filename = state.get("filename", "unknown")
-    logger.warning("[referee] START file=%s", filename)
+    logger.warning("[bolin_score] START file=%s", filename)
 
     extraction = state.get("extraction") or {}
 
@@ -130,8 +130,8 @@ def referee(state: TicketState) -> dict:
     }
 
     if not data_fields:
-        logger.error("[referee] FAILED file=%s — no extractable fields in extraction output. "
-                     "Likely cause: lone_ranger returned non-standard JSON. "
+        logger.error("[bolin_score] FAILED file=%s — no extractable fields in extraction output. "
+                     "Likely cause: carver returned non-standard JSON. "
                      "Check prompt v%s output shape.", filename, state.get("prompt_version", "v1"))
         log_agent_event(state.get("scan_id", ""), AGENT_NAME, "error", {
             "error": "no_extractable_fields",
@@ -140,7 +140,7 @@ def referee(state: TicketState) -> dict:
         return {
             "pass_status": PassStatus.RED,
             "low_confidence_fields": [],
-            "referee_notes": "No extractable fields found — check lone_ranger output shape.",
+            "referee_notes": "No extractable fields found — check carver output shape.",
         }
 
     # Determine which critical fields actually apply for this doc type / state
@@ -158,13 +158,13 @@ def referee(state: TicketState) -> dict:
     # Non-ticket/warning types don't have court dates — remove from critical set
     if doc_type not in ("Ticket", "Warning"):
         effective_critical.discard("Court_Date__c")
-        logger.warning("[referee] file=%s doc_type=%r — Court_Date__c not required for this doc type", filename, doc_type)
+        logger.warning("[bolin_score] file=%s doc_type=%r — Court_Date__c not required for this doc type", filename, doc_type)
 
     if ticket_state in _NO_CITATION_STATES:
         effective_critical.discard("Citation_Number__c")
-        logger.warning("[referee] file=%s state=%r — Citation_Number__c not required for this state", filename, ticket_state)
+        logger.warning("[bolin_score] file=%s state=%r — Citation_Number__c not required for this state", filename, ticket_state)
     if ticket_state in _NO_COUNTY_STATES:
-        logger.warning("[referee] file=%s state=%r — Ticket_County__c not required for this state", filename, ticket_state)
+        logger.warning("[bolin_score] file=%s state=%r — Ticket_County__c not required for this state", filename, ticket_state)
 
     scores = _calibrate_scores(data_fields, effective_critical=effective_critical)
 
@@ -195,7 +195,7 @@ def referee(state: TicketState) -> dict:
     )
     if artificial_date_eligible:
         critical_failures = [f for f in critical_failures if f != "Court_Date__c"]
-        logger.warning("[referee] court_date_exemption applied file=%s — artificial date will be generated", filename)
+        logger.warning("[bolin_score] court_date_exemption applied file=%s — artificial date will be generated", filename)
 
     # Critical failures always appear in low_confidence_fields so they are never invisible.
     # Without this, a field at exactly YELLOW_THRESHOLD (e.g. 0.60) is below CRITICAL_FLOOR
@@ -207,12 +207,12 @@ def referee(state: TicketState) -> dict:
     if critical_failures:
         pass_status = PassStatus.RED
         notes = f"Critical field(s) below floor: {', '.join(critical_failures)}"
-        logger.warning("[referee] RED file=%s avg=%.2f critical_failures=%s",
+        logger.warning("[bolin_score] RED file=%s avg=%.2f critical_failures=%s",
                        filename, avg_score, critical_failures)
     elif avg_score >= GREEN_THRESHOLD and not low_confidence:
         pass_status = PassStatus.GREEN
         notes = f"All fields high confidence. Avg score: {avg_score:.2f}"
-        logger.warning("[referee] GREEN file=%s avg=%.2f", filename, avg_score)
+        logger.warning("[bolin_score] GREEN file=%s avg=%.2f", filename, avg_score)
     elif avg_score >= YELLOW_THRESHOLD:
         pass_status = PassStatus.YELLOW
         if artificial_date_eligible:
@@ -220,11 +220,11 @@ def referee(state: TicketState) -> dict:
                      f"Avg: {avg_score:.2f}. Low: {', '.join(low_confidence) or 'none'}")
         else:
             notes = f"Some fields need review. Avg: {avg_score:.2f}. Low: {', '.join(low_confidence) or 'none'}"
-        logger.warning("[referee] YELLOW file=%s avg=%.2f low=%s", filename, avg_score, low_confidence)
+        logger.warning("[bolin_score] YELLOW file=%s avg=%.2f low=%s", filename, avg_score, low_confidence)
     else:
         pass_status = PassStatus.RED
         notes = f"Overall confidence too low: {avg_score:.2f}"
-        logger.warning("[referee] RED file=%s avg=%.2f (below threshold)", filename, avg_score)
+        logger.warning("[bolin_score] RED file=%s avg=%.2f (below threshold)", filename, avg_score)
 
     # ── Cross-validation checks ─────────────────────────────────────────────────
     cross_validation_notes: list[str] = []
@@ -282,7 +282,7 @@ def referee(state: TicketState) -> dict:
 
     if cross_validation_notes:
         notes = (notes or "") + " | XVAL: " + "; ".join(cross_validation_notes)
-        logger.warning("[referee] CROSS_VALIDATION file=%s issues=%d: %s",
+        logger.warning("[bolin_score] CROSS_VALIDATION file=%s issues=%d: %s",
                        filename, len(cross_validation_notes), cross_validation_notes)
 
     scan_id = state.get("scan_id", "")

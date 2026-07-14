@@ -1,5 +1,5 @@
 """
-Violation corpus service — Research Ron Phase 2.
+Violation corpus service — Banneker Phase 2.
 
 Reads data/violation_corpus.json built by scripts/ingest_kaggle_violations.py
 and provides fast lookups for state+category patterns.
@@ -32,7 +32,7 @@ def _load() -> dict[str, Any]:
             )
         except FileNotFoundError:
             logger.warning(
-                "violation_corpus.json not found — Research Ron Phase 2 disabled. "
+                "violation_corpus.json not found — Banneker Phase 2 disabled. "
                 "Run: python scripts/ingest_kaggle_violations.py"
             )
             _CORPUS = {}

@@ -4,8 +4,8 @@ Photo Analyst — analyzes photographs submitted with CDL driver cases.
 Handles: vehicle damage, accident scenes, injury/person photos, repair docs,
 road/environment, equipment damage.
 
-Short-circuits the full ticket-extraction pipeline — photos bypass lone_ranger,
-referee, book_worm, research_ron, and team_quest entirely.
+Short-circuits the full ticket-extraction pipeline — photos bypass carver,
+bolin, charlotte_ray, banneker, and madam_walker entirely.
 """
 from __future__ import annotations
 

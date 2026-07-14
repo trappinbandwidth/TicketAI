@@ -1,5 +1,5 @@
 """
-PSP Request — queues a Pre-employment Screening Program (PSP) report pull.
+Bass Reeves — queues a Pre-employment Screening Program (PSP) report pull.
 
 PSP is an FMCSA service (49 CFR Part 391) that provides:
   - 5 years of crash history from the MCMIS database
@@ -26,7 +26,7 @@ from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "psp_request"
+AGENT_NAME = "bass_reeves"
 
 
 def _fv(extraction: dict, field: str) -> str:
@@ -36,7 +36,7 @@ def _fv(extraction: dict, field: str) -> str:
     return ""
 
 
-def psp_request(state: TicketState) -> dict:
+def bass_reeves_queue(state: TicketState) -> dict:
     if not is_agent_enabled(AGENT_NAME):
         log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
         return {}
@@ -51,7 +51,7 @@ def psp_request(state: TicketState) -> dict:
     driver_dob  = _fv(extraction, "Driver_DOB__c")
 
     if not cdl_number:
-        logger.warning("[psp_request] file=%s — no CDL number extracted, skipping", filename)
+        logger.warning("[bass_reeves] file=%s — no CDL number extracted, skipping", filename)
         log_agent_event(scan_id, AGENT_NAME, "skipped", {"reason": "no_cdl_number"})
         return {"psp_request": None}
 
@@ -74,7 +74,7 @@ def psp_request(state: TicketState) -> dict:
     }
 
     logger.warning(
-        "[psp_request] QUEUED file=%s driver=%r cdl=%r dob=%r",
+        "[bass_reeves] QUEUED file=%s driver=%r cdl=%r dob=%r",
         filename, driver_name, cdl_number, driver_dob,
     )
     log_agent_event(scan_id, AGENT_NAME, "queued", {

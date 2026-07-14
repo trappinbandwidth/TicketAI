@@ -26,7 +26,7 @@ SUBMISSION (image upload)
         │
         ▼
 ┌──────────────────┐
-│   Case Intake    │  "Is this a valid submission?" — fail fast before spending $
+│   Roux    │  "Is this a valid submission?" — fail fast before spending $
 └────────┬─────────┘
          │ ok
          ▼
@@ -39,29 +39,29 @@ SUBMISSION (image upload)
     │                    │                  │
     ▼                    ▼                  ▼
 ┌────────┐      ┌──────────────┐     ┌───────────────┐
-│ Photo  │      │ Lone Ranger  │     │  Escalate Red │
+│ Photo  │      │ Carver  │     │  Escalate Red │
 │Analyst │      │   (Pass 1)   │     │  (no spend)   │
 └────┬───┘      └──────┬───────┘     └───────────────┘
      │                 │
      ▼                 ▼
 Assemble          ┌──────────┐
-  Photo           │  Referee │  GREEN / YELLOW / RED
+  Photo           │  Bolin │  GREEN / YELLOW / RED
   → END           └────┬─────┘
                        │
             ┌──────────┼──────────┐
           GREEN      YELLOW      RED
             │          │          │
             │   ┌──────▼───────┐  │
-            │   │ Lone Ranger  │  │
+            │   │ Carver  │  │
             │   │   (Pass 2)   │  │
             │   └──────┬───────┘  │
             │          │          │
             │   ┌──────▼───────┐  │
-            │   │  Consensus   │  │
+            │   │  Bunche   │  │
             │   └──────┬───────┘  │
             │          │          │
             │   ┌──────▼───────┐  │
-            │   │  Referee 2   │  │
+            │   │  Bolin 2   │  │
             │   └──────┬───────┘  │
             │     GREEN/YELLOW   RED → Escalate RED
             │          │
@@ -69,39 +69,39 @@ Assemble          ┌──────────┐
                  │  (shared enrichment chain)
                  ▼
    ┌─────────────────────────┐
-   │  Document Completeness  │  "What fields are still missing?"
+   │  Ida Wells  │  "What fields are still missing?"
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │       Book Worm         │  CDL point impact, disqualification risk
+   │       Charlotte Ray         │  CDL point impact, disqualification risk
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │       PII Match         │  Verify CDL against driver Firestore profile
+   │       Jollof         │  Verify CDL against driver Firestore profile
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │      MVR Request        │  Queue Motor Vehicle Record pull
+   │      Stagecoach Mary        │  Queue Motor Vehicle Record pull
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │      PSP Request        │  Queue FMCSA federal safety record pull
+   │      Bass Reeves        │  Queue FMCSA federal safety record pull
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │      Research Ron       │  Court system, appearance rules, jurisdiction
+   │      Banneker       │  Court system, appearance rules, jurisdiction
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │      Team Quest         │  Match top 3 CDL attorneys by state/county
+   │      Madam Walker         │  Match top 3 CDL attorneys by state/county
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │     Urgency Router      │  CRITICAL / HIGH / STANDARD / LOW
+   │     Tubman      │  CRITICAL / HIGH / STANDARD / LOW
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
-   │  Statement of Record    │  Officer account vs. driver account, conflict map
+   │  Douglass    │  Officer account vs. driver account, conflict map
    └────────────┬────────────┘
                 ▼
    ┌─────────────────────────┐
@@ -115,8 +115,8 @@ Assemble          ┌──────────┐
 
 ---
 
-### 1. Case Intake
-**File:** `agents/case_intake.py`  
+### 1. Roux
+**File:** `agents/roux.py`  
 **Cost:** $0 — no Claude call  
 **Runs:** Always, first
 
@@ -130,7 +130,7 @@ Validates that the submission has actual image data before spending any API mone
 **File:** `agents/document_gate.py`  
 **Model:** `claude-haiku-4-5` (cheapest, fastest)  
 **Cost:** ~$0.00004 per call (~100 tokens)  
-**Runs:** After Case Intake passes
+**Runs:** After Roux passes
 
 Looks at the image and answers one question: **is this a photo or a legal document?** Routes the submission before any expensive processing begins.
 
@@ -138,15 +138,15 @@ Without this gate, a driver uploading an accident scene photo would burn $0.15�
 
 **Routes to:**
 - `photo` → Photo Analyst path (~$0.01 total)
-- `document` → Lone Ranger path (~$0.07–$0.13 total)
+- `document` → Carver path (~$0.07–$0.13 total)
 - `unknown` → Escalate immediately ($0.00004 total — no more Claude calls)
 
-**Failure behavior:** If the gate itself fails for any reason, it defaults to `"document"` and proceeds to Lone Ranger. No submission is ever silently dropped.
+**Failure behavior:** If the gate itself fails for any reason, it defaults to `"document"` and proceeds to Carver. No submission is ever silently dropped.
 
 ---
 
-### 3. Lone Ranger (Pass 1 + Pass 2)
-**File:** `agents/lone_ranger.py`  
+### 3. Carver (Pass 1 + Pass 2)
+**File:** `agents/carver.py`  
 **Model:** `claude-sonnet-4-6`  
 **Cost:** ~$0.07 per pass (with prompt caching active)  
 **Runs:** Every document submission; Pass 2 only when first pass is uncertain
@@ -170,10 +170,10 @@ The main extraction engine. Reads the ticket image and OCR text simultaneously u
 
 ---
 
-### 4. Referee
-**File:** `agents/referee.py`  
+### 4. Bolin
+**File:** `agents/bolin.py`  
 **Cost:** $0 — pure logic, no Claude call  
-**Runs:** After every Lone Ranger pass
+**Runs:** After every Carver pass
 
 Scores the extraction and routes accordingly:
 
@@ -186,16 +186,16 @@ Scores the extraction and routes accordingly:
 **Critical fields** — any one of these below 0.70 forces RED:  
 `Court_Date__c`, `Date_of_Ticket__c`, `Citation_Number__c`, `Violation_Category__c`, `Drivers_License_Type__c`
 
-**State-aware scoring:** The Referee knows that certain states do not print certain fields on their tickets. For example, California never prints citation numbers, and Colorado never prints county. A field that's correctly absent for a known state is scored 0.95 (high confidence the absence is intentional), not 0.0 (which would look like an extraction failure).
+**State-aware scoring:** The Bolin knows that certain states do not print certain fields on their tickets. For example, California never prints citation numbers, and Colorado never prints county. A field that's correctly absent for a known state is scored 0.95 (high confidence the absence is intentional), not 0.0 (which would look like an extraction failure).
 
 ---
 
-### 5. Consensus
-**File:** `agents/consensus.py`  
+### 5. Bunche
+**File:** `agents/bunche.py`  
 **Cost:** $0 — pure logic  
 **Runs:** Only when Pass 2 is needed (YELLOW or RED after Pass 1)
 
-Merges the two Lone Ranger passes field by field using these rules:
+Merges the two Carver passes field by field using these rules:
 1. Take the value with the higher confidence score
 2. If both have equal confidence, keep Pass 1 (deterministic tiebreak)
 3. If both passes extracted **different values** and both have confidence ≥ 0.70 → flag as `dual_conflict`
@@ -204,8 +204,8 @@ Merges the two Lone Ranger passes field by field using these rules:
 
 ---
 
-### 6. Document Completeness
-**File:** `agents/document_completeness.py`  
+### 6. Ida Wells
+**File:** `agents/ida_wells.py`  
 **Cost:** $0 — pure logic  
 **Runs:** After GREEN or YELLOW score, before enrichment
 
@@ -217,10 +217,10 @@ A score of 1.0 means all 10 were extracted. A score of 0.60 means 4 fields are s
 
 ---
 
-### 7. Book Worm
-**File:** `agents/book_worm.py`  
+### 7. Charlotte Ray
+**File:** `agents/charlotte_ray.py`  
 **Cost:** $0 — lookup table  
-**Runs:** After Document Completeness
+**Runs:** After Ida Wells
 
 CDL law expert. Maps the violation category to federal consequences:
 
@@ -253,10 +253,10 @@ CDL law expert. Maps the violation category to federal consequences:
 
 ---
 
-### 8. PII Match
-**File:** `agents/pii_match.py`  
+### 8. Jollof
+**File:** `agents/jollof.py`  
 **Cost:** $0 — one Firestore read  
-**Runs:** After Book Worm
+**Runs:** After Charlotte Ray
 
 Pulls the driver's Firestore profile and compares the CDL number on the ticket against what's stored on file.
 
@@ -269,10 +269,10 @@ Pulls the driver's Firestore profile and compares the CDL number on the ticket a
 
 ---
 
-### 9. MVR Request
-**File:** `agents/mvr_request.py`  
+### 9. Stagecoach Mary
+**File:** `agents/stagecoach_mary.py`  
 **Cost:** $0 now — queues async request  
-**Runs:** After PII Match
+**Runs:** After Jollof
 
 Queues a **Motor Vehicle Record** pull from the driver's CDL state DMV.
 
@@ -282,10 +282,10 @@ The MVR shows the driver's complete state driving history: every prior violation
 
 ---
 
-### 10. PSP Request
-**File:** `agents/psp_request.py`  
+### 10. Bass Reeves
+**File:** `agents/bass_reeves.py`  
 **Cost:** $0 now — queues async request  
-**Runs:** After MVR Request
+**Runs:** After Stagecoach Mary
 
 Queues a **Pre-employment Screening Program (PSP)** report from FMCSA — the federal driving record.
 
@@ -297,10 +297,10 @@ PSP provides 5 years of crash history and 3 years of inspection/violation histor
 
 ---
 
-### 11. Research Ron
-**File:** `agents/research_ron.py`  
+### 11. Banneker
+**File:** `agents/banneker.py`  
 **Cost:** $0 — local data files  
-**Runs:** After PSP Request
+**Runs:** After Bass Reeves
 
 Jurisdiction enrichment. Reads the ticket's state, county, and violation and packages court system context:
 
@@ -319,10 +319,10 @@ Jurisdiction enrichment. Reads the ticket's state, county, and violation and pac
 
 ---
 
-### 12. Team Quest
-**File:** `agents/team_quest.py`  
+### 12. Madam Walker
+**File:** `agents/madam_walker.py`  
 **Cost:** $0 — SQLite query  
-**Runs:** After Research Ron
+**Runs:** After Banneker
 
 Finds the top 3 CDL defense attorneys for the ticket's state and county, ranked by:
 1. County-level match over state-level match
@@ -336,10 +336,10 @@ Finds the top 3 CDL defense attorneys for the ticket's state and county, ranked 
 
 ---
 
-### 13. Urgency Router
-**File:** `agents/urgency_router.py`  
+### 13. Tubman
+**File:** `agents/tubman.py`  
 **Cost:** $0 — date calculation  
-**Runs:** After Team Quest
+**Runs:** After Madam Walker
 
 Calculates case priority from the court date:
 
@@ -354,10 +354,10 @@ Attorneys see the urgency badge on every case card. CRITICAL means someone needs
 
 ---
 
-### 14. Statement of Record
-**File:** `agents/statement_of_record.py`  
+### 14. Douglass
+**File:** `agents/douglass.py`  
 **Cost:** $0 — pure logic  
-**Runs:** After Urgency Router
+**Runs:** After Tubman
 
 Builds the dual-account brief that replaces 20–30 minutes of attorney intake work.
 

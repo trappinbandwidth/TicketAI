@@ -18,23 +18,23 @@ Driver uploads ticket (JPG / PDF / PNG)
          ↓
   OCR + image prep
          ↓
- AI Agent — Lone Ranger (Pass 1, temp 1.0)
+ AI Agent — Carver (Pass 1, temp 1.0)
    Extracts all 13 fields + confidence scores
          ↓
-   Referee Agent evaluates confidence
+   Bolin Agent evaluates confidence
          ↓
-  GREEN? ──────────────────────────────► Book Worm → CDL Impact → Done
+  GREEN? ──────────────────────────────► Charlotte Ray → CDL Impact → Done
   YELLOW / RED?
          ↓
- AI Agent — Lone Ranger (Pass 2, temp 0.4)
+ AI Agent — Carver (Pass 2, temp 0.4)
    Second extraction, lower temperature = more conservative
          ↓
-   Consensus Agent merges both passes
+   Bunche Agent merges both passes
    Fields where passes disagree → flagged as "Dual Conflict"
          ↓
-   Referee Agent 2 re-evaluates
+   Bolin Agent 2 re-evaluates
          ↓
-  Book Worm → CDL Impact → Done
+  Charlotte Ray → CDL Impact → Done
 ```
 
 Results are saved to a SQLite review queue. A reviewer opens the portal, verifies or edits fields, and approves — which writes a Ticket record directly to Salesforce.
@@ -70,7 +70,7 @@ Each field includes a **confidence score (0–100%)** and an **AI reasoning expl
 ### 2. Multi-Pass Confidence Pipeline
 
 - **GREEN** — All fields ≥ 85% confidence. Fast path: single AI pass, instant result.
-- **YELLOW** — One or more fields between 60–84%. Triggers a second AI pass at lower temperature for more conservative extraction. Both results are merged by a Consensus agent.
+- **YELLOW** — One or more fields between 60–84%. Triggers a second AI pass at lower temperature for more conservative extraction. Both results are merged by a Bunche agent.
 - **RED** — One or more critical fields below 60%. Escalation required. Reviewer is shown detailed AI reasoning per field.
 
 **Dual Conflict Detection:** When Pass 1 and Pass 2 both have high confidence but produce different values, the field is flagged with a purple "Conflict" badge and surfaced at the top of the review list.

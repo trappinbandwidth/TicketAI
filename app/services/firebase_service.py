@@ -71,7 +71,7 @@ _DEFAULT_PRICING = _MODEL_PRICING_PER_TOKEN["claude-sonnet-4-6"]
 
 def _compute_scan_cost(token_usage: list[dict]) -> float:
     """Sums $ cost across every Claude call recorded for a scan (document_gate +
-    lone_ranger pass 1 [+ pass 2]). Falls back to sonnet pricing for unknown models."""
+    carver pass 1 [+ pass 2]). Falls back to sonnet pricing for unknown models."""
     total = 0.0
     for call in token_usage or []:
         pricing = _MODEL_PRICING_PER_TOKEN.get(call.get("model", ""), _DEFAULT_PRICING)
@@ -233,14 +233,14 @@ def write_scan_result(
         logger.warning("[firebase] attorney queue write ticket=%s source=%s pass=%s",
                        ticket_id, source, result.get("pass_status"))
 
-        # Driver Concierge — notify driver of initial status
+        # Anansi — notify driver of initial status
         if driver_id:
             try:
-                from app.services.driver_concierge import notify_driver
+                from app.services.anansi import anansi_notify
                 initial_status = atty_doc["attorney_status"]
-                notify_driver(driver_id, ticket_id, initial_status)
+                anansi_notify(driver_id, ticket_id, initial_status)
             except Exception as exc:
-                logger.warning("[firebase] driver_concierge notify failed ticket=%s: %s", ticket_id, exc)
+                logger.warning("[firebase] anansi notify failed ticket=%s: %s", ticket_id, exc)
 
         return True
 

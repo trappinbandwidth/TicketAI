@@ -163,7 +163,7 @@ def create_attorney_match_recommendation(ticket_id: str, match: Optional[Attorne
             },
         ],
         reasoning_summary=(
-            "Team Quest selected this attorney from available matches using "
+            "Madam Walker selected this attorney from available matches using "
             "state/county coverage and available attorney profile signals."
         ),
         created_by="legal_intelligence",

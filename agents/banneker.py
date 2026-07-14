@@ -1,5 +1,5 @@
 """
-Research Ron — jurisdiction enrichment agent.
+Banneker — jurisdiction enrichment agent.
 Reads state/county/violation from the extraction and packages
 court system context, CDL-specific rules, and appearance requirements
 into a structured jurisdiction_context dict for downstream use by
@@ -19,7 +19,7 @@ from app.services.queue_store import log_agent_event
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "research_ron"
+AGENT_NAME = "banneker"
 
 # CDL-specific disqualification thresholds per FMCSA 49 CFR 383.51
 _SERIOUS_VIOLATIONS = {
@@ -57,7 +57,7 @@ def _appearance_note(court_data: dict | None, violation: str, mandatory_val: str
     return "Appearance may be optional for minor violations — confirm with court."
 
 
-def research_ron(state: TicketState) -> dict:
+def banneker_lookup(state: TicketState) -> dict:
     filename = state.get("filename", "unknown")
     scan_id = state.get("scan_id", "")
     extraction = state.get("extraction") or {}
@@ -77,7 +77,7 @@ def research_ron(state: TicketState) -> dict:
     dot_number      = fv("DOT_Number__c")
 
     if not ticket_state:
-        logger.warning("[research_ron] file=%s — no state extracted, skipping jurisdiction lookup", filename)
+        logger.warning("[banneker_lookup] file=%s — no state extracted, skipping jurisdiction lookup", filename)
         log_agent_event(scan_id, AGENT_NAME, "skipped", {"reason": "no_state"})
         return {"jurisdiction_context": None}
 
@@ -117,7 +117,7 @@ def research_ron(state: TicketState) -> dict:
         corpus_patterns = lookup_violation_patterns(ticket_state, violation, ticket_county)
         if corpus_patterns:
             logger.info(
-                "[research_ron] Phase 2 corpus hit: state=%r category=%r count=%d citation_rate=%.0f%%",
+                "[banneker_lookup] Phase 2 corpus hit: state=%r category=%r count=%d citation_rate=%.0f%%",
                 ticket_state, violation, corpus_patterns["count"],
                 corpus_patterns["citation_rate"] * 100,
             )
@@ -175,7 +175,7 @@ def research_ron(state: TicketState) -> dict:
     }
 
     logger.warning(
-        "[research_ron] file=%s state=%r county=%r violation=%r serious=%s major=%s court_found=%s county_found=%s",
+        "[banneker_lookup] file=%s state=%r county=%r violation=%r serious=%s major=%s court_found=%s county_found=%s",
         filename, ticket_state, ticket_county, violation, is_serious, is_major,
         bool(court_data), bool(court_data and court_data.get("county_court")),
     )

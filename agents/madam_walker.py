@@ -1,5 +1,5 @@
 """
-Team Quest — attorney matching agent.
+Madam Walker — attorney matching agent.
 Matches driver + violation to the top 3 available CDL attorneys
 by state/county using the local SQLite attorney database.
 
@@ -13,10 +13,10 @@ from app.services.queue_store import log_agent_event
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "team_quest"
+AGENT_NAME = "madam_walker"
 
 
-def team_quest(state: TicketState) -> dict:
+def madam_walker_match(state: TicketState) -> dict:
     filename  = state.get("filename", "unknown")
     scan_id   = state.get("scan_id", "")
     extraction = state.get("extraction") or {}
@@ -29,14 +29,14 @@ def team_quest(state: TicketState) -> dict:
     ticket_county = fv("Ticket_County__c")
 
     if not ticket_state:
-        logger.warning("[team_quest] file=%s — no state, skipping attorney match", filename)
+        logger.warning("[madam_walker_match] file=%s — no state, skipping attorney match", filename)
         log_agent_event(scan_id, AGENT_NAME, "skipped", {"reason": "no_state"})
         return {"attorney_matches": [], "no_attorney_flag": True}
 
     matches, no_attorney = find_attorneys(ticket_state, ticket_county)
 
     logger.warning(
-        "[team_quest] file=%s state=%r county=%r → %d match(es) no_attorney=%s",
+        "[madam_walker_match] file=%s state=%r county=%r → %d match(es) no_attorney=%s",
         filename, ticket_state, ticket_county, len(matches), no_attorney,
     )
 

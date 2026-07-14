@@ -270,7 +270,7 @@ async def process_ticket(
     # If the upload looks like a photograph (not a scanned document), bypass
     # the full 8-agent ticket pipeline and run the photo analyst instead.
     # Claude still does the definitive classification; the heuristic just
-    # avoids running lone_ranger / book_worm / research_ron on photos.
+    # avoids running carver / charlotte_ray / banneker on photos.
     if _is_photo_upload(filename, first_content_type):
         return await _handle_photo_upload(
             images_b64=images_b64,
@@ -508,7 +508,7 @@ async def process_ticket(
                        filename, ticket_state, ticket_violation,
                        price_est.display, price_est.data_source)
 
-    # Attorney matching — results come from Team Quest graph node
+    # Attorney matching — results come from Madam Walker graph node
     ticket_county = (ticket_fields.get("Ticket_County__c") or {}).get("value", "")
     atty_matches_raw: list[RawAttorneyMatch] = result_state.get("attorney_matches") or []
     no_atty: bool = result_state.get("no_attorney_flag", len(atty_matches_raw) == 0)

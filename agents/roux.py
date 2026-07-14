@@ -1,5 +1,5 @@
 """
-Case Intake — validates state before any Claude API call.
+Roux — validates state before any Claude API call.
 
 Runs first in the pipeline. If critical inputs are missing (no images,
 no driver/ticket identifiers), sets pass_status=RED immediately so the
@@ -13,10 +13,10 @@ from app.services.queue_store import log_agent_event
 from orchestrator.state import PassStatus, TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "case_intake"
+AGENT_NAME = "roux"
 
 
-def case_intake(state: TicketState) -> dict:
+def roux(state: TicketState) -> dict:
     filename = state.get("filename", "unknown")
     scan_id  = state.get("scan_id", "")
     errors: list[str] = []
@@ -25,7 +25,7 @@ def case_intake(state: TicketState) -> dict:
         errors.append("no_images")
 
     if errors:
-        logger.warning("[case_intake] FAIL file=%s errors=%s", filename, errors)
+        logger.warning("[roux] FAIL file=%s errors=%s", filename, errors)
         log_agent_event(scan_id, AGENT_NAME, "failed", {"errors": errors})
         return {
             "intake_errors": errors,
@@ -34,7 +34,7 @@ def case_intake(state: TicketState) -> dict:
         }
 
     logger.warning(
-        "[case_intake] OK file=%s images=%d driver_id=%s",
+        "[roux] OK file=%s images=%d driver_id=%s",
         filename, len(state["images_b64"]), state.get("driver_id", ""),
     )
     log_agent_event(scan_id, AGENT_NAME, "passed", {"image_count": len(state["images_b64"])})

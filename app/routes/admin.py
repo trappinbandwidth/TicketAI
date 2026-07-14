@@ -15,7 +15,7 @@ from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from fastapi.responses import FileResponse
 
 from app.routes._common import require_staff
-from app.services.agent_identity import agent_display_name, agent_identity_payload
+from app.services.agent_identity import canonical_agent_name, agent_display_name, agent_identity_payload
 from app.services.event_service import write_event
 from app.services.staff_audit import write_staff_audit
 from app.services.queue_store import EXTRACTED_FIELDS
@@ -356,31 +356,31 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
     )
 
     agents: dict[str, dict] = {
-        "lone_ranger": {
-            "name": agent_display_name("lone_ranger"), "events": 0, "errors": 0,
+        "carver": {
+            "name": agent_display_name("carver"), "events": 0, "errors": 0,
             "pass1_fills": [], "pass1_empty_fields": defaultdict(int),
             "pass1_low_conf_fields": defaultdict(int),
             "pass2_fills": [], "improvements": [],
         },
-        "referee": {
-            "name": agent_display_name("referee"), "events": 0, "errors": 0,
+        "bolin": {
+            "name": agent_display_name("bolin"), "events": 0, "errors": 0,
             "scores": [], "critical_failures": defaultdict(int),
             "low_conf_fields": defaultdict(int),
             "false_escalations": 0,
         },
-        "consensus": {
-            "name": agent_display_name("consensus"), "events": 0, "errors": 0,
+        "bunche": {
+            "name": agent_display_name("bunche"), "events": 0, "errors": 0,
             "dual_conflicts": defaultdict(int),
             "improvements_per_scan": [],
         },
-        "book_worm": {
-            "name": agent_display_name("book_worm"), "events": 0, "errors": 0,
+        "charlotte_ray": {
+            "name": agent_display_name("charlotte_ray"), "events": 0, "errors": 0,
             "unknown_categories": [], "zero_point_tickets": 0,
             "attorney_recommended": 0,
         },
         # New agents
-        "case_intake": {
-            "name": agent_display_name("case_intake"), "events": 0, "errors": 0,
+        "roux": {
+            "name": agent_display_name("roux"), "events": 0, "errors": 0,
             "passed": 0, "failed": 0,
             "intake_error_counts": defaultdict(int),
         },
@@ -392,41 +392,41 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             "name": agent_display_name("photo_analyst"), "events": 0, "errors": 0,
             "photo_type_counts": defaultdict(int),
         },
-        "document_completeness": {
-            "name": agent_display_name("document_completeness"), "events": 0, "errors": 0,
+        "ida_wells": {
+            "name": agent_display_name("ida_wells"), "events": 0, "errors": 0,
             "scores": [], "missing_field_counts": defaultdict(int),
         },
-        "pii_match": {
-            "name": agent_display_name("pii_match"), "events": 0, "errors": 0,
+        "jollof": {
+            "name": agent_display_name("jollof"), "events": 0, "errors": 0,
             "matched": 0, "mismatched": 0, "unverified": 0,
             "not_found": 0, "skipped": 0,
         },
-        "mvr_request": {
-            "name": agent_display_name("mvr_request"), "events": 0, "errors": 0,
+        "stagecoach_mary": {
+            "name": agent_display_name("stagecoach_mary"), "events": 0, "errors": 0,
             "queued": 0, "skipped": 0,
         },
-        "psp_request": {
-            "name": agent_display_name("psp_request"), "events": 0, "errors": 0,
+        "bass_reeves": {
+            "name": agent_display_name("bass_reeves"), "events": 0, "errors": 0,
             "queued": 0, "skipped": 0,
         },
-        "urgency_router": {
-            "name": agent_display_name("urgency_router"), "events": 0, "errors": 0,
+        "tubman": {
+            "name": agent_display_name("tubman"), "events": 0, "errors": 0,
             "level_counts": defaultdict(int),
             "no_court_date": 0,
             "days_until_court": [],
         },
-        "research_ron": {
-            "name": agent_display_name("research_ron"), "events": 0, "errors": 0,
+        "banneker": {
+            "name": agent_display_name("banneker"), "events": 0, "errors": 0,
             "skipped": 0, "court_found": 0, "county_court_found": 0,
             "serious": 0, "major": 0, "carrier_found": 0,
         },
-        "team_quest": {
-            "name": agent_display_name("team_quest"), "events": 0, "errors": 0,
+        "madam_walker": {
+            "name": agent_display_name("madam_walker"), "events": 0, "errors": 0,
             "skipped": 0, "matches_found": [], "no_attorney": 0,
             "match_types": defaultdict(int),
         },
-        "statement_of_record": {
-            "name": agent_display_name("statement_of_record"), "events": 0, "errors": 0,
+        "douglass": {
+            "name": agent_display_name("douglass"), "events": 0, "errors": 0,
             "skipped": 0, "conflict_counts": [], "evidence_counts": [],
             "uncategorized_evidence": 0, "conflict_types": defaultdict(int),
         },
@@ -434,7 +434,9 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
 
     for ev_doc in events:
         ev = ev_doc.to_dict() if hasattr(ev_doc, "to_dict") else ev_doc
-        agent = ev.get("agent", "")
+        # Preserve historical event rows while grouping legacy IDs under the
+        # new canonical agent identity (rename handoff Option A).
+        agent = canonical_agent_name(ev.get("agent", ""))
         event = ev.get("event", "")
         detail = ev.get("detail") or {}
         ag = agents.get(agent)
@@ -445,7 +447,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
         if "error" in event:
             ag["errors"] += 1
 
-        if agent == "lone_ranger":
+        if agent == "carver":
             if event == "pass_1_complete":
                 ag["pass1_fills"].append(detail.get("fields_filled", 0))
                 for f in (detail.get("empty_fields") or []):
@@ -455,7 +457,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             elif event == "pass_2_complete":
                 ag["pass2_fills"].append(detail.get("fields_filled", 0))
 
-        elif agent == "referee":
+        elif agent == "bolin":
             if event == "scored":
                 ag["scores"].append(detail.get("avg_score", 0))
                 for f in (detail.get("critical_failures") or []):
@@ -463,13 +465,13 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 for f in (detail.get("low_confidence_fields") or []):
                     ag["low_conf_fields"][f] += 1
 
-        elif agent == "consensus":
+        elif agent == "bunche":
             if event == "merge_complete":
                 ag["improvements_per_scan"].append(detail.get("improvements_count", 0))
                 for f in (detail.get("dual_conflicts") or []):
                     ag["dual_conflicts"][f] += 1
 
-        elif agent == "book_worm":
+        elif agent == "charlotte_ray":
             if event == "scored":
                 if detail.get("unknown_category"):
                     ag["unknown_categories"].append(detail.get("violation_category", ""))
@@ -478,7 +480,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 if detail.get("attorney_recommended"):
                     ag["attorney_recommended"] += 1
 
-        elif agent == "case_intake":
+        elif agent == "roux":
             if event == "passed":
                 ag["passed"] += 1
             elif event == "failed":
@@ -496,7 +498,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             if photo_type:
                 ag["photo_type_counts"][photo_type] += 1
 
-        elif agent == "document_completeness":
+        elif agent == "ida_wells":
             if event == "complete":
                 score = detail.get("completeness_score")
                 if score is not None:
@@ -504,7 +506,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 for f in (detail.get("missing_fields") or []):
                     ag["missing_field_counts"][f] += 1
 
-        elif agent == "pii_match":
+        elif agent == "jollof":
             if event == "complete":
                 match = detail.get("cdl_match", "unverified")
                 if match == "match":
@@ -518,19 +520,19 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             elif event == "skipped":
                 ag["skipped"] += 1
 
-        elif agent == "mvr_request":
+        elif agent == "stagecoach_mary":
             if event == "queued":
                 ag["queued"] += 1
             elif event == "skipped":
                 ag["skipped"] += 1
 
-        elif agent == "psp_request":
+        elif agent == "bass_reeves":
             if event == "queued":
                 ag["queued"] += 1
             elif event == "skipped":
                 ag["skipped"] += 1
 
-        elif agent == "urgency_router":
+        elif agent == "tubman":
             if event == "complete":
                 level = detail.get("urgency_level", "LOW")
                 ag["level_counts"][level] += 1
@@ -540,7 +542,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 if days is not None:
                     ag["days_until_court"].append(days)
 
-        elif agent == "research_ron":
+        elif agent == "banneker":
             if event == "skipped":
                 ag["skipped"] += 1
             elif event == "complete":
@@ -555,7 +557,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 if detail.get("carrier_found"):
                     ag["carrier_found"] += 1
 
-        elif agent == "team_quest":
+        elif agent == "madam_walker":
             if event == "skipped":
                 ag["skipped"] += 1
             elif event == "complete":
@@ -565,7 +567,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 for match_type in (detail.get("match_types") or []):
                     ag["match_types"][match_type] += 1
 
-        elif agent == "statement_of_record":
+        elif agent == "douglass":
             if event == "skipped":
                 ag["skipped"] += 1
             elif event == "complete":
@@ -591,30 +593,30 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             "health_score": health,
         }
 
-        if agent_key == "lone_ranger":
+        if agent_key == "carver":
             fills = ag["pass1_fills"]
             summary["avg_pass1_fill_rate"] = round(sum(fills) / len(fills), 1) if fills else 0
             summary["top_empty_fields"] = sorted(ag["pass1_empty_fields"].items(), key=lambda x: -x[1])[:8]
             summary["top_low_conf_fields"] = sorted(ag["pass1_low_conf_fields"].items(), key=lambda x: -x[1])[:8]
 
-        elif agent_key == "referee":
+        elif agent_key == "bolin":
             scores = ag["scores"]
             summary["avg_confidence_score"] = round(sum(scores) / len(scores), 3) if scores else 0
             summary["top_critical_failures"] = sorted(ag["critical_failures"].items(), key=lambda x: -x[1])[:5]
             summary["top_low_conf_fields"] = sorted(ag["low_conf_fields"].items(), key=lambda x: -x[1])[:8]
 
-        elif agent_key == "consensus":
+        elif agent_key == "bunche":
             imps = ag["improvements_per_scan"]
             summary["avg_improvements_per_scan"] = round(sum(imps) / len(imps), 2) if imps else 0
             summary["top_dual_conflict_fields"] = sorted(ag["dual_conflicts"].items(), key=lambda x: -x[1])[:5]
 
-        elif agent_key == "book_worm":
+        elif agent_key == "charlotte_ray":
             summary["unknown_category_count"] = len(ag["unknown_categories"])
             summary["unknown_categories"] = list(set(ag["unknown_categories"]))[:10]
             summary["zero_point_ticket_count"] = ag["zero_point_tickets"]
             summary["attorney_recommended_count"] = ag["attorney_recommended"]
 
-        elif agent_key == "case_intake":
+        elif agent_key == "roux":
             total_decided = ag["passed"] + ag["failed"]
             summary["passed"] = ag["passed"]
             summary["failed"] = ag["failed"]
@@ -629,14 +631,14 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
         elif agent_key == "photo_analyst":
             summary["photo_type_distribution"] = dict(ag["photo_type_counts"])
 
-        elif agent_key == "document_completeness":
+        elif agent_key == "ida_wells":
             scores = ag["scores"]
             summary["avg_completeness_score"] = round(sum(scores) / len(scores), 3) if scores else 0
             summary["top_missing_fields"] = sorted(
                 ag["missing_field_counts"].items(), key=lambda x: -x[1]
             )[:10]
 
-        elif agent_key == "pii_match":
+        elif agent_key == "jollof":
             total_checked = ag["matched"] + ag["mismatched"] + ag["unverified"]
             summary["matched"] = ag["matched"]
             summary["mismatched"] = ag["mismatched"]
@@ -645,26 +647,26 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             summary["skipped"] = ag["skipped"]
             summary["mismatch_rate"] = round(ag["mismatched"] / total_checked, 3) if total_checked else 0
 
-        elif agent_key == "mvr_request":
+        elif agent_key == "stagecoach_mary":
             total_mvr = ag["queued"] + ag["skipped"]
             summary["queued"] = ag["queued"]
             summary["skipped"] = ag["skipped"]
             summary["queue_rate"] = round(ag["queued"] / total_mvr, 3) if total_mvr else 0
 
-        elif agent_key == "psp_request":
+        elif agent_key == "bass_reeves":
             total_psp = ag["queued"] + ag["skipped"]
             summary["queued"] = ag["queued"]
             summary["skipped"] = ag["skipped"]
             summary["queue_rate"] = round(ag["queued"] / total_psp, 3) if total_psp else 0
 
-        elif agent_key == "urgency_router":
+        elif agent_key == "tubman":
             days = ag["days_until_court"]
             summary["level_distribution"] = dict(ag["level_counts"])
             summary["no_court_date_count"] = ag["no_court_date"]
             summary["avg_days_until_court"] = round(sum(days) / len(days), 1) if days else None
             summary["critical_count"] = ag["level_counts"].get("CRITICAL", 0)
 
-        elif agent_key == "research_ron":
+        elif agent_key == "banneker":
             summary["skipped"] = ag["skipped"]
             summary["court_found_count"] = ag["court_found"]
             summary["county_court_found_count"] = ag["county_court_found"]
@@ -672,14 +674,14 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             summary["major_violation_count"] = ag["major"]
             summary["carrier_found_count"] = ag["carrier_found"]
 
-        elif agent_key == "team_quest":
+        elif agent_key == "madam_walker":
             matches = ag["matches_found"]
             summary["skipped"] = ag["skipped"]
             summary["avg_matches_found"] = round(sum(matches) / len(matches), 2) if matches else 0
             summary["no_attorney_count"] = ag["no_attorney"]
             summary["match_type_distribution"] = dict(ag["match_types"])
 
-        elif agent_key == "statement_of_record":
+        elif agent_key == "douglass":
             conflicts = ag["conflict_counts"]
             evidence = ag["evidence_counts"]
             summary["skipped"] = ag["skipped"]
@@ -919,11 +921,11 @@ def _review_queue_summary(data: dict) -> dict:
         # Completeness
         "completeness_score": data.get("completeness_score"),
         "missing_fields":     data.get("missing_fields", []),
-        # PII Match
+        # Jollof
         "cdl_match":          driver_profile.get("cdl_match", "unverified"),
         "profile_cdl":        driver_profile.get("profile_cdl", ""),
         "ticket_cdl":         driver_profile.get("ticket_cdl", ""),
-        # Statement of Record
+        # Douglass
         "conflict_count":     sor.get("conflict_count", 0),
         "evidence_count":     sor.get("evidence_count", 0),
         "conflict_types":     [c.get("conflict_type") for c in (sor.get("conflict_map") or [])],
@@ -1007,13 +1009,13 @@ def get_review_queue(authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-def _notify_driver_background(driver_id: str, ticket_id: str) -> None:
+def _anansi_notify_background(driver_id: str, ticket_id: str) -> None:
     """Runs after the HTTP response is sent — keeps approve fast."""
     try:
-        from app.services.driver_concierge import notify_driver
-        notify_driver(driver_id, ticket_id, "New")
+        from app.services.anansi import anansi_notify
+        anansi_notify(driver_id, ticket_id, "New")
     except Exception as exc:
-        logger.warning("[reviewer] driver_concierge failed ticket=%s: %s", ticket_id, exc)
+        logger.warning("[reviewer] anansi failed ticket=%s: %s", ticket_id, exc)
 
 
 def _match_and_discover_background(ticket_id: str, state: str, county: str) -> None:
@@ -1125,7 +1127,7 @@ def approve_ticket(
         # Fire-and-forget: notify the driver after we respond
         driver_id = data.get("driver_id") or ""
         if driver_id:
-            background_tasks.add_task(_notify_driver_background, driver_id, ticket_id)
+            background_tasks.add_task(_anansi_notify_background, driver_id, ticket_id)
 
         # Auto-match attorney and trigger discovery if none available
         state  = (data.get("ticket_state") or "").upper().strip()

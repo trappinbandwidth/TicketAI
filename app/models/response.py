@@ -277,7 +277,7 @@ class ProcessResponse(BaseModel):
     filename: str
     pages_processed: int
 
-    # Referee / orchestration outputs
+    # Bolin / orchestration outputs
     pass_status: str                          # green | yellow | red
     low_confidence_fields: list[str]
     referee_notes: Optional[str]
@@ -304,7 +304,7 @@ class ProcessResponse(BaseModel):
     missing_fields: list[str] = []
 
     # Claude API usage for this scan — one entry per model call (document_gate,
-    # lone_ranger pass 1, lone_ranger pass 2 if it ran)
+    # carver pass 1, carver pass 2 if it ran)
     token_usage: list[dict] = []
 
     result: DocumentResult

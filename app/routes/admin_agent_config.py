@@ -23,23 +23,23 @@ router = APIRouter(tags=["admin-agent-config"])
 
 # name → one-line reason it can/can't be toggled
 STRUCTURAL_AGENTS = {
-    "case_intake": "Intake validation gate — disabling would let malformed submissions through.",
+    "roux": "Intake validation gate — disabling would let malformed submissions through.",
     "document_gate": "Routes photos, documents, and unknown files before extraction.",
     "photo_analyst": "Handles photo submissions on the photo-only path.",
-    "lone_ranger": "Primary extraction pass — the pipeline has nothing to score or enrich without it.",
-    "referee":     "GREEN/YELLOW/RED quality routing — disabling breaks pipeline control flow.",
-    "consensus":   "Merges dual extraction passes on non-green tickets — structural to the YELLOW/RED path.",
-    "research_ron": "Jurisdiction enrichment used before attorney matching.",
-    "team_quest": "Attorney matching node that prepares case routing.",
-    "statement_of_record": "Builds attorney prep context from driver statements and evidence.",
+    "carver": "Primary extraction pass — the pipeline has nothing to score or enrich without it.",
+    "bolin":     "GREEN/YELLOW/RED quality routing — disabling breaks pipeline control flow.",
+    "bunche":   "Merges dual extraction passes on non-green tickets — structural to the YELLOW/RED path.",
+    "banneker": "Jurisdiction enrichment used before attorney matching.",
+    "madam_walker": "Attorney matching node that prepares case routing.",
+    "douglass": "Builds attorney prep context from driver statements and evidence.",
 }
 TOGGLEABLE_AGENTS = {
-    "book_worm":              "CDL point/severity enrichment.",
-    "document_completeness":  "Missing-field audit for attorney prep.",
-    "pii_match":               "CDL identity verification against the driver's Firestore profile.",
-    "mvr_request":             "Motor Vehicle Record pull request.",
-    "psp_request":             "FMCSA PSP report pull request.",
-    "urgency_router":          "Court-date-proximity urgency scoring.",
+    "charlotte_ray":              "CDL point/severity enrichment.",
+    "ida_wells":  "Missing-field audit for attorney prep.",
+    "jollof":               "CDL identity verification against the driver's Firestore profile.",
+    "stagecoach_mary":             "Motor Vehicle Record pull request.",
+    "bass_reeves":             "FMCSA PSP report pull request.",
+    "tubman":          "Court-date-proximity urgency scoring.",
 }
 
 

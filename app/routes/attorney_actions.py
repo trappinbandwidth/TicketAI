@@ -52,7 +52,7 @@ def decline_case(
 
     - Records the decline in tickets/{ticket_id}/declines/{attorney_id}
     - Does NOT change attorney_status — the ticket remains available to others
-    - Prevents the same attorney from being matched again via team_quest
+    - Prevents the same attorney from being matched again via madam_walker
 
     Called by the attorney portal when an attorney explicitly passes.
     """

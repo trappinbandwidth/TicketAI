@@ -198,7 +198,7 @@ def valid_decline_code(db, code: str) -> bool:
     return any(r.get("code") == code and r.get("active", True) for r in get_decline_reasons(db))
 
 
-# ── Attorney matching (reuses the Team Quest pattern, agents.md §12) ──────────
+# ── Attorney matching (reuses the Madam Walker pattern, agents.md §12) ──────────
 def match_attorneys(db, state: str, county: Optional[str], exclude: Optional[set[str]] = None) -> list[tuple[str, dict]]:
     """
     Onboarded attorneys covering this state (county matches ranked first).

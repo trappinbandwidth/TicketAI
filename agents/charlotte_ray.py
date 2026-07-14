@@ -1,14 +1,14 @@
 """
-Book Worm — legal logic agent.
+Charlotte Ray — legal logic agent.
 Maps the violation category to CDL point impact and severity context.
-Runs after Referee on green/yellow passes.
+Runs after Bolin on green/yellow passes.
 """
 import logging
 
 from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
-AGENT_NAME = "book_worm"
+AGENT_NAME = "charlotte_ray"
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ MUST_APPEAR_CATEGORIES = {
 }
 
 
-def book_worm(state: TicketState) -> dict:
+def charlotte_ray_lookup(state: TicketState) -> dict:
     if not is_agent_enabled(AGENT_NAME):
         log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
         return {}
@@ -51,14 +51,14 @@ def book_worm(state: TicketState) -> dict:
     category = category_field.get("value", "") if isinstance(category_field, dict) else ""
 
     if not category:
-        logger.warning("[book_worm] file=%s — Violation_Category__c is empty. "
+        logger.warning("[charlotte_ray_lookup] file=%s — Violation_Category__c is empty. "
                        "CDL point impact will be unknown. "
-                       "If this is a real ticket, check lone_ranger extraction and the "
+                       "If this is a real ticket, check carver extraction and the "
                        "Violation_Category__c picklist in the prompt.", filename)
     elif category not in CDL_POINT_MAP:
-        logger.warning("[book_worm] file=%s — category %r not in CDL_POINT_MAP. "
-                       "This means referee let an unrecognised category through, OR "
-                       "lone_ranger extracted a value outside the prompt picklist. "
+        logger.warning("[charlotte_ray_lookup] file=%s — category %r not in CDL_POINT_MAP. "
+                       "This means bolin let an unrecognised category through, OR "
+                       "carver extracted a value outside the prompt picklist. "
                        "Add %r to both CDL_POINT_MAP and the prompt picklist.", filename, category, category)
 
     impact = CDL_POINT_MAP.get(category, {
@@ -70,7 +70,7 @@ def book_worm(state: TicketState) -> dict:
     must_appear = category in MUST_APPEAR_CATEGORIES
     attorney_recommended = impact["points"] >= 3 or must_appear
 
-    logger.warning("[book_worm] OK file=%s category=%r points=%d severity=%s attorney=%s",
+    logger.warning("[charlotte_ray_lookup] OK file=%s category=%r points=%d severity=%s attorney=%s",
                    filename, category, impact["points"], impact["severity"], attorney_recommended)
 
     unknown_category = bool(category) and category not in CDL_POINT_MAP

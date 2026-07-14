@@ -1,12 +1,12 @@
 """
-Document Gate — fast pre-classifier before lone_ranger.
+Document Gate — fast pre-classifier before carver.
 
 Sends the first image to claude-haiku with a two-sentence prompt.
-Cost: ~100 tokens ≈ $0.00004 vs $0.15–0.29 for a full lone_ranger run on a photo.
+Cost: ~100 tokens ≈ $0.00004 vs $0.15–0.29 for a full carver run on a photo.
 
 Returns doc_type in state:
   "photo"    → photo_analyst path  (photo_v1.md prompt, cheap analysis)
-  "document" → lone_ranger path    (v2.md extraction, full pipeline)
+  "document" → carver path    (v2.md extraction, full pipeline)
   "unknown"  → escalate_red        (no Claude spend, flag for human)
 """
 from __future__ import annotations
@@ -93,7 +93,7 @@ def document_gate(state: TicketState) -> dict:
         return {"doc_type": doc_type, "token_usage": token_usage}
 
     except Exception as exc:
-        # Safe fallback: let lone_ranger handle it — never block a submission
+        # Safe fallback: let carver handle it — never block a submission
         logger.error("[document_gate] FAILED file=%s error=%s — defaulting to document", filename, exc)
         log_agent_event(scan_id, AGENT_NAME, "error", {"error": str(exc), "doc_type": "document"})
         return {"doc_type": "document"}

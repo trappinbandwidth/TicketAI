@@ -1,11 +1,11 @@
 """
-Consensus — merges two Lone Ranger extractions for non-green tickets.
+Bunche — merges two Carver extractions for non-green tickets.
 
 Strategy per field:
   1. Take the value with the higher confidence_score.
   2. If both have equal confidence, prefer pass-1 (deterministic default).
   3. If both scores are >= 0.70 but values disagree → flag the field as a
-     "dual_conflict" so Referee knows a human should validate it.
+     "dual_conflict" so Bolin knows a human should validate it.
   4. Pass-level metadata is merged into extraction for traceability.
 """
 from __future__ import annotations
@@ -15,7 +15,7 @@ from app.services.queue_store import log_agent_event
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "consensus"
+AGENT_NAME = "bunche"
 
 _FIELD_KEYS = {
     # Shared / Ticket / Warning
@@ -52,13 +52,13 @@ _SCALAR_KEYS = {"file_type", "other_document_types", "file_type_analysis", "file
 CONFLICT_CONFIDENCE_FLOOR = 0.70
 
 
-def consensus(state: TicketState) -> dict:
+def bunche_merge(state: TicketState) -> dict:
     filename = state.get("filename", "unknown")
     ext1: dict = state.get("extraction") or {}
     ext2: dict = state.get("extraction_2") or {}
 
     if not ext2:
-        logger.warning("[consensus] file=%s — no second extraction, skipping merge", filename)
+        logger.warning("[bunche_merge] file=%s — no second extraction, skipping merge", filename)
         return {}
 
     merged: dict = {}
@@ -105,12 +105,12 @@ def consensus(state: TicketState) -> dict:
             conflicts.append(field)
 
     if improvements:
-        logger.warning("[consensus] file=%s — pass-2 improved: %s", filename, ", ".join(improvements))
+        logger.warning("[bunche_merge] file=%s — pass-2 improved: %s", filename, ", ".join(improvements))
     if conflicts:
-        logger.warning("[consensus] file=%s — dual conflicts (both confident, values differ): %s",
+        logger.warning("[bunche_merge] file=%s — dual conflicts (both confident, values differ): %s",
                        filename, ", ".join(conflicts))
 
-    logger.warning("[consensus] file=%s — merge complete improvements=%d conflicts=%d",
+    logger.warning("[bunche_merge] file=%s — merge complete improvements=%d conflicts=%d",
                    filename, len(improvements), len(conflicts))
 
     scan_id = state.get("scan_id", "")

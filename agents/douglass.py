@@ -1,13 +1,13 @@
 """
-Statement of Record — Agent 9.
+Douglass — Agent 9.
 
 Builds the dual-account statement the attorney reads before accepting a case:
-  - Officer's account: derived from Lone Ranger's extracted ticket fields
+  - Officer's account: derived from Carver's extracted ticket fields
   - Driver's account: the 9-field structured statement captured at upload
   - Conflict map: field-by-field divergences between the two accounts
   - Evidence index: driver-submitted audio/video/photos tagged to disputes
 
-Runs after Team Quest so all extraction data is stable and scored.
+Runs after Madam Walker so all extraction data is stable and scored.
 Does not affect routing — output is informational only, passed through to
 the final result and written to Firestore for attorney portal display.
 """
@@ -20,7 +20,7 @@ from app.services.queue_store import log_agent_event
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "statement_of_record"
+AGENT_NAME = "douglass"
 
 # Fields the driver can directly dispute through the statement form
 _DISPUTEABLE_FIELDS = {
@@ -179,7 +179,7 @@ def _build_evidence_index(
     return indexed
 
 
-def statement_of_record(state: TicketState) -> dict:
+def douglass_compare(state: TicketState) -> dict:
     filename    = state.get("filename", "unknown")
     scan_id     = state.get("scan_id", "")
     driver_stmt = state.get("driver_statement") or {}
@@ -187,7 +187,7 @@ def statement_of_record(state: TicketState) -> dict:
     extraction  = state.get("extraction") or {}
 
     if not driver_stmt:
-        logger.warning("[statement_of_record] file=%s — no driver statement, skipping", filename)
+        logger.warning("[douglass] file=%s — no driver statement, skipping", filename)
         log_agent_event(scan_id, AGENT_NAME, "skipped", {"reason": "no_driver_statement"})
         return {"statement_of_record": None}
 
@@ -221,7 +221,7 @@ def statement_of_record(state: TicketState) -> dict:
     }
 
     logger.warning(
-        "[statement_of_record] file=%s conflicts=%d evidence=%d uncategorized=%d",
+        "[douglass] file=%s conflicts=%d evidence=%d uncategorized=%d",
         filename, sor["conflict_count"], sor["evidence_count"], sor["uncategorized_evidence"],
     )
 

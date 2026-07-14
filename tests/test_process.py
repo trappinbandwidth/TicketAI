@@ -89,7 +89,7 @@ def test_mock_pass_status_present():
 
 
 def test_mock_cdl_point_impact():
-    """book_worm CDL point impact must be present on green/yellow paths."""
+    """charlotte_ray CDL point impact must be present on green/yellow paths."""
     r = client.post(
         "/api/v1/process",
         files={"files": ("ticket.pdf", _blank_pdf(), "application/pdf")},
@@ -105,8 +105,8 @@ def test_mock_cdl_point_impact():
 
 
 def test_referee_calibration_rejects_bad_date_format():
-    """Referee must cap confidence when a date field doesn't match MM/DD/YYYY."""
-    from agents.referee import _calibrate_scores
+    """Bolin must cap confidence when a date field doesn't match MM/DD/YYYY."""
+    from agents.bolin import _calibrate_scores
 
     fields = {
         "Date_of_Ticket__c": {"value": "2025-06-01", "confidence_score": 0.95, "ai_reason": "test"},
@@ -118,8 +118,8 @@ def test_referee_calibration_rejects_bad_date_format():
 
 
 def test_referee_calibration_rejects_unknown_category():
-    """Referee must cap confidence on a violation category not in the picklist."""
-    from agents.referee import _calibrate_scores
+    """Bolin must cap confidence on a violation category not in the picklist."""
+    from agents.bolin import _calibrate_scores
 
     fields = {
         "Violation_Category__c": {"value": "Made Up Violation", "confidence_score": 0.88, "ai_reason": "test"},
@@ -128,9 +128,9 @@ def test_referee_calibration_rejects_unknown_category():
     assert calibrated["Violation_Category__c"] <= 0.40
 
 
-def test_book_worm_csa_category_no_unknown():
+def test_charlotte_ray_csa_category_no_unknown():
     """CSA category for all defined violations must not return 'Unknown'."""
-    from agents.book_worm import CDL_POINT_MAP
+    from agents.charlotte_ray import CDL_POINT_MAP
 
     for category, impact in CDL_POINT_MAP.items():
         assert "csa_category" in impact, f"Missing csa_category key for: {category}"

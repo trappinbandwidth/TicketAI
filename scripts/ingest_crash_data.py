@@ -3,7 +3,7 @@ FMCSA Crash File ingestion.
 Builds two lookup indexes from the FMCSA crash records CSV:
 
   1. data/crash_by_dot.json  — crash history per carrier (DOT#)
-  2. data/crash_by_state.json — aggregate crash stats per state (for Research Ron)
+  2. data/crash_by_state.json — aggregate crash stats per state (for Banneker)
 
 Usage:
     python3 scripts/ingest_crash_data.py

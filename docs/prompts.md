@@ -3,14 +3,14 @@
 
 **Last updated:** 2026-07-04  
 **Prompt files:** `prompts/v2.md` (main extraction) · `prompts/photo_v1.md` (photo analysis)  
-**Who uses each:** Lone Ranger uses `v2.md`. Photo Analyst uses `photo_v1.md`. Document Gate uses an inline prompt in `agents/document_gate.py`.
+**Who uses each:** Carver uses `v2.md`. Photo Analyst uses `photo_v1.md`. Document Gate uses an inline prompt in `agents/document_gate.py`.
 
 ---
 
 ## How Prompts Are Loaded
 
 ```python
-# agents/lone_ranger.py calls:
+# agents/carver.py calls:
 process_document(images_b64=..., prompt_version="v2")
 
 # claude_client.py loads it:
@@ -32,7 +32,7 @@ system = [{
 
 ## Prompt 1: `prompts/v2.md` — Main Extraction Prompt
 
-Used by: **Lone Ranger** (Pass 1 and Pass 2)  
+Used by: **Carver** (Pass 1 and Pass 2)  
 Purpose: Extract all structured data from a traffic citation, inspection report, crash report, CDL license, MVR, civil penalty, warning, or photograph.  
 Model: `claude-sonnet-4-6`  
 Tokens: ~18,107 tokens (18K)
@@ -111,7 +111,7 @@ The accepted values for Violation_Category__c are strictly:
 ...add your new category here...
 ```
 
-**2. In `agents/book_worm.py` — add to `CDL_POINT_MAP`:**
+**2. In `agents/charlotte_ray.py` — add to `CDL_POINT_MAP`:**
 ```python
 CDL_POINT_MAP = {
     ...
@@ -119,7 +119,7 @@ CDL_POINT_MAP = {
 }
 ```
 
-**3. In `agents/referee.py` — add to `_VALID_VIOLATION_CATEGORIES`:**
+**3. In `agents/bolin.py` — add to `_VALID_VIOLATION_CATEGORIES`:**
 ```python
 _VALID_VIOLATION_CATEGORIES = {
     ...
@@ -127,7 +127,7 @@ _VALID_VIOLATION_CATEGORIES = {
 }
 ```
 
-If you skip step 2 or 3, the system will log a warning and handle it gracefully, but the new category won't have a point value or pass Referee validation.
+If you skip step 2 or 3, the system will log a warning and handle it gracefully, but the new category won't have a point value or pass Bolin validation.
 
 ---
 
@@ -145,7 +145,7 @@ In `prompts/v2.md`, find the `--- STATE-SPECIFIC FIELD AVAILABILITY ---` section
 - Set `confidence_score` to 0.95 and `ai_reason` to: "[State] — [field explanation]."
 ```
 
-Also update the state-exception sets in `agents/referee.py` so the Referee doesn't incorrectly penalize the score:
+Also update the state-exception sets in `agents/bolin.py` so the Bolin doesn't incorrectly penalize the score:
 ```python
 _NO_CITATION_STATES = {
     ..., "YourState",
@@ -168,14 +168,14 @@ Current options and relative cost:
 | Model | Speed | Cost | Use For |
 |-------|-------|------|---------|
 | `claude-haiku-4-5-20251001` | Fastest | Cheapest | Document Gate (classification only) |
-| `claude-sonnet-4-6` | Fast | Mid | Lone Ranger (current — recommended) |
+| `claude-sonnet-4-6` | Fast | Mid | Carver (current — recommended) |
 | `claude-opus-4-8` | Slower | Most expensive | Photo Analyst, complex extractions |
 
 ---
 
 #### Adjust confidence thresholds (GREEN / YELLOW / RED)
 
-In `agents/referee.py`:
+In `agents/bolin.py`:
 ```python
 GREEN_THRESHOLD = 0.85   # ← lower this to accept more as GREEN
 YELLOW_THRESHOLD = 0.60  # ← lower this to accept more as YELLOW
@@ -191,9 +191,9 @@ Raising thresholds → more human reviews, higher confidence in automation
 
 1. Add the field to the `--- JSON OUTPUT STRUCTURE ---` section in `prompts/v2.md`, listed under the appropriate tier
 2. Add extraction instructions for the new field to the relevant extraction logic section
-3. If it's a critical field (humans need it to work the case), add it to `_CRITICAL_FIELDS` in `agents/document_completeness.py`
-4. If the Referee should validate its format, add format-check logic to `agents/referee.py` → `_calibrate_scores()`
-5. Add the field key to `_FIELD_KEYS` in `agents/consensus.py` so it's merged correctly on Pass 2
+3. If it's a critical field (humans need it to work the case), add it to `_CRITICAL_FIELDS` in `agents/ida_wells.py`
+4. If the Bolin should validate its format, add format-check logic to `agents/bolin.py` → `_calibrate_scores()`
+5. Add the field key to `_FIELD_KEYS` in `agents/bunche.py` so it's merged correctly on Pass 2
 
 ---
 
@@ -249,7 +249,7 @@ Court time normalized to `H:MM AM/PM`:
 
 ### State-Specific Citation Number Exceptions
 
-These states do **not** print citation numbers on their tickets. Referee expects an empty value for these states with confidence 0.95, not 0.0:
+These states do **not** print citation numbers on their tickets. Bolin expects an empty value for these states with confidence 0.95, not 0.0:
 
 Alabama · Alaska · California · Connecticut · Kentucky · Maryland · Massachusetts · Minnesota · Montana · Nebraska · Nevada · New Mexico · New York · South Carolina · Utah · Vermont · Virginia · West Virginia
 

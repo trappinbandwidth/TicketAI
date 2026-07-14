@@ -1,5 +1,5 @@
 """
-Urgency Router — calculates case priority from court date proximity.
+Tubman — calculates case priority from court date proximity.
 
 Attorneys see urgency on the case card in the portal. CRITICAL cases surface
 at the top and trigger immediate assignment notifications.
@@ -19,7 +19,7 @@ from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "urgency_router"
+AGENT_NAME = "tubman"
 
 _DATE_FORMATS = [
     "%m/%d/%Y", "%m/%d/%y", "%m-%d-%Y", "%m-%d-%y",
@@ -51,7 +51,7 @@ def _fv(extraction: dict, field: str) -> str:
     return ""
 
 
-def urgency_router(state: TicketState) -> dict:
+def tubman_route(state: TicketState) -> dict:
     if not is_agent_enabled(AGENT_NAME):
         log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
         return {}
@@ -64,7 +64,7 @@ def urgency_router(state: TicketState) -> dict:
     court_dt = _parse_court_date(court_date_str)
 
     if not court_dt:
-        logger.warning("[urgency_router] file=%s — no parseable court date → LOW", filename)
+        logger.warning("[tubman_route] file=%s — no parseable court date → LOW", filename)
         log_agent_event(scan_id, AGENT_NAME, "complete", {
             "urgency_level": "LOW",
             "reason": "no_court_date",
@@ -106,7 +106,7 @@ def urgency_router(state: TicketState) -> dict:
         reason = f"Court date {court_date_str} is {days_until} days away. No immediate action needed."
 
     logger.warning(
-        "[urgency_router] file=%s court_date=%r days=%d → %s",
+        "[tubman_route] file=%s court_date=%r days=%d → %s",
         filename, court_date_str, days_until, level,
     )
     log_agent_event(scan_id, AGENT_NAME, "complete", {

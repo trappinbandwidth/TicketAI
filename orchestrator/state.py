@@ -20,7 +20,7 @@ class TicketState(TypedDict):
     scan_id: str
     word_positions: list
 
-    # Extraction (Lone Ranger output)
+    # Extraction (Carver output)
     extraction: Optional[dict]
     extraction_2: Optional[dict]
     pass1_extraction: Optional[dict]
@@ -28,48 +28,48 @@ class TicketState(TypedDict):
     consensus_extraction: Optional[dict]
     dual_conflicts: list
     is_mock: bool
-    token_usage: list  # per-Claude-call usage dicts, accumulated across document_gate/lone_ranger passes
+    token_usage: list  # per-Claude-call usage dicts, accumulated across document_gate/carver passes
 
-    # Referee output
+    # Bolin output
     pass_status: Optional[str]
     low_confidence_fields: list
     referee_notes: Optional[str]
 
-    # Book Worm output
+    # Charlotte Ray output
     cdl_point_impact: Optional[dict]
 
-    # Research Ron output
+    # Banneker output
     jurisdiction_context: Optional[dict]
 
-    # Team Quest output
+    # Madam Walker output
     attorney_matches: list
     no_attorney_flag: bool
 
-    # Case Intake output
+    # Roux output
     intake_errors: list
 
-    # Document Completeness output
+    # Ida Wells output
     completeness_score: Optional[float]
     missing_fields: list
 
-    # PII Match output
+    # Jollof output
     driver_profile: Optional[dict]
 
-    # MVR Request output
+    # Stagecoach Mary output
     mvr_request: Optional[dict]
 
-    # PSP Request output
+    # Bass Reeves output
     psp_request: Optional[dict]
 
-    # Urgency Router output
+    # Tubman output
     urgency_level: Optional[str]
     urgency_reason: Optional[str]
 
-    # Driver-submitted intake (Statement of Record inputs)
+    # Driver-submitted intake (Douglass inputs)
     driver_statement: Optional[dict]   # 9-field structured statement from driver form
     evidence_files: list               # [{url, caption, file_type, filename}]
 
-    # Statement of Record output
+    # Douglass output
     statement_of_record: Optional[dict]
 
     # Document Gate output

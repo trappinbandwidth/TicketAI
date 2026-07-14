@@ -1,5 +1,5 @@
 """
-Driver Concierge — proactive driver communication at every case lifecycle stage.
+Anansi — proactive driver communication at every case lifecycle stage.
 
 Writes in-app notifications to Firestore at:
   drivers/{driver_id}/notifications/{notif_id}
@@ -50,7 +50,7 @@ _MESSAGES: dict[str, str] = {
 }
 
 
-def notify_driver(
+def anansi_notify(
     driver_id: str,
     ticket_id: str,
     attorney_status: str,
@@ -67,12 +67,12 @@ def notify_driver(
     Returns True if notification was written, False if skipped/failed.
     """
     if not driver_id or not ticket_id:
-        logger.warning("[driver_concierge] missing driver_id or ticket_id — skipping")
+        logger.warning("[anansi] missing driver_id or ticket_id — skipping")
         return False
 
     template = _MESSAGES.get(attorney_status)
     if not template:
-        logger.warning("[driver_concierge] no message template for status=%r — skipping", attorney_status)
+        logger.warning("[anansi] no message template for status=%r — skipping", attorney_status)
         return False
 
     ctx = context or {}
@@ -107,7 +107,7 @@ def notify_driver(
           .set(payload)
 
         logger.warning(
-            "[driver_concierge] SENT driver_id=%s ticket_id=%s status=%r notif_id=%s",
+            "[anansi] SENT driver_id=%s ticket_id=%s status=%r notif_id=%s",
             driver_id, ticket_id, attorney_status, notif_id,
         )
 
@@ -124,18 +124,18 @@ def notify_driver(
                 attorney_name=ctx.get("attorney_name", ""),
             )
         except Exception as sms_exc:
-            logger.warning("[driver_concierge] notification send failed: %s", sms_exc)
+            logger.warning("[anansi] notification send failed: %s", sms_exc)
 
         return True
 
     except Exception as exc:
         logger.warning(
-            "[driver_concierge] Firestore write failed driver_id=%s: %s", driver_id, exc
+            "[anansi] Firestore write failed driver_id=%s: %s", driver_id, exc
         )
         return False
 
 
-def notify_court_reminder(
+def anansi_court_reminder(
     driver_id: str,
     ticket_id: str,
     court_date: str,
@@ -173,10 +173,10 @@ def notify_court_reminder(
               "created_at": SERVER_TIMESTAMP,
           })
         logger.warning(
-            "[driver_concierge] COURT REMINDER driver_id=%s ticket_id=%s days=%d",
+            "[anansi] COURT REMINDER driver_id=%s ticket_id=%s days=%d",
             driver_id, ticket_id, days_until,
         )
         return True
     except Exception as exc:
-        logger.warning("[driver_concierge] court reminder failed driver_id=%s: %s", driver_id, exc)
+        logger.warning("[anansi] court reminder failed driver_id=%s: %s", driver_id, exc)
         return False

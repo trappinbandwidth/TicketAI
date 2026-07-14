@@ -1,8 +1,8 @@
 """
-Document Completeness Checker — audits field-by-field extraction quality.
+Ida Wells Checker — audits field-by-field extraction quality.
 
-Runs after the Referee scores GREEN or YELLOW. Produces:
-  - missing_fields: list of critical field keys Lone Ranger could not extract
+Runs after the Bolin scores GREEN or YELLOW. Produces:
+  - missing_fields: list of critical field keys Carver could not extract
   - completeness_score: 0.0–1.0 ratio of critical fields successfully extracted
 
 Attorneys use this to know upfront what information they need to gather
@@ -16,7 +16,7 @@ from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "document_completeness"
+AGENT_NAME = "ida_wells"
 
 _CRITICAL_FIELDS = [
     "Citation_Number__c",
@@ -39,7 +39,7 @@ def _field_present(extraction: dict, field: str) -> bool:
     return False
 
 
-def document_completeness(state: TicketState) -> dict:
+def ida_wells_audit(state: TicketState) -> dict:
     if not is_agent_enabled(AGENT_NAME):
         log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
         return {}
@@ -52,7 +52,7 @@ def document_completeness(state: TicketState) -> dict:
     score   = round(1.0 - (len(missing) / len(_CRITICAL_FIELDS)), 2)
 
     logger.warning(
-        "[document_completeness] file=%s score=%.2f missing=%d/%d %s",
+        "[ida_wells_audit] file=%s score=%.2f missing=%d/%d %s",
         filename, score, len(missing), len(_CRITICAL_FIELDS), missing,
     )
     log_agent_event(scan_id, AGENT_NAME, "complete", {

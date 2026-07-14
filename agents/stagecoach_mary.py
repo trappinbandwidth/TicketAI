@@ -1,5 +1,5 @@
 """
-MVR Request — queues a Motor Vehicle Record pull for the driver's CDL state.
+Stagecoach Mary — queues a Motor Vehicle Record pull for the driver's CDL state.
 
 MVR reports show the driver's full state driving history: prior violations,
 suspensions, revocations, and points. Attorneys need this before accepting
@@ -8,7 +8,7 @@ any CDL defense case to assess risk and prior record.
 Production path: sends a task to Cloud Tasks which calls the state DMV API
 (or an MVR vendor such as Driving Record Inc / Verisk / iiX) and writes the
 result back to Firestore once available. The attorney portal will show
-"MVR Requested" until the result arrives.
+"Stagecoach Maryed" until the result arrives.
 
 Currently: prepares and records the request metadata; status = "pending".
 """
@@ -21,7 +21,7 @@ from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "mvr_request"
+AGENT_NAME = "stagecoach_mary"
 
 
 def _fv(extraction: dict, field: str) -> str:
@@ -31,7 +31,7 @@ def _fv(extraction: dict, field: str) -> str:
     return ""
 
 
-def mvr_request(state: TicketState) -> dict:
+def stagecoach_mary_queue(state: TicketState) -> dict:
     if not is_agent_enabled(AGENT_NAME):
         log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
         return {}
@@ -47,7 +47,7 @@ def mvr_request(state: TicketState) -> dict:
 
     if not cdl_number or not ticket_state:
         logger.warning(
-            "[mvr_request] file=%s — missing CDL=%r or state=%r, skipping",
+            "[stagecoach_mary] file=%s — missing CDL=%r or state=%r, skipping",
             filename, bool(cdl_number), bool(ticket_state),
         )
         log_agent_event(scan_id, AGENT_NAME, "skipped", {
@@ -69,7 +69,7 @@ def mvr_request(state: TicketState) -> dict:
     }
 
     logger.warning(
-        "[mvr_request] QUEUED file=%s driver=%r cdl=%r state=%r",
+        "[stagecoach_mary] QUEUED file=%s driver=%r cdl=%r state=%r",
         filename, driver_name, cdl_number, ticket_state,
     )
     log_agent_event(scan_id, AGENT_NAME, "queued", {

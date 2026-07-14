@@ -1,5 +1,5 @@
 """
-PII Match & Dedup — verifies driver identity against Firestore profile.
+Jollof & Dedup — verifies driver identity against Firestore profile.
 
 Compares the CDL number extracted from the ticket against the CDL number
 stored on the driver's Firestore profile. Flags mismatches for attorney review —
@@ -16,7 +16,7 @@ from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
-AGENT_NAME = "pii_match"
+AGENT_NAME = "jollof"
 
 
 def _fv(extraction: dict, field: str) -> str:
@@ -26,7 +26,7 @@ def _fv(extraction: dict, field: str) -> str:
     return ""
 
 
-def pii_match(state: TicketState) -> dict:
+def jollof_match(state: TicketState) -> dict:
     if not is_agent_enabled(AGENT_NAME):
         log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
         return {}
@@ -37,7 +37,7 @@ def pii_match(state: TicketState) -> dict:
     extraction = state.get("extraction") or {}
 
     if not driver_id:
-        logger.warning("[pii_match] file=%s — no driver_id, skipping", filename)
+        logger.warning("[jollof_match] file=%s — no driver_id, skipping", filename)
         log_agent_event(scan_id, AGENT_NAME, "skipped", {"reason": "no_driver_id"})
         return {"driver_profile": None}
 
@@ -49,7 +49,7 @@ def pii_match(state: TicketState) -> dict:
         doc = db.collection("drivers").document(driver_id).get()
 
         if not doc.exists:
-            logger.warning("[pii_match] file=%s driver_id=%s — no Firestore profile found", filename, driver_id)
+            logger.warning("[jollof_match] file=%s driver_id=%s — no Firestore profile found", filename, driver_id)
             log_agent_event(scan_id, AGENT_NAME, "no_profile", {"driver_id": driver_id})
             return {"driver_profile": {"driver_id": driver_id, "status": "not_found"}}
 
@@ -76,18 +76,18 @@ def pii_match(state: TicketState) -> dict:
 
         if cdl_match == "mismatch":
             logger.warning(
-                "[pii_match] CDL MISMATCH file=%s driver_id=%s ticket=%r profile=%r",
+                "[jollof_match] CDL MISMATCH file=%s driver_id=%s ticket=%r profile=%r",
                 filename, driver_id, extracted_cdl, profile_cdl,
             )
         else:
             logger.warning(
-                "[pii_match] file=%s driver_id=%s cdl_match=%s", filename, driver_id, cdl_match,
+                "[jollof_match] file=%s driver_id=%s cdl_match=%s", filename, driver_id, cdl_match,
             )
 
         log_agent_event(scan_id, AGENT_NAME, "complete", result)
         return {"driver_profile": result}
 
     except Exception as exc:
-        logger.warning("[pii_match] Firestore lookup failed file=%s: %s", filename, exc)
+        logger.warning("[jollof_match] Firestore lookup failed file=%s: %s", filename, exc)
         log_agent_event(scan_id, AGENT_NAME, "error", {"error": str(exc)})
         return {"driver_profile": {"driver_id": driver_id, "status": "error", "error": str(exc)}}

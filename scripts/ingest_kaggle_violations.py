@@ -1,14 +1,14 @@
 """
-Kaggle Traffic Violations Ingestion — Rig Resolve Research Ron Phase 2 corpus builder.
+Kaggle Traffic Violations Ingestion — Rig Resolve Banneker Phase 2 corpus builder.
 
 Usage:
     pip install kagglehub[pandas-datasets] pandas
     python scripts/ingest_kaggle_violations.py
 
 Outputs:
-    data/violation_corpus.json      — Research Ron Phase 2 lookup: state+county+category → stats
+    data/violation_corpus.json      — Banneker Phase 2 lookup: state+county+category → stats
     data/pricing_supplement.json    — pricing_table.json supplement with Kaggle-derived ranges
-    data/violation_patterns.json    — keyword → category training pairs for lone_ranger
+    data/violation_patterns.json    — keyword → category training pairs for carver
 """
 from __future__ import annotations
 
@@ -154,7 +154,7 @@ def build_corpus(df: Any) -> tuple[dict, dict, list]:
     Returns:
       violation_corpus  — {state: {category: {county_stats, outcome_dist, count}}}
       pricing_supplement — {state: {category: {count, citation_rate, source}}}
-      training_pairs     — [{text, category}]  for lone_ranger fine-tuning
+      training_pairs     — [{text, category}]  for carver fine-tuning
     """
     import pandas as pd  # noqa: PLC0415
 
@@ -378,7 +378,7 @@ def main() -> None:
 
     out_dir = Path(__file__).parent.parent / "data"
     write_outputs(corpus, pricing, training, out_dir)
-    log.info("Done. Corpus ready for Research Ron Phase 2.")
+    log.info("Done. Corpus ready for Banneker Phase 2.")
 
 
 if __name__ == "__main__":
