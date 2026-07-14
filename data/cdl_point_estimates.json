@@ -1,7 +1,7 @@
 {
   "_meta": {
     "description": "CDL point estimates by violation category and state. For attorney and driver reference only — estimates, not legal advice. Verify exact values with state DMV.",
-    "source": "FMCSA 49 CFR 383.51, state DMV point schedules, and CDL legal reference guides.",
+    "source": "FMCSA 49 CFR 383.51, state DMV point schedules, and commercial driver legal reference guides.",
     "federal_serious_rule": "2 serious violations in any 3-year period = 60-day CDL disqualification. 3 in 3 years = 120 days. (49 CFR 383.51(c))",
     "federal_major_rule": "1 major violation = minimum 1-year CDL disqualification. If transporting HazMat = 3 years. (49 CFR 383.51(b))",
     "state_points_note": "State points shown are CDL-effective — some states apply a multiplier for commercial drivers. School/work zone additions listed separately."

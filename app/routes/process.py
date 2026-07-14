@@ -21,9 +21,14 @@ from app.services.pricing import get_price_estimate
 from app.services.queue_store import cache_get, cache_set, get_item, save_scan
 from app.services.textract_service import extract_word_positions
 from app.services.firebase_service import write_scan_result, write_photo_result, upload_photo_to_storage
+from app.services.event_service import write_event
 from agents.photo_analyst import analyze_photo
 from app.services.court_lookup import lookup_court
 from app.services.enrollment_verifier import verify_enrollment
+from app.services.recommendation_service import (
+    create_attorney_match_recommendation,
+    create_court_deadline_recommendation,
+)
 from orchestrator.graph import ticket_graph
 
 logger = logging.getLogger(__name__)
@@ -138,6 +143,45 @@ def _check_auth(x_api_key: Optional[str]):
     expected = os.getenv("API_KEY", "cdl-local-dev")
     if x_api_key != expected:
         raise HTTPException(status_code=401, detail="Invalid API key.")
+
+
+def _event_source(source: str) -> str:
+    return {
+        "driver_upload": "driver_app",
+        "manual": "admin_dashboard",
+        "carrier_upload": "carrier_portal",
+        "attorney_self_sourced": "attorney_portal",
+    }.get(source, "api")
+
+
+def _actor_for_upload(
+    source: str,
+    driver_id: Optional[str],
+    carrier_id: Optional[str],
+    attorney_id: Optional[str],
+) -> tuple[str, Optional[str]]:
+    if source == "carrier_upload":
+        return "carrier", carrier_id
+    if source == "attorney_self_sourced":
+        return "attorney", attorney_id
+    if source == "manual":
+        return "staff", None
+    return "driver", driver_id
+
+
+def _related_entities(
+    driver_id: Optional[str] = None,
+    carrier_id: Optional[str] = None,
+    attorney_id: Optional[str] = None,
+) -> list[dict]:
+    related = []
+    if driver_id:
+        related.append({"type": "driver", "id": driver_id})
+    if carrier_id:
+        related.append({"type": "carrier", "id": carrier_id})
+    if attorney_id:
+        related.append({"type": "attorney", "id": attorney_id})
+    return related
 
 
 @router.post("/process", response_model=ProcessResponse)
@@ -270,6 +314,24 @@ async def process_ticket(
     word_positions = extract_word_positions(images_b64)
 
     queue_id = str(uuid.uuid4())
+    effective_ticket_id = ticket_id or queue_id
+    actor_type, actor_id = _actor_for_upload(source, driver_id, carrier_id, attorney_id)
+    related_entities = _related_entities(driver_id, carrier_id, attorney_id)
+    write_event(
+        event_type="ticket.uploaded",
+        actor_type=actor_type,
+        actor_id=actor_id,
+        entity_type="ticket",
+        entity_id=effective_ticket_id,
+        related_entities=related_entities,
+        source=_event_source(source),
+        payload={
+            "filename": filename,
+            "pages": len(images_b64),
+            "scan_id": queue_id,
+            "source": source,
+        },
+    )
 
     # Parse driver-submitted intake data
     parsed_statement: Optional[dict] = None
@@ -305,6 +367,7 @@ async def process_ticket(
             "consensus_extraction": None,
             "dual_conflicts": [],
             "is_mock": False,
+            "token_usage": [],
             "pass_status": None,
             "low_confidence_fields": [],
             "referee_notes": None,
@@ -535,6 +598,20 @@ async def process_ticket(
     # Severity scoring: tickets use cdl_point_impact (from orchestrator); all other types use doc_scoring
     doc_sev = None
     file_type = (ticket_fields.get("file_type") or "Ticket")
+    write_event(
+        event_type="document.classified",
+        actor_type="system",
+        actor_id=None,
+        entity_type="ticket",
+        entity_id=effective_ticket_id,
+        related_entities=related_entities,
+        source="system",
+        payload={
+            "scan_id": queue_id,
+            "file_type": file_type,
+            "filename": filename,
+        },
+    )
     if file_type != "Ticket":
         try:
             doc_sev = score_document(ticket_result)
@@ -546,7 +623,7 @@ async def process_ticket(
         mock=is_mock,
         filename=filename,
         pages_processed=len(images_b64),
-        pass_status=final.get("pass_status", "unknown"),
+        pass_status=final.get("pass_status") or "unknown",
         low_confidence_fields=final.get("low_confidence_fields", []),
         referee_notes=final.get("referee_notes"),
         cdl_point_impact=final.get("cdl_point_impact"),
@@ -565,6 +642,7 @@ async def process_ticket(
         urgency_reason=final.get("urgency_reason"),
         completeness_score=final.get("completeness_score"),
         missing_fields=final.get("missing_fields", []),
+        token_usage=final.get("token_usage", []),
         result=ticket_result,
     )
 
@@ -572,7 +650,7 @@ async def process_ticket(
         save_scan(
             id=queue_id,
             filename=filename,
-            pass_status=final.get("pass_status", "unknown"),
+            pass_status=final.get("pass_status") or "unknown",
             images_b64=images_b64,
             process_response_json=response.model_dump_json(),
             pass1_extraction=result_state.get("pass1_extraction"),
@@ -593,10 +671,36 @@ async def process_ticket(
     # Write results to Firestore:
     #   - drivers/{driver_id}/tickets/{ticket_id} if driver_id known (driver app)
     #   - tickets/{effective_ticket_id} always (attorney portal queue)
-    effective_ticket_id = ticket_id or queue_id
     write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source,
                       carrier_id=carrier_id, attorney_id=attorney_id,
                       external_client_id=external_client_id)
+    write_event(
+        event_type="ticket.processed",
+        actor_type="system",
+        actor_id=None,
+        entity_type="ticket",
+        entity_id=effective_ticket_id,
+        related_entities=related_entities,
+        source="system",
+        payload={
+            "scan_id": queue_id,
+            "pass_status": response.pass_status,
+            "file_type": file_type,
+            "attorney_matched": len(atty_matches) > 0,
+            "has_price_estimate": price_est is not None,
+            "cached": False,
+        },
+    )
+    create_court_deadline_recommendation(
+        ticket_id=effective_ticket_id,
+        urgency_level=response.urgency_level,
+        urgency_reason=response.urgency_reason,
+        court_date=ticket_result.Court_Date__c.value if ticket_result.Court_Date__c else None,
+    )
+    create_attorney_match_recommendation(
+        ticket_id=effective_ticket_id,
+        match=atty_matches[0] if atty_matches else None,
+    )
 
     return response
 

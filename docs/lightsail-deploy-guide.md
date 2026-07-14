@@ -1,4 +1,4 @@
-# CDL Legal — AI Ticket Scanner
+# Rig Resolve — AI Ticket Scanner
 ## AWS Lightsail Deployment Guide
 
 **Estimated time: 20–30 minutes**
@@ -11,7 +11,7 @@
 1. Go to [aws.amazon.com/lightsail](https://aws.amazon.com/lightsail) and sign in
 2. Click **Create instance**
 3. Select:
-   - **Region:** US East (N. Virginia) — or whichever region CDL Legal uses
+   - **Region:** US East (N. Virginia) — or whichever region Rig Resolve uses
    - **Platform:** Linux/Unix
    - **Blueprint:** OS Only → **Ubuntu 22.04 LTS**
    - **Instance plan:** **$10/month** (2 GB RAM, 1 vCPU, 60 GB SSD) ← minimum recommended
@@ -51,7 +51,7 @@ ssh -i ~/your-key.pem ubuntu@<YOUR-LIGHTSAIL-IP>
 Once connected, run this single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CDL-Legal/ai-ticket-engine/main/deploy/setup.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/RigResolve/ai-ticket-engine/main/deploy/setup.sh | sudo bash
 ```
 
 This will:
@@ -104,7 +104,7 @@ sudo systemctl restart cdl-ticket-scanner
 ## Step 6 — Verify It's Working
 
 1. Open a browser and go to: `http://<YOUR-LIGHTSAIL-IP>`
-2. You should see the CDL Legal portal
+2. You should see the Rig Resolve portal
 3. Enter your `API_KEY` in the API Key field in the header
 4. Upload a test ticket — you should get a result in 15–30 seconds
 
@@ -118,7 +118,7 @@ sudo journalctl -u cdl-ticket-scanner -n 50 --no-pager
 
 ## Step 7 — (Optional) Point a Domain
 
-If CDL Legal has a domain (e.g. `tickets.cdllegal.com`):
+If Rig Resolve has a domain (e.g. `tickets.rigresolve.com`):
 
 1. In your DNS provider, add an **A record**:
    - Name: `tickets`
@@ -127,7 +127,7 @@ If CDL Legal has a domain (e.g. `tickets.cdllegal.com`):
 3. For SSL (HTTPS), SSH back in and run:
 ```bash
 sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d tickets.cdllegal.com
+sudo certbot --nginx -d tickets.rigresolve.com
 ```
 Certbot auto-renews — nothing else needed.
 
@@ -174,5 +174,5 @@ This pulls the latest code, updates dependencies, and restarts the service — t
 
 ---
 
-*CDL Legal — Internal Use Only*
-*github.com/CDL-Legal/ai-ticket-engine*
+*Rig Resolve — Internal Use Only*
+*github.com/RigResolve/ai-ticket-engine*

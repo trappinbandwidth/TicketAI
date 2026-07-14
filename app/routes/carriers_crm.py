@@ -182,6 +182,34 @@ async def get_carrier(dot_number: str, authorization: Optional[str] = Header(Non
     return d
 
 
+@router.get("/carriers/{dot_number}/drivers")
+async def get_carrier_drivers(dot_number: str, authorization: Optional[str] = Header(None)):
+    """
+    Driver roster for one carrier. Matches on drivers.carrier_id == the carriers
+    collection's document ID (dot_number) — the convention this file's other routes
+    already use. Note: driver docs created via the separate users_admin.py
+    create_carrier path may use a UUID carrier_id instead of the DOT number; those
+    drivers won't resolve here until that data is reconciled.
+    """
+    require_staff(authorization)
+    db = _db()
+    if not db.collection("carriers").document(dot_number).get().exists:
+        raise HTTPException(status_code=404, detail="Carrier not found")
+    docs = db.collection("drivers").where("carrier_id", "==", dot_number).stream()
+    drivers = []
+    for d in docs:
+        dd = d.to_dict()
+        drivers.append({
+            "driver_id": d.id,
+            "full_name": dd.get("full_name"),
+            "cdl_number": dd.get("cdl_number"),
+            "phone": dd.get("phone"),
+            "email": dd.get("email"),
+            "subscription_status": dd.get("subscription_status"),
+        })
+    return {"dot_number": dot_number, "drivers": drivers, "count": len(drivers)}
+
+
 @router.patch("/carriers/{dot_number}/outreach")
 async def update_outreach(
     dot_number: str,

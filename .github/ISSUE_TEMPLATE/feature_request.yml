@@ -1,0 +1,31 @@
+name: Feature request
+description: Propose a product or platform improvement.
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: What should this make easier, safer, or clearer?
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Primary audience
+      options:
+        - Drivers
+        - Attorneys
+        - Carriers
+        - Staff
+        - Developers
+        - Compliance / Operations
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Include constraints, brand impact, legal/compliance needs, or rollout notes.
+

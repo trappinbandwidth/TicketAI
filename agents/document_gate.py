@@ -75,13 +75,22 @@ def document_gate(state: TicketState) -> dict:
             logger.warning("[document_gate] unexpected response=%r → defaulting to document", raw)
             doc_type = "document"
 
+        usage = {
+            "model": "claude-haiku-4-5-20251001",
+            "input_tokens": message.usage.input_tokens,
+            "output_tokens": message.usage.output_tokens,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+        }
         logger.warning(
             "[document_gate] classified=%r file=%s tokens_in=%d out=%d",
             doc_type, filename,
-            message.usage.input_tokens, message.usage.output_tokens,
+            usage["input_tokens"], usage["output_tokens"],
         )
-        log_agent_event(scan_id, AGENT_NAME, "ok", {"doc_type": doc_type})
-        return {"doc_type": doc_type}
+        log_agent_event(scan_id, AGENT_NAME, "ok", {"doc_type": doc_type, "usage": usage})
+        token_usage = list(state.get("token_usage") or [])
+        token_usage.append(usage)
+        return {"doc_type": doc_type, "token_usage": token_usage}
 
     except Exception as exc:
         # Safe fallback: let lone_ranger handle it — never block a submission

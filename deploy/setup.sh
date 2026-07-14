@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CDL Legal — AI Ticket Scanner
+# Rig Resolve — AI Ticket Scanner
 # One-time server setup for AWS Lightsail (Ubuntu 22.04)
 # Run as: sudo bash setup.sh
 
@@ -7,7 +7,7 @@ set -euo pipefail
 
 APP_DIR="/srv/cdl-ticket-scanner"
 APP_USER="cdlscanner"
-REPO="https://github.com/CDL-Legal/ai-ticket-engine.git"
+REPO="https://github.com/RigResolve/ai-ticket-engine.git"
 
 echo "── [1/8] System packages ──────────────────────────────────"
 apt-get update -q

@@ -120,7 +120,7 @@ So attorneys only see `New` and any other non-excluded statuses.
 
 ## Carrier Portal
 
-**Path:** `/Users/digitalmercenary/CDL_Defense/carrier-portal-change-driver-tab-1 3/frontend/`  
+**Path:** `/Users/digitalmercenary/CDL_Defense/carrier-portal/frontend/`  
 **Auth:** Firebase email/password, `role: "carrier"` auto-assigned  
 **Backend:** `https://carrier-portal-626128667800.us-central1.run.app`  
 **API prefix:** `/RigResolveCarrierService/api/v1/`

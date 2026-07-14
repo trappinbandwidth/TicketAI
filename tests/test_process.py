@@ -9,7 +9,12 @@ from fastapi.testclient import TestClient
 os.environ.setdefault("USE_MOCK", "true")
 os.environ.setdefault("API_KEY", "cdl-local-dev")
 
-from app.main import app
+from app.main import app  # noqa: E402 — app.main loads .env with override=True,
+# which can clobber API_KEY/USE_MOCK above with whatever real values are in the
+# local .env file. Force them back so tests are deterministic regardless of
+# local .env contents (and never make live Anthropic API calls).
+os.environ["API_KEY"] = "cdl-local-dev"
+os.environ["USE_MOCK"] = "true"
 
 client = TestClient(app)
 HEADERS = {"x-api-key": "cdl-local-dev"}
@@ -31,14 +36,14 @@ def test_health():
 
 
 def test_auth_required():
-    r = client.post("/api/v1/process", files={"file": ("t.pdf", b"x", "application/pdf")})
+    r = client.post("/api/v1/process", files={"files": ("t.pdf", b"x", "application/pdf")})
     assert r.status_code == 401
 
 
 def test_unsupported_file_type():
     r = client.post(
         "/api/v1/process",
-        files={"file": ("t.docx", b"x", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+        files={"files": ("t.docx", b"x", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
         headers=HEADERS,
     )
     assert r.status_code == 415
@@ -48,7 +53,7 @@ def test_mock_response_shape():
     """Confirm mock returns the full expected JSON schema."""
     r = client.post(
         "/api/v1/process",
-        files={"file": ("ticket.pdf", _blank_pdf(), "application/pdf")},
+        files={"files": ("ticket.pdf", _blank_pdf(), "application/pdf")},
         headers=HEADERS,
     )
     assert r.status_code == 200
@@ -74,7 +79,7 @@ def test_mock_pass_status_present():
     """Pass status and orchestration fields must always be in the response."""
     r = client.post(
         "/api/v1/process",
-        files={"file": ("ticket.pdf", _blank_pdf(), "application/pdf")},
+        files={"files": ("ticket.pdf", _blank_pdf(), "application/pdf")},
         headers=HEADERS,
     )
     body = r.json()
@@ -87,7 +92,7 @@ def test_mock_cdl_point_impact():
     """book_worm CDL point impact must be present on green/yellow paths."""
     r = client.post(
         "/api/v1/process",
-        files={"file": ("ticket.pdf", _blank_pdf(), "application/pdf")},
+        files={"files": ("ticket.pdf", _blank_pdf(), "application/pdf")},
         headers=HEADERS,
     )
     body = r.json()

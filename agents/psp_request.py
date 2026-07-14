@@ -22,7 +22,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 
-from app.services.queue_store import log_agent_event
+from app.services.queue_store import log_agent_event, is_agent_enabled
 from orchestrator.state import TicketState
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,10 @@ def _fv(extraction: dict, field: str) -> str:
 
 
 def psp_request(state: TicketState) -> dict:
+    if not is_agent_enabled(AGENT_NAME):
+        log_agent_event(state.get("scan_id", ""), AGENT_NAME, "disabled", {})
+        return {}
+
     filename    = state.get("filename", "unknown")
     scan_id     = state.get("scan_id", "")
     driver_id   = state.get("driver_id") or ""

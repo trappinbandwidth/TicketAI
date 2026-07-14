@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Any, Optional
 
 
@@ -242,6 +242,35 @@ class AttorneyMatch(BaseModel):
     match_type: str      # "county" | "state"
 
 
+class RecommendationEvidence(BaseModel):
+    source_type: str
+    source_id: str = ""
+    quote: str = ""
+    field: str = ""
+    confidence: float = 0.0
+
+
+class Recommendation(BaseModel):
+    id: str
+    type: str
+    version: str = "1.0"
+    subject_type: str
+    subject_id: str
+    audience: str
+    summary: str
+    why_it_matters: str
+    recommended_action: str
+    confidence: float = Field(ge=0.0, le=1.0)
+    severity: str
+    status: str = "pending_review"
+    requires_human_approval: bool
+    evidence: list[RecommendationEvidence] = Field(default_factory=list)
+    reasoning_summary: str
+    created_by: str
+    created_at: Optional[Any] = None
+    expires_at: Optional[Any] = None
+
+
 class ProcessResponse(BaseModel):
     success: bool
     mock: bool
@@ -273,5 +302,9 @@ class ProcessResponse(BaseModel):
     urgency_reason: Optional[str] = None
     completeness_score: Optional[float] = None
     missing_fields: list[str] = []
+
+    # Claude API usage for this scan — one entry per model call (document_gate,
+    # lone_ranger pass 1, lone_ranger pass 2 if it ran)
+    token_usage: list[dict] = []
 
     result: DocumentResult

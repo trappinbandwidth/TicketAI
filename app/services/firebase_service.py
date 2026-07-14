@@ -60,6 +60,28 @@ def _init():
         _initialized = True
 
 
+# $ per token, by model — https://www.anthropic.com/pricing (input/output; cache read
+# is billed at 10% of input, cache write at 125% of input, per Anthropic's cache pricing).
+_MODEL_PRICING_PER_TOKEN = {
+    "claude-sonnet-4-6":         {"input": 3.00e-6, "output": 15.00e-6, "cache_read": 0.30e-6, "cache_write": 3.75e-6},
+    "claude-haiku-4-5-20251001": {"input": 0.80e-6, "output": 4.00e-6,  "cache_read": 0.08e-6, "cache_write": 1.00e-6},
+}
+_DEFAULT_PRICING = _MODEL_PRICING_PER_TOKEN["claude-sonnet-4-6"]
+
+
+def _compute_scan_cost(token_usage: list[dict]) -> float:
+    """Sums $ cost across every Claude call recorded for a scan (document_gate +
+    lone_ranger pass 1 [+ pass 2]). Falls back to sonnet pricing for unknown models."""
+    total = 0.0
+    for call in token_usage or []:
+        pricing = _MODEL_PRICING_PER_TOKEN.get(call.get("model", ""), _DEFAULT_PRICING)
+        total += call.get("input_tokens", 0) * pricing["input"]
+        total += call.get("output_tokens", 0) * pricing["output"]
+        total += call.get("cache_read_input_tokens", 0) * pricing["cache_read"]
+        total += call.get("cache_creation_input_tokens", 0) * pricing["cache_write"]
+    return round(total, 6)
+
+
 def write_scan_result(
     driver_id: Optional[str],
     ticket_id: str,
@@ -201,6 +223,8 @@ def write_scan_result(
             "penalty_amount": fv("Penalty_Amount__c"),
             "fine_printed_on_ticket": fv("Fine_Printed_On_Ticket__c"),
             "statute_code": fv("Statute_Code__c"),
+            "token_usage": result.get("token_usage", []),
+            "scan_cost_usd": _compute_scan_cost(result.get("token_usage", [])),
             "created_at": SERVER_TIMESTAMP,
             "last_modified_date": SERVER_TIMESTAMP,
         }

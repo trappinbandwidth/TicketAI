@@ -5,23 +5,25 @@ Consolidates the _db / _verify_token / _require_staff boilerplate that the
 attorney-portal route modules each re-declared. New modules should import from here.
 
 Two auth models coexist by design:
-  - Firebase Bearer token (verify_token/require_staff) — the Attorney Portal, where
-    each attorney has their own Firebase account.
-  - x-api-key (require_api_key) — the internal admin console (frontend-qa), which has
-    no per-staff Firebase login; staff instead pick their name from a fixed reviewer
-    list (Quest/Justin/Eniola) and pass it explicitly as an actor field in the request.
-Admin-facing routes callable from the admin console must use require_api_key, not
-require_staff, or the console's plain x-api-key client gets a 401.
+  - Firebase Bearer token (verify_token/require_staff) — staff/admin surfaces and
+    attorney-facing routes that need per-user authorization.
+  - x-api-key (require_api_key) — shared upload, queue, quote, webhook, or integration
+    routes that still use the service-level key while the auth model is being migrated.
+
+Prefer require_staff for admin-console-only routes. Keep require_api_key only where
+the route is intentionally shared with non-staff clients or external integrations.
 """
 from __future__ import annotations
 
 import os
 from typing import Optional
 
-import firebase_admin.auth as fb_auth
 from fastapi import HTTPException
-
-STAFF_ROLES = {"account_manager", "staff", "admin", "super_admin", "reviewer"}
+from app.services.auth_rbac import (
+    STAFF_ROLES,
+    require_staff as require_staff_claim,
+    verify_firebase_token,
+)
 
 
 def require_api_key(x_api_key: Optional[str]) -> None:
@@ -38,19 +40,12 @@ def get_db():
 
 
 def verify_token(authorization: Optional[str]) -> dict:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header.")
-    try:
-        return fb_auth.verify_id_token(authorization.split(" ", 1)[1])
-    except Exception as exc:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {exc}") from exc
+    return verify_firebase_token(authorization)
 
 
 def require_staff(authorization: Optional[str]) -> dict:
     decoded = verify_token(authorization)
-    if decoded.get("role") not in STAFF_ROLES:
-        raise HTTPException(status_code=403, detail="Staff role required.")
-    return decoded
+    return require_staff_claim(decoded)
 
 
 def iso(v):

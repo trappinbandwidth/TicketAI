@@ -4,7 +4,7 @@
 
 **Rig Resolve** is a legal benefit platform for commercial truck drivers. The name evokes resolution — solving problems for the people who keep the country moving. Every brand decision should reinforce two things: competence and respect for the driver.
 
-The product's roots are in **CDL Legal**, the prior org. Code still contains CDL Legal references that are being migrated to Rig Resolve branding over time.
+The product's roots are in **Rig Resolve**, the prior org. Code still contains Rig Resolve references that are being migrated to Rig Resolve branding over time.
 
 ---
 
@@ -101,8 +101,8 @@ A serious violation conviction can cost a CDL driver $8,000–$15,000 in increas
 ### vs. Hiring a Private Attorney
 Finding a CDL-specific attorney when you're in trouble, on the road, is hard. Rig Resolve maintains a vetted network of CDL defense specialists with proven win rates, already matched to the driver's state and county.
 
-### vs. CDL Legal (Prior Org)
-CDL Legal had a strong attorney network and deep CDL expertise but operated with manual, Salesforce-based case management. Rig Resolve automates intake and matching with AI while preserving the human attorney relationship that wins cases.
+### vs. Rig Resolve (Prior Org)
+Rig Resolve had a strong attorney network and deep CDL expertise but operated with manual, Salesforce-based case management. Rig Resolve automates intake and matching with AI while preserving the human attorney relationship that wins cases.
 
 ---
 
@@ -140,7 +140,7 @@ When writing copy that touches on legal outcomes or guarantees:
 - Use "may" or "can" when describing potential outcomes
 - Always attribute outcomes to the attorney, not Rig Resolve ("Your attorney secured a dismissal")
 
-The phrase **"vs. CDL Legal"** on the pricing page has not yet been reviewed by legal counsel. Do not publish competitive claims without that review.
+The phrase **"vs. Rig Resolve"** on the pricing page has not yet been reviewed by legal counsel. Do not publish competitive claims without that review.
 
 ---
 

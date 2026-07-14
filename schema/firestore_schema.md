@@ -677,7 +677,7 @@ CRITICAL | HIGH | STANDARD | LOW
 | CTA destinations for "Start Core" / "Start Pro" | Pricing page — signup flow TBD |
 | CTA destination for "Request your fleet quote" | Form, Calendly, or email TBD |
 | Safe Driver PSP/MVR pull timing (before or after card capture) | Affects provisional vs. guaranteed rate display |
-| Legal review of "VS. CDL LEGAL" competitive claim | Required before pricing page goes live publicly |
+| Legal review of "Platform Comparison" competitive claim | Required before pricing page goes live publicly |
 | Payment processor (Stripe vs. Rainforest Payments) | Affects stripe_* fields — add rainforest_* equivalent when decided |
 
 ---

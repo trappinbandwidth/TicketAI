@@ -15,7 +15,11 @@ from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 from fastapi.responses import FileResponse
 
 from app.routes._common import require_staff
+from app.services.agent_identity import agent_display_name, agent_identity_payload
+from app.services.event_service import write_event
+from app.services.staff_audit import write_staff_audit
 from app.services.queue_store import EXTRACTED_FIELDS
+from app.services.firebase_service import _compute_scan_cost
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -81,6 +85,17 @@ def _fs():
     return _firestore_client
 
 
+def _ticket_related_entities(data: dict) -> list[dict]:
+    related = []
+    if data.get("driver_id"):
+        related.append({"type": "driver", "id": data["driver_id"]})
+    if data.get("carrier_id"):
+        related.append({"type": "carrier", "id": data["carrier_id"]})
+    if data.get("attorney_id"):
+        related.append({"type": "attorney", "id": data["attorney_id"]})
+    return related
+
+
 # ── Overview stats ──────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/overview")
@@ -106,6 +121,12 @@ def get_overview(days: int = 30, authorization: Optional[str] = Header(None)):
     attorney_matched = 0
     county_matches = 0
     price_estimated = 0
+    total_cost = 0.0
+    confidence_sum = 0.0
+    confidence_samples = 0
+    dual_conflict_docs = 0
+    price_low_sum = 0.0
+    price_high_sum = 0.0
 
     for d in docs:
         r = d.to_dict()
@@ -122,6 +143,22 @@ def get_overview(days: int = 30, authorization: Optional[str] = Header(None)):
                 county_matches += 1
         if r.get("has_price_estimate"):
             price_estimated += 1
+            price_est = r.get("price_estimate") or {}
+            price_low_sum += price_est.get("driver_price_low", 0)
+            price_high_sum += price_est.get("driver_price_high", 0)
+
+        process_response = r.get("process_response") or {}
+        total_cost += _compute_scan_cost(process_response.get("token_usage") or [])
+
+        if process_response.get("dual_conflicts"):
+            dual_conflict_docs += 1
+
+        for field in (process_response.get("result") or {}).values():
+            if not isinstance(field, dict) or "confidence_score" not in field:
+                continue
+            if (field.get("value") or "").strip():
+                confidence_sum += field["confidence_score"]
+                confidence_samples += 1
 
     return {
         "total": total,
@@ -135,6 +172,12 @@ def get_overview(days: int = 30, authorization: Optional[str] = Header(None)):
         "price_estimate_rate": round(price_estimated / total, 3),
         "doc_type_breakdown": dict(doc_type_counts),
         "daily_volume": [{"date": d, **v} for d, v in sorted(daily_counts.items())],
+        "total_cost_usd": round(total_cost, 2),
+        "avg_cost_per_scan_usd": round(total_cost / total, 4),
+        "avg_confidence": round(confidence_sum / confidence_samples, 3) if confidence_samples else 0.0,
+        "dual_conflict_rate": round(dual_conflict_docs / total, 3),
+        "avg_price_low": round(price_low_sum / price_estimated, 2) if price_estimated else None,
+        "avg_price_high": round(price_high_sum / price_estimated, 2) if price_estimated else None,
     }
 
 
@@ -314,55 +357,78 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
 
     agents: dict[str, dict] = {
         "lone_ranger": {
-            "name": "Lone Ranger", "events": 0, "errors": 0,
+            "name": agent_display_name("lone_ranger"), "events": 0, "errors": 0,
             "pass1_fills": [], "pass1_empty_fields": defaultdict(int),
             "pass1_low_conf_fields": defaultdict(int),
             "pass2_fills": [], "improvements": [],
         },
         "referee": {
-            "name": "Referee", "events": 0, "errors": 0,
+            "name": agent_display_name("referee"), "events": 0, "errors": 0,
             "scores": [], "critical_failures": defaultdict(int),
             "low_conf_fields": defaultdict(int),
             "false_escalations": 0,
         },
         "consensus": {
-            "name": "Consensus", "events": 0, "errors": 0,
+            "name": agent_display_name("consensus"), "events": 0, "errors": 0,
             "dual_conflicts": defaultdict(int),
             "improvements_per_scan": [],
         },
         "book_worm": {
-            "name": "Book Worm", "events": 0, "errors": 0,
+            "name": agent_display_name("book_worm"), "events": 0, "errors": 0,
             "unknown_categories": [], "zero_point_tickets": 0,
             "attorney_recommended": 0,
         },
         # New agents
         "case_intake": {
-            "name": "Case Intake", "events": 0, "errors": 0,
+            "name": agent_display_name("case_intake"), "events": 0, "errors": 0,
             "passed": 0, "failed": 0,
             "intake_error_counts": defaultdict(int),
         },
+        "document_gate": {
+            "name": agent_display_name("document_gate"), "events": 0, "errors": 0,
+            "doc_type_counts": defaultdict(int),
+        },
+        "photo_analyst": {
+            "name": agent_display_name("photo_analyst"), "events": 0, "errors": 0,
+            "photo_type_counts": defaultdict(int),
+        },
         "document_completeness": {
-            "name": "Document Completeness", "events": 0, "errors": 0,
+            "name": agent_display_name("document_completeness"), "events": 0, "errors": 0,
             "scores": [], "missing_field_counts": defaultdict(int),
         },
         "pii_match": {
-            "name": "PII Match", "events": 0, "errors": 0,
+            "name": agent_display_name("pii_match"), "events": 0, "errors": 0,
             "matched": 0, "mismatched": 0, "unverified": 0,
             "not_found": 0, "skipped": 0,
         },
         "mvr_request": {
-            "name": "MVR Request", "events": 0, "errors": 0,
+            "name": agent_display_name("mvr_request"), "events": 0, "errors": 0,
             "queued": 0, "skipped": 0,
         },
         "psp_request": {
-            "name": "PSP Request", "events": 0, "errors": 0,
+            "name": agent_display_name("psp_request"), "events": 0, "errors": 0,
             "queued": 0, "skipped": 0,
         },
         "urgency_router": {
-            "name": "Urgency Router", "events": 0, "errors": 0,
+            "name": agent_display_name("urgency_router"), "events": 0, "errors": 0,
             "level_counts": defaultdict(int),
             "no_court_date": 0,
             "days_until_court": [],
+        },
+        "research_ron": {
+            "name": agent_display_name("research_ron"), "events": 0, "errors": 0,
+            "skipped": 0, "court_found": 0, "county_court_found": 0,
+            "serious": 0, "major": 0, "carrier_found": 0,
+        },
+        "team_quest": {
+            "name": agent_display_name("team_quest"), "events": 0, "errors": 0,
+            "skipped": 0, "matches_found": [], "no_attorney": 0,
+            "match_types": defaultdict(int),
+        },
+        "statement_of_record": {
+            "name": agent_display_name("statement_of_record"), "events": 0, "errors": 0,
+            "skipped": 0, "conflict_counts": [], "evidence_counts": [],
+            "uncategorized_evidence": 0, "conflict_types": defaultdict(int),
         },
     }
 
@@ -420,6 +486,16 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 for err in (detail.get("errors") or []):
                     ag["intake_error_counts"][err] += 1
 
+        elif agent == "document_gate":
+            doc_type = detail.get("doc_type")
+            if doc_type:
+                ag["doc_type_counts"][doc_type] += 1
+
+        elif agent == "photo_analyst":
+            photo_type = detail.get("photo_type")
+            if photo_type:
+                ag["photo_type_counts"][photo_type] += 1
+
         elif agent == "document_completeness":
             if event == "complete":
                 score = detail.get("completeness_score")
@@ -464,6 +540,41 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 if days is not None:
                     ag["days_until_court"].append(days)
 
+        elif agent == "research_ron":
+            if event == "skipped":
+                ag["skipped"] += 1
+            elif event == "complete":
+                if detail.get("court_found"):
+                    ag["court_found"] += 1
+                if detail.get("county_court_found"):
+                    ag["county_court_found"] += 1
+                if detail.get("is_serious"):
+                    ag["serious"] += 1
+                if detail.get("is_major"):
+                    ag["major"] += 1
+                if detail.get("carrier_found"):
+                    ag["carrier_found"] += 1
+
+        elif agent == "team_quest":
+            if event == "skipped":
+                ag["skipped"] += 1
+            elif event == "complete":
+                ag["matches_found"].append(detail.get("matches_found", 0))
+                if detail.get("no_attorney"):
+                    ag["no_attorney"] += 1
+                for match_type in (detail.get("match_types") or []):
+                    ag["match_types"][match_type] += 1
+
+        elif agent == "statement_of_record":
+            if event == "skipped":
+                ag["skipped"] += 1
+            elif event == "complete":
+                ag["conflict_counts"].append(detail.get("conflict_count", 0))
+                ag["evidence_counts"].append(detail.get("evidence_count", 0))
+                ag["uncategorized_evidence"] += detail.get("uncategorized_evidence", 0)
+                for conflict_type in (detail.get("conflict_types") or []):
+                    ag["conflict_types"][conflict_type] += 1
+
     # Build summary per agent
     results = []
     for agent_key, ag in agents.items():
@@ -474,6 +585,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
         summary: dict = {
             "agent": agent_key,
             "name": ag["name"],
+            "identity": agent_identity_payload(agent_key),
             "total_events": total_events,
             "errors": errors,
             "health_score": health,
@@ -511,6 +623,12 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
                 ag["intake_error_counts"].items(), key=lambda x: -x[1]
             )[:5]
 
+        elif agent_key == "document_gate":
+            summary["doc_type_distribution"] = dict(ag["doc_type_counts"])
+
+        elif agent_key == "photo_analyst":
+            summary["photo_type_distribution"] = dict(ag["photo_type_counts"])
+
         elif agent_key == "document_completeness":
             scores = ag["scores"]
             summary["avg_completeness_score"] = round(sum(scores) / len(scores), 3) if scores else 0
@@ -545,6 +663,32 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             summary["no_court_date_count"] = ag["no_court_date"]
             summary["avg_days_until_court"] = round(sum(days) / len(days), 1) if days else None
             summary["critical_count"] = ag["level_counts"].get("CRITICAL", 0)
+
+        elif agent_key == "research_ron":
+            summary["skipped"] = ag["skipped"]
+            summary["court_found_count"] = ag["court_found"]
+            summary["county_court_found_count"] = ag["county_court_found"]
+            summary["serious_violation_count"] = ag["serious"]
+            summary["major_violation_count"] = ag["major"]
+            summary["carrier_found_count"] = ag["carrier_found"]
+
+        elif agent_key == "team_quest":
+            matches = ag["matches_found"]
+            summary["skipped"] = ag["skipped"]
+            summary["avg_matches_found"] = round(sum(matches) / len(matches), 2) if matches else 0
+            summary["no_attorney_count"] = ag["no_attorney"]
+            summary["match_type_distribution"] = dict(ag["match_types"])
+
+        elif agent_key == "statement_of_record":
+            conflicts = ag["conflict_counts"]
+            evidence = ag["evidence_counts"]
+            summary["skipped"] = ag["skipped"]
+            summary["avg_conflicts"] = round(sum(conflicts) / len(conflicts), 2) if conflicts else 0
+            summary["avg_evidence_items"] = round(sum(evidence) / len(evidence), 2) if evidence else 0
+            summary["uncategorized_evidence_count"] = ag["uncategorized_evidence"]
+            summary["top_conflict_types"] = sorted(
+                ag["conflict_types"].items(), key=lambda x: -x[1]
+            )[:8]
 
         results.append(summary)
 
@@ -806,22 +950,44 @@ def get_review_queue(authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=503, detail="Firestore not configured.")
 
     try:
-        docs = _firestore_client.collection("tickets") \
-            .where("attorney_status", "==", "AI Review").stream()
+        docs = list(_firestore_client.collection("tickets") \
+            .where("attorney_status", "==", "AI Review").stream())
+        ticket_data = [(d.id, d.to_dict()) for d in docs]
+
+        # Batch-resolve carrier names: a ticket may carry carrier_id directly
+        # (carrier-submitted scans) or only via its driver's carrier_id.
+        driver_ids = {data.get("driver_id") for _, data in ticket_data
+                      if data.get("driver_id") and not data.get("carrier_id")}
+        driver_carrier_map = {}
+        if driver_ids:
+            for driver_id in driver_ids:
+                driver_snap = _firestore_client.collection("drivers").document(driver_id).get()
+                if driver_snap.exists:
+                    driver_carrier_map[driver_id] = driver_snap.to_dict().get("carrier_id")
+
+        carrier_ids = {data.get("carrier_id") for _, data in ticket_data if data.get("carrier_id")}
+        carrier_ids |= {c for c in driver_carrier_map.values() if c}
+        carrier_name_map = {}
+        for carrier_id in carrier_ids:
+            carrier_snap = _firestore_client.collection("carriers").document(carrier_id).get()
+            if carrier_snap.exists:
+                carrier_name_map[carrier_id] = carrier_snap.to_dict().get("company_name")
+
         tickets = []
         critical_count = 0
         cdl_mismatch_count = 0
 
-        for d in docs:
-            data = d.to_dict()
+        for ticket_id, data in ticket_data:
             summary = _review_queue_summary(data)
             if summary["urgency_level"] == "CRITICAL":
                 critical_count += 1
             if summary["cdl_match"] == "mismatch":
                 cdl_mismatch_count += 1
+            resolved_carrier_id = data.get("carrier_id") or driver_carrier_map.get(data.get("driver_id"))
             tickets.append({
-                "ticket_id": d.id,
+                "ticket_id": ticket_id,
                 **data,
+                "carrier_name": carrier_name_map.get(resolved_carrier_id),
                 "reviewer_summary": summary,
             })
 
@@ -907,7 +1073,7 @@ def approve_ticket(
     Moves attorney_status from 'AI Review' → 'New' so attorneys can claim it.
     Returns immediately; driver notification runs in the background.
     """
-    require_staff(authorization)
+    actor = require_staff(authorization)
     from app.services.firebase_service import _firestore_client, _init
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     _init()
@@ -928,12 +1094,33 @@ def approve_ticket(
                 "message": f"Ticket is not in AI Review (current: {data.get('attorney_status')}).",
             }
 
-        ref.update({
+        update_data = {
             "attorney_status": "New",
-            "reviewed_by": reviewer_id,
+            "reviewed_by": reviewer_id or actor.get("email") or actor.get("uid"),
             "reviewed_at": SERVER_TIMESTAMP,
             "last_modified_date": SERVER_TIMESTAMP,
-        })
+        }
+        ref.update(update_data)
+        write_staff_audit(
+            _firestore_client,
+            actor=actor,
+            action="ticket.approved",
+            entity_type="ticket",
+            entity_id=ticket_id,
+            before={"attorney_status": data.get("attorney_status")},
+            after={"attorney_status": "New"},
+            source="admin_dashboard",
+        )
+        write_event(
+            event_type="ticket.approved",
+            actor_type="staff",
+            actor_id=actor.get("uid") or actor.get("sub"),
+            entity_type="ticket",
+            entity_id=ticket_id,
+            related_entities=_ticket_related_entities(data),
+            source="admin_dashboard",
+            payload={"from_status": data.get("attorney_status"), "to_status": "New"},
+        )
 
         # Fire-and-forget: notify the driver after we respond
         driver_id = data.get("driver_id") or ""
@@ -967,7 +1154,7 @@ def reject_ticket(
     Reviewer rejects a manually scanned ticket (e.g. bad image, wrong document).
     Moves attorney_status to 'Rejected' — will not appear in attorney queue.
     """
-    require_staff(authorization)
+    actor = require_staff(authorization)
     from app.services.firebase_service import _init, _firestore_client
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     _init()
@@ -980,11 +1167,34 @@ def reject_ticket(
         if not doc.exists:
             raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found.")
 
-        ref.update({
+        data = doc.to_dict()
+        update_data = {
             "attorney_status": "Rejected",
             "rejection_reason": reason,
             "last_modified_date": SERVER_TIMESTAMP,
-        })
+        }
+        ref.update(update_data)
+        write_staff_audit(
+            _firestore_client,
+            actor=actor,
+            action="ticket.rejected",
+            entity_type="ticket",
+            entity_id=ticket_id,
+            before={"attorney_status": data.get("attorney_status")},
+            after={"attorney_status": "Rejected"},
+            reason=reason,
+            source="admin_dashboard",
+        )
+        write_event(
+            event_type="ticket.rejected",
+            actor_type="staff",
+            actor_id=actor.get("uid") or actor.get("sub"),
+            entity_type="ticket",
+            entity_id=ticket_id,
+            related_entities=_ticket_related_entities(data),
+            source="admin_dashboard",
+            payload={"from_status": data.get("attorney_status"), "to_status": "Rejected"},
+        )
 
         logger.warning("[reviewer] rejected ticket=%s reason=%r", ticket_id, reason)
         return {"success": True, "ticket_id": ticket_id, "attorney_status": "Rejected"}

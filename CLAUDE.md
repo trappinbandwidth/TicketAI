@@ -12,7 +12,7 @@
 - "Tickets" = traffic citations, not support tickets
 - "Carriers" = trucking companies, not insurance carriers
 - "Members" / "subscribers" / "drivers" all refer to enrolled CDL holders
-- The brand is **Rig Resolve**. The legal benefit product is inherited from CDL Legal (the old org). Code still has CDL Legal references that are being migrated.
+- The brand is **Rig Resolve**. The legal benefit product is inherited from the old Rig Resolve org. Code still has legacy references that are being migrated.
 
 ---
 
@@ -20,12 +20,14 @@
 
 | Repo | GitHub | Local path |
 |------|--------|------------|
-| AI Ticket Engine | `git@github.com:trappinbandwidth/TicketAI.git` | `/Users/digitalmercenary/CDL_Defense/AI_Ticket_Scanner/ai-ticket-engine-main/` |
+| AI Ticket Engine | `git@github.com:trappinbandwidth/TicketAI.git` (branch `master` only — no longer shares history with the driver app) | `/Users/digitalmercenary/CDL_Defense/AI_Ticket_Scanner/ai-ticket-engine-main/` |
 | Attorney Portal | `git@github.com:trappinbandwidth/RigResolveAttorney.git` | `/Users/digitalmercenary/CDL_Defense/Attorney-Portal-main/` |
-| Driver App | same as TicketAI (branch: main) | `/Users/digitalmercenary/CDL_Defense/driver-app-main/` |
-| Carrier Portal | not yet a git repo | `/Users/digitalmercenary/CDL_Defense/carrier-portal-change-driver-tab-1 3/` |
+| Driver App | `https://github.com/trappinbandwidth/RigResolveDriver.git` (own dedicated repo, split off `TicketAI.git` on 2026-07-05) | `/Users/digitalmercenary/CDL_Defense/driver-app-main/` |
+| Carrier Portal | `git@github.com:trappinbandwidth/RigResolveCarrier.git` | `/Users/digitalmercenary/CDL_Defense/carrier-portal/` |
+| Website | `https://github.com/trappinbandwidth/RigSolveWebSite.git` | `/Users/digitalmercenary/CDL_Defense/Website-RigResolve/` |
+| Admin Dashboard | `https://github.com/trappinbandwidth/RigResolveCaptain.git` | `/Users/digitalmercenary/CDL_Defense/admin-dashboard/` |
 
-> The carrier portal directory name has a space — always quote it in shell commands.
+> Carrier portal folder was renamed from `carrier-portal-change-driver-tab-1 3` to `carrier-portal` (2026-07-05) — no more space-quoting needed. Archived duplicate folders are dead unless old work is being recovered.
 
 ---
 
@@ -43,13 +45,14 @@
 | Attorney Portal Backend | `https://attorney-portal-626128667800.us-central1.run.app` |
 | Carrier Portal Backend | `https://carrier-portal-626128667800.us-central1.run.app` |
 
-### Firebase Hosting (frontends — deploy pending as of session end)
+### Firebase Hosting (frontends)
 
 | Site | URL |
 |------|-----|
 | Driver App | `https://rigresolve.web.app` |
 | Attorney Portal Frontend | `https://rigresolve-attorney.web.app` |
 | Carrier Portal Frontend | `https://rigresolve-carrier.web.app` |
+| Admin Dashboard | `https://rigresolve-admin.web.app` |
 
 ### GCP Secrets (Secret Manager)
 - `ANTHROPIC_API_KEY` — injected into AI engine at runtime
@@ -134,7 +137,7 @@ The engine is protected by `x-api-key` header. Default dev key: `cdl-local-dev`.
 
 ## Attorney Portal
 
-**Backend:** Flask, Python 3.11, gunicorn. `backend/cdl-legal-attorney-service/`
+**Backend:** Flask, Python 3.11, gunicorn. `backend/rig-resolve-attorney-service/`
 
 Key files:
 - `app.py` — Flask app, Firebase Admin init, Blueprint registration. URL prefix: `/RigResolveAttorneyService/api/v1/`
@@ -153,7 +156,7 @@ Health check: `GET /RigResolveAttorneyService/HealthCheck`
 
 ## Carrier Portal
 
-**Backend:** Flask, Python 3.11. `backend/cdl-legal-carrier-service/`
+**Backend:** Flask, Python 3.11. `backend/rig-resolve-carrier-service/`
 - URL prefix: `/RigResolveCarrierService/api/v1/`
 - Same auth pattern as attorney portal
 - `database_configuration/db_initializer.py` — guards against `None` MongoDB URI (won't crash when MongoDB not configured)
@@ -165,7 +168,7 @@ Health check: `GET /RigResolveCarrierService/HealthCheck`
 - Firebase config in `frontend/.env` (gitignored)
 - Firebase Hosting config: `frontend/firebase.json` (site: `rigresolve-carrier`)
 
-> The carrier portal directory is NOT a git repo yet. Initialize one before pushing.
+> The carrier portal directory is now `/Users/digitalmercenary/CDL_Defense/carrier-portal/`, tracked in git and pushed to `RigResolveCarrier.git`.
 
 ---
 
@@ -223,11 +226,11 @@ cd /Users/digitalmercenary/CDL_Defense/AI_Ticket_Scanner/ai-ticket-engine-main
 bash deploy/cloud_run_deploy.sh
 
 # Attorney backend
-cd /Users/digitalmercenary/CDL_Defense/Attorney-Portal-main/backend/cdl-legal-attorney-service
+cd /Users/digitalmercenary/CDL_Defense/Attorney-Portal-main/backend/rig-resolve-attorney-service
 gcloud run deploy attorney-portal --source . --region us-central1 --project rigresolve --set-env-vars FIREBASE_PROJECT_ID=rigresolve --quiet
 
 # Carrier backend
-cd "/Users/digitalmercenary/CDL_Defense/carrier-portal-change-driver-tab-1 3/backend/cdl-legal-carrier-service"
+cd /Users/digitalmercenary/CDL_Defense/carrier-portal/backend/rig-resolve-carrier-service
 bash deploy/cloud_run_deploy.sh
 
 # Driver app (hosting + Firestore rules)
@@ -239,7 +242,7 @@ cd /Users/digitalmercenary/CDL_Defense/Attorney-Portal-main/frontend
 yarn build && npx firebase deploy --only hosting --project rigresolve
 
 # Carrier portal frontend
-cd "/Users/digitalmercenary/CDL_Defense/carrier-portal-change-driver-tab-1 3/frontend"
+cd /Users/digitalmercenary/CDL_Defense/carrier-portal/frontend
 yarn build && npx firebase deploy --only hosting --project rigresolve
 ```
 
@@ -250,7 +253,7 @@ yarn build && npx firebase deploy --only hosting --project rigresolve
 - `.env` files are gitignored — **never commit credentials**
 - Firebase service account private keys must never be logged or printed
 - Anthropic API key must not be logged or committed
-- A Firebase service account key (private_key_id: `3c82463f`) was exposed in prior conversation history — **regenerate it** in the Firebase Console before going to production
+- Two exposed/at-risk Firebase Admin SDK service account keys (`private_key_id` starting `3c82463f...` and `3015f0fbfa...`) were revoked on 2026-07-05. Three other keys on the same service account remain active and unaudited; confirm what uses them before assuming they're safe to delete.
 
 ---
 
@@ -259,10 +262,8 @@ yarn build && npx firebase deploy --only hosting --project rigresolve
 | Item | Priority | Notes |
 |------|----------|-------|
 | Create Firebase Auth users | Must-have | Console → Authentication → Add users for test driver, attorney, carrier |
-| Firebase Hosting sites creation | Must-have | Create `rigresolve-attorney` and `rigresolve-carrier` sites in Firebase Console before first deploy |
-| Carrier portal → git init | High | Directory is not versioned; initialize and push to GitHub |
 | Research Ron Phase 2 | Medium | Wire S3 corpus lookup for jurisdiction research (ClickUp #86b9ryenz) |
-| Attorney role-based access | Medium | `/review-queue` accessible to any authenticated user; add custom claims for role gating |
+| ~~Attorney role-based access~~ | Done | Admin-console routes now gate on staff role claims. |
 | Replace `cdl-local-dev` API key | Medium | Change default AI engine API key before any external exposure |
 | Driver app env var validation | Low | Add startup check that `VITE_FIREBASE_*` vars are present |
 

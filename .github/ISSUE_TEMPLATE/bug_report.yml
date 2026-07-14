@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a reproducible Rig Resolve defect.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - AI Ticket Engine
+        - Driver App
+        - Attorney Portal
+        - Carrier Portal
+        - Admin Dashboard
+        - Website
+        - Documentation
+        - CI / Deploy
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Use test data only. Do not include real driver PII, documents, tokens, or credentials.
+      placeholder: |
+        1. Go to ...
+        2. Submit ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Who is affected and how severe is it?
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Local checks
+      description: List any `make` checks, builds, or tests already run.
+

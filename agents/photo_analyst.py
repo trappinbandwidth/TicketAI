@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+AGENT_NAME = "photo_analyst"
 
 PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "photo_v1.md"
 
@@ -135,7 +136,7 @@ def photo_analyst_node(state: TicketState) -> dict:
 
     result = analyze_photo(images, filename)
 
-    log_agent_event(scan_id, "photo_analyst", "ok", {
+    log_agent_event(scan_id, AGENT_NAME, "ok", {
         "photo_type": result.get("photo_type", "Unknown"),
         "filename": filename,
     })
