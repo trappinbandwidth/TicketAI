@@ -7,7 +7,7 @@ python-dotenv==1.0.1
 pydantic==2.10.3
 langgraph==0.2.60
 langchain-core==0.3.28
-Pillow==11.2.1
+Pillow==12.2.0
 pytesseract==0.3.13
 firebase-admin==6.5.0
 pandas==2.2.3
