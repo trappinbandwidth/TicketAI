@@ -130,14 +130,17 @@ def get_overview(days: int = 30, authorization: Optional[str] = Header(None)):
 
     for d in docs:
         r = d.to_dict()
-        ps = r.get("pass_status") or "unknown"
+        process_response = r.get("process_response") or {}
+        ps = (r.get("pass_status") or process_response.get("pass_status") or "unknown").lower()
         pass_counts[ps] += 1
         doc_type_counts[r.get("doc_type") or "Unknown"] += 1
-        day = (r.get("created_at") or "")[:10]
+        created = r.get("created_at")
+        day = (created.isoformat() if hasattr(created, "isoformat") else str(created or ""))[:10]
         daily_counts[day]["total"] += 1
         if ps in ("green", "yellow", "red"):
             daily_counts[day][ps] += 1
-        if r.get("attorney_matched"):
+        attorney_matches = process_response.get("attorney_matches") or []
+        if r.get("attorney_matched") or attorney_matches:
             attorney_matched += 1
             if r.get("attorney_match_type") == "county":
                 county_matches += 1
@@ -147,13 +150,13 @@ def get_overview(days: int = 30, authorization: Optional[str] = Header(None)):
             price_low_sum += price_est.get("driver_price_low", 0)
             price_high_sum += price_est.get("driver_price_high", 0)
 
-        process_response = r.get("process_response") or {}
         total_cost += _compute_scan_cost(process_response.get("token_usage") or [])
 
         if process_response.get("dual_conflicts"):
             dual_conflict_docs += 1
 
-        for field in (process_response.get("result") or {}).values():
+        result_fields = process_response.get("result") or process_response.get("ticket_result") or {}
+        for field in result_fields.values():
             if not isinstance(field, dict) or "confidence_score" not in field:
                 continue
             if (field.get("value") or "").strip():
@@ -347,13 +350,23 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
     require_staff(authorization)
     db = _fs()
 
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-    # Collection-group query across all scan_queue/{id}/agent_events subcollections
-    events = list(
-        db.collection_group("agent_events")
-        .where("created_at", ">=", cutoff)
-        .stream()
-    )
+    cutoff_dt = datetime.now(timezone.utc) - timedelta(days=days)
+    # Avoid requiring a collection-group timestamp index and tolerate historical
+    # rows that stored created_at as either an ISO string or Firestore Timestamp.
+    raw_events = list(db.collection_group("agent_events").limit(5000).stream())
+    events = []
+    for event_doc in raw_events:
+        event_data = event_doc.to_dict() or {}
+        created = event_data.get("created_at")
+        try:
+            created_dt = created if isinstance(created, datetime) else datetime.fromisoformat(str(created).replace("Z", "+00:00"))
+            if created_dt.tzinfo is None:
+                created_dt = created_dt.replace(tzinfo=timezone.utc)
+            if created_dt < cutoff_dt:
+                continue
+        except (TypeError, ValueError):
+            pass
+        events.append(event_doc)
 
     agents: dict[str, dict] = {
         "carver": {
@@ -443,6 +456,10 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
         if not ag:
             continue
         ag["events"] += 1
+
+        # Events may carry per-agent token usage directly or inside detail.
+        usage = detail.get("token_usage") or ev.get("token_usage") or []
+        ag["cost_usd"] = ag.get("cost_usd", 0.0) + _compute_scan_cost(usage)
 
         if "error" in event:
             ag["errors"] += 1
@@ -591,6 +608,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
             "total_events": total_events,
             "errors": errors,
             "health_score": health,
+            "cost_usd": round(ag.get("cost_usd", 0.0), 4),
         }
 
         if agent_key == "carver":
