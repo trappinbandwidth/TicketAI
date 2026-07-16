@@ -120,6 +120,12 @@ class WorkflowService:
             raise LookupError("Task not found.")
         return WorkflowTask.model_validate(snapshot.to_dict())
 
+    def list_tasks(self, workflow_id: str) -> list[WorkflowTask]:
+        snapshots = self.db.collection("workflow_tasks").where(
+            "workflow_id", "==", workflow_id
+        ).stream()
+        return [WorkflowTask.model_validate(item.to_dict()) for item in snapshots]
+
     def complete_task(self, actor_id: str, task_id: str, evidence_ids: list[str], waiver_reason: str | None = None):
         ref = self.db.collection("workflow_tasks").document(task_id)
         task = self.get_task(task_id)

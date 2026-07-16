@@ -165,6 +165,18 @@ def create_task(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
+@router.get("/{workflow_id}/tasks")
+def list_tasks(workflow_id: str, authorization: Optional[str] = Header(None)):
+    claims = _claims(authorization)
+    actor_id = _actor(claims)
+    service = _service()
+    try:
+        _authorized(service, actor_id, workflow_id, claims)
+        return {"tasks": service.list_tasks(workflow_id)}
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
 @router.post("/tasks/{task_id}/complete")
 def complete_task(
     task_id: str, body: CompleteTaskRequest, authorization: Optional[str] = Header(None)
