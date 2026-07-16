@@ -41,12 +41,12 @@ def _enabled() -> None:
 
 
 def _service() -> PlatformService:
-    from app.services.firebase_service import _firestore_client, _init
+    from app.services import firebase_service
 
-    _init()
-    if _firestore_client is None:
+    firebase_service._init()
+    if firebase_service._firestore_client is None:
         raise HTTPException(status_code=503, detail="Identity store unavailable.")
-    return PlatformService(_firestore_client)
+    return PlatformService(firebase_service._firestore_client)
 
 
 def _claims(authorization: Optional[str]) -> dict:
