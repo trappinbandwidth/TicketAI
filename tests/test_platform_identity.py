@@ -10,6 +10,8 @@ from app.platform.models import (
     ConsentStatus,
     Membership,
     MembershipStatus,
+    DriverCarrierRelationshipCreate,
+    RelationshipStatus,
     OrganizationCreate,
     OrganizationType,
     Principal,
@@ -117,7 +119,7 @@ def test_consent_requires_recipient_and_self_grant():
     body = ConsentGrantCreate(
         subject_principal_id="prn_driver",
         recipient_organization_id="org_carrier",
-        purpose="safety_compliance",
+        purpose="case_management",
         record_categories=["credential"],
         disclosure_version="v1",
     )
@@ -131,7 +133,7 @@ def test_revocation_is_idempotent_and_blocks_policy_access():
     body = ConsentGrantCreate(
         subject_principal_id="prn_driver",
         recipient_organization_id="org_carrier",
-        purpose="safety_compliance",
+        purpose="case_management",
         record_categories=["credential"],
         actions=["read"],
         disclosure_version="v1",
@@ -322,3 +324,77 @@ def test_organization_bootstrap_requires_supported_role_and_allows_pending_profi
     assert organization.legal_name == "Pending attorney organization"
     assert organization.verification_status == "pending"
     assert membership.role == "firm_admin"
+
+
+def test_driver_carrier_relationship_requires_membership_and_driver_acceptance():
+    db = FakeDb()
+    service = PlatformService(db)
+    carrier_claims = {"uid": "carrier_uid", "role": "carrier"}
+    driver_claims = {"uid": "driver_uid", "role": "driver"}
+    carrier, _ = service.bootstrap_principal(carrier_claims)
+    driver, _ = service.bootstrap_principal(driver_claims)
+    db.collection("carriers").document("carrier_uid").set({"company_name": "Carrier LLC"}, merge=True)
+    organization, _, _ = service.bootstrap_role_organization(carrier_claims)
+
+    relationship, created = service.create_driver_relationship_invitation(
+        carrier.id,
+        organization.id,
+        DriverCarrierRelationshipCreate(driver_principal_id=driver.id),
+    )
+    again, again_created = service.create_driver_relationship_invitation(
+        carrier.id,
+        organization.id,
+        DriverCarrierRelationshipCreate(driver_principal_id=driver.id),
+    )
+
+    assert created is True
+    assert again_created is False
+    assert relationship.id == again.id
+    assert relationship.status == RelationshipStatus.INVITED
+    assert db.collection("consent_grants").rows == {}
+
+    accepted = service.respond_to_driver_relationship(driver.id, relationship.id, True)
+    assert accepted.status == RelationshipStatus.ACTIVE
+    assert accepted.responded_at is not None
+    assert db.collection("consent_grants").rows == {}
+
+
+def test_relationship_cannot_be_accepted_by_another_driver_and_can_be_ended():
+    db = FakeDb()
+    service = PlatformService(db)
+    carrier_claims = {"uid": "carrier_uid", "role": "carrier"}
+    driver_claims = {"uid": "driver_uid", "role": "driver"}
+    other_claims = {"uid": "other_uid", "role": "driver"}
+    carrier, _ = service.bootstrap_principal(carrier_claims)
+    driver, _ = service.bootstrap_principal(driver_claims)
+    other, _ = service.bootstrap_principal(other_claims)
+    db.collection("carriers").document("carrier_uid").set({"company_name": "Carrier LLC"}, merge=True)
+    organization, _, _ = service.bootstrap_role_organization(carrier_claims)
+    relationship, _ = service.create_driver_relationship_invitation(
+        carrier.id,
+        organization.id,
+        DriverCarrierRelationshipCreate(driver_principal_id=driver.id),
+    )
+
+    with pytest.raises(PermissionError):
+        service.respond_to_driver_relationship(other.id, relationship.id, True)
+
+    service.respond_to_driver_relationship(driver.id, relationship.id, True)
+    ended = service.end_driver_relationship(carrier.id, relationship.id, "employment ended")
+    assert ended.status == RelationshipStatus.ENDED
+    assert ended.response_reason == "employment ended"
+
+
+def test_safety_consent_requires_active_relationship():
+    db = FakeDb()
+    service = PlatformService(db)
+    body = ConsentGrantCreate(
+        subject_principal_id="prn_driver",
+        recipient_organization_id="org_carrier",
+        purpose="safety_compliance",
+        record_categories=["driver_profile"],
+        disclosure_version="driver-carrier-safety-v1",
+    )
+
+    with pytest.raises(PermissionError):
+        service.create_consent("prn_driver", body)

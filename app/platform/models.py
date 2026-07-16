@@ -38,6 +38,14 @@ class ConsentStatus(str, Enum):
     EXPIRED = "expired"
 
 
+class RelationshipStatus(str, Enum):
+    INVITED = "invited"
+    ACTIVE = "active"
+    DECLINED = "declined"
+    ENDED = "ended"
+    DISPUTED = "disputed"
+
+
 class Principal(BaseModel):
     id: str
     firebase_uid: str
@@ -137,6 +145,30 @@ class ConsentGrant(BaseModel):
     revocation_reason: Optional[str] = None
     related_resource_type: Optional[str] = None
     related_resource_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
+
+
+class DriverCarrierRelationshipCreate(BaseModel):
+    driver_principal_id: str
+    relationship_type: str = Field(default="employee", pattern="^(employee|contractor|lease_operator|owner_operator)$")
+    terminal_ids: list[str] = Field(default_factory=list)
+    employment_reference: Optional[str] = Field(default=None, max_length=120)
+
+
+class DriverCarrierRelationship(BaseModel):
+    id: str
+    driver_principal_id: str
+    carrier_organization_id: str
+    relationship_type: str
+    terminal_ids: list[str] = Field(default_factory=list)
+    employment_reference: Optional[str] = None
+    status: RelationshipStatus = RelationshipStatus.INVITED
+    invited_by_principal_id: str
+    invited_at: datetime = Field(default_factory=utc_now)
+    responded_at: Optional[datetime] = None
+    ended_at: Optional[datetime] = None
+    response_reason: Optional[str] = None
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
 

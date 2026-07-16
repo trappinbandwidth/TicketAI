@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 from app.platform.models import (
     AuthorizationRequest,
     ConsentGrantCreate,
+    DriverCarrierRelationshipCreate,
+    MembershipStatus,
     MembershipCreate,
     OrganizationCreate,
 )
@@ -21,6 +23,15 @@ router = APIRouter(prefix="/platform", tags=["tip-os-platform"])
 
 
 class RevokeConsentRequest(BaseModel):
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class RelationshipResponseRequest(BaseModel):
+    accept: bool
+    reason: Optional[str] = Field(default=None, max_length=500)
+
+
+class EndRelationshipRequest(BaseModel):
     reason: str = Field(min_length=1, max_length=500)
 
 
@@ -169,6 +180,86 @@ def revoke_consent(
         raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 
+@router.post("/organizations/{organization_id}/driver-relationships", status_code=201)
+def invite_driver_relationship(
+    organization_id: str,
+    body: DriverCarrierRelationshipCreate,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    actor_id = _actor_id(claims)
+    try:
+        relationship, created = _service().create_driver_relationship_invitation(
+            actor_id, organization_id, body
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"relationship": relationship, "created": created}
+
+
+@router.get("/organizations/{organization_id}/driver-relationships")
+def list_carrier_relationships(
+    organization_id: str,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    actor_id = _actor_id(claims)
+    service = _service()
+    allowed = any(
+        membership.organization_id == organization_id
+        and membership.status == MembershipStatus.ACTIVE
+        for membership in service.list_memberships(actor_id)
+    ) or _is_staff(claims)
+    if not allowed:
+        raise HTTPException(status_code=403, detail="Organization membership required.")
+    return {"relationships": service.list_organization_relationships(organization_id)}
+
+
+@router.get("/me/driver-relationships")
+def list_my_driver_relationships(authorization: Optional[str] = Header(None)):
+    claims = _claims(authorization)
+    actor_id = _actor_id(claims)
+    return {"relationships": _service().list_driver_relationships(actor_id)}
+
+
+@router.post("/driver-relationships/{relationship_id}/respond")
+def respond_to_driver_relationship(
+    relationship_id: str,
+    body: RelationshipResponseRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    actor_id = _actor_id(claims)
+    try:
+        relationship = _service().respond_to_driver_relationship(
+            actor_id, relationship_id, body.accept, body.reason
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"relationship": relationship}
+
+
+@router.post("/driver-relationships/{relationship_id}/end")
+def end_driver_relationship(
+    relationship_id: str,
+    body: EndRelationshipRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    actor_id = _actor_id(claims)
+    try:
+        relationship = _service().end_driver_relationship(actor_id, relationship_id, body.reason)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"relationship": relationship}
+
+
 @router.post("/authorization/evaluate")
 def evaluate_policy(body: AuthorizationRequest, authorization: Optional[str] = Header(None)):
     claims = _claims(authorization)
@@ -184,3 +275,69 @@ def evaluate_policy(body: AuthorizationRequest, authorization: Optional[str] = H
         consents=service.list_consents(body.subject_principal_id) if body.subject_principal_id else [],
     )
     return {"decision": decision}
+
+
+@router.get("/admin/trust-summary")
+def admin_trust_summary(limit: int = 100, authorization: Optional[str] = Header(None)):
+    claims = _claims(authorization)
+    if not _is_staff(claims):
+        raise HTTPException(status_code=403, detail="Staff role required.")
+    db = _service().db
+    safe_limit = max(1, min(limit, 250))
+
+    def read_collection(name: str) -> list[dict]:
+        return [snapshot.to_dict() or {} for snapshot in db.collection(name).limit(safe_limit).stream()]
+
+    principals = read_collection("principals")
+    organizations = read_collection("organizations")
+    memberships = read_collection("organization_memberships")
+    consents = read_collection("consent_grants")
+    relationships = read_collection("driver_carrier_relationships")
+    shadow = read_collection("authorization_shadow_comparisons")
+    return {
+        "counts": {
+            "principals": len(principals),
+            "organizations": len(organizations),
+            "pending_organizations": sum(1 for item in organizations if item.get("verification_status") == "pending"),
+            "active_memberships": sum(1 for item in memberships if item.get("status") == "active"),
+            "active_consents": sum(1 for item in consents if item.get("status") == "active"),
+            "pending_relationships": sum(1 for item in relationships if item.get("status") == "invited"),
+            "active_relationships": sum(1 for item in relationships if item.get("status") == "active"),
+            "shadow_comparisons": len(shadow),
+            "shadow_mismatches": sum(
+                1 for item in shadow if not (item.get("comparison") or {}).get("match", False)
+            ),
+        },
+        "organizations": [
+            {
+                "id": item.get("id"),
+                "type": item.get("type"),
+                "legal_name": item.get("legal_name"),
+                "verification_status": item.get("verification_status"),
+                "tenant_status": item.get("tenant_status"),
+            }
+            for item in organizations
+        ],
+        "relationships": [
+            {
+                "id": item.get("id"),
+                "carrier_organization_id": item.get("carrier_organization_id"),
+                "relationship_type": item.get("relationship_type"),
+                "status": item.get("status"),
+                "invited_at": item.get("invited_at"),
+            }
+            for item in relationships
+        ],
+        "shadow_reasons": {
+            reason: sum(
+                1
+                for item in shadow
+                if (item.get("comparison") or {}).get("platform_reason") == reason
+            )
+            for reason in {
+                (item.get("comparison") or {}).get("platform_reason")
+                for item in shadow
+                if (item.get("comparison") or {}).get("platform_reason")
+            }
+        },
+    }

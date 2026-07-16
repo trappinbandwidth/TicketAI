@@ -12,6 +12,8 @@ from app.platform.models import (
     ConsentGrant,
     ConsentGrantCreate,
     ConsentStatus,
+    DriverCarrierRelationship,
+    DriverCarrierRelationshipCreate,
     Membership,
     MembershipCreate,
     MembershipStatus,
@@ -19,6 +21,7 @@ from app.platform.models import (
     OrganizationCreate,
     Principal,
     PrincipalStatus,
+    RelationshipStatus,
     utc_now,
 )
 
@@ -37,6 +40,11 @@ def organization_id_for_profile(role: str, profile_id: str) -> str:
 def membership_id_for_principal(organization_id: str, principal_id: str) -> str:
     digest = hashlib.sha256(f"{organization_id}:{principal_id}".encode("utf-8")).hexdigest()[:32]
     return f"mem_{digest}"
+
+
+def relationship_id_for_parties(organization_id: str, driver_principal_id: str) -> str:
+    digest = hashlib.sha256(f"{organization_id}:{driver_principal_id}".encode("utf-8")).hexdigest()[:32]
+    return f"rel_{digest}"
 
 
 def mask_email(value: Optional[str]) -> Optional[str]:
@@ -235,6 +243,31 @@ class PlatformService:
     def create_consent(self, actor_id: str, body: ConsentGrantCreate) -> ConsentGrant:
         if actor_id != body.subject_principal_id:
             raise PermissionError("A user may only grant consent for their own records.")
+        if body.purpose == "safety_compliance" and body.recipient_organization_id:
+            relationship_id = relationship_id_for_parties(
+                body.recipient_organization_id, body.subject_principal_id
+            )
+            relationship_snapshot = self.db.collection("driver_carrier_relationships").document(
+                relationship_id
+            ).get()
+            relationship = (
+                DriverCarrierRelationship.model_validate(relationship_snapshot.to_dict())
+                if getattr(relationship_snapshot, "exists", False)
+                else None
+            )
+            if relationship is None or relationship.status != RelationshipStatus.ACTIVE:
+                raise PermissionError("An active carrier relationship is required for safety access.")
+        for existing in self.list_consents(body.subject_principal_id):
+            if (
+                existing.status == ConsentStatus.ACTIVE
+                and existing.recipient_principal_id == body.recipient_principal_id
+                and existing.recipient_organization_id == body.recipient_organization_id
+                and existing.purpose == body.purpose
+                and existing.disclosure_version == body.disclosure_version
+                and set(existing.record_categories) == set(body.record_categories)
+                and set(existing.actions) == set(body.actions)
+            ):
+                return existing
         consent = ConsentGrant(
             id=f"cns_{uuid.uuid4().hex}",
             grantor_principal_id=actor_id,
@@ -265,6 +298,122 @@ class PlatformService:
         ref.set(_serialize(consent))
         self._audit("consent.revoked", actor_id, "consent", consent.id, {"reason": reason})
         return consent
+
+    def create_driver_relationship_invitation(
+        self,
+        actor_id: str,
+        organization_id: str,
+        body: DriverCarrierRelationshipCreate,
+    ) -> tuple[DriverCarrierRelationship, bool]:
+        if self.get_principal(body.driver_principal_id) is None:
+            raise LookupError("Driver principal not found.")
+        organization = self.get_organization(organization_id)
+        if organization is None or organization.type.value != "carrier":
+            raise LookupError("Carrier organization not found.")
+        memberships = self.list_memberships(actor_id)
+        if not any(
+            item.organization_id == organization_id
+            and item.status == MembershipStatus.ACTIVE
+            and item.role in {"carrier_admin", "safety_manager", "fleet_manager"}
+            for item in memberships
+        ):
+            raise PermissionError("Active carrier membership required.")
+
+        relationship_id = relationship_id_for_parties(organization_id, body.driver_principal_id)
+        ref = self.db.collection("driver_carrier_relationships").document(relationship_id)
+        snapshot = ref.get()
+        if getattr(snapshot, "exists", False):
+            relationship = DriverCarrierRelationship.model_validate(snapshot.to_dict())
+            if relationship.status in {RelationshipStatus.INVITED, RelationshipStatus.ACTIVE}:
+                return relationship, False
+
+        relationship = DriverCarrierRelationship(
+            id=relationship_id,
+            driver_principal_id=body.driver_principal_id,
+            carrier_organization_id=organization_id,
+            invited_by_principal_id=actor_id,
+            **body.model_dump(exclude={"driver_principal_id"}),
+        )
+        ref.set(_serialize(relationship))
+        self._audit(
+            "relationship.invited",
+            actor_id,
+            "driver_carrier_relationship",
+            relationship.id,
+            {"organization_id": organization_id},
+        )
+        return relationship, True
+
+    def list_driver_relationships(self, driver_principal_id: str) -> list[DriverCarrierRelationship]:
+        docs = self.db.collection("driver_carrier_relationships").where(
+            "driver_principal_id", "==", driver_principal_id
+        ).stream()
+        return [DriverCarrierRelationship.model_validate(doc.to_dict()) for doc in docs]
+
+    def list_organization_relationships(self, organization_id: str) -> list[DriverCarrierRelationship]:
+        docs = self.db.collection("driver_carrier_relationships").where(
+            "carrier_organization_id", "==", organization_id
+        ).stream()
+        return [DriverCarrierRelationship.model_validate(doc.to_dict()) for doc in docs]
+
+    def respond_to_driver_relationship(
+        self,
+        actor_id: str,
+        relationship_id: str,
+        accept: bool,
+        reason: Optional[str] = None,
+    ) -> DriverCarrierRelationship:
+        ref = self.db.collection("driver_carrier_relationships").document(relationship_id)
+        snapshot = ref.get()
+        if not getattr(snapshot, "exists", False):
+            raise LookupError("Relationship invitation not found.")
+        relationship = DriverCarrierRelationship.model_validate(snapshot.to_dict())
+        if relationship.driver_principal_id != actor_id:
+            raise PermissionError("Only the invited driver may respond.")
+        if relationship.status != RelationshipStatus.INVITED:
+            return relationship
+        relationship.status = RelationshipStatus.ACTIVE if accept else RelationshipStatus.DECLINED
+        relationship.responded_at = utc_now()
+        relationship.response_reason = reason
+        relationship.updated_at = utc_now()
+        ref.set(_serialize(relationship))
+        self._audit(
+            "relationship.accepted" if accept else "relationship.declined",
+            actor_id,
+            "driver_carrier_relationship",
+            relationship.id,
+        )
+        return relationship
+
+    def end_driver_relationship(
+        self,
+        actor_id: str,
+        relationship_id: str,
+        reason: str,
+    ) -> DriverCarrierRelationship:
+        ref = self.db.collection("driver_carrier_relationships").document(relationship_id)
+        snapshot = ref.get()
+        if not getattr(snapshot, "exists", False):
+            raise LookupError("Relationship not found.")
+        relationship = DriverCarrierRelationship.model_validate(snapshot.to_dict())
+        actor_is_driver = relationship.driver_principal_id == actor_id
+        actor_is_carrier_admin = any(
+            item.organization_id == relationship.carrier_organization_id
+            and item.status == MembershipStatus.ACTIVE
+            and item.role in {"carrier_admin", "safety_manager"}
+            for item in self.list_memberships(actor_id)
+        )
+        if not actor_is_driver and not actor_is_carrier_admin:
+            raise PermissionError("Relationship access denied.")
+        if relationship.status == RelationshipStatus.ENDED:
+            return relationship
+        relationship.status = RelationshipStatus.ENDED
+        relationship.ended_at = utc_now()
+        relationship.response_reason = reason
+        relationship.updated_at = utc_now()
+        ref.set(_serialize(relationship))
+        self._audit("relationship.ended", actor_id, "driver_carrier_relationship", relationship.id)
+        return relationship
 
 
 def evaluate_authorization(
