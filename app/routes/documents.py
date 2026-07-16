@@ -8,6 +8,7 @@ from fastapi import APIRouter, File, Header, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 from app.platform.document_service import DocumentService
+from app.platform.documents import DocumentStatus
 from app.platform.service import principal_id_for_uid
 from app.services.auth_rbac import verify_firebase_token
 from app.services.malware_scanner import configured_scanner
@@ -76,6 +77,11 @@ async def upload_document(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
+        if "asset" in locals():
+            asset.status = DocumentStatus.FAILED
+            service.db.collection("document_assets").document(asset.id).set(
+                asset.model_dump(mode="json")
+            )
         raise HTTPException(status_code=503, detail="Secure document storage unavailable.") from exc
     return {"document": asset}
 
@@ -91,6 +97,31 @@ def get_extraction(run_id: str, authorization: Optional[str] = Header(None)):
     actor_id = _actor(_claims(authorization))
     try:
         return {"extraction": _service().get_extraction(actor_id, run_id)}
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/{document_id}/extract", status_code=202)
+def enqueue_extraction(document_id: str, authorization: Optional[str] = Header(None)):
+    actor_id = _actor(_claims(authorization))
+    try:
+        job, created = _service().enqueue_extraction(actor_id, document_id)
+        return {"job": job, "created": created}
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/jobs/{job_id}")
+def get_job(job_id: str, authorization: Optional[str] = Header(None)):
+    actor_id = _actor(_claims(authorization))
+    try:
+        return {"job": _service().get_job(actor_id, job_id)}
     except LookupError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except PermissionError as exc:

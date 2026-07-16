@@ -80,3 +80,19 @@ def test_extraction_requires_clean_owner_and_human_verification():
     assert verified.fields[0].corrected_value == "ABC123"
     assert verified.fields[0].verified is True
     assert db.collection("document_assets").rows[asset.id]["status"] == "verified"
+
+
+def test_async_extraction_queue_is_owner_scoped_and_idempotent():
+    db = FakeDb()
+    service = DocumentService(db, CleanScanner())
+    asset = service.ingest("prn_driver", "ticket.pdf", "application/pdf", b"%PDF queue")
+
+    first, created = service.enqueue_extraction("prn_driver", asset.id)
+    second, created_again = service.enqueue_extraction("prn_driver", asset.id)
+
+    assert created is True
+    assert created_again is False
+    assert first.id == second.id
+    assert service.get_job("prn_driver", first.id).status == "queued"
+    with pytest.raises(PermissionError):
+        service.get_job("prn_other", first.id)

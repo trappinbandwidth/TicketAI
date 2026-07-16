@@ -93,6 +93,20 @@ class ExtractionRun(BaseModel):
     created_at: datetime = Field(default_factory=utc_now)
 
 
+class DocumentJob(BaseModel):
+    id: str
+    document_id: str
+    owner_principal_id: str
+    document_version: int
+    status: str = Field(default="queued", pattern="^(queued|running|review_required|completed|failed)$")
+    attempts: int = 0
+    max_attempts: int = 3
+    correlation_id: str
+    error_code: Optional[str] = None
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
+
+
 ALLOWED_CONTENT_TYPES = {
     "application/pdf": (b"%PDF",),
     "image/jpeg": (b"\xff\xd8\xff",),
