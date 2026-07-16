@@ -32,6 +32,8 @@ The API is owner-only in this work package. Carrier and attorney reads remain de
 
 Rollback is disabling `TIP_OS_RECORDS_ENABLED`; existing ticket and portal collections are unchanged.
 
+The production read-only rehearsal on 2026-07-16 scanned 148 top-level tickets: 10 were safely projectable, 0 conflicted, and 138 were quarantined because their legacy owner identifier is empty. Those 138 must not be guessed from names or license numbers; they require an authoritative ownership reconciliation before apply mode can run. Apply mode blocks whenever any invalid or conflicting projection exists.
+
 ## Verification
 
 Tests cover raw/normalized/derived separation, provenance, cross-driver denial, optimistic concurrency, activity history, and owner isolation.
