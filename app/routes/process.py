@@ -200,6 +200,7 @@ async def process_ticket(
     x_api_key: Optional[str] = Header(None),
 ):
     _check_auth(x_api_key)
+    mock_mode = os.getenv("USE_MOCK", "true").lower() == "true"
 
     # Enrollment gate — verify driver has an active subscription before processing.
     # Skipped for attorney self-sourced (BYOC, Dashboard §3.1): the case belongs to
@@ -285,7 +286,7 @@ async def process_ticket(
 
     # Check document cache — skip pipeline for identical uploads
     content_hash = hashlib.sha256("".join(images_b64).encode()).hexdigest()
-    cached_scan_id = cache_get(content_hash)
+    cached_scan_id = None if mock_mode else cache_get(content_hash)
     if cached_scan_id:
         cached_item = get_item(cached_scan_id)
         if cached_item:
@@ -311,27 +312,28 @@ async def process_ticket(
             return JSONResponse(content=cached_resp)
 
     # Extract word-level bounding boxes via Textract (no-op if AWS creds not set)
-    word_positions = extract_word_positions(images_b64)
+    word_positions = [] if mock_mode else extract_word_positions(images_b64)
 
     queue_id = str(uuid.uuid4())
     effective_ticket_id = ticket_id or queue_id
     actor_type, actor_id = _actor_for_upload(source, driver_id, carrier_id, attorney_id)
     related_entities = _related_entities(driver_id, carrier_id, attorney_id)
-    write_event(
-        event_type="ticket.uploaded",
-        actor_type=actor_type,
-        actor_id=actor_id,
-        entity_type="ticket",
-        entity_id=effective_ticket_id,
-        related_entities=related_entities,
-        source=_event_source(source),
-        payload={
-            "filename": filename,
-            "pages": len(images_b64),
-            "scan_id": queue_id,
-            "source": source,
-        },
-    )
+    if not mock_mode:
+        write_event(
+            event_type="ticket.uploaded",
+            actor_type=actor_type,
+            actor_id=actor_id,
+            entity_type="ticket",
+            entity_id=effective_ticket_id,
+            related_entities=related_entities,
+            source=_event_source(source),
+            payload={
+                "filename": filename,
+                "pages": len(images_b64),
+                "scan_id": queue_id,
+                "source": source,
+            },
+        )
 
     # Parse driver-submitted intake data
     parsed_statement: Optional[dict] = None
@@ -598,20 +600,21 @@ async def process_ticket(
     # Severity scoring: tickets use cdl_point_impact (from orchestrator); all other types use doc_scoring
     doc_sev = None
     file_type = (ticket_fields.get("file_type") or "Ticket")
-    write_event(
-        event_type="document.classified",
-        actor_type="system",
-        actor_id=None,
-        entity_type="ticket",
-        entity_id=effective_ticket_id,
-        related_entities=related_entities,
-        source="system",
-        payload={
-            "scan_id": queue_id,
-            "file_type": file_type,
-            "filename": filename,
-        },
-    )
+    if not mock_mode:
+        write_event(
+            event_type="document.classified",
+            actor_type="system",
+            actor_id=None,
+            entity_type="ticket",
+            entity_id=effective_ticket_id,
+            related_entities=related_entities,
+            source="system",
+            payload={
+                "scan_id": queue_id,
+                "file_type": file_type,
+                "filename": filename,
+            },
+        )
     if file_type != "Ticket":
         try:
             doc_sev = score_document(ticket_result)
@@ -646,61 +649,62 @@ async def process_ticket(
         result=ticket_result,
     )
 
-    try:
-        save_scan(
-            id=queue_id,
-            filename=filename,
-            pass_status=final.get("pass_status") or "unknown",
-            images_b64=images_b64,
-            process_response_json=response.model_dump_json(),
-            pass1_extraction=result_state.get("pass1_extraction"),
-            pass2_extraction=result_state.get("pass2_extraction"),
-            consensus_extraction=result_state.get("consensus_extraction"),
-            doc_type=file_type,
-            prompt_version=prompt_version,
-            attorney_matched=len(atty_matches) > 0,
-            attorney_match_type=atty_matches[0].match_type if atty_matches else None,
-            has_price_estimate=price_est is not None,
-            price_estimate=price_est.model_dump() if price_est else None,
-        )
-    except Exception as exc:
-        logger.warning("Failed to save scan to queue (non-fatal): %s", exc)
-    else:
-        cache_set(content_hash, queue_id)
+    if not mock_mode:
+        try:
+            save_scan(
+                id=queue_id,
+                filename=filename,
+                pass_status=final.get("pass_status") or "unknown",
+                images_b64=images_b64,
+                process_response_json=response.model_dump_json(),
+                pass1_extraction=result_state.get("pass1_extraction"),
+                pass2_extraction=result_state.get("pass2_extraction"),
+                consensus_extraction=result_state.get("consensus_extraction"),
+                doc_type=file_type,
+                prompt_version=prompt_version,
+                attorney_matched=len(atty_matches) > 0,
+                attorney_match_type=atty_matches[0].match_type if atty_matches else None,
+                has_price_estimate=price_est is not None,
+                price_estimate=price_est.model_dump() if price_est else None,
+            )
+        except Exception as exc:
+            logger.warning("Failed to save scan to queue (non-fatal): %s", exc)
+        else:
+            cache_set(content_hash, queue_id)
 
-    # Write results to Firestore:
-    #   - drivers/{driver_id}/tickets/{ticket_id} if driver_id known (driver app)
-    #   - tickets/{effective_ticket_id} always (attorney portal queue)
-    write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source,
-                      carrier_id=carrier_id, attorney_id=attorney_id,
-                      external_client_id=external_client_id)
-    write_event(
-        event_type="ticket.processed",
-        actor_type="system",
-        actor_id=None,
-        entity_type="ticket",
-        entity_id=effective_ticket_id,
-        related_entities=related_entities,
-        source="system",
-        payload={
-            "scan_id": queue_id,
-            "pass_status": response.pass_status,
-            "file_type": file_type,
-            "attorney_matched": len(atty_matches) > 0,
-            "has_price_estimate": price_est is not None,
-            "cached": False,
-        },
-    )
-    create_court_deadline_recommendation(
-        ticket_id=effective_ticket_id,
-        urgency_level=response.urgency_level,
-        urgency_reason=response.urgency_reason,
-        court_date=ticket_result.Court_Date__c.value if ticket_result.Court_Date__c else None,
-    )
-    create_attorney_match_recommendation(
-        ticket_id=effective_ticket_id,
-        match=atty_matches[0] if atty_matches else None,
-    )
+        # Write results to Firestore:
+        #   - drivers/{driver_id}/tickets/{ticket_id} if driver_id known (driver app)
+        #   - tickets/{effective_ticket_id} always (attorney portal queue)
+        write_scan_result(driver_id, effective_ticket_id, response.model_dump(), source=source,
+                          carrier_id=carrier_id, attorney_id=attorney_id,
+                          external_client_id=external_client_id)
+        write_event(
+            event_type="ticket.processed",
+            actor_type="system",
+            actor_id=None,
+            entity_type="ticket",
+            entity_id=effective_ticket_id,
+            related_entities=related_entities,
+            source="system",
+            payload={
+                "scan_id": queue_id,
+                "pass_status": response.pass_status,
+                "file_type": file_type,
+                "attorney_matched": len(atty_matches) > 0,
+                "has_price_estimate": price_est is not None,
+                "cached": False,
+            },
+        )
+        create_court_deadline_recommendation(
+            ticket_id=effective_ticket_id,
+            urgency_level=response.urgency_level,
+            urgency_reason=response.urgency_reason,
+            court_date=ticket_result.Court_Date__c.value if ticket_result.Court_Date__c else None,
+        )
+        create_attorney_match_recommendation(
+            ticket_id=effective_ticket_id,
+            match=atty_matches[0] if atty_matches else None,
+        )
 
     return response
 

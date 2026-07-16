@@ -7,6 +7,7 @@ processing or other critical user flows.
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 from typing import Optional
 
@@ -23,6 +24,8 @@ def _server_timestamp():
 
 
 def _db():
+    if os.getenv("USE_MOCK", "true").lower() == "true":
+        return None
     from app.services.firebase_service import _firestore_client, _init
 
     _init()
