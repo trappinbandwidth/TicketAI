@@ -21,6 +21,7 @@ Rig Resolve legal benefit platform for commercial truck drivers. This directory 
 | [intelligence-services.md](intelligence-services.md) | External intelligence-service taxonomy mapped to current agents |
 | [financial-service.md](financial-service.md) | Payment, payout, transaction, and ledger abstraction |
 | [integration-strategy.md](integration-strategy.md) | Systems of record/engagement/intelligence and provider adapter strategy |
+| [tip-os-wp01.md](tip-os-wp01.md) | Feature-flagged canonical identity, organizations, consent and policy foundation |
 
 ---
 

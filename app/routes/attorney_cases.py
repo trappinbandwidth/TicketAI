@@ -93,6 +93,41 @@ def _card(doc_id: str, d: dict) -> dict:
     }
 
 
+def _legacy_case_access(data: dict, uid: str, *, allow_available: bool = False) -> tuple[bool, str]:
+    owns = uid in (
+        data.get("assigned_attorney_id"),
+        data.get("claimed_by"),
+        data.get("closed_by_attorney_id"),
+    )
+    if owns:
+        return True, "assigned_or_claimed_case"
+    if allow_available and data.get("attorney_status") == _AVAILABLE_STATUS:
+        return True, "anonymized_available_case"
+    return False, "legacy_case_scope_denied"
+
+
+def _shadow_case_access(db, decoded: dict, ticket_id: str, data: dict, *, allowed: bool, reason: str, action: str) -> None:
+    driver_id = data.get("driver_id")
+    subject_principal_id = None
+    if driver_id:
+        driver_profile = db.collection("drivers").document(driver_id).get()
+        if driver_profile.exists:
+            subject_principal_id = (driver_profile.to_dict() or {}).get("principal_id")
+    from app.platform.shadow_service import shadow_authorization
+    shadow_authorization(
+        db,
+        decoded,
+        legacy_allowed=allowed,
+        legacy_reason=reason,
+        action=action,
+        resource_type="case",
+        resource_id=ticket_id,
+        purpose="legal_representation",
+        record_category="case",
+        subject_principal_id=subject_principal_id,
+    )
+
+
 # ── Available cases ───────────────────────────────────────────────────────────
 @router.get("/attorney/cases/available")
 def available_cases(
@@ -160,12 +195,16 @@ def case_detail(ticket_id: str, authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=404, detail="Case not found.")
     data = snap.to_dict()
 
-    owns = uid in (
-        data.get("assigned_attorney_id"),
-        data.get("claimed_by"),
-        data.get("closed_by_attorney_id"),
+    legacy_allowed, legacy_reason = _legacy_case_access(data, uid, allow_available=True)
+    owns = legacy_reason == "assigned_or_claimed_case"
+
+    # Compare the legacy decision with the new policy when explicitly enabled.
+    # This call is best-effort and never changes the response in shadow mode.
+    _shadow_case_access(
+        db, decoded, ticket_id, data, allowed=legacy_allowed, reason=legacy_reason, action="read"
     )
-    if not owns and data.get("attorney_status") != _AVAILABLE_STATUS:
+
+    if not legacy_allowed:
         raise HTTPException(status_code=403, detail="Not authorized to view this case.")
 
     # Resolve carrier enrollment (if any) before stripping driver_id -- the
@@ -195,9 +234,19 @@ def case_detail(ticket_id: str, authorization: Optional[str] = Header(None)):
 # ── Activity feed ─────────────────────────────────────────────────────────────
 @router.get("/attorney/cases/{ticket_id}/activity")
 def get_activity(ticket_id: str, authorization: Optional[str] = Header(None)):
-    _verify_token(authorization)
+    decoded = _verify_token(authorization)
+    uid = decoded["uid"]
     db = _db()
-    docs = db.collection("tickets").document(ticket_id).collection("activity").stream()
+    ticket_ref = db.collection("tickets").document(ticket_id)
+    ticket_snap = ticket_ref.get()
+    if not ticket_snap.exists:
+        raise HTTPException(status_code=404, detail="Case not found.")
+    data = ticket_snap.to_dict()
+    allowed, reason = _legacy_case_access(data, uid)
+    _shadow_case_access(db, decoded, ticket_id, data, allowed=allowed, reason=reason, action="read_activity")
+    if not allowed:
+        raise HTTPException(status_code=403, detail="Not authorized to view case activity.")
+    docs = ticket_ref.collection("activity").stream()
     items = []
     for d in docs:
         data = d.to_dict()
@@ -219,8 +268,14 @@ def add_activity(ticket_id: str, body: ActivityUpdate, authorization: Optional[s
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
     ref = db.collection("tickets").document(ticket_id)
-    if not ref.get().exists:
+    snap = ref.get()
+    if not snap.exists:
         raise HTTPException(status_code=404, detail="Case not found.")
+    data = snap.to_dict()
+    allowed, reason = _legacy_case_access(data, uid)
+    _shadow_case_access(db, decoded, ticket_id, data, allowed=allowed, reason=reason, action="write_activity")
+    if not allowed:
+        raise HTTPException(status_code=403, detail="Not authorized to update case activity.")
     entry = {
         "author_uid": uid,
         "author_name": decoded.get("name") or decoded.get("email") or "Attorney",

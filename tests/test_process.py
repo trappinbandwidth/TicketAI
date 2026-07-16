@@ -35,6 +35,15 @@ def test_health():
     assert r.json()["status"] == "ok"
 
 
+def test_tip_os_identity_routes_are_dark_launched_by_default(monkeypatch):
+    monkeypatch.setenv("TIP_OS_IDENTITY_ENABLED", "false")
+
+    r = client.post("/api/v1/platform/identity/bootstrap")
+
+    assert r.status_code == 404
+    assert r.json()["detail"] == "TIP OS identity APIs are not enabled."
+
+
 def test_auth_required():
     r = client.post("/api/v1/process", files={"files": ("t.pdf", b"x", "application/pdf")})
     assert r.status_code == 401
