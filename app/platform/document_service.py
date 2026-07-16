@@ -155,7 +155,11 @@ class DocumentService:
         asset = DocumentAsset.model_validate(snapshot.to_dict())
         if asset.owner_principal_id != actor_id:
             raise PermissionError("Document access denied.")
-        if asset.status != DocumentStatus.READY:
+        if asset.status not in {
+            DocumentStatus.READY,
+            DocumentStatus.CLASSIFYING,
+            DocumentStatus.EXTRACTING,
+        }:
             raise RuntimeError("Only malware-cleared documents may be extracted.")
         run = ExtractionRun(
             id=f"ext_{uuid.uuid4().hex}",

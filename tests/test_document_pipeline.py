@@ -8,6 +8,7 @@ from app.platform.documents import (
     ScanResult,
     validate_upload,
 )
+from app.services.document_worker import run_document_job
 from tests.test_platform_identity import FakeDb
 
 
@@ -96,3 +97,41 @@ def test_async_extraction_queue_is_owner_scoped_and_idempotent():
     assert service.get_job("prn_driver", first.id).status == "queued"
     with pytest.raises(PermissionError):
         service.get_job("prn_other", first.id)
+
+
+def test_worker_advances_job_to_human_review(monkeypatch):
+    db = FakeDb()
+    service = DocumentService(db, CleanScanner())
+    asset = service.ingest(
+        "prn_driver",
+        "ticket.png",
+        "image/png",
+        b"\x89PNG\r\n\x1a\nsafe",
+        storage_path="gs://bucket/path",
+    )
+    job, _ = service.enqueue_extraction("prn_driver", asset.id)
+    monkeypatch.setattr("app.services.document_worker._download", lambda _: b"image")
+    monkeypatch.setattr(
+        "app.services.document_worker.image_file_to_base64",
+        lambda *_: (["iVBOR"], "Citation ABC123"),
+    )
+    monkeypatch.setattr(
+        "app.services.document_worker.process_document",
+        lambda **_: (
+            {
+                "Citation_Number__c": {
+                    "value": "ABC123",
+                    "confidence_score": 0.91,
+                    "raw_evidence": "Citation ABC123",
+                }
+            },
+            False,
+            {"provider": "openai", "model": "configured-model"},
+        ),
+    )
+
+    result = run_document_job(db, job.id)
+
+    assert result["job"].status == "review_required"
+    assert result["extraction_run"].fields[0].value == "ABC123"
+    assert result["extraction_run"].model_provider == "openai"

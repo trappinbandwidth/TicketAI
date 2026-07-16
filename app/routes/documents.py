@@ -10,8 +10,9 @@ from pydantic import BaseModel, Field
 from app.platform.document_service import DocumentService
 from app.platform.documents import DocumentStatus
 from app.platform.service import principal_id_for_uid
-from app.services.auth_rbac import verify_firebase_token
+from app.services.auth_rbac import STAFF_ROLES, verify_firebase_token
 from app.services.malware_scanner import configured_scanner
+from app.services.document_worker import run_document_job
 
 
 router = APIRouter(prefix="/documents", tags=["tip-os-documents"])
@@ -32,6 +33,10 @@ def _actor(claims: dict) -> str:
     if not uid:
         raise HTTPException(status_code=401, detail="Token does not identify a user.")
     return principal_id_for_uid(uid)
+
+
+def _staff(claims: dict) -> bool:
+    return claims.get("role") in STAFF_ROLES or claims.get("staff_role") in STAFF_ROLES
 
 
 def _service() -> DocumentService:
@@ -126,6 +131,19 @@ def get_job(job_id: str, authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except PermissionError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/internal/jobs/{job_id}/run")
+def run_job(job_id: str, authorization: Optional[str] = Header(None)):
+    claims = _claims(authorization)
+    if not _staff(claims):
+        raise HTTPException(status_code=403, detail="Staff role required.")
+    try:
+        return run_document_job(_service().db, job_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.get("/{document_id}")
