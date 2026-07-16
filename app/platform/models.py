@@ -38,6 +38,12 @@ class ConsentStatus(str, Enum):
     EXPIRED = "expired"
 
 
+class DelegationStatus(str, Enum):
+    ACTIVE = "active"
+    REVOKED = "revoked"
+    EXPIRED = "expired"
+
+
 class RelationshipStatus(str, Enum):
     INVITED = "invited"
     ACTIVE = "active"
@@ -149,6 +155,42 @@ class ConsentGrant(BaseModel):
     updated_at: datetime = Field(default_factory=utc_now)
 
 
+class DelegatedAccessGrantCreate(BaseModel):
+    recipient_principal_id: str
+    purpose: str = Field(min_length=1, max_length=120)
+    record_categories: list[str] = Field(min_length=1)
+    actions: list[str] = Field(min_length=1)
+    expires_at: datetime
+    related_resource_type: Optional[str] = None
+    related_resource_id: Optional[str] = None
+
+    @model_validator(mode="after")
+    def future_expiration(self):
+        expires = self.expires_at if self.expires_at.tzinfo else self.expires_at.replace(tzinfo=timezone.utc)
+        if expires <= utc_now():
+            raise ValueError("Delegated access must expire in the future.")
+        return self
+
+
+class DelegatedAccessGrant(BaseModel):
+    id: str
+    grantor_principal_id: str
+    subject_principal_id: str
+    recipient_principal_id: str
+    purpose: str
+    record_categories: list[str]
+    actions: list[str]
+    status: DelegationStatus = DelegationStatus.ACTIVE
+    effective_at: datetime = Field(default_factory=utc_now)
+    expires_at: datetime
+    related_resource_type: Optional[str] = None
+    related_resource_id: Optional[str] = None
+    revoked_at: Optional[datetime] = None
+    revocation_reason: Optional[str] = None
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
+
+
 class DriverCarrierRelationshipCreate(BaseModel):
     driver_principal_id: str
     relationship_type: str = Field(default="employee", pattern="^(employee|contractor|lease_operator|owner_operator)$")
@@ -190,3 +232,4 @@ class AuthorizationDecision(BaseModel):
     policy_version: str = "wp01-v1"
     membership_id: Optional[str] = None
     consent_id: Optional[str] = None
+    delegation_id: Optional[str] = None

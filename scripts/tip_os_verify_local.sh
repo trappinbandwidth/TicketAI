@@ -6,6 +6,8 @@ cd "$ROOT"
 
 .venv/bin/pytest -q \
   tests/test_platform_identity.py \
+  tests/test_entity_resolution.py \
+  tests/test_auth_rbac.py \
   tests/test_platform_migration.py \
   tests/test_driver_cloud.py \
   tests/test_record_migration.py \

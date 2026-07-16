@@ -5,6 +5,7 @@ without repeating token parsing and custom-claim checks.
 """
 from __future__ import annotations
 
+import time
 from typing import Optional, Sequence
 
 import firebase_admin.auth as fb_auth
@@ -82,4 +83,31 @@ def require_attorney(decoded_token: dict, attorney_id: Optional[str] = None) -> 
         raise HTTPException(status_code=403, detail="Attorney access denied.")
     if attorney_id and not token_attorney_id:
         raise HTTPException(status_code=403, detail="Attorney claim required.")
+    return decoded_token
+
+
+def require_recent_auth(
+    decoded_token: dict,
+    max_age_seconds: int = 600,
+    require_mfa: bool = False,
+    now_epoch: Optional[int] = None,
+) -> dict:
+    """Require a recent Firebase authentication event and optional MFA factor."""
+    auth_time = decoded_token.get("auth_time")
+    now = int(now_epoch if now_epoch is not None else time.time())
+    if (
+        not isinstance(auth_time, (int, float))
+        or auth_time > now
+        or now - int(auth_time) > max_age_seconds
+    ):
+        raise HTTPException(status_code=403, detail="Recent authentication required.")
+    if require_mfa:
+        firebase_claim = decoded_token.get("firebase") or {}
+        factor = (
+            firebase_claim.get("sign_in_second_factor")
+            or decoded_token.get("mfa_verified")
+            or decoded_token.get("amr")
+        )
+        if not factor or factor == ["pwd"]:
+            raise HTTPException(status_code=403, detail="Multi-factor authentication required.")
     return decoded_token

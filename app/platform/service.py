@@ -12,6 +12,9 @@ from app.platform.models import (
     ConsentGrant,
     ConsentGrantCreate,
     ConsentStatus,
+    DelegatedAccessGrant,
+    DelegatedAccessGrantCreate,
+    DelegationStatus,
     DriverCarrierRelationship,
     DriverCarrierRelationshipCreate,
     Membership,
@@ -299,6 +302,54 @@ class PlatformService:
         self._audit("consent.revoked", actor_id, "consent", consent.id, {"reason": reason})
         return consent
 
+    def create_delegation(
+        self, actor_id: str, body: DelegatedAccessGrantCreate
+    ) -> DelegatedAccessGrant:
+        if self.get_principal(actor_id) is None:
+            raise LookupError("Grantor principal not found.")
+        if self.get_principal(body.recipient_principal_id) is None:
+            raise LookupError("Recipient principal not found.")
+        if actor_id == body.recipient_principal_id:
+            raise PermissionError("Delegation to self is not allowed.")
+        grant = DelegatedAccessGrant(
+            id=f"dag_{uuid.uuid4().hex}",
+            grantor_principal_id=actor_id,
+            subject_principal_id=actor_id,
+            **body.model_dump(),
+        )
+        self.db.collection("delegated_access_grants").document(grant.id).set(_serialize(grant))
+        self._audit(
+            "delegation.granted", actor_id, "delegated_access_grant", grant.id,
+            {"recipient_principal_id": grant.recipient_principal_id, "purpose": grant.purpose},
+        )
+        return grant
+
+    def list_delegations(self, subject_principal_id: str) -> list[DelegatedAccessGrant]:
+        docs = self.db.collection("delegated_access_grants").where(
+            "subject_principal_id", "==", subject_principal_id
+        ).stream()
+        return [DelegatedAccessGrant.model_validate(doc.to_dict()) for doc in docs]
+
+    def revoke_delegation(
+        self, actor_id: str, delegation_id: str, reason: str
+    ) -> DelegatedAccessGrant:
+        ref = self.db.collection("delegated_access_grants").document(delegation_id)
+        snapshot = ref.get()
+        if not getattr(snapshot, "exists", False):
+            raise LookupError("Delegated access grant not found.")
+        grant = DelegatedAccessGrant.model_validate(snapshot.to_dict())
+        if grant.grantor_principal_id != actor_id:
+            raise PermissionError("Only the grantor may revoke delegated access.")
+        if grant.status == DelegationStatus.REVOKED:
+            return grant
+        grant.status = DelegationStatus.REVOKED
+        grant.revoked_at = utc_now()
+        grant.revocation_reason = reason
+        grant.updated_at = utc_now()
+        ref.set(_serialize(grant))
+        self._audit("delegation.revoked", actor_id, "delegated_access_grant", grant.id, {"reason": reason})
+        return grant
+
     def create_driver_relationship_invitation(
         self,
         actor_id: str,
@@ -421,6 +472,7 @@ def evaluate_authorization(
     request: AuthorizationRequest,
     memberships: Iterable[Membership],
     consents: Iterable[ConsentGrant],
+    delegations: Iterable[DelegatedAccessGrant] = (),
     now: Optional[datetime] = None,
 ) -> AuthorizationDecision:
     """Pure, deny-by-default WP-01 policy evaluation."""
@@ -448,6 +500,29 @@ def evaluate_authorization(
         return AuthorizationDecision(allowed=False, reason="active_tenant_membership_required")
 
     if request.subject_principal_id:
+        for grant in delegations:
+            if (
+                grant.status == DelegationStatus.ACTIVE
+                and grant.subject_principal_id == request.subject_principal_id
+                and grant.recipient_principal_id == actor.id
+                and _active_at(grant.effective_at, grant.expires_at, now)
+                and (not request.purpose or grant.purpose == request.purpose)
+                and request.action in grant.actions
+                and (not request.record_category or request.record_category in grant.record_categories)
+                and (
+                    not grant.related_resource_type
+                    or (
+                        grant.related_resource_type == request.resource_type
+                        and grant.related_resource_id == request.resource_id
+                    )
+                )
+            ):
+                return AuthorizationDecision(
+                    allowed=True,
+                    reason="active_delegation",
+                    membership_id=active_membership.id if active_membership else None,
+                    delegation_id=grant.id,
+                )
         for consent in consents:
             if consent.status != ConsentStatus.ACTIVE:
                 continue

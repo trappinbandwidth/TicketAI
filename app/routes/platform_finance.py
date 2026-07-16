@@ -14,7 +14,7 @@ from app.platform.ledger import (
     LedgerService,
 )
 from app.platform.service import principal_id_for_uid
-from app.services.auth_rbac import STAFF_ROLES, verify_firebase_token
+from app.services.auth_rbac import STAFF_ROLES, require_recent_auth, verify_firebase_token
 
 router = APIRouter(prefix="/platform-finance", tags=["tip-os-finance"])
 
@@ -26,6 +26,7 @@ def _context(authorization: Optional[str]):
     role = claims.get("role") or claims.get("staff_role")
     if role not in STAFF_ROLES:
         raise HTTPException(status_code=403, detail="Staff role required.")
+    require_recent_auth(claims, require_mfa=True)
     return claims, principal_id_for_uid(claims.get("uid") or claims.get("sub"))
 
 

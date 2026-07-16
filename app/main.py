@@ -45,6 +45,7 @@ from app.routes.platform_finance import router as platform_finance_router
 from app.routes.partner_api import router as partner_api_router
 from app.routes.platform_analytics import router as platform_analytics_router
 from app.routes.platform_launch import router as platform_launch_router
+from app.routes.entity_resolution import router as entity_resolution_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 from app.security import SecurityHeadersMiddleware, allowed_origins
@@ -64,6 +65,10 @@ def _check_env() -> None:
         warnings.append(
             "ANTHROPIC_API_KEY is not set — ticket processing will fail. "
             "Add your Anthropic API key to .env."
+        )
+    if not os.getenv("OPENAI_API_KEY", ""):
+        warnings.append(
+            "OPENAI_API_KEY is not set — OpenAI routing/fallback will be unavailable."
         )
 
     has_sa_json  = bool(os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip())
@@ -155,6 +160,7 @@ app.include_router(platform_finance_router, prefix="/api/v1")
 app.include_router(partner_api_router, prefix="/api/v1")
 app.include_router(platform_analytics_router, prefix="/api/v1")
 app.include_router(platform_launch_router, prefix="/api/v1")
+app.include_router(entity_resolution_router, prefix="/api/v1")
 
 
 @app.get("/health")

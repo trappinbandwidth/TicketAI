@@ -17,6 +17,7 @@ from app.platform.models import (
     Principal,
     PrincipalStatus,
     utc_now,
+    DelegatedAccessGrantCreate,
 )
 from app.platform.service import PlatformService, evaluate_authorization, principal_id_for_uid
 
@@ -273,6 +274,46 @@ def test_disabled_principal_is_always_denied():
     )
     assert decision.allowed is False
     assert decision.reason == "principal_not_active"
+
+
+def test_delegated_access_is_scoped_expiring_revocable_and_audited():
+    db = FakeDb()
+    service = PlatformService(db)
+    for uid, role in (("grantor", "driver"), ("recipient", "driver")):
+        service.bootstrap_principal({"uid": uid, "role": role})
+    grantor = principal_id_for_uid("grantor")
+    recipient = principal_id_for_uid("recipient")
+    grant = service.create_delegation(grantor, DelegatedAccessGrantCreate(
+        recipient_principal_id=recipient,
+        purpose="case_support",
+        record_categories=["ticket"],
+        actions=["read"],
+        expires_at=utc_now() + timedelta(hours=1),
+        related_resource_type="ticket",
+        related_resource_id="ticket_1",
+    ))
+    decision = evaluate_authorization(
+        service.get_principal(recipient),
+        AuthorizationRequest(
+            action="read", resource_type="ticket", resource_id="ticket_1",
+            purpose="case_support", record_category="ticket",
+            subject_principal_id=grantor,
+        ),
+        [], [], [grant],
+    )
+    assert decision.allowed is True
+    assert decision.reason == "active_delegation"
+    revoked = service.revoke_delegation(grantor, grant.id, "Support complete")
+    denied = evaluate_authorization(
+        service.get_principal(recipient),
+        AuthorizationRequest(
+            action="read", resource_type="ticket", resource_id="ticket_1",
+            purpose="case_support", record_category="ticket",
+            subject_principal_id=grantor,
+        ),
+        [], [], [revoked],
+    )
+    assert denied.allowed is False
 
 
 def test_organization_names_are_normalized():

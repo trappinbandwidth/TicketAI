@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from app.platform.models import (
     AuthorizationRequest,
     ConsentGrantCreate,
+    DelegatedAccessGrantCreate,
     DriverCarrierRelationshipCreate,
     MembershipStatus,
     MembershipCreate,
@@ -174,6 +175,46 @@ def revoke_consent(
     actor_id = _actor_id(claims)
     try:
         return {"consent": _service().revoke_consent(actor_id, consent_id, body.reason)}
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/delegations", status_code=201)
+def create_delegation(
+    body: DelegatedAccessGrantCreate,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    try:
+        return {"delegation": _service().create_delegation(_actor_id(claims), body)}
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.get("/delegations")
+def list_delegations(authorization: Optional[str] = Header(None)):
+    claims = _claims(authorization)
+    actor_id = _actor_id(claims)
+    return {"delegations": _service().list_delegations(actor_id)}
+
+
+@router.post("/delegations/{delegation_id}/revoke")
+def revoke_delegation(
+    delegation_id: str,
+    body: RevokeConsentRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    try:
+        return {
+            "delegation": _service().revoke_delegation(
+                _actor_id(claims), delegation_id, body.reason
+            )
+        }
     except LookupError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except PermissionError as exc:

@@ -8,7 +8,7 @@ from fastapi import APIRouter, Header, HTTPException
 
 from app.platform.admin_service import AdminService, FeatureFlagUpdate, PrivilegedAccessRequest
 from app.platform.service import principal_id_for_uid
-from app.services.auth_rbac import STAFF_ROLES, verify_firebase_token
+from app.services.auth_rbac import STAFF_ROLES, require_recent_auth, verify_firebase_token
 
 
 router = APIRouter(prefix="/platform-admin", tags=["tip-os-platform-admin"])
@@ -47,6 +47,7 @@ def update_feature_flag(
     key: str, body: FeatureFlagUpdate, authorization: Optional[str] = Header(None)
 ):
     claims = _claims(authorization)
+    require_recent_auth(claims, require_mfa=True)
     if key != body.key:
         raise HTTPException(status_code=400, detail="Feature flag key mismatch.")
     try:
@@ -60,4 +61,5 @@ def start_privileged_access(
     body: PrivilegedAccessRequest, authorization: Optional[str] = Header(None)
 ):
     claims = _claims(authorization)
+    require_recent_auth(claims, require_mfa=True)
     return {"access": _service().start_privileged_access(_actor(claims), body)}

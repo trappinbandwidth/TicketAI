@@ -39,6 +39,20 @@ names, email fragments, CDL values, or portal location. Supply an approved
 ticket-to-principal ownership mapping, rerun dry-run reconciliation, and require
 zero invalid/conflicting records before applying.
 
+The entity-resolution queue can now record scored, masked match evidence and a
+recent-MFA human decision. It never auto-links a candidate and only permits a
+reviewer to link a candidate that was included in the evaluated set.
+
+Scoped delegated-access grants are time-bound, purpose-bound, category/action
+bound, resource-bound when requested, revocable by the grantor, and audited.
+Consequential financial, feature-flag, privileged-access, and resolution
+decisions require recent Firebase authentication and an MFA factor.
+
+Both Anthropic and OpenAI keys are required by the deployment script and are
+injected independently from Secret Manager. Technical fallback is disabled
+unless `DOCUMENT_AI_FALLBACK_ENABLED=true`; when used it is recorded and forces
+human review.
+
 ## Rollback
 
 - Disable the affected cohort flag using its current version and a reason.
@@ -46,4 +60,3 @@ zero invalid/conflicting records before applying.
 - Revert reads to legacy projections; do not delete canonical shadow data.
 - Use compensating journals for financial corrections.
 - Record incident, affected tenants, timestamps, and reconciliation evidence.
-

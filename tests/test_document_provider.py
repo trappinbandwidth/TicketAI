@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from app.services import document_provider
 from app.services.document_provider import process_document
 from app.services.openai_document_client import _output_text, process_document_openai
 
@@ -53,3 +54,32 @@ def test_openai_adapter_sends_images_and_disables_storage(monkeypatch):
     assert captured["payload"]["model"] == "configured-model"
     assert captured["payload"]["input"][0]["content"][0]["type"] == "input_image"
     assert usage["response_id"] == "resp_test"
+
+
+def test_provider_fallback_is_explicit_and_requires_human_review(monkeypatch):
+    monkeypatch.setenv("DOCUMENT_AI_PROVIDER", "anthropic")
+    monkeypatch.setenv("DOCUMENT_AI_FALLBACK_PROVIDER", "openai")
+    monkeypatch.setenv("DOCUMENT_AI_FALLBACK_ENABLED", "true")
+
+    def fake_run(provider, *_args, **_kwargs):
+        if provider == "anthropic":
+            raise TimeoutError("primary unavailable")
+        return {"file_type": "Ticket"}, False, {"model": "fallback-model"}
+
+    monkeypatch.setattr(document_provider, "_run_provider", fake_run)
+    _, _, usage = process_document([], "")
+    assert usage["provider"] == "openai"
+    assert usage["fallback_from"] == "anthropic"
+    assert usage["human_review_required"] is True
+
+
+def test_provider_failure_does_not_fallback_without_approved_flag(monkeypatch):
+    monkeypatch.setenv("DOCUMENT_AI_PROVIDER", "anthropic")
+    monkeypatch.setenv("DOCUMENT_AI_FALLBACK_PROVIDER", "openai")
+    monkeypatch.setenv("DOCUMENT_AI_FALLBACK_ENABLED", "false")
+    monkeypatch.setattr(
+        document_provider, "_run_provider",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(TimeoutError("unavailable")),
+    )
+    with pytest.raises(TimeoutError):
+        process_document([], "")

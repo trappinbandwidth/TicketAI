@@ -68,3 +68,20 @@ def test_require_attorney_scopes_attorney_id():
         auth_rbac.require_attorney(decoded, "attorney_2")
 
     assert exc.value.status_code == 403
+
+
+def test_recent_auth_and_mfa_are_required_for_consequential_actions():
+    claims = {
+        "auth_time": 1000,
+        "firebase": {"sign_in_second_factor": "phone"},
+    }
+    assert auth_rbac.require_recent_auth(
+        claims, max_age_seconds=600, require_mfa=True, now_epoch=1500
+    ) is claims
+
+    with pytest.raises(HTTPException, match="Recent authentication"):
+        auth_rbac.require_recent_auth(claims, max_age_seconds=100, now_epoch=1500)
+    with pytest.raises(HTTPException, match="Multi-factor"):
+        auth_rbac.require_recent_auth(
+            {"auth_time": 1000}, require_mfa=True, now_epoch=1001
+        )
