@@ -13,6 +13,7 @@ from app.platform.service import principal_id_for_uid
 from app.services.auth_rbac import STAFF_ROLES, verify_firebase_token
 from app.services.malware_scanner import configured_scanner
 from app.services.document_worker import run_document_job
+from app.services.driver_resolve import DriverResolveService
 
 
 router = APIRouter(prefix="/documents", tags=["tip-os-documents"])
@@ -170,3 +171,16 @@ def verify_extraction(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except PermissionError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/extractions/{run_id}/finalize", status_code=201)
+def finalize_extraction(run_id: str, authorization: Optional[str] = Header(None)):
+    actor_id = _actor(_claims(authorization))
+    try:
+        return DriverResolveService(_service().db).finalize_verified_extraction(actor_id, run_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
