@@ -53,6 +53,13 @@ class WorkflowService:
             raise LookupError("Workflow not found.")
         return WorkflowInstance.model_validate(snapshot.to_dict())
 
+    def list_for_subject(self, subject_id: str) -> list[WorkflowInstance]:
+        snapshots = self.db.collection("workflow_instances").where(
+            "subject_principal_id", "==", subject_id
+        ).stream()
+        workflows = [WorkflowInstance.model_validate(item.to_dict()) for item in snapshots]
+        return sorted(workflows, key=lambda item: item.updated_at, reverse=True)
+
     def transition(self, actor_id: str, workflow_id: str, to_state: str, reason: str | None = None, approval_id: str | None = None):
         workflow = self.get(workflow_id)
         definition = WORKFLOW_DEFINITIONS[workflow.workflow_type]

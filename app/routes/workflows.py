@@ -98,6 +98,12 @@ def create_workflow(body: CreateWorkflowRequest, authorization: Optional[str] = 
     return {"workflow": workflow, "created": created}
 
 
+@router.get("/me/instances")
+def list_my_workflows(authorization: Optional[str] = Header(None)):
+    actor_id = _actor(_claims(authorization))
+    return {"workflows": _service().list_for_subject(actor_id)}
+
+
 @router.get("/{workflow_id}")
 def get_workflow(workflow_id: str, authorization: Optional[str] = Header(None)):
     claims = _claims(authorization)
