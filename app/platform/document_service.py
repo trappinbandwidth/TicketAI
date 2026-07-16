@@ -21,7 +21,14 @@ class DocumentService:
         self.db = db
         self.scanner = scanner
 
-    def ingest(self, owner_id: str, filename: str, content_type: str, content: bytes) -> DocumentAsset:
+    def ingest(
+        self,
+        owner_id: str,
+        filename: str,
+        content_type: str,
+        content: bytes,
+        storage_path: str | None = None,
+    ) -> DocumentAsset:
         safe_name, digest = validate_upload(filename, content_type, content)
         duplicates = list(
             self.db.collection("document_assets").where("owner_principal_id", "==", owner_id).stream()
@@ -46,9 +53,34 @@ class DocumentService:
             status=status,
             malware_scan_result=scan_result,
             duplicate_of=(duplicate or {}).get("id"),
+            storage_path=storage_path,
         )
         self.db.collection("document_assets").document(asset.id).set(asset.model_dump(mode="json"))
         return asset
+
+    def get_document(self, actor_id: str, document_id: str) -> DocumentAsset:
+        snapshot = self.db.collection("document_assets").document(document_id).get()
+        if not getattr(snapshot, "exists", False):
+            raise LookupError("Document not found.")
+        asset = DocumentAsset.model_validate(snapshot.to_dict())
+        if asset.owner_principal_id != actor_id:
+            raise PermissionError("Document access denied.")
+        return asset
+
+    def list_documents(self, actor_id: str) -> list[DocumentAsset]:
+        snapshots = self.db.collection("document_assets").where(
+            "owner_principal_id", "==", actor_id
+        ).stream()
+        assets = [DocumentAsset.model_validate(item.to_dict()) for item in snapshots]
+        return sorted(assets, key=lambda item: item.created_at, reverse=True)
+
+    def get_extraction(self, actor_id: str, run_id: str) -> ExtractionRun:
+        snapshot = self.db.collection("document_extraction_runs").document(run_id).get()
+        if not getattr(snapshot, "exists", False):
+            raise LookupError("Extraction run not found.")
+        run = ExtractionRun.model_validate(snapshot.to_dict())
+        self.get_document(actor_id, run.document_id)
+        return run
 
     def start_extraction(
         self,

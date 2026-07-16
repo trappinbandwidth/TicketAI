@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 
-from app.services.claude_client import process_document
+from app.services.document_provider import process_document
 from app.services.queue_store import log_agent_event
 from orchestrator.state import TicketState
 
