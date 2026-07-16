@@ -36,6 +36,7 @@ from app.routes.carriers_crm import router as carriers_crm_router
 from app.routes.platform_identity import router as platform_identity_router
 from app.routes.driver_cloud import router as driver_cloud_router
 from app.routes.documents import router as documents_router
+from app.routes.workflows import router as workflows_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 
@@ -135,6 +136,7 @@ app.include_router(carriers_crm_router, prefix="/api/v1")
 app.include_router(platform_identity_router, prefix="/api/v1")
 app.include_router(driver_cloud_router, prefix="/api/v1")
 app.include_router(documents_router, prefix="/api/v1")
+app.include_router(workflows_router, prefix="/api/v1")
 
 
 @app.get("/health")
