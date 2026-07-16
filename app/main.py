@@ -46,6 +46,7 @@ from app.routes.partner_api import router as partner_api_router
 from app.routes.platform_analytics import router as platform_analytics_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
+from app.security import SecurityHeadersMiddleware, allowed_origins
 
 logger = logging.getLogger(__name__)
 
@@ -109,10 +110,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(router, prefix="/api/v1")
 app.include_router(queue_router, prefix="/api/v1")

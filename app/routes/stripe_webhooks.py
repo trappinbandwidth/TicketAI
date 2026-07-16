@@ -8,9 +8,8 @@ Events handled:
   customer.subscription.deleted   → set subscription status to 'canceled'
   invoice.payment_failed          → set subscription status to 'past_due', log alert
 
-Webhook secret is read from STRIPE_WEBHOOK_SECRET env var.
-Without it the route still accepts events but skips signature verification
-(dev / local mode).
+Webhook secret is read from STRIPE_WEBHOOK_SECRET. Events always fail closed
+when the secret or signature is missing.
 """
 
 import logging
@@ -64,19 +63,16 @@ async def stripe_webhook(
 ):
     payload = await request.body()
 
-    # Verify signature if secret is configured
-    if WEBHOOK_SECRET:
-        try:
-            event = stripe.Webhook.construct_event(payload, stripe_signature, WEBHOOK_SECRET)
-        except stripe.error.SignatureVerificationError as exc:
-            logger.warning("[stripe] webhook signature invalid: %s", exc)
-            raise HTTPException(status_code=400, detail="Invalid Stripe signature")
-    else:
-        import json
-        try:
-            event = stripe.Event.construct_from(json.loads(payload), stripe.api_key)
-        except Exception as exc:
-            raise HTTPException(status_code=400, detail=f"Malformed event: {exc}")
+    if not WEBHOOK_SECRET:
+        logger.error("[stripe] webhook rejected: STRIPE_WEBHOOK_SECRET is not configured")
+        raise HTTPException(status_code=503, detail="Stripe webhook verification unavailable")
+    if not stripe_signature:
+        raise HTTPException(status_code=400, detail="Missing Stripe signature")
+    try:
+        event = stripe.Webhook.construct_event(payload, stripe_signature, WEBHOOK_SECRET)
+    except (stripe.error.SignatureVerificationError, ValueError) as exc:
+        logger.warning("[stripe] webhook signature invalid")
+        raise HTTPException(status_code=400, detail="Invalid Stripe signature") from exc
 
     etype = event["type"]
     data  = event["data"]["object"]
@@ -103,8 +99,9 @@ async def stripe_webhook(
 
     except Exception as exc:
         logger.error("[stripe] event handler failed type=%s: %s", etype, exc)
-        # Return 200 so Stripe doesn't retry indefinitely
-        return {"received": True, "handled": False, "error": str(exc)}
+        # A processing failure must be retryable and must not expose internal
+        # exception detail to an unauthenticated caller.
+        raise HTTPException(status_code=500, detail="Stripe event processing failed") from exc
 
     return {"received": True, "handled": True}
 

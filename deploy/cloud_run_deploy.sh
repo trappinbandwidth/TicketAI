@@ -85,7 +85,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --concurrency 10 \
   --min-instances 0 \
   --max-instances 5 \
-  --set-env-vars "FIREBASE_PROJECT_ID=${PROJECT_ID},USE_MOCK=false,PROMPT_VERSION=v2" \
+  --set-env-vars "^@^FIREBASE_PROJECT_ID=${PROJECT_ID}@USE_MOCK=false@PROMPT_VERSION=v2@APP_ENV=production@CORS_ALLOWED_ORIGINS=https://rigresolve.web.app|https://rigresolve-attorney.web.app|https://rigresolve-carrier.web.app|https://rigresolve-admin.web.app" \
   --set-secrets "ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,API_KEY=AI_ENGINE_API_KEY:latest" \
   --allow-unauthenticated
 
