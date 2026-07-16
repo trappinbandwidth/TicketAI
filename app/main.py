@@ -42,6 +42,7 @@ from app.routes.carrier_resolve import router as carrier_resolve_router
 from app.routes.platform_admin import router as platform_admin_router
 from app.routes.platform_integrations import router as platform_integrations_router
 from app.routes.platform_finance import router as platform_finance_router
+from app.routes.partner_api import router as partner_api_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 
@@ -147,6 +148,7 @@ app.include_router(carrier_resolve_router, prefix="/api/v1")
 app.include_router(platform_admin_router, prefix="/api/v1")
 app.include_router(platform_integrations_router, prefix="/api/v1")
 app.include_router(platform_finance_router, prefix="/api/v1")
+app.include_router(partner_api_router, prefix="/api/v1")
 
 
 @app.get("/health")
