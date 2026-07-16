@@ -2,7 +2,12 @@ import pytest
 from fastapi import HTTPException
 
 from app.routes import attorney_cases
-from app.routes.attorney_cases import ActivityUpdate, _legacy_case_access
+from app.routes.attorney_cases import (
+    ActivityUpdate,
+    ConflictDecisionBody,
+    _legacy_case_access,
+    _require_verified_attorney,
+)
 from tests.test_platform_identity import FakeDb
 
 
@@ -57,3 +62,34 @@ def test_activity_route_denies_non_owner_and_still_emits_shadow(monkeypatch):
     assert write_exc.value.status_code == 403
     assert [item["action"] for item in comparisons] == ["read_activity", "write_activity"]
     assert all(item["allowed"] is False for item in comparisons)
+
+
+def test_unverified_attorney_is_denied_governed_marketplace_access():
+    db = FakeDb()
+    db.collection("attorneys").document("attorney_1").set({
+        "verification_status": "pending",
+    })
+
+    with pytest.raises(HTTPException) as exc:
+        _require_verified_attorney(db, "attorney_1")
+
+    assert exc.value.status_code == 403
+
+
+def test_conflict_decision_is_idempotent_and_audited(monkeypatch):
+    db = FakeDb()
+    db.collection("attorneys").document("attorney_1").set({
+        "verification_status": "verified",
+    })
+    db.collection("tickets").document("case_1").set({"attorney_status": "New"})
+    monkeypatch.setenv("TIP_OS_ATTORNEY_GOVERNANCE_ENABLED", "true")
+    monkeypatch.setattr(attorney_cases, "_verify_token", lambda _: {"uid": "attorney_1"})
+    monkeypatch.setattr(attorney_cases, "_db", lambda: db)
+    body = ConflictDecisionBody(decision="no_conflict", reason="Parties checked")
+
+    first = attorney_cases.record_conflict_decision("case_1", body, "Bearer test")
+    second = attorney_cases.record_conflict_decision("case_1", body, "Bearer test")
+
+    assert first["conflict_decision"]["id"] == second["conflict_decision"]["id"]
+    assert len(db.collection("attorney_conflict_decisions").rows) == 1
+    assert len(db.collection("audit_events").rows) == 1
