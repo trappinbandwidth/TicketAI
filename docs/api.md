@@ -39,7 +39,7 @@ Runs the full AI agent pipeline on one or more ticket images. The primary endpoi
 | `driver_name` | string | No | Driver full name hint to help AI extraction. |
 | `source` | string | No | `driver_upload` (default) or `manual`. Controls `attorney_status` on Firestore write. |
 | `prompt_version` | string | No | `v2` (default). Selects which extraction prompt to use. |
-| `driver_statement` | string | No | JSON-encoded driver intake form (9 fields for Statement of Record). |
+| `driver_statement` | string | No | JSON-encoded driver intake form (9 fields for Douglass). |
 | `evidence_files_json` | string | No | JSON-encoded array of `{url, caption, file_type, filename}` evidence items. |
 
 *Required for Firestore dual-write. If omitted, scan runs but does not persist to Firestore.
@@ -545,7 +545,7 @@ Records the final case outcome. Called by admin or attorney portal when a case r
 **Side effects:**
 - Updates `tickets/{ticket_id}` with outcome fields and `attorney_status: "Ticket Closed"`
 - Updates `drivers/{driver_id}/tickets/{ticket_id}` with outcome fields
-- Sends driver notification via Driver Concierge
+- Sends driver notification via Anansi
 
 **Response:**
 ```json

@@ -327,7 +327,7 @@ def recalculate_attorney(db, attorney_id: str) -> Optional[dict]:
 
     if provisional:
         # §3.1 — not scored while provisional; stays bronze regardless of early luck.
-        # win_rate still populated (prior-dominated) so Team Quest's ORDER BY
+        # win_rate still populated (prior-dominated) so Madam Walker's ORDER BY
         # win_rate DESC keeps working; the API renders "Provisional" for the UI.
         rate, wcases, wwins = compute_trailing_window(
             db, attorney_id, config["silver"]["trailing_window_days"]

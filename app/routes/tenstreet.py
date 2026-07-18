@@ -123,12 +123,14 @@ async def tenstreet_webhook(
     if not ts_config.get("enabled"):
         raise HTTPException(status_code=400, detail="TenStreet integration not enabled for this carrier.")
 
-    # Verify signature when api_key is configured
+    # Webhook authentication is fail-closed. An enabled integration without a
+    # secret is a configuration error, never an unsigned compatibility mode.
     api_key = ts_config.get("api_key", "")
-    if api_key and x_tenstreet_signature:
-        if not _verify_hmac(payload, x_tenstreet_signature, api_key):
-            logger.warning("[tenstreet] invalid signature carrier=%s", carrier_uid)
-            raise HTTPException(status_code=401, detail="Invalid signature.")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="TenStreet webhook secret is not configured.")
+    if not x_tenstreet_signature or not _verify_hmac(payload, x_tenstreet_signature, api_key):
+        logger.warning("[tenstreet] invalid or missing signature carrier=%s", carrier_uid)
+        raise HTTPException(status_code=401, detail="Invalid signature.")
 
     try:
         event = json.loads(payload)

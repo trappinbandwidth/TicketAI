@@ -129,7 +129,7 @@ Add `POST /attorney/profile/complete` that accepts the full onboarding payload:
   "paralegal_phone": "8505550199"
 }
 ```
-Writes to `attorneys/{uid}` in Firestore. Used by `team_quest.py` in AI engine for attorney matching.
+Writes to `attorneys/{uid}` in Firestore. Used by `madam_walker.py` in AI engine for attorney matching.
 
 _Files:_ New backend route, `frontend/src/sections/onboarding/chapter-4/ready-to-bid-view.tsx` (trigger on final submit)
 
@@ -539,7 +539,7 @@ These are changes to the existing FastAPI AI Ticket Engine needed to support att
 |----|--------|---------|
 | AE-01 | Add `source=carrier_upload` handling | P0 | ✅ Done |
 | AE-02 | `POST /api/v1/process` accept `carrier_id` param | P0 | ✅ Done |
-| AE-03 | Wire real attorney profiles into team_quest matching | P1 | ✅ Done |
+| AE-03 | Wire real attorney profiles into madam_walker matching | P1 | ✅ Done |
 | AE-04 | `POST /api/v1/decline-case` route | P1 | ✅ Done |
 | AE-05 | Twilio SMS + SendGrid email on ticket status change | P1 | ✅ Done |
 | AE-06 | `POST /api/v1/file-request` route | P2 | ✅ Done |
@@ -590,7 +590,7 @@ _Close all attorney portal gaps_
 12. **AP-07** — Fix O(n) notification query
 13. **INF-05 + INF-06** — Twilio + SendGrid setup
 14. **AP-12** — SMS + email case update triggers
-15. **AE-03** — Wire real attorney profiles into team_quest matching
+15. **AE-03** — Wire real attorney profiles into madam_walker matching
 16. **INF-10** — Firebase custom claims for reviewer/staff roles
 
 ### Phase 3 — Carrier Portal Foundation (Weeks 7–10)
@@ -656,7 +656,7 @@ If you're starting a work session and want to know what to pick up next, in orde
 | # | Question | Needed For |
 |---|---------|-----------|
 | Q1 | MVR vendor: SambaSafety continuous monitoring vs. CheckMVR one-time pulls? SambaSafety is better for fleet compliance but costs more per driver. | CP-10 |
-| Q2 | Which states should be attorney coverage priority? Drives onboarding outreach order. | AP-03, team_quest |
+| Q2 | Which states should be attorney coverage priority? Drives onboarding outreach order. | AP-03, madam_walker |
 | Q3 | Carrier subscription pricing: What are the Silver/Gold/Platinum per-driver monthly rates? | CP-06 |
 | Q4 | Fine payment: Does Rig Resolve take a processing fee when paying a fine through the portal, or is it pass-through? | CP-07 |
 | Q5 | TenStreet: Do you have an existing TenStreet account we can test with, or is this net-new? | CP-11 |

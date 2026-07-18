@@ -54,7 +54,9 @@ def list_attorneys(authorization: Optional[str] = Header(None)):
     require_staff(authorization)
     db = _db()
     try:
-        docs = db.collection("attorneys").where("status", "==", "active").stream()
+        # Both management-created accounts (active) and the newer application
+        # pipeline (onboarded) are approved and eligible for assignment.
+        docs = db.collection("attorneys").where("status", "in", ["active", "onboarded"]).stream()
         attorneys = []
         for d in docs:
             data = d.to_dict()
@@ -71,6 +73,10 @@ def list_attorneys(authorization: Optional[str] = Header(None)):
                 "phone": data.get("phone", ""),
                 "email": data.get("email", ""),
                 "preferred_contact_method": data.get("preferred_contact_method", "phone"),
+                "fee_structure": data.get("fee_structure", ""),
+                "pricing_flat_rate": data.get("pricing_flat_rate", ""),
+                "pricing_volume": data.get("pricing_volume", ""),
+                "pricing_complete": bool(data.get("fee_structure") or data.get("pricing_flat_rate") or data.get("pricing_volume")),
             })
         attorneys.sort(key=lambda a: (a.get("win_rate") or 0), reverse=True)
         return {"attorneys": attorneys, "total": len(attorneys)}
@@ -168,6 +174,46 @@ class CreateCaseBody(BaseModel):
     assigned_by: str
     contact_method: Optional[str] = "phone"
     note: Optional[str] = None
+    agreed_cost: Optional[float] = None
+    cost_source: Optional[str] = None
+
+
+class PricingRequestBody(BaseModel):
+    attorney_ids: list[str]
+    requested_by: str
+    note: Optional[str] = None
+
+
+@router.post("/admin/tickets/{ticket_id}/request-pricing")
+def request_ticket_pricing(ticket_id: str, body: PricingRequestBody,
+                           authorization: Optional[str] = Header(None)):
+    """Request attorney pricing before a case is assigned."""
+    require_staff(authorization)
+    db = _db()
+    from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+    ticket = db.collection("tickets").document(ticket_id).get()
+    if not ticket.exists:
+        raise HTTPException(status_code=404, detail="Ticket not found.")
+    if not body.attorney_ids:
+        raise HTTPException(status_code=400, detail="Select at least one attorney.")
+    request_id = str(uuid.uuid4())
+    payload = {
+        "request_id": request_id, "ticket_id": ticket_id,
+        "attorney_ids": body.attorney_ids, "requested_by": body.requested_by,
+        "note": body.note, "status": "open", "created_at": SERVER_TIMESTAMP,
+    }
+    db.collection("pricing_requests").document(request_id).set(payload)
+    db.collection("tickets").document(ticket_id).update({
+        "pricing_request_status": "open", "pricing_request_id": request_id,
+        "pricing_requested_at": SERVER_TIMESTAMP,
+    })
+    for attorney_id in body.attorney_ids:
+        db.collection("attorney_notifications").document(attorney_id).collection("items").document(request_id).set({
+            "notif_id": request_id, "type": "pricing_request", "ticket_id": ticket_id,
+            "title": "Pricing requested", "message": body.note or "Rig Resolve requested your price for a new case.",
+            "read": False, "created_at": SERVER_TIMESTAMP,
+        })
+    return {"success": True, "request_id": request_id, "attorneys_notified": len(body.attorney_ids)}
 
 
 @router.post("/admin/cases")
@@ -213,6 +259,8 @@ def create_case(body: CreateCaseBody, authorization: Optional[str] = Header(None
             "assigned_at": SERVER_TIMESTAMP,
             "status": "pending_approval",
             "contact_method": body.contact_method,
+            "agreed_cost": body.agreed_cost,
+            "cost_source": body.cost_source or ("manual" if body.agreed_cost is not None else "attorney_profile"),
             "contacted_at": None,
             "attorney_response_at": None,
             "next_followup_date": None,

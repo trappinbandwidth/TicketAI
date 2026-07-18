@@ -9,10 +9,10 @@ describe services by the intelligence they provide.
 
 | External service | Current agents / functions |
 | --- | --- |
-| Document Intelligence | Document Gate, Lone Ranger, Referee, Consensus, Photo Analyst |
-| Legal Intelligence | Research Ron, Team Quest, Statement of Record, court lookup |
-| Compliance Intelligence | Book Worm, PII Match, MVR Request, PSP Request, violation corpus |
-| Operational Intelligence | Urgency Router, Review Queue, Driver Concierge, notifications |
+| Document Intelligence | Document Gate, Carver, Bolin, Bunche, Photo Analyst |
+| Legal Intelligence | Banneker, Madam Walker, Douglass, court lookup |
+| Compliance Intelligence | Charlotte Ray, Jollof, Stagecoach Mary, Bass Reeves, violation corpus |
+| Operational Intelligence | Tubman, Review Queue, Anansi, notifications |
 | Financial Intelligence | Pricing, payment options, payout queue, Financial Service |
 | Predictive Intelligence | Future scoring, outcome learning, attorney performance learning |
 

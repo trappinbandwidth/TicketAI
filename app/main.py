@@ -33,8 +33,22 @@ from app.routes.quote_engine import router as quote_engine_router
 from app.routes.attorney_workspace import router as attorney_workspace_router
 from app.routes.attorney_auth import router as attorney_auth_router
 from app.routes.carriers_crm import router as carriers_crm_router
+from app.routes.platform_identity import router as platform_identity_router
+from app.routes.driver_cloud import router as driver_cloud_router
+from app.routes.documents import router as documents_router
+from app.routes.workflows import router as workflows_router
+from app.routes.intelligence import router as intelligence_router
+from app.routes.carrier_resolve import router as carrier_resolve_router
+from app.routes.platform_admin import router as platform_admin_router
+from app.routes.platform_integrations import router as platform_integrations_router
+from app.routes.platform_finance import router as platform_finance_router
+from app.routes.partner_api import router as partner_api_router
+from app.routes.platform_analytics import router as platform_analytics_router
+from app.routes.platform_launch import router as platform_launch_router
+from app.routes.entity_resolution import router as entity_resolution_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
+from app.security import SecurityHeadersMiddleware, allowed_origins
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +65,10 @@ def _check_env() -> None:
         warnings.append(
             "ANTHROPIC_API_KEY is not set — ticket processing will fail. "
             "Add your Anthropic API key to .env."
+        )
+    if not os.getenv("OPENAI_API_KEY", ""):
+        warnings.append(
+            "OPENAI_API_KEY is not set — OpenAI routing/fallback will be unavailable."
         )
 
     has_sa_json  = bool(os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip())
@@ -98,10 +116,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(router, prefix="/api/v1")
 app.include_router(queue_router, prefix="/api/v1")
@@ -129,6 +148,19 @@ app.include_router(quote_engine_router, prefix="/api/v1")
 app.include_router(attorney_workspace_router, prefix="/api/v1")
 app.include_router(attorney_auth_router, prefix="/api/v1")
 app.include_router(carriers_crm_router, prefix="/api/v1")
+app.include_router(platform_identity_router, prefix="/api/v1")
+app.include_router(driver_cloud_router, prefix="/api/v1")
+app.include_router(documents_router, prefix="/api/v1")
+app.include_router(workflows_router, prefix="/api/v1")
+app.include_router(intelligence_router, prefix="/api/v1")
+app.include_router(carrier_resolve_router, prefix="/api/v1")
+app.include_router(platform_admin_router, prefix="/api/v1")
+app.include_router(platform_integrations_router, prefix="/api/v1")
+app.include_router(platform_finance_router, prefix="/api/v1")
+app.include_router(partner_api_router, prefix="/api/v1")
+app.include_router(platform_analytics_router, prefix="/api/v1")
+app.include_router(platform_launch_router, prefix="/api/v1")
+app.include_router(entity_resolution_router, prefix="/api/v1")
 
 
 @app.get("/health")

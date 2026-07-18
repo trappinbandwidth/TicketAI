@@ -21,6 +21,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -72,6 +73,8 @@ _SEED_ATTORNEYS = [
 
 def _fs():
     """Return the Firestore client. Raises RuntimeError if not configured."""
+    if os.getenv("USE_MOCK", "true").lower() == "true":
+        raise RuntimeError("Firestore is disabled in mock mode.")
     from app.services.firebase_service import _firestore_client, _init
     _init()
     if _firestore_client is None:

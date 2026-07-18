@@ -4,10 +4,10 @@ Operational Agents — continuous case management endpoints.
 All endpoints are protected by the same x-api-key as the process endpoint.
 Designed to be called by Cloud Scheduler (cron) or manually by the team.
 
-  POST /operations/court-deadlines        Court Deadline Monitor  (cron: daily 8am)
-  POST /operations/record-outcome/{id}    Outcome Recorder        (attorney portal trigger)
-  GET  /operations/payment-alerts         Payment Alert           (cron: daily)
-  GET  /operations/case-status            Case Status Tracker     (on demand)
+  POST /operations/court-deadlines        Bessie Coleman  (cron: daily 8am)
+  POST /operations/record-outcome/{id}    William Still        (attorney portal trigger)
+  GET  /operations/payment-alerts         Maggie Walker           (cron: daily)
+  GET  /operations/case-status            Bayard Rustin     (on demand)
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from app.routes._common import require_staff
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from app.services.driver_concierge import notify_court_reminder, notify_driver
+from app.services.anansi import anansi_court_reminder, anansi_notify
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -61,10 +61,10 @@ def _firestore_client():
     return _fc
 
 
-# ── Agent 3: Court Deadline Monitor ──────────────────────────────────────────
+# ── Agent 3: Bessie Coleman ──────────────────────────────────────────
 
 @router.post("/operations/court-deadlines")
-def run_court_deadline_monitor(
+def bessie_coleman_court_deadlines(
     send_driver_reminders: bool = True,
     authorization: Optional[str] = Header(None),
 ):
@@ -126,13 +126,13 @@ def run_court_deadline_monitor(
                     card["urgency_level"] = "CRITICAL"
                     buckets["CRITICAL"].append(card)
                     if send_driver_reminders and driver_id:
-                        notify_court_reminder(driver_id, ticket_id, court_date, days_until, atty_name)
+                        anansi_court_reminder(driver_id, ticket_id, court_date, days_until, atty_name)
                         reminders_sent += 1
                 elif days_until < 21:
                     card["urgency_level"] = "HIGH"
                     buckets["HIGH"].append(card)
                     if send_driver_reminders and driver_id and days_until in (7, 14):
-                        notify_court_reminder(driver_id, ticket_id, court_date, days_until, atty_name)
+                        anansi_court_reminder(driver_id, ticket_id, court_date, days_until, atty_name)
                         reminders_sent += 1
                 elif days_until < 60:
                     buckets["STANDARD"].append(card)
@@ -164,7 +164,7 @@ def run_court_deadline_monitor(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-# ── Agent 4: Outcome Recorder ─────────────────────────────────────────────────
+# ── Agent 4: William Still ─────────────────────────────────────────────────
 
 class OutcomeRequest(BaseModel):
     outcome: str                        # won | dismissed | reduced | lost | transferred
@@ -176,7 +176,7 @@ class OutcomeRequest(BaseModel):
 _VALID_OUTCOMES = {"won", "dismissed", "reduced", "lost", "transferred"}
 
 @router.post("/operations/record-outcome/{ticket_id}")
-def record_outcome(
+def william_still_record_outcome(
     ticket_id: str,
     body: OutcomeRequest,
     authorization: Optional[str] = Header(None),
@@ -184,7 +184,7 @@ def record_outcome(
     """
     Records the final case outcome after an attorney closes a case.
     Writes to both Firestore paths (tickets/ and drivers/.../tickets/).
-    Triggers Driver Concierge to notify the driver.
+    Triggers Anansi to notify the driver.
     Feeds outcome data back for attorney performance tracking.
     """
     require_staff(authorization)
@@ -241,7 +241,7 @@ def record_outcome(
                 })
 
             # Notify driver
-            notify_driver(
+            anansi_notify(
                 driver_id, ticket_id, "Ticket Closed",
                 context={"outcome": _outcome_display(body.outcome, body.final_charge)},
             )
@@ -291,10 +291,10 @@ def _outcome_display(outcome: str, final_charge: Optional[str]) -> str:
     return labels.get(outcome, outcome.title())
 
 
-# ── Agent 5: Payment Alert ────────────────────────────────────────────────────
+# ── Agent 5: Maggie Walker ────────────────────────────────────────────────────
 
 @router.get("/operations/payment-alerts")
-def get_payment_alerts(authorization: Optional[str] = Header(None)):
+def maggie_walker_payment_alerts(authorization: Optional[str] = Header(None)):
     """
     Scans all driver profiles for subscription issues:
       - lapsed / cancelled subscriptions
@@ -388,10 +388,10 @@ def get_payment_alerts(authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-# ── Agent 6: Case Status Tracker ─────────────────────────────────────────────
+# ── Agent 6: Bayard Rustin ─────────────────────────────────────────────
 
 @router.get("/operations/case-status")
-def get_case_status(
+def bayard_rustin_case_status(
     state: Optional[str] = None,
     urgency: Optional[str] = None,
     authorization: Optional[str] = Header(None),

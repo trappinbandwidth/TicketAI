@@ -2,49 +2,49 @@
 AI Ticket Engine — LangGraph Orchestration
 
 Pipeline:
-  Case Intake (validate input)
-    → (fail) escalate_red immediately
-    → (ok) Lone Ranger (pass 1, temp=1.0)
-         → Referee (initial scoring)
-             GREEN  → Document Completeness → Book Worm → PII Match → MVR Request
-                    → PSP Request → Research Ron → Team Quest → Urgency Router
-                    → Statement of Record → assemble_green
-             YELLOW → Lone Ranger 2 (pass 2, temp=0.4)
-                    → Consensus (merge, flag conflicts)
-                    → Referee 2 (re-score merged extraction)
-                    → Document Completeness → Book Worm → PII Match → MVR Request
-                    → PSP Request → Research Ron → Team Quest → Urgency Router
-                    → Statement of Record → assemble_yellow
-             RED    → Lone Ranger 2 → Consensus → Referee 2 → escalate_red
+  Roux (validate input)
+    → (fail) griot_escalate_red immediately
+    → (ok) Carver (pass 1, temp=1.0)
+         → Bolin (initial scoring)
+             GREEN  → Ida Wells → Charlotte Ray → Jollof → Stagecoach Mary
+                    → Bass Reeves → Banneker → Madam Walker → Tubman
+                    → Douglass → griot_assemble_green
+             YELLOW → Carver 2 (pass 2, temp=0.4)
+                    → Bunche (merge, flag conflicts)
+                    → Bolin 2 (re-score merged extraction)
+                    → Ida Wells → Charlotte Ray → Jollof → Stagecoach Mary
+                    → Bass Reeves → Banneker → Madam Walker → Tubman
+                    → Douglass → griot_assemble_yellow
+             RED    → Carver 2 → Bunche → Bolin 2 → griot_escalate_red
 
-Document Completeness: audits extraction field-by-field, produces completeness_score
-PII Match:             verifies driver CDL against Firestore profile
-MVR Request:           queues Motor Vehicle Record pull (pending, async in production)
-PSP Request:           queues FMCSA PSP report pull (pending, async in production)
-Research Ron:          jurisdiction enrichment — court system context, CDL rules
-Team Quest:            attorney matching — top 3 CDL attorneys by state/county
-Urgency Router:        calculates CRITICAL/HIGH/STANDARD/LOW from court date
-Statement of Record:   officer vs. driver dual-account, conflict map, evidence index
+Ida Wells: audits extraction field-by-field, produces completeness_score
+Jollof:             verifies driver CDL against Firestore profile
+Stagecoach Mary:           queues Motor Vehicle Record pull (pending, async in production)
+Bass Reeves:           queues FMCSA PSP report pull (pending, async in production)
+Banneker:          jurisdiction enrichment — court system context, CDL rules
+Madam Walker:            attorney matching — top 3 CDL attorneys by state/county
+Tubman:        calculates CRITICAL/HIGH/STANDARD/LOW from court date
+Douglass:   officer vs. driver dual-account, conflict map, evidence index
 """
 import logging
 
 from langgraph.graph import END, START, StateGraph
 
-from agents.book_worm import book_worm
-from agents.case_intake import case_intake
-from agents.consensus import consensus
-from agents.document_completeness import document_completeness
+from agents.charlotte_ray import charlotte_ray_lookup
+from agents.roux import roux
+from agents.bunche import bunche_merge
+from agents.ida_wells import ida_wells_audit
 from agents.document_gate import document_gate
-from agents.lone_ranger import lone_ranger, lone_ranger_2
-from agents.mvr_request import mvr_request
+from agents.carver import carver_pass1, carver_pass2
+from agents.stagecoach_mary import stagecoach_mary_queue
 from agents.photo_analyst import photo_analyst_node
-from agents.pii_match import pii_match
-from agents.psp_request import psp_request
-from agents.referee import referee
-from agents.research_ron import research_ron
-from agents.statement_of_record import statement_of_record as sor_agent
-from agents.team_quest import team_quest
-from agents.urgency_router import urgency_router
+from agents.jollof import jollof_match
+from agents.bass_reeves import bass_reeves_queue
+from agents.bolin import bolin_score
+from agents.banneker import banneker_lookup
+from agents.douglass import douglass_compare
+from agents.madam_walker import madam_walker_match
+from agents.tubman import tubman_route
 from app.services.bbox_matcher import attach_bboxes
 from orchestrator.state import PassStatus, TicketState
 
@@ -96,18 +96,18 @@ def assemble_unknown(state: TicketState) -> dict:
     return base
 
 
-def assemble_green(state: TicketState) -> dict:
-    logger.warning("[graph] ROUTE → assemble_green  file=%s", state.get("filename", "unknown"))
+def griot_assemble_green(state: TicketState) -> dict:
+    logger.warning("[graph] ROUTE → griot_assemble_green  file=%s", state.get("filename", "unknown"))
     return _build_final_result(state)
 
 
-def assemble_yellow(state: TicketState) -> dict:
-    logger.warning("[graph] ROUTE → assemble_yellow  file=%s", state.get("filename", "unknown"))
+def griot_assemble_yellow(state: TicketState) -> dict:
+    logger.warning("[graph] ROUTE → griot_assemble_yellow  file=%s", state.get("filename", "unknown"))
     return _build_final_result(state)
 
 
-def escalate_red(state: TicketState) -> dict:
-    logger.warning("[graph] ROUTE → escalate_red  file=%s  reason=%s",
+def griot_escalate_red(state: TicketState) -> dict:
+    logger.warning("[graph] ROUTE → griot_escalate_red  file=%s  reason=%s",
                    state.get("filename", "unknown"), state.get("referee_notes", ""))
     base = _build_final_result(state)
     base["final_result"]["escalation_reason"] = (
@@ -118,9 +118,9 @@ def escalate_red(state: TicketState) -> dict:
     return base
 
 
-def route_after_case_intake(state: TicketState) -> str:
+def route_after_roux(state: TicketState) -> str:
     if state.get("intake_errors"):
-        logger.warning("[graph] case_intake FAIL → escalate_red  errors=%s", state["intake_errors"])
+        logger.warning("[graph] roux FAIL → griot_escalate_red  errors=%s", state["intake_errors"])
         return "fail"
     return "ok"
 
@@ -135,7 +135,7 @@ def route_after_document_gate(state: TicketState) -> str:
     return "document"
 
 
-def route_after_first_referee(state: TicketState) -> str:
+def route_after_first_bolin(state: TicketState) -> str:
     status = state.get("pass_status", PassStatus.RED)
     if status == PassStatus.GREEN:
         logger.warning("[graph] FAST PATH file=%s — GREEN on first pass, skipping dual extraction",
@@ -146,7 +146,7 @@ def route_after_first_referee(state: TicketState) -> str:
     return "needs_second_pass"
 
 
-def route_after_sor_agent(state: TicketState) -> str:
+def route_after_douglass(state: TicketState) -> str:
     status = state.get("pass_status", PassStatus.RED)
     route = "green" if status == PassStatus.GREEN else "yellow" if status == PassStatus.YELLOW else "red"
     logger.warning("[graph] final routing  file=%s  pass_status=%s  → %s",
@@ -161,39 +161,39 @@ def build_graph() -> StateGraph:
     # Future agents should be added with a stable AGENT_NAME, state field,
     # identity metadata, admin visibility, and tests. See
     # docs/agent-extension-guide.md before changing graph control flow.
-    graph.add_node("case_intake", case_intake)
+    graph.add_node("roux", roux)
     graph.add_node("document_gate", document_gate)
     graph.add_node("photo_analyst", photo_analyst_node)
     graph.add_node("assemble_photo", assemble_photo)
     graph.add_node("assemble_unknown", assemble_unknown)
-    graph.add_node("lone_ranger", lone_ranger)
-    graph.add_node("referee", referee)
-    graph.add_node("lone_ranger_2", lone_ranger_2)
-    graph.add_node("consensus", consensus)
-    graph.add_node("referee_2", referee)
-    graph.add_node("document_completeness", document_completeness)
-    graph.add_node("book_worm", book_worm)
-    graph.add_node("pii_match", pii_match)
-    graph.add_node("mvr_agent", mvr_request)
-    graph.add_node("psp_agent", psp_request)
-    graph.add_node("research_ron", research_ron)
-    graph.add_node("team_quest", team_quest)
-    graph.add_node("urgency_router", urgency_router)
-    graph.add_node("sor_agent", sor_agent)
-    graph.add_node("assemble_green", assemble_green)
-    graph.add_node("assemble_yellow", assemble_yellow)
-    graph.add_node("escalate_red", escalate_red)
+    graph.add_node("carver_pass1", carver_pass1)
+    graph.add_node("bolin", bolin_score)
+    graph.add_node("carver_pass2", carver_pass2)
+    graph.add_node("bunche", bunche_merge)
+    graph.add_node("bolin_2", bolin_score)
+    graph.add_node("ida_wells", ida_wells_audit)
+    graph.add_node("charlotte_ray", charlotte_ray_lookup)
+    graph.add_node("jollof", jollof_match)
+    graph.add_node("stagecoach_mary", stagecoach_mary_queue)
+    graph.add_node("bass_reeves", bass_reeves_queue)
+    graph.add_node("banneker", banneker_lookup)
+    graph.add_node("madam_walker", madam_walker_match)
+    graph.add_node("tubman", tubman_route)
+    graph.add_node("douglass", douglass_compare)
+    graph.add_node("griot_assemble_green", griot_assemble_green)
+    graph.add_node("griot_assemble_yellow", griot_assemble_yellow)
+    graph.add_node("griot_escalate_red", griot_escalate_red)
 
     # ── Edges ────────────────────────────────────────────────────────────────
 
-    # Case Intake gate — fail fast before touching Claude
-    graph.add_edge(START, "case_intake")
+    # Roux gate — fail fast before touching Claude
+    graph.add_edge(START, "roux")
     graph.add_conditional_edges(
-        "case_intake",
-        route_after_case_intake,
+        "roux",
+        route_after_roux,
         {
             "ok": "document_gate",
-            "fail": "escalate_red",
+            "fail": "griot_escalate_red",
         },
     )
 
@@ -204,7 +204,7 @@ def build_graph() -> StateGraph:
         {
             "photo":    "photo_analyst",
             "unknown":  "assemble_unknown",
-            "document": "lone_ranger",
+            "document": "carver_pass1",
         },
     )
     graph.add_edge("photo_analyst", "assemble_photo")
@@ -212,56 +212,56 @@ def build_graph() -> StateGraph:
     graph.add_edge("assemble_unknown", END)
 
     # Pass 1
-    graph.add_edge("lone_ranger", "referee")
+    graph.add_edge("carver_pass1", "bolin")
 
     # Branch: fast path for green, second pass for yellow/red
     graph.add_conditional_edges(
-        "referee",
-        route_after_first_referee,
+        "bolin",
+        route_after_first_bolin,
         {
-            "fast_green": "document_completeness",
-            "needs_second_pass": "lone_ranger_2",
+            "fast_green": "ida_wells",
+            "needs_second_pass": "carver_pass2",
         },
     )
 
     # Second-pass chain
-    graph.add_edge("lone_ranger_2", "consensus")
-    graph.add_edge("consensus", "referee_2")
+    graph.add_edge("carver_pass2", "bunche")
+    graph.add_edge("bunche", "bolin_2")
 
     # After re-scoring — GREEN/YELLOW into enrichment chain, RED to escalate
     graph.add_conditional_edges(
-        "referee_2",
-        lambda s: "enrich" if s.get("pass_status") in (PassStatus.GREEN, PassStatus.YELLOW) else "escalate_red",
+        "bolin_2",
+        lambda s: "enrich" if s.get("pass_status") in (PassStatus.GREEN, PassStatus.YELLOW) else "griot_escalate_red",
         {
-            "enrich": "document_completeness",
-            "escalate_red": "escalate_red",
+            "enrich": "ida_wells",
+            "griot_escalate_red": "griot_escalate_red",
         },
     )
 
     # Enrichment chain (shared by fast-green and yellow paths)
-    graph.add_edge("document_completeness", "book_worm")
-    graph.add_edge("book_worm", "pii_match")
-    graph.add_edge("pii_match", "mvr_agent")
-    graph.add_edge("mvr_agent", "psp_agent")
-    graph.add_edge("psp_agent", "research_ron")
-    graph.add_edge("research_ron", "team_quest")
-    graph.add_edge("team_quest", "urgency_router")
-    graph.add_edge("urgency_router", "sor_agent")
+    graph.add_edge("ida_wells", "charlotte_ray")
+    graph.add_edge("charlotte_ray", "jollof")
+    graph.add_edge("jollof", "stagecoach_mary")
+    graph.add_edge("stagecoach_mary", "bass_reeves")
+    graph.add_edge("bass_reeves", "banneker")
+    graph.add_edge("banneker", "madam_walker")
+    graph.add_edge("madam_walker", "tubman")
+    graph.add_edge("tubman", "douglass")
 
     # Final routing
     graph.add_conditional_edges(
-        "sor_agent",
-        route_after_sor_agent,
+        "douglass",
+        route_after_douglass,
         {
-            "green": "assemble_green",
-            "yellow": "assemble_yellow",
-            "red": "escalate_red",
+            "green": "griot_assemble_green",
+            "yellow": "griot_assemble_yellow",
+            "red": "griot_escalate_red",
         },
     )
 
-    graph.add_edge("assemble_green", END)
-    graph.add_edge("assemble_yellow", END)
-    graph.add_edge("escalate_red", END)
+    graph.add_edge("griot_assemble_green", END)
+    graph.add_edge("griot_assemble_yellow", END)
+    graph.add_edge("griot_escalate_red", END)
 
     return graph.compile()
 

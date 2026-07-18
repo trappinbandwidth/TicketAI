@@ -41,7 +41,7 @@ All frontends authenticate via Firebase Auth (email/password). Each backend veri
 #### 3. Ticket Submission
 Upload flow for driver-submitted tickets (`source: "driver_upload"`):
 1. Photo capture or gallery upload (JPEG/PNG/PDF)
-2. Optional: Driver statement form (9 fields for Statement of Record)
+2. Optional: Driver statement form (9 fields for Douglass)
    - Where stopped / what you were doing / weather / road signs / your speed
    - What the officer said / dashcam? / other witnesses / dispute details
 3. Optional: Evidence upload (dashcam footage, receipts, photos)
@@ -99,9 +99,9 @@ Standard email/password via Firebase Auth SDK.
 #### 4. Case Detail
 - Full ticket extraction: all extracted fields, confidence scores, court info
 - Driver contact info
-- Statement of Record (when driver submitted one)
-- CDL impact analysis from Book Worm
-- Jurisdiction context from Research Ron (appearance rules, court portal links)
+- Douglass (when driver submitted one)
+- CDL impact analysis from Charlotte Ray
+- Jurisdiction context from Banneker (appearance rules, court portal links)
 - Outcome recording form: won / dismissed / reduced / lost / transferred
 
 #### 5. Attorney Profile
@@ -186,7 +186,7 @@ Primary workflow for staff reviewers. Shows all tickets in `AI Review` status.
 - Urgency badge (CRITICAL / HIGH / STANDARD / LOW) with days until court
 - Completeness score (0–100%) — how complete the AI extraction is
 - CDL match status (match / mismatch / unverified) — PII check result
-- Conflict count from Statement of Record
+- Conflict count from Douglass
 - MVR/PSP request status
 - Low confidence fields list
 - Pass status: GREEN / YELLOW / RED
@@ -274,7 +274,7 @@ Two panels for continuous operational monitoring.
 - Each row: driver, violation, state, current status, attorney, days until court
 - Also triggers court reminder notifications to drivers when run
 
-#### Payment Alerts Panel
+#### Maggie Walker Panel
 - "Load Alerts" button → `GET /operations/payment-alerts`
 - Returns three alert categories:
   - **OPEN_CASE_LAPSED** (red) — driver has open case but subscription lapsed; most urgent
@@ -330,16 +330,16 @@ Agent-level health monitoring and per-agent performance stats.
 **Sorted by health score ascending (worst first).** Each agent card shows:
 - Total events, error count, health score
 - Agent-specific stats:
-  - **Lone Ranger**: avg fields filled per pass, top empty fields, top low-confidence fields
-  - **Referee**: avg confidence score, top critical failures, low-confidence field frequency
-  - **Consensus**: avg improvements per scan, top dual-conflict fields
-  - **Book Worm**: unknown category count, zero-point tickets, attorney-recommended count
-  - **Case Intake**: pass/fail counts, top intake errors
-  - **Document Completeness**: avg completeness score, top missing fields
-  - **PII Match**: match/mismatch/unverified counts, mismatch rate
-  - **MVR Request**: queued vs. skipped counts
-  - **PSP Request**: queued vs. skipped counts
-  - **Urgency Router**: CRITICAL/HIGH/STANDARD/LOW distribution, avg days until court
+  - **Carver**: avg fields filled per pass, top empty fields, top low-confidence fields
+  - **Bolin**: avg confidence score, top critical failures, low-confidence field frequency
+  - **Bunche**: avg improvements per scan, top dual-conflict fields
+  - **Charlotte Ray**: unknown category count, zero-point tickets, attorney-recommended count
+  - **Roux**: pass/fail counts, top intake errors
+  - **Ida Wells**: avg completeness score, top missing fields
+  - **Jollof**: match/mismatch/unverified counts, mismatch rate
+  - **Stagecoach Mary**: queued vs. skipped counts
+  - **Bass Reeves**: queued vs. skipped counts
+  - **Tubman**: CRITICAL/HIGH/STANDARD/LOW distribution, avg days until court
 
 Filter by time window: 7 / 14 / 30 days
 

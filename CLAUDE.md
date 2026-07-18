@@ -91,25 +91,25 @@ FastAPI app. Entry point: `app/main.py`. Routes mounted at `/api/v1`.
 ### LangGraph Agent Pipeline (`orchestrator/graph.py`)
 
 ```
-Lone Ranger (pass 1, temp=1.0)
-  → Referee (score extraction)
-      GREEN  → Book Worm → Research Ron → Team Quest → assemble_green
-      YELLOW → Lone Ranger 2 (pass 2, temp=0.4)
-             → Consensus (merge passes, flag conflicts)
-             → Referee 2 (re-score)
-             → Book Worm → Research Ron → Team Quest → assemble_yellow
-      RED    → Lone Ranger 2 → Consensus → Referee 2 → escalate_red
+Carver (pass 1, temp=1.0)
+  → Bolin (score extraction)
+      GREEN  → Charlotte Ray → Banneker → Madam Walker → Griot assemble green
+      YELLOW → Carver 2 (pass 2, temp=0.4)
+             → Bunche (merge passes, flag conflicts)
+             → Bolin 2 (re-score)
+             → Charlotte Ray → Banneker → Madam Walker → Griot assemble yellow
+      RED    → Carver 2 → Bunche → Bolin 2 → Griot escalate red
 ```
 
 ### Agents (`agents/`)
 | Agent | Role |
 |-------|------|
-| `lone_ranger.py` | Primary OCR extraction via Claude — pulls all ticket fields |
-| `referee.py` | Scores extraction quality → GREEN / YELLOW / RED |
-| `consensus.py` | Merges two extraction passes, flags `dual_conflicts` |
-| `book_worm.py` | CDL-specific enrichment (points, disqualification risk) |
-| `research_ron.py` | Jurisdiction research — court system, appearance rules, attorney timelines. Phase 2: S3 corpus lookup (not yet wired) |
-| `team_quest.py` | Attorney matching — finds top 3 CDL attorneys by state/county from local DB |
+| `carver.py` | Primary OCR extraction via Claude — pulls all ticket fields |
+| `bolin.py` | Scores extraction quality → GREEN / YELLOW / RED |
+| `bunche.py` | Merges two extraction passes, flags `dual_conflicts` |
+| `charlotte_ray.py` | CDL-specific enrichment (points, disqualification risk) |
+| `banneker.py` | Jurisdiction research — court system, appearance rules, attorney timelines. Phase 2: S3 corpus lookup (not yet wired) |
+| `madam_walker.py` | Attorney matching — finds top 3 CDL attorneys by state/county from local DB |
 
 ### Firestore dual-write (`app/services/firebase_service.py`)
 
@@ -262,7 +262,7 @@ yarn build && npx firebase deploy --only hosting --project rigresolve
 | Item | Priority | Notes |
 |------|----------|-------|
 | Create Firebase Auth users | Must-have | Console → Authentication → Add users for test driver, attorney, carrier |
-| Research Ron Phase 2 | Medium | Wire S3 corpus lookup for jurisdiction research (ClickUp #86b9ryenz) |
+| Banneker Phase 2 | Medium | Wire S3 corpus lookup for jurisdiction research (ClickUp #86b9ryenz) |
 | ~~Attorney role-based access~~ | Done | Admin-console routes now gate on staff role claims. |
 | Replace `cdl-local-dev` API key | Medium | Change default AI engine API key before any external exposure |
 | Driver app env var validation | Low | Add startup check that `VITE_FIREBASE_*` vars are present |

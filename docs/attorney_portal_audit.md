@@ -198,7 +198,7 @@ This is the biggest gap. Backend routes exist; no page to consume them.
 - Court date, driver name, violation, city/state per entry
 - Color-coded: red = past due, yellow = within 7 days, green = 14+ days
 - Email + SMS reminder integration (send reminder 7 days before, 1 day before)
-- Driver reminder also triggered (via Driver Concierge in AI engine)
+- Driver reminder also triggered (via Anansi in AI engine)
 
 **Backend:** Add `GET /calendar` that returns attorney's open cases ordered by court_date with ISO datetime, location, driver name, violation.
 
@@ -212,7 +212,7 @@ Attorney needs to request additional documents from driver or Rig Resolve staff.
 - "Request File" button on case detail page
 - Modal: file type (CDL front/back, insurance card, police report, witness statement, other), notes
 - `POST /requestFile { ticketId, fileType, notes }` → writes to `tickets/{id}/file_requests/`
-- Triggers email to driver + account manager via Driver Concierge
+- Triggers email to driver + account manager via Anansi
 - File request appears in case timeline with status (Requested → Received)
 
 ---

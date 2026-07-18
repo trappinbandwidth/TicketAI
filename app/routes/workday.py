@@ -17,6 +17,7 @@ Firestore paths:
 from __future__ import annotations
 
 import csv
+import hmac
 import io
 import logging
 import os
@@ -103,9 +104,9 @@ async def workday_webhook(
 ):
     """
     Receive Workday HR events.
-    Workday uses OAuth2 Bearer token — we verify the token matches client_id/client_secret.
-    In production, validate the token against Workday's JWKS endpoint.
-    For now, accept any bearer token when Workday integration is enabled.
+    Workday bearer authentication is fail-closed. The configured webhook token
+    is compared in constant time; a future signed-JWT configuration can replace
+    this shared-token adapter without changing event processing.
     """
     import json
     payload = await request.body()
@@ -118,6 +119,15 @@ async def workday_webhook(
     wd_config = (carrier_data.get("integrations") or {}).get("workday", {})
     if not wd_config.get("enabled"):
         raise HTTPException(status_code=400, detail="Workday integration not enabled for this carrier.")
+    expected_token = wd_config.get("webhook_token") or wd_config.get("client_secret")
+    supplied_token = authorization.removeprefix("Bearer ").strip() if authorization else ""
+    if (
+        not expected_token
+        or not supplied_token
+        or not hmac.compare_digest(str(expected_token), supplied_token)
+    ):
+        logger.warning("[workday] invalid or missing bearer token carrier=%s", carrier_uid)
+        raise HTTPException(status_code=401, detail="Invalid webhook authorization.")
 
     try:
         event = json.loads(payload)

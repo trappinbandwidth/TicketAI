@@ -128,12 +128,38 @@ def list_applications(status: Optional[str] = None, limit: int = 100,
     if status:
         query = query.where("status", "==", status)
     apps = []
+    application_emails = set()
     for d in query.limit(limit).stream():
         data = d.to_dict()
         data["application_id"] = d.id
         data["submitted_at"] = _iso(data.get("submitted_at"))
         data["reviewed_at"] = _iso(data.get("reviewed_at"))
         apps.append(data)
+        application_emails.add((data.get("email") or "").lower())
+
+    # Accounts created through /auth/bootstrap historically bypassed the public
+    # application collection. Surface those provisioned, unapproved attorneys in
+    # the same review queue so staff approval remains authoritative.
+    if not status or status in {"submitted", "provisioned"}:
+        for attorney_doc in db.collection("attorneys").where("status", "==", "provisioned").limit(limit).stream():
+            attorney = attorney_doc.to_dict() or {}
+            email = (attorney.get("email") or "").lower()
+            if email in application_emails:
+                continue
+            apps.append({
+                "application_id": f"account:{attorney_doc.id}",
+                "attorney_id": attorney_doc.id,
+                "full_name": attorney.get("full_name"),
+                "email": email,
+                "phone": attorney.get("phone"),
+                "firm_name": attorney.get("firm_name"),
+                "states_licensed": attorney.get("states_licensed") or attorney.get("states_covered") or [],
+                "counties_covered": attorney.get("counties_covered") or [],
+                "tier_requested": attorney.get("tier") or "senior",
+                "status": "provisioned",
+                "submitted_at": _iso(attorney.get("created_at")),
+                "source": "attorney_signup",
+            })
     apps.sort(key=lambda a: a.get("submitted_at") or "", reverse=True)
     return {"applications": apps, "count": len(apps)}
 
@@ -172,6 +198,20 @@ def approve_application(application_id: str, body: ApproveApplication,
     require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+
+    if application_id.startswith("account:"):
+        uid = application_id.split(":", 1)[1]
+        attorney_ref = db.collection("attorneys").document(uid)
+        attorney_snap = attorney_ref.get()
+        if not attorney_snap.exists:
+            raise HTTPException(status_code=404, detail="Attorney account not found.")
+        attorney_ref.update({
+            "status": "onboarded", "application_status": "approved",
+            "reviewed_by": body.reviewed_by, "reviewed_at": SERVER_TIMESTAMP,
+            "onboarded_at": SERVER_TIMESTAMP,
+        })
+        return {"ok": True, "application_id": application_id, "attorney_id": uid,
+                "tier": attorney_snap.to_dict().get("tier") or "senior"}
 
     ref = db.collection("attorney_applications").document(application_id)
     snap = ref.get()
@@ -259,3 +299,29 @@ def approve_application(application_id: str, body: ApproveApplication,
         "tier": tier,
         "password_set_link": reset_link,   # staff can relay if email delivery is deferred
     }
+
+
+class RejectApplication(BaseModel):
+    reason: str
+    rejected_by: Optional[str] = None
+
+
+@router.post("/admin/attorney-applications/{application_id}/reject")
+def reject_application(application_id: str, body: RejectApplication,
+                       authorization: Optional[str] = Header(None)):
+    actor = require_staff(authorization)
+    db = _db()
+    update = {
+        "status": "rejected", "rejection_reason": body.reason,
+        "reviewed_by": body.rejected_by or actor.get("email") or actor.get("uid"),
+        "reviewed_at": datetime.now(timezone.utc),
+    }
+    if application_id.startswith("account:"):
+        uid = application_id.split(":", 1)[1]
+        ref = db.collection("attorneys").document(uid)
+    else:
+        ref = db.collection("attorney_applications").document(application_id)
+    if not ref.get().exists:
+        raise HTTPException(status_code=404, detail="Application not found.")
+    ref.update(update)
+    return {"ok": True, "application_id": application_id, "status": "rejected"}

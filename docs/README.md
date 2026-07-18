@@ -21,6 +21,7 @@ Rig Resolve legal benefit platform for commercial truck drivers. This directory 
 | [intelligence-services.md](intelligence-services.md) | External intelligence-service taxonomy mapped to current agents |
 | [financial-service.md](financial-service.md) | Payment, payout, transaction, and ledger abstraction |
 | [integration-strategy.md](integration-strategy.md) | Systems of record/engagement/intelligence and provider adapter strategy |
+| [tip-os-wp01.md](tip-os-wp01.md) | Feature-flagged canonical identity, organizations, consent and policy foundation |
 
 ---
 
@@ -47,10 +48,10 @@ driver upload →           New ────────────────
 
 ### AI Pipeline (14 agents)
 ```
-Case Intake → Lone Ranger → Referee →
-  Document Completeness → Book Worm → PII Match →
-  MVR Request → PSP Request → Research Ron → Team Quest →
-  Urgency Router → Statement of Record → assemble
+Roux → Carver → Bolin →
+  Ida Wells → Charlotte Ray → Jollof →
+  Stagecoach Mary → Bass Reeves → Banneker → Madam Walker →
+  Tubman → Douglass → assemble
 ```
 
 Future agent work should follow [agent-extension-guide.md](agent-extension-guide.md).

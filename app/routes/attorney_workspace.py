@@ -139,8 +139,8 @@ def create_doc_request(ticket_id: str, body: DocRequest, authorization: Optional
         driver_id = (tsnap.to_dict() or {}).get("driver_id")
         if driver_id:
             try:
-                from app.services.driver_concierge import notify_driver
-                notify_driver(driver_id, ticket_id, "Document Requested",
+                from app.services.anansi import anansi_notify
+                anansi_notify(driver_id, ticket_id, "Document Requested",
                               context={"description": body.description})
             except Exception as exc:
                 logger.warning("[workspace] driver doc-request notify failed: %s", exc)

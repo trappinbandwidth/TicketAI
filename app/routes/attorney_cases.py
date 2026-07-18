@@ -28,12 +28,13 @@ Assignment model (3 paths, gated by Performance Level):
 from __future__ import annotations
 
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Optional
 
 import firebase_admin.auth as fb_auth
 from fastapi import APIRouter, Header, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.routes._common import require_api_key
 
@@ -68,6 +69,26 @@ def _verify_token(authorization: Optional[str]) -> dict:
         raise HTTPException(status_code=401, detail=f"Invalid token: {exc}") from exc
 
 
+def _governance_enabled() -> bool:
+    return os.getenv("TIP_OS_ATTORNEY_GOVERNANCE_ENABLED", "false").lower() == "true"
+
+
+def _require_verified_attorney(db, uid: str) -> dict:
+    snapshot = db.collection("attorneys").document(uid).get()
+    profile = snapshot.to_dict() or {} if snapshot.exists else {}
+    status = (
+        profile.get("verification_status")
+        or profile.get("license_verification_status")
+        or profile.get("bar_verification_status")
+    )
+    if str(status).lower() not in {"verified", "approved"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Verified attorney license and firm status are required.",
+        )
+    return profile
+
+
 def _iso(v):
     return v.isoformat() if hasattr(v, "isoformat") else v
 
@@ -93,6 +114,41 @@ def _card(doc_id: str, d: dict) -> dict:
     }
 
 
+def _legacy_case_access(data: dict, uid: str, *, allow_available: bool = False) -> tuple[bool, str]:
+    owns = uid in (
+        data.get("assigned_attorney_id"),
+        data.get("claimed_by"),
+        data.get("closed_by_attorney_id"),
+    )
+    if owns:
+        return True, "assigned_or_claimed_case"
+    if allow_available and data.get("attorney_status") == _AVAILABLE_STATUS:
+        return True, "anonymized_available_case"
+    return False, "legacy_case_scope_denied"
+
+
+def _shadow_case_access(db, decoded: dict, ticket_id: str, data: dict, *, allowed: bool, reason: str, action: str) -> None:
+    driver_id = data.get("driver_id")
+    subject_principal_id = None
+    if driver_id:
+        driver_profile = db.collection("drivers").document(driver_id).get()
+        if driver_profile.exists:
+            subject_principal_id = (driver_profile.to_dict() or {}).get("principal_id")
+    from app.platform.shadow_service import shadow_authorization
+    shadow_authorization(
+        db,
+        decoded,
+        legacy_allowed=allowed,
+        legacy_reason=reason,
+        action=action,
+        resource_type="case",
+        resource_id=ticket_id,
+        purpose="legal_representation",
+        record_category="case",
+        subject_principal_id=subject_principal_id,
+    )
+
+
 # ── Available cases ───────────────────────────────────────────────────────────
 @router.get("/attorney/cases/available")
 def available_cases(
@@ -101,8 +157,10 @@ def available_cases(
     authorization: Optional[str] = Header(None),
 ):
     """Open cases an attorney can claim — New, not already claimed-pending."""
-    _verify_token(authorization)
+    decoded = _verify_token(authorization)
     db = _db()
+    if _governance_enabled():
+        _require_verified_attorney(db, decoded["uid"])
     q = db.collection("tickets").where("attorney_status", "==", _AVAILABLE_STATUS)
     if state:
         q = q.where("ticket_state", "==", state.upper())
@@ -160,12 +218,16 @@ def case_detail(ticket_id: str, authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=404, detail="Case not found.")
     data = snap.to_dict()
 
-    owns = uid in (
-        data.get("assigned_attorney_id"),
-        data.get("claimed_by"),
-        data.get("closed_by_attorney_id"),
+    legacy_allowed, legacy_reason = _legacy_case_access(data, uid, allow_available=True)
+    owns = legacy_reason == "assigned_or_claimed_case"
+
+    # Compare the legacy decision with the new policy when explicitly enabled.
+    # This call is best-effort and never changes the response in shadow mode.
+    _shadow_case_access(
+        db, decoded, ticket_id, data, allowed=legacy_allowed, reason=legacy_reason, action="read"
     )
-    if not owns and data.get("attorney_status") != _AVAILABLE_STATUS:
+
+    if not legacy_allowed:
         raise HTTPException(status_code=403, detail="Not authorized to view this case.")
 
     # Resolve carrier enrollment (if any) before stripping driver_id -- the
@@ -195,9 +257,19 @@ def case_detail(ticket_id: str, authorization: Optional[str] = Header(None)):
 # ── Activity feed ─────────────────────────────────────────────────────────────
 @router.get("/attorney/cases/{ticket_id}/activity")
 def get_activity(ticket_id: str, authorization: Optional[str] = Header(None)):
-    _verify_token(authorization)
+    decoded = _verify_token(authorization)
+    uid = decoded["uid"]
     db = _db()
-    docs = db.collection("tickets").document(ticket_id).collection("activity").stream()
+    ticket_ref = db.collection("tickets").document(ticket_id)
+    ticket_snap = ticket_ref.get()
+    if not ticket_snap.exists:
+        raise HTTPException(status_code=404, detail="Case not found.")
+    data = ticket_snap.to_dict()
+    allowed, reason = _legacy_case_access(data, uid)
+    _shadow_case_access(db, decoded, ticket_id, data, allowed=allowed, reason=reason, action="read_activity")
+    if not allowed:
+        raise HTTPException(status_code=403, detail="Not authorized to view case activity.")
+    docs = ticket_ref.collection("activity").stream()
     items = []
     for d in docs:
         data = d.to_dict()
@@ -209,6 +281,52 @@ def get_activity(ticket_id: str, authorization: Optional[str] = Header(None)):
 class ActivityUpdate(BaseModel):
     category: Optional[str] = None       # e.g. "Status Update", "Attorney Note"
     message: str
+    visibility: str = Field(default="privileged", pattern="^(privileged|client_shared)$")
+
+
+class ConflictDecisionBody(BaseModel):
+    decision: str = Field(pattern="^(no_conflict|conflict|needs_review)$")
+    reason: str = Field(min_length=1, max_length=1000)
+
+
+@router.post("/attorney/cases/{ticket_id}/conflict-check")
+def record_conflict_decision(
+    ticket_id: str,
+    body: ConflictDecisionBody,
+    authorization: Optional[str] = Header(None),
+):
+    decoded = _verify_token(authorization)
+    uid = decoded["uid"]
+    db = _db()
+    if _governance_enabled():
+        _require_verified_attorney(db, uid)
+    ticket = db.collection("tickets").document(ticket_id).get()
+    if not ticket.exists or (ticket.to_dict() or {}).get("attorney_status") != _AVAILABLE_STATUS:
+        raise HTTPException(status_code=404, detail="Available case not found.")
+    from google.cloud.firestore_v1 import SERVER_TIMESTAMP
+    import hashlib
+
+    decision_id = f"conflict_{hashlib.sha256(f'{ticket_id}:{uid}'.encode()).hexdigest()[:32]}"
+    record = {
+        "id": decision_id,
+        "ticket_id": ticket_id,
+        "attorney_id": uid,
+        "decision": body.decision,
+        "reason": body.reason,
+        "decided_at": SERVER_TIMESTAMP,
+        "version": "attorney-conflict-v1",
+    }
+    db.collection("attorney_conflict_decisions").document(decision_id).set(record)
+    db.collection("audit_events").document(decision_id).set({
+        "id": decision_id,
+        "event_type": "attorney.conflict_decision_recorded",
+        "actor_id": uid,
+        "entity_type": "ticket",
+        "entity_id": ticket_id,
+        "payload": {"decision": body.decision},
+        "created_at": SERVER_TIMESTAMP,
+    })
+    return {"conflict_decision": record}
 
 
 @router.post("/attorney/cases/{ticket_id}/activity")
@@ -219,13 +337,22 @@ def add_activity(ticket_id: str, body: ActivityUpdate, authorization: Optional[s
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
     ref = db.collection("tickets").document(ticket_id)
-    if not ref.get().exists:
+    snap = ref.get()
+    if not snap.exists:
         raise HTTPException(status_code=404, detail="Case not found.")
+    data = snap.to_dict()
+    allowed, reason = _legacy_case_access(data, uid)
+    _shadow_case_access(db, decoded, ticket_id, data, allowed=allowed, reason=reason, action="write_activity")
+    if not allowed:
+        raise HTTPException(status_code=403, detail="Not authorized to update case activity.")
     entry = {
         "author_uid": uid,
         "author_name": decoded.get("name") or decoded.get("email") or "Attorney",
         "category": body.category or "Attorney Note",
         "message": body.message,
+        "visibility": body.visibility,
+        "content_origin": "attorney_authored",
+        "privilege_scope": "attorney_client" if body.visibility == "privileged" else None,
         "created_at": SERVER_TIMESTAMP,
     }
     _, doc_ref = ref.collection("activity").add(entry)
@@ -250,6 +377,18 @@ def claim_case(ticket_id: str, authorization: Optional[str] = Header(None)):
     if not snap.exists:
         raise HTTPException(status_code=404, detail="Case not found.")
     data = snap.to_dict()
+
+    if _governance_enabled():
+        _require_verified_attorney(db, uid)
+        import hashlib
+        decision_id = f"conflict_{hashlib.sha256(f'{ticket_id}:{uid}'.encode()).hexdigest()[:32]}"
+        decision = db.collection("attorney_conflict_decisions").document(decision_id).get()
+        decision_data = decision.to_dict() or {} if decision.exists else {}
+        if decision_data.get("decision") != "no_conflict":
+            raise HTTPException(
+                status_code=409,
+                detail="A recorded no-conflict decision is required before claiming this case.",
+            )
 
     if data.get("attorney_status") != _AVAILABLE_STATUS:
         raise HTTPException(status_code=409, detail="Case is not available to claim.")

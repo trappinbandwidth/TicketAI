@@ -4,7 +4,7 @@ Carrier lookup service — backed by data/motus_carriers.json.
 Provides O(1) DOT# lookups for:
   - Carrier name, status, location
   - Active/suspended/revoked flag
-  - Human-readable carrier context note for Research Ron
+  - Human-readable carrier context note for Banneker
 
 Loaded once at startup. Re-run scripts/ingest_motus_carriers.py to refresh.
 """
@@ -104,7 +104,7 @@ def get_national_inspection_stats(year: int | None = None) -> dict[str, Any]:
 
 def carrier_context_note(dot_number: str) -> dict[str, Any]:
     """
-    Returns a structured dict for Research Ron's jurisdiction_context.
+    Returns a structured dict for Banneker's jurisdiction_context.
     Always returns a dict (never None) so Ron's output is consistent.
     """
     _load()

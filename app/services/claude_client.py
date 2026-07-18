@@ -62,7 +62,7 @@ def process_document(
     use_mock = os.getenv("USE_MOCK", "true").lower() == "true"
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
 
-    logger.warning("process_document: use_mock=%s api_key_set=%s key_prefix=%s", use_mock, bool(api_key), api_key[:12] if api_key else "NONE")
+    logger.info("process_document: use_mock=%s provider_configured=%s", use_mock, bool(api_key))
 
     if use_mock or not api_key:
         return MOCK_RESPONSE, True, None

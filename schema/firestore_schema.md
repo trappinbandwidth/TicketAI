@@ -79,7 +79,7 @@ self        — individual Stripe subscription
 payroll     — carrier deducts from driver paycheck and remits to RR
 ```
 
-### `tickets.urgency_level` (written by urgency_router agent)
+### `tickets.urgency_level` (written by tubman agent)
 ```
 CRITICAL | HIGH | STANDARD | LOW
 ```
@@ -212,7 +212,7 @@ CRITICAL | HIGH | STANDARD | LOW
 ---
 
 ### `drivers/{driver_id}/notifications/{notif_id}`
-> In-app notifications written by Driver Concierge on every case status transition.  
+> In-app notifications written by Anansi on every case status transition.  
 > Driver app listens via `onSnapshot` and surfaces messages in real-time.  
 > Same payload structured for future SMS/email via Twilio/SendGrid.
 
@@ -273,11 +273,11 @@ CRITICAL | HIGH | STANDARD | LOW
 | created_at | timestamp | |
 | last_modified_date | timestamp | |
 | **Agent outputs** | | written by pipeline agents after every scan |
-| urgency_level | string | CRITICAL \| HIGH \| STANDARD \| LOW (urgency_router) |
+| urgency_level | string | CRITICAL \| HIGH \| STANDARD \| LOW (tubman) |
 | urgency_reason | string | human-readable explanation of urgency |
-| completeness_score | number | 0.0–1.0 (document_completeness agent) |
+| completeness_score | number | 0.0–1.0 (ida_wells agent) |
 | missing_fields | array | field names missing from extraction |
-| driver_profile | map | see sub-fields below (pii_match agent) |
+| driver_profile | map | see sub-fields below (jollof agent) |
 | driver_profile.driver_id | string | |
 | driver_profile.status | string | active \| inactive \| not_found |
 | driver_profile.cdl_match | string | match \| mismatch \| unverified |
@@ -447,13 +447,13 @@ CRITICAL | HIGH | STANDARD | LOW
 |-------|------|-------|
 | ticket_id | string | FK → tickets |
 | raw_ocr_text | string | Cloud Vision output (phase 2; null for now) |
-| pass_1_result | map | full Lone Ranger pass 1 extraction |
-| pass_2_result | map | full Lone Ranger pass 2 extraction; null if GREEN |
+| pass_1_result | map | full Carver pass 1 extraction |
+| pass_2_result | map | full Carver pass 2 extraction; null if GREEN |
 | consensus_result | map | merged output; null if GREEN |
 | referee_1_score | string | green \| yellow \| red |
 | referee_2_score | string | after consensus; null if GREEN |
 | dual_conflicts | array | field names where passes disagreed |
-| low_confidence_fields | array | fields Referee flagged |
+| low_confidence_fields | array | fields Bolin flagged |
 | final_pass_status | string | green \| yellow \| red |
 | prompt_version | string | e.g. "v2" |
 | model_version | string | Claude model used |
@@ -647,7 +647,7 @@ CRITICAL | HIGH | STANDARD | LOW
 |---|-----------|--------|-------|
 | 1 | `tickets/` | Existing | Extended with agent outputs + outcome fields |
 | 2 | `drivers/{id}/tickets/` | Existing | Extended with outcome fields |
-| 3 | `drivers/{id}/notifications/` | New subcollection | Driver Concierge in-app messages |
+| 3 | `drivers/{id}/notifications/` | New subcollection | Anansi in-app messages |
 | 4 | `staff/` | New — seed 3 docs | Quest, Eniola, Justin |
 | 5 | `carriers/` | New | per_driver_rate starts $9.00 |
 | 6 | `drivers/` | New | safe_driver_verified, subscription_end_date |
@@ -686,13 +686,13 @@ CRITICAL | HIGH | STANDARD | LOW
 
 Pipeline order per scan:
 ```
-case_intake → lone_ranger → referee →
-  document_completeness → book_worm → pii_match →
-  mvr_agent → psp_agent → research_ron → team_quest →
-  urgency_router → sor_agent → assemble
+roux → carver → bolin →
+  ida_wells → charlotte_ray → jollof →
+  stagecoach_mary → bass_reeves → banneker → madam_walker →
+  tubman → douglass → assemble
 ```
 
-### `jurisdiction_context` map — written by Research Ron
+### `jurisdiction_context` map — written by Banneker
 
 **Court + CDL fields**
 

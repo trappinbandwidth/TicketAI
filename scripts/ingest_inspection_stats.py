@@ -1,7 +1,7 @@
 """
 Roadside Inspection Activity ingestion.
 Parses the FMCSA national summary Excel files (CY 2022–2026) into a structured
-JSON used by Research Ron for defense context notes.
+JSON used by Banneker for defense context notes.
 
 Usage:
     python3 scripts/ingest_inspection_stats.py

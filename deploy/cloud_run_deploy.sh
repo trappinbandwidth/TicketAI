@@ -23,8 +23,18 @@ if [[ -z "$AI_ENGINE_API_KEY" ]] && [[ -f ".env" ]]; then
   AI_ENGINE_API_KEY=$(grep "^API_KEY=" .env | head -1 | cut -d= -f2-)
 fi
 
+OPENAI_KEY="${OPENAI_API_KEY:-}"
+if [[ -z "$OPENAI_KEY" ]] && [[ -f ".env" ]]; then
+  OPENAI_KEY=$(grep "^OPENAI_API_KEY=" .env | head -1 | cut -d= -f2-)
+fi
+
 if [[ -z "$ANTHROPIC_KEY" ]]; then
   echo "ERROR: ANTHROPIC_API_KEY not found in shell environment or .env"
+  exit 1
+fi
+
+if [[ -z "$OPENAI_KEY" ]]; then
+  echo "ERROR: OPENAI_API_KEY not found in shell environment or .env"
   exit 1
 fi
 
@@ -57,6 +67,13 @@ echo -n "$AI_ENGINE_API_KEY" | gcloud secrets create AI_ENGINE_API_KEY \
   || echo -n "$AI_ENGINE_API_KEY" | gcloud secrets versions add AI_ENGINE_API_KEY \
        --data-file=- --project="$PROJECT_ID"
 
+echo "==> Storing OPENAI_API_KEY in Secret Manager..."
+echo -n "$OPENAI_KEY" | gcloud secrets create OPENAI_API_KEY \
+  --data-file=- \
+  --project="$PROJECT_ID" 2>/dev/null \
+  || echo -n "$OPENAI_KEY" | gcloud secrets versions add OPENAI_API_KEY \
+       --data-file=- --project="$PROJECT_ID"
+
 echo "==> Granting Cloud Run default SA access to secrets and Firestore..."
 PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
 SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
@@ -85,8 +102,8 @@ gcloud run deploy "$SERVICE_NAME" \
   --concurrency 10 \
   --min-instances 0 \
   --max-instances 5 \
-  --set-env-vars "FIREBASE_PROJECT_ID=${PROJECT_ID},USE_MOCK=false,PROMPT_VERSION=v2" \
-  --set-secrets "ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,API_KEY=AI_ENGINE_API_KEY:latest" \
+  --set-env-vars "^@^FIREBASE_PROJECT_ID=${PROJECT_ID}@USE_MOCK=false@PROMPT_VERSION=v2@APP_ENV=production@CORS_ALLOWED_ORIGINS=https://rigresolve.web.app|https://rigresolve-attorney.web.app|https://rigresolve-carrier.web.app|https://rigresolve-admin.web.app" \
+  --set-secrets "ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,API_KEY=AI_ENGINE_API_KEY:latest" \
   --allow-unauthenticated
 
 echo ""
