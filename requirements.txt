@@ -1,8 +1,8 @@
 fastapi==0.115.5
 uvicorn[standard]==0.51.0
-python-multipart==0.0.31
+python-multipart==0.0.32
 anthropic==0.54.0
-pymupdf==1.25.1
+pymupdf==1.28.0
 python-dotenv==1.2.2
 pydantic==2.10.3
 langgraph==1.2.9
