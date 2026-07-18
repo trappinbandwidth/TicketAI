@@ -33,6 +33,7 @@ from app.routes.quote_engine import router as quote_engine_router
 from app.routes.attorney_workspace import router as attorney_workspace_router
 from app.routes.attorney_auth import router as attorney_auth_router
 from app.routes.carriers_crm import router as carriers_crm_router
+from app.routes.carrier_portal import router as carrier_portal_router
 from app.routes.platform_identity import router as platform_identity_router
 from app.routes.driver_cloud import router as driver_cloud_router
 from app.routes.documents import router as documents_router
@@ -148,6 +149,7 @@ app.include_router(quote_engine_router, prefix="/api/v1")
 app.include_router(attorney_workspace_router, prefix="/api/v1")
 app.include_router(attorney_auth_router, prefix="/api/v1")
 app.include_router(carriers_crm_router, prefix="/api/v1")
+app.include_router(carrier_portal_router, prefix="/api/v1")
 app.include_router(platform_identity_router, prefix="/api/v1")
 app.include_router(driver_cloud_router, prefix="/api/v1")
 app.include_router(documents_router, prefix="/api/v1")
