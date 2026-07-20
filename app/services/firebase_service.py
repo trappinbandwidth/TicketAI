@@ -22,6 +22,24 @@ _initialized = False
 _firestore_client = None
 
 
+def _emulator_credential():
+    """Credential for the Firebase emulator suite.
+
+    firebase_admin validates that the credential is a firebase_admin
+    credentials.Base subclass, but the emulator never checks the token —
+    so this wraps google-auth's AnonymousCredentials. No real key exists
+    anywhere in the local stack.
+    """
+    from firebase_admin import credentials as fb_credentials
+    from google.auth.credentials import AnonymousCredentials
+
+    class _EmulatorCredential(fb_credentials.Base):
+        def get_credential(self):
+            return AnonymousCredentials()
+
+    return _EmulatorCredential()
+
+
 def _init():
     global _initialized, _firestore_client
     if _initialized:
@@ -34,6 +52,23 @@ def _init():
         if not firebase_admin._apps:
             sa_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "")
             project_id = os.getenv("FIREBASE_PROJECT_ID", "")
+
+            # Local development against the Firebase emulator suite. The SDK
+            # routes to the emulator when FIRESTORE_EMULATOR_HOST is set; no
+            # real credentials are needed because no real project is touched.
+            if os.getenv("FIRESTORE_EMULATOR_HOST"):
+                firebase_admin.initialize_app(
+                    _emulator_credential(),
+                    {"projectId": project_id or "rigresolve-local"},
+                )
+                _firestore_client = admin_firestore.client()
+                _initialized = True
+                logger.warning(
+                    "[firebase] EMULATOR mode — Firestore at %s, project %s",
+                    os.getenv("FIRESTORE_EMULATOR_HOST"),
+                    project_id or "rigresolve-local",
+                )
+                return
 
             if sa_json:
                 sa_dict = json.loads(sa_json)

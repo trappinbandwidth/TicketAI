@@ -1,6 +1,15 @@
 from dotenv import load_dotenv
 from pathlib import Path
-load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
+import os as _os
+
+# .env fills gaps but never overrides an explicitly-exported variable. With
+# override=True the production FIREBASE_PROJECT_ID in .env silently won over
+# the local emulator project, so every emulator-issued token failed its
+# audience check. Explicit environment must beat file defaults.
+load_dotenv(
+    dotenv_path=Path(__file__).parent.parent / ".env",
+    override=_os.getenv("DOTENV_OVERRIDE", "false").lower() == "true",
+)
 
 import logging
 import os
