@@ -46,3 +46,9 @@ firebase-debug.log
 frontend-qa/.firebase/
 frontend-qa/.env.production
 frontend-qa/.env.local
+
+# Firebase emulator artifacts
+firestore-debug.log
+firebase-debug.log
+ui-debug.log
+.firebase/
