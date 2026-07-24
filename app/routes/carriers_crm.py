@@ -29,8 +29,15 @@ CARRIER_STATUSES = ["lead", "contacted", "demo_scheduled", "enrolled", "declined
 
 
 def _db():
-    from app.services.firebase_service import db
-    return db
+    # Mirror the standard route pattern (attorneys/bids/cases): initialise then
+    # return the live client. The old `import db` grabbed a module attribute that
+    # is None until _init() runs — fine on ADC where something else triggered
+    # init first, but a hard 500 under the local emulator stack.
+    from app.services.firebase_service import _init, _firestore_client
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+    return _firestore_client
 
 
 # ── Models ─────────────────────────────────────────────────────────────────────

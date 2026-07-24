@@ -72,8 +72,16 @@ _SEED_ATTORNEYS = [
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 def _fs():
-    """Return the Firestore client. Raises RuntimeError if not configured."""
-    if os.getenv("USE_MOCK", "true").lower() == "true":
+    """Return the Firestore client. Raises RuntimeError if not configured.
+
+    USE_MOCK only skips Claude calls (no AI spend during local UI work) — it must
+    not disable Firestore when a local emulator is present, or the reviewer queue
+    and scan-detail endpoints would 500 against the local-first stack. When the
+    Firestore emulator is running (FIRESTORE_EMULATOR_HOST set) we always talk to
+    it; only a real (non-emulator) mock run keeps Firestore off to avoid touching
+    a live project by accident.
+    """
+    if os.getenv("USE_MOCK", "true").lower() == "true" and not os.getenv("FIRESTORE_EMULATOR_HOST"):
         raise RuntimeError("Firestore is disabled in mock mode.")
     from app.services.firebase_service import _firestore_client, _init
     _init()
