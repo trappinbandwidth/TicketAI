@@ -1,12 +1,13 @@
 """Route tests for the folded carrier self-serve portal (/api/v1/carrier/*)."""
 from __future__ import annotations
 
+import asyncio
 import secrets
 
 import pytest
 from fastapi import HTTPException
 
-from app.routes import carrier_portal
+from app.routes import carrier_portal, carriers_crm
 
 
 # ── Local fake Firestore (richer than tests.test_platform_identity.FakeDb:
@@ -254,6 +255,50 @@ def test_bulk_commits_valid_rows_and_uppercases_state(monkeypatch):
     assert result["created"] == 2
     listed = carrier_portal.list_drivers(authorization="Bearer x")["drivers"]
     assert sorted(d["cdl_state"] for d in listed) == ["OK", "TX"]
+
+
+def test_subscription_uses_integer_cents_without_guessing_legacy_units(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    carrier = db.collection("carriers").document("carrier_1")
+    carrier.set({"per_driver_rate_cents": 900, "per_driver_rate": 11.99})
+    carrier.collection("drivers").document("d1").set({"active": True})
+    carrier.collection("drivers").document("d2").set({"active": True})
+
+    result = carrier_portal.subscription(authorization="Bearer x")
+
+    assert result["per_driver_rate_cents"] == 900
+    assert result["estimated_monthly_cents"] == 1800
+    assert "per_driver_rate" not in result
+    assert "estimated_monthly" not in result
+
+    carrier.set({"per_driver_rate": 11.99})
+    unresolved = carrier_portal.subscription(authorization="Bearer x")
+    assert unresolved["per_driver_rate_cents"] is None
+    assert unresolved["pricing_data_status"] == "legacy_unit_unresolved"
+
+
+def test_crm_keeps_record_id_and_dot_identifier_distinct(monkeypatch):
+    db = Db()
+    db.collection("carriers").document("carrier_uuid").set(
+        {"company_name": "Big Rig", "dot_number": "1234567"}
+    )
+    db.collection("drivers").document("driver_1").set(
+        {"full_name": "Ada Driver", "carrier_id": "carrier_uuid"}
+    )
+    monkeypatch.setattr(carriers_crm, "_db", lambda: db)
+    monkeypatch.setattr(carriers_crm, "require_staff", lambda _authorization: {})
+
+    carrier = asyncio.run(carriers_crm.get_carrier("1234567", authorization="Bearer staff"))
+    roster = asyncio.run(
+        carriers_crm.get_carrier_drivers("1234567", authorization="Bearer staff")
+    )
+
+    assert carrier["carrier_id"] == "carrier_uuid"
+    assert carrier["dot_number"] == "1234567"
+    assert roster["carrier_id"] == "carrier_uuid"
+    assert roster["dot_number"] == "1234567"
+    assert roster["drivers"][0]["driver_id"] == "driver_1"
 
 
 # ── Driver profile + shadow ──────────────────────────────────────────────────

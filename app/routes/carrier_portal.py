@@ -47,6 +47,13 @@ from app.services.auth_rbac import require_carrier
 router = APIRouter(prefix="/carrier", tags=["carrier-portal"])
 
 
+def _rate_cents(data: dict) -> Optional[int]:
+    value = data.get("per_driver_rate_cents")
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        return None
+    return value
+
+
 def _carrier(authorization: Optional[str]):
     decoded = require_carrier(verify_token(authorization))
     db = get_db()
@@ -357,10 +364,15 @@ def subscription(authorization: Optional[str] = Header(None)):
     data = ref.get().to_dict() or {}
     count = sum(1 for d in ref.collection("drivers").stream()
                 if d.to_dict().get("active", True) and not d.to_dict().get("fired_at"))
-    rate = data.get("per_driver_rate")
+    rate_cents = _rate_cents(data)
     return {"status": data.get("subscription_status", "trial"), "active_drivers": count,
-            "per_driver_rate": rate,
-            "estimated_monthly": round(float(rate) * count, 2) if rate is not None else None,
+            "per_driver_rate_cents": rate_cents,
+            "estimated_monthly_cents": rate_cents * count if rate_cents is not None else None,
+            "pricing_data_status": (
+                "ready" if rate_cents is not None
+                else "legacy_unit_unresolved" if data.get("per_driver_rate") is not None
+                else "pending"
+            ),
             "self_serve_eligible": count <= 50, "special_pricing_required": count >= 51}
 
 
@@ -397,7 +409,7 @@ def billing(authorization: Optional[str] = Header(None)):
     allowed = ("billing_type", "billing_contact_name", "billing_email", "billing_phone",
                "billing_address", "billing_city", "billing_state", "billing_zip_code",
                "payment_method_brand", "payment_method_last4", "payment_method_status",
-               "per_driver_rate", "subscription_status")
+               "per_driver_rate_cents", "subscription_status")
     return {key: data.get(key) for key in allowed}
 
 
