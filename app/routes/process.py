@@ -25,6 +25,8 @@ from app.services.event_service import write_event
 from agents.photo_analyst import analyze_photo
 from app.services.court_lookup import lookup_court
 from app.services.enrollment_verifier import verify_enrollment
+from app.services.auth_rbac import require_role, verify_firebase_token
+from app.services.upload_idempotency import claim_driver_upload
 from app.services.recommendation_service import (
     create_attorney_match_recommendation,
     create_court_deadline_recommendation,
@@ -145,6 +147,31 @@ def _check_auth(x_api_key: Optional[str]):
         raise HTTPException(status_code=401, detail="Invalid API key.")
 
 
+def _authorize_upload(
+    source: str,
+    driver_id: Optional[str],
+    authorization: Optional[str],
+    x_api_key: Optional[str],
+) -> Optional[str]:
+    """Authorize an upload and return its server-trusted Driver identity.
+
+    Driver browsers authenticate with Firebase. Their UID is authoritative and
+    may never be selected by a form field. Existing staff and integration
+    sources retain service-key authentication until their bounded migration.
+    """
+    if source != "driver_upload":
+        _check_auth(x_api_key)
+        return driver_id
+
+    claims = require_role(verify_firebase_token(authorization), {"driver"})
+    token_driver_id = claims.get("uid")
+    if not isinstance(token_driver_id, str) or not token_driver_id:
+        raise HTTPException(status_code=401, detail="Authenticated Driver identity is missing.")
+    if driver_id and driver_id != token_driver_id:
+        raise HTTPException(status_code=403, detail="Driver upload identity does not match the signed-in account.")
+    return token_driver_id
+
+
 def _event_source(source: str) -> str:
     return {
         "driver_upload": "driver_app",
@@ -197,9 +224,23 @@ async def process_ticket(
     external_client_id: Optional[str] = Form(None),
     driver_statement: Optional[str] = Form(None),
     evidence_files_json: Optional[str] = Form(None),
+    authorization: Optional[str] = Header(None),
+    x_operation_id: Optional[str] = Header(None),
     x_api_key: Optional[str] = Header(None),
 ):
-    _check_auth(x_api_key)
+    driver_id = _authorize_upload(source, driver_id, authorization, x_api_key)
+    if source == "driver_upload":
+        if ticket_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Driver uploads cannot select an existing ticket.",
+            )
+        if carrier_id or attorney_id or external_client_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Driver uploads cannot select related account identities.",
+            )
+        ticket_id = claim_driver_upload(driver_id, x_operation_id)
     mock_mode = os.getenv("USE_MOCK", "true").lower() == "true"
 
     # Enrollment gate — verify driver has an active subscription before processing.
