@@ -29,6 +29,7 @@ import firebase_admin  # noqa: E402
 from firebase_admin import auth as fb_auth, firestore  # noqa: E402
 
 from app.services.firebase_service import _emulator_credential  # noqa: E402
+from app.services.driver_profile import PiiCipher  # noqa: E402
 
 PROJECT = os.environ["FIREBASE_PROJECT_ID"]
 if not firebase_admin._apps:
@@ -664,19 +665,44 @@ def seed() -> None:
         )
     print(f"  staff: {len(STAFF)}")
 
+    pii_cipher = PiiCipher.from_env()
     for d in DRIVERS:
         upsert_user(d["uid"], d["email"], {"role": "driver"}, phone_number=d.get("phone"))
-        doc = {**d, "seeded": True}
+        extra = PROFILE_EXTRA.get(d["uid"], {})
+        doc = {
+            key: value for key, value in d.items()
+            if key not in {"cdl_number", "cdl_state"}
+        }
+        doc["seeded"] = True
         # The carrier roster endpoint reads full_name; compose it so rosters show
         # people rather than driver ids.
         doc["full_name"] = f"{d['first_name']} {d['last_name']}"
         # Existing drivers already completed onboarding — flag them so the app's
         # profile gate lets them straight in, and fill the profile fields.
         doc["profile_complete"] = True
-        doc.update(PROFILE_EXTRA.get(d["uid"], {}))
+        doc.update({
+            key: value for key, value in extra.items()
+            if key not in {"address", "dob", "ssn_last4", "cdl_expiration"}
+        })
         if d["uid"] in RISK_DRIVER:
             doc["risk_profile"] = RISK_DRIVER[d["uid"]]
-        db.collection("drivers").document(d["uid"]).set(doc, merge=True)
+        # Replace the public profile so rerunning the seed also removes legacy
+        # plaintext verification fields from an existing emulator document.
+        db.collection("drivers").document(d["uid"]).set(doc)
+        db.collection("driver_private").document(d["uid"]).set({
+            "driver_id": d["uid"],
+            "dob": extra["dob"],
+            "cdl_number": d["cdl_number"],
+            "cdl_state": d["cdl_state"],
+            "cdl_expiration": extra["cdl_expiration"],
+            "address": extra["address"],
+            "ssn_last4_encrypted": pii_cipher.encrypt(
+                extra["ssn_last4"],
+                subject=d["uid"],
+                field="ssn_last4",
+            ),
+            "seeded": True,
+        })
     print(f"  drivers: {len(DRIVERS)}")
 
     for c in CARRIERS:

@@ -16,6 +16,12 @@ export FIREBASE_PROJECT_ID="rigresolve-local"
 export FIRESTORE_EMULATOR_HOST="${FIRESTORE_EMULATOR_HOST:-localhost:8080}"
 export FIREBASE_AUTH_EMULATOR_HOST="${FIREBASE_AUTH_EMULATOR_HOST:-localhost:9099}"
 export FIREBASE_STORAGE_EMULATOR_HOST="${FIREBASE_STORAGE_EMULATOR_HOST:-localhost:9199}"
+# Google Cloud Storage (used by firebase-admin) reads this host, including scheme.
+export STORAGE_EMULATOR_HOST="${STORAGE_EMULATOR_HOST:-http://localhost:9199}"
+# Synthetic local-only AES key. Production injects an independently generated
+# key and version from Secret Manager; this value protects no real data.
+export PII_ENCRYPTION_KEY_B64="${PII_ENCRYPTION_KEY_B64:-BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=}"
+export PII_ENCRYPTION_KEY_ID="${PII_ENCRYPTION_KEY_ID:-local-v1}"
 
 case "${1:-}" in
   emulators)

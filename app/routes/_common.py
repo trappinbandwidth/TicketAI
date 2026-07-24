@@ -32,11 +32,14 @@ def require_api_key(x_api_key: Optional[str]) -> None:
 
 
 def get_db():
-    from app.services.firebase_service import _init, _firestore_client
-    _init()
-    if _firestore_client is None:
+    # Read the handle from the module after initialization. Importing the
+    # variable itself would retain the pre-init `None` value in this scope.
+    from app.services import firebase_service
+
+    firebase_service._init()
+    if firebase_service._firestore_client is None:
         raise HTTPException(status_code=503, detail="Firestore not configured.")
-    return _firestore_client
+    return firebase_service._firestore_client
 
 
 def verify_token(authorization: Optional[str]) -> dict:
