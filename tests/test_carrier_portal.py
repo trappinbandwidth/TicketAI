@@ -119,6 +119,47 @@ def _register(monkeypatch, db):
     return carrier_portal.register_carrier(body, authorization="Bearer x"), claims
 
 
+# ── Consumer/provider contract ───────────────────────────────────────────────
+
+def test_carrier_openapi_matches_frontend_route_matrix():
+    from app.main import app
+
+    paths = app.openapi()["paths"]
+    expected = {
+        ("post", "/api/v1/carrier/register"),
+        ("get", "/api/v1/carrier/me"),
+        ("patch", "/api/v1/carrier/me"),
+        ("get", "/api/v1/carrier/drivers"),
+        ("post", "/api/v1/carrier/drivers"),
+        ("post", "/api/v1/carrier/drivers/bulk"),
+        ("patch", "/api/v1/carrier/drivers/{driver_id}"),
+        ("patch", "/api/v1/carrier/drivers/{driver_id}/toggle-active"),
+        ("post", "/api/v1/carrier/drivers/{driver_id}/fire"),
+        ("get", "/api/v1/carrier/drivers/{driver_id}/profile"),
+        ("get", "/api/v1/carrier/fmcsa/safety"),
+        ("get", "/api/v1/carrier/subscription"),
+        ("get", "/api/v1/carrier/notifications"),
+        ("post", "/api/v1/carrier/notifications/{notification_id}/read"),
+        ("get", "/api/v1/carrier/billing"),
+        ("get", "/api/v1/carrier/documents"),
+        ("post", "/api/v1/carrier/documents"),
+        ("get", "/api/v1/carrier/documents/{document_id}/download"),
+    }
+    missing = {
+        (method, path)
+        for method, path in expected
+        if path not in paths or method not in paths[path]
+    }
+    assert missing == set()
+    for legacy in (
+            "/api/v1/drivers",
+            "/api/v1/fmcsa/safety",
+            "/api/v1/subscription",
+            "/api/v1/billing",
+        ):
+        assert legacy not in paths
+
+
 # ── Registration + profile ───────────────────────────────────────────────────
 
 def test_register_sets_claim_creates_profile_and_is_idempotent(monkeypatch):
@@ -149,6 +190,19 @@ def test_me_requires_carrier_role_and_returns_profile(monkeypatch):
     profile = carrier_portal.get_my_carrier_profile(authorization="Bearer x")
     assert profile["carrier_id"] == "carrier_1"
     assert profile["company_name"] == "Big Rig Co"
+
+
+def test_carrier_route_rejects_anonymous(monkeypatch):
+    db = Db()
+    monkeypatch.setattr(carrier_portal, "get_db", lambda: db)
+
+    def reject(_header):
+        raise HTTPException(status_code=401, detail="Missing bearer token.")
+
+    monkeypatch.setattr(carrier_portal, "verify_token", reject)
+    with pytest.raises(HTTPException) as exc:
+        carrier_portal.get_my_carrier_profile(authorization=None)
+    assert exc.value.status_code == 401
 
 
 # ── Roster lifecycle ─────────────────────────────────────────────────────────
@@ -243,3 +297,23 @@ def test_driver_profile_skips_shadow_read_when_disabled(monkeypatch):
 
     profile = carrier_portal.driver_profile("drv_1", authorization="Bearer x")
     assert profile["driver"]["first_name"] == "Ada"
+
+
+def test_driver_profile_is_scoped_to_authenticated_carrier(monkeypatch):
+    db = Db()
+    carrier_two_roster = (
+        db.collection("carriers")
+        .document("carrier_2")
+        .collection("drivers")
+    )
+    carrier_two_roster.document("shared_driver_id").set({"first_name": "Other"})
+    monkeypatch.setattr(carrier_portal, "shadow_enabled", lambda: False)
+
+    _wire(monkeypatch, db, token={"uid": "carrier_1", "role": "carrier"})
+    with pytest.raises(HTTPException) as exc:
+        carrier_portal.driver_profile("shared_driver_id", authorization="Bearer carrier-1")
+    assert exc.value.status_code == 404
+
+    _wire(monkeypatch, db, token={"uid": "carrier_2", "role": "carrier"})
+    result = carrier_portal.driver_profile("shared_driver_id", authorization="Bearer carrier-2")
+    assert result["driver"]["first_name"] == "Other"
