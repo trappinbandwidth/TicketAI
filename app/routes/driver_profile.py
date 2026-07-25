@@ -1,16 +1,20 @@
 """Authenticated Driver profile API and verification-data boundary."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import os
+import secrets
 from typing import Literal, Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
+from google.api_core.exceptions import AlreadyExists
 from pydantic import BaseModel, Field, model_validator
 
 from app.routes._common import get_db
 from app.platform.documents import validate_upload
+from app.platform.models import ConsentGrantCreate
+from app.platform.service import PlatformService, principal_id_for_uid
 from app.services.auth_rbac import require_role, verify_firebase_token
 from app.services.driver_profile import DriverProfileService, PiiCipher
 
@@ -77,6 +81,25 @@ def _service() -> DriverProfileService:
     return DriverProfileService(get_db(), PiiCipher.from_env())
 
 
+class RelationshipResponse(BaseModel):
+    accept: bool
+    reason: Optional[str] = Field(default=None, max_length=500)
+
+
+class SafetyConsentRequest(BaseModel):
+    disclosure_version: str = Field(min_length=1, max_length=80)
+
+
+class RevokeSafetyConsentRequest(BaseModel):
+    reason: str = Field(min_length=1, max_length=500)
+
+
+def _platform(db, claims: dict) -> tuple[PlatformService, str]:
+    service = PlatformService(db)
+    principal, _ = service.bootstrap_principal({**claims, "role": "driver"})
+    return service, principal.id
+
+
 @router.get("")
 def get_profile(authorization: Optional[str] = Header(None)):
     claims = _driver_claims(authorization)
@@ -93,6 +116,114 @@ def save_profile(body: DriverProfileUpdate, authorization: Optional[str] = Heade
 def edit_profile(body: DriverProfileEdit, authorization: Optional[str] = Header(None)):
     claims = _driver_claims(authorization)
     return _service().edit_public(claims["uid"], body, phone=claims.get("phone_number"))
+
+
+@router.post("/carrier-connection-code")
+def create_carrier_connection_code(authorization: Optional[str] = Header(None)):
+    """Create a short-lived, one-time code without exposing Driver identifiers."""
+    claims = _driver_claims(authorization)
+    db = get_db()
+    _, principal_id = _platform(db, claims)
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(minutes=15)
+    alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+    for _ in range(3):
+        code = "".join(secrets.choice(alphabet) for _ in range(12))
+        digest = hashlib.sha256(code.encode("ascii")).hexdigest()
+        try:
+            db.collection("driver_connection_codes").document(digest).create({
+                "code_hash": digest,
+                "driver_principal_id": principal_id,
+                "status": "active",
+                "created_at": now,
+                "expires_at": expires_at,
+            })
+            return {
+                "code": f"{code[:4]}-{code[4:8]}-{code[8:]}",
+                "expires_at": expires_at.isoformat(),
+            }
+        except AlreadyExists:
+            continue
+    raise HTTPException(status_code=503, detail="Couldn't create a connection code. Try again.")
+
+
+@router.get("/carrier-relationships")
+def list_carrier_relationships(authorization: Optional[str] = Header(None)):
+    claims = _driver_claims(authorization)
+    service, principal_id = _platform(get_db(), claims)
+    return {
+        "relationships": service.list_driver_relationships(principal_id),
+        "consents": service.list_consents(principal_id),
+    }
+
+
+@router.post("/carrier-relationships/{relationship_id}/respond")
+def respond_to_carrier_relationship(
+    relationship_id: str,
+    body: RelationshipResponse,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _driver_claims(authorization)
+    service, principal_id = _platform(get_db(), claims)
+    try:
+        relationship = service.respond_to_driver_relationship(
+            principal_id, relationship_id, body.accept, body.reason
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"relationship": relationship}
+
+
+@router.post("/carrier-relationships/{relationship_id}/safety-consent")
+def grant_carrier_safety_consent(
+    relationship_id: str,
+    body: SafetyConsentRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _driver_claims(authorization)
+    service, principal_id = _platform(get_db(), claims)
+    relationships = {
+        relationship.id: relationship
+        for relationship in service.list_driver_relationships(principal_id)
+    }
+    relationship = relationships.get(relationship_id)
+    if relationship is None:
+        raise HTTPException(status_code=404, detail="Carrier relationship not found.")
+    try:
+        consent = service.create_consent(
+            principal_id,
+            ConsentGrantCreate(
+                subject_principal_id=principal_id,
+                recipient_organization_id=relationship.carrier_organization_id,
+                purpose="safety_compliance",
+                record_categories=["profile", "credential", "employment", "inspection"],
+                actions=["read"],
+                disclosure_version=body.disclosure_version,
+                related_resource_type="driver_carrier_relationship",
+                related_resource_id=relationship_id,
+            ),
+        )
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"consent": consent}
+
+
+@router.post("/carrier-safety-consents/{consent_id}/revoke")
+def revoke_carrier_safety_consent(
+    consent_id: str,
+    body: RevokeSafetyConsentRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _driver_claims(authorization)
+    service, principal_id = _platform(get_db(), claims)
+    try:
+        return {"consent": service.revoke_consent(principal_id, consent_id, body.reason)}
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 
 def _driver_ticket(db, uid: str, ticket_id: str):

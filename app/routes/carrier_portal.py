@@ -13,6 +13,9 @@ so the platform exposes one API. All routes live under /api/v1/carrier/*.
   POST  /carrier/drivers/{id}/fire             Soft-remove; history kept.
   GET   /carrier/drivers/{id}/profile          Driver + their tickets (shadow-compared).
   GET   /carrier/drivers/{id}/tickets          Tickets only.
+  GET   /carrier/relationships                 Consented Driver relationship list.
+  POST  /carrier/relationships/connect         Consume Driver one-time connection code.
+  POST  /carrier/relationships/{id}/end        End relationship; access stops immediately.
   GET   /carrier/fmcsa/safety                  Cached FMCSA record for own DOT.
   GET   /carrier/subscription                  Status + active-driver count + estimate.
   GET   /carrier/notifications                 Latest 50 (?unread_only=true).
@@ -32,20 +35,23 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timezone
+import hashlib
 from typing import Optional
 from uuid import uuid4
 
 import firebase_admin.auth as fb_auth
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from firebase_admin import storage
-from google.api_core.exceptions import AlreadyExists
-from pydantic import BaseModel
+from google.api_core.exceptions import Aborted, AlreadyExists, FailedPrecondition
+from google.cloud.firestore_v1 import LastUpdateOption
+from pydantic import BaseModel, Field
 
 from app.platform.service import (
     PlatformService,
     organization_id_for_profile,
     principal_id_for_uid,
 )
+from app.platform.models import DriverCarrierRelationshipCreate
 from app.platform.shadow_service import shadow_authorization, shadow_enabled
 from app.routes._common import get_db, iso, verify_token
 from app.services.auth_rbac import require_carrier
@@ -348,6 +354,18 @@ class BulkDriverCreate(BaseModel):
     drivers: list[DriverCreate]
 
 
+class DriverConnectionRequest(BaseModel):
+    code: str = Field(min_length=12, max_length=20)
+    relationship_type: str = Field(
+        default="employee",
+        pattern="^(employee|contractor|lease_operator|owner_operator)$",
+    )
+
+
+class EndDriverRelationshipRequest(BaseModel):
+    reason: str = Field(min_length=1, max_length=500)
+
+
 def _driver_out(doc) -> dict:
     d = doc.to_dict()
     d["driver_id"] = doc.id
@@ -374,6 +392,112 @@ def create_driver(body: DriverCreate, authorization: Optional[str] = Header(None
     doc.set({**body.model_dump(), "active": True, "fired_at": None,
              "created_at": now, "updated_at": now})
     return {"ok": True, "driver_id": doc.id}
+
+
+def _carrier_platform(decoded: dict, db, carrier_ref):
+    profile = carrier_ref.get().to_dict() or {}
+    service = PlatformService(db)
+    principal_id = principal_id_for_uid(decoded["uid"])
+    organization_id = organization_id_for_profile("carrier", decoded["uid"])
+    if service.get_principal(principal_id) is None:
+        service.bootstrap_principal({**decoded, "role": "carrier"})
+    if service.get_organization(organization_id) is None:
+        service.bootstrap_role_organization({**decoded, "role": "carrier"})
+        db.collection("organizations").document(organization_id).set({
+            "verification_status": profile.get("verification_status", "unverified"),
+            "tenant_status": profile.get("tenant_status", "pending"),
+            "updated_at": datetime.now(timezone.utc),
+        }, merge=True)
+    return service, principal_id, organization_id
+
+
+@router.get("/relationships")
+def list_driver_relationships(authorization: Optional[str] = Header(None)):
+    decoded, db, carrier_ref = _carrier(authorization)
+    service, _, organization_id = _carrier_platform(decoded, db, carrier_ref)
+    return {
+        "relationships": service.list_organization_relationships(organization_id),
+    }
+
+
+@router.post("/relationships/connect")
+def connect_driver(
+    body: DriverConnectionRequest,
+    authorization: Optional[str] = Header(None),
+):
+    """Consume a Driver-created one-time code and create a pending relationship."""
+    decoded, db, carrier_ref = _carrier(authorization)
+    service, principal_id, organization_id = _carrier_platform(decoded, db, carrier_ref)
+    normalized = "".join(character for character in body.code.upper() if character.isalnum())
+    if len(normalized) != 12:
+        raise HTTPException(status_code=422, detail="Enter the complete Driver connection code.")
+    digest = hashlib.sha256(normalized.encode("ascii")).hexdigest()
+    code_ref = db.collection("driver_connection_codes").document(digest)
+    snapshot = code_ref.get()
+    if not snapshot.exists:
+        raise HTTPException(status_code=404, detail="Connection code not found or expired.")
+    code = snapshot.to_dict() or {}
+    expires_at = code.get("expires_at")
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+    now = datetime.now(timezone.utc)
+    if (
+        code.get("status") != "active"
+        or not isinstance(expires_at, datetime)
+        or (expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=timezone.utc)) <= now
+    ):
+        raise HTTPException(status_code=409, detail="Connection code not found or expired.")
+    driver_principal_id = code.get("driver_principal_id")
+    if not isinstance(driver_principal_id, str) or service.get_principal(driver_principal_id) is None:
+        raise HTTPException(status_code=409, detail="Connection code cannot be used.")
+    if not any(
+        membership.organization_id == organization_id
+        and membership.principal_id == principal_id
+        and membership.status.value == "active"
+        for membership in service.list_memberships(principal_id)
+    ):
+        raise HTTPException(status_code=403, detail="Active Carrier membership required.")
+    try:
+        code_ref.update({
+            "status": "consumed",
+            "consumed_at": now,
+            "consumed_by_organization_id": organization_id,
+        }, option=LastUpdateOption(snapshot.update_time))
+    except (Aborted, FailedPrecondition) as exc:
+        raise HTTPException(status_code=409, detail="Connection code was already used.") from exc
+    try:
+        relationship, created = service.create_driver_relationship_invitation(
+            principal_id,
+            organization_id,
+            DriverCarrierRelationshipCreate(
+                driver_principal_id=driver_principal_id,
+                relationship_type=body.relationship_type,
+            ),
+        )
+    except (LookupError, PermissionError) as exc:
+        raise HTTPException(status_code=409, detail="Driver relationship could not be created.") from exc
+    _record_acquisition_event(db, principal_id, "first_driver_relationship_requested")
+    return {"relationship": relationship, "created": created}
+
+
+@router.post("/relationships/{relationship_id}/end")
+def end_driver_relationship(
+    relationship_id: str,
+    body: EndDriverRelationshipRequest,
+    authorization: Optional[str] = Header(None),
+):
+    decoded, db, carrier_ref = _carrier(authorization)
+    service, principal_id, _ = _carrier_platform(decoded, db, carrier_ref)
+    try:
+        return {
+            "relationship": service.end_driver_relationship(
+                principal_id, relationship_id, body.reason
+            )
+        }
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
 
 
 @router.post("/drivers/bulk")

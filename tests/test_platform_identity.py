@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from pydantic import ValidationError
@@ -26,6 +26,7 @@ class FakeSnapshot:
     def __init__(self, data=None):
         self._data = data
         self.exists = data is not None
+        self.update_time = datetime.now(timezone.utc)
 
     def to_dict(self):
         return self._data
@@ -44,6 +45,17 @@ class FakeDocument:
             self.collection.rows[self.document_id].update(data)
         else:
             self.collection.rows[self.document_id] = dict(data)
+
+    def create(self, data):
+        if self.document_id in self.collection.rows:
+            from google.api_core.exceptions import AlreadyExists
+            raise AlreadyExists("already exists")
+        self.collection.rows[self.document_id] = dict(data)
+
+    def update(self, data, option=None):
+        if self.document_id not in self.collection.rows:
+            raise KeyError(self.document_id)
+        self.collection.rows[self.document_id].update(data)
 
 
 class FakeQuery:

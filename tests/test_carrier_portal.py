@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import secrets
+from datetime import datetime, timezone
 
 import pytest
 from fastapi import HTTPException
@@ -19,6 +20,7 @@ class Snapshot:
     def __init__(self, doc_id, data):
         self.id = doc_id
         self._data = data
+        self.update_time = datetime.now(timezone.utc)
 
     @property
     def exists(self):
@@ -47,7 +49,7 @@ class Document:
             raise AlreadyExists("already exists")
         self._coll.rows[self.id] = dict(data)
 
-    def update(self, data):
+    def update(self, data, option=None):
         if self.id not in self._coll.rows:
             raise KeyError(self.id)
         self._coll.rows[self.id].update(data)
@@ -150,6 +152,9 @@ def test_carrier_openapi_matches_frontend_route_matrix():
         ("patch", "/api/v1/carrier/drivers/{driver_id}/toggle-active"),
         ("post", "/api/v1/carrier/drivers/{driver_id}/fire"),
         ("get", "/api/v1/carrier/drivers/{driver_id}/profile"),
+        ("get", "/api/v1/carrier/relationships"),
+        ("post", "/api/v1/carrier/relationships/connect"),
+        ("post", "/api/v1/carrier/relationships/{relationship_id}/end"),
         ("get", "/api/v1/carrier/fmcsa/safety"),
         ("get", "/api/v1/carrier/subscription"),
         ("get", "/api/v1/carrier/notifications"),
