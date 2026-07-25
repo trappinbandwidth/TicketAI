@@ -28,6 +28,23 @@ role projections above those sources.
 10. **Marketplace/wallet** — capability-gated offers and PCI-provider ledger;
     never raw payment credentials.
 
+## Carrier score projection
+
+Carrier APIs return separate `fmcsa_sms` and `tip` objects:
+
+- `fmcsa_sms.basics[]` contains each named BASIC percentile (nullable), measure,
+  intervention threshold, safety event group, data sufficiency, visibility,
+  source, and as-of/freshness. Percentiles are 0–100 with lower better.
+- `fmcsa_sms.safety_rating` is a separate SAFER/investigation rating and is not
+  inferred from BASICs.
+- `tip` references a permitted published 300–850 score snapshot with higher
+  better, version, grade, confidence, explanation, and limitations.
+
+The backend does not generate an overall FMCSA score, average BASIC
+percentiles, substitute ISS, convert directions/scales, or return a shadow/
+withdrawn TIP score as published. Unavailable states include a stable reason,
+never a placeholder number.
+
 ## Security and reliability
 
 - Bearer-token subject and tenant are authoritative; request fields cannot
