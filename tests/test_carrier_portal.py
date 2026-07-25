@@ -154,6 +154,7 @@ def test_carrier_openapi_matches_frontend_route_matrix():
         ("post", "/api/v1/carrier/drivers/bulk"),
         ("patch", "/api/v1/carrier/drivers/{driver_id}"),
         ("patch", "/api/v1/carrier/drivers/{driver_id}/toggle-active"),
+        ("put", "/api/v1/carrier/drivers/{driver_id}/active"),
         ("post", "/api/v1/carrier/drivers/{driver_id}/fire"),
         ("get", "/api/v1/carrier/drivers/{driver_id}/profile"),
         ("get", "/api/v1/carrier/relationships"),
@@ -418,12 +419,121 @@ def test_roster_create_toggle_fire_lifecycle(monkeypatch):
 
     fired = carrier_portal.fire_driver(driver_id, authorization="Bearer x")
     assert fired["ok"] is True
+    assert fired["duplicate"] is False
+    fired_replay = carrier_portal.fire_driver(driver_id, authorization="Bearer x")
+    assert fired_replay["duplicate"] is True
+    assert fired_replay["fired_at"] == fired["fired_at"]
     assert carrier_portal.list_drivers(authorization="Bearer x")["count"] == 0
     assert carrier_portal.list_drivers(include_fired=True, authorization="Bearer x")["count"] == 1
 
     with pytest.raises(HTTPException) as exc:
         carrier_portal.toggle_driver_active(driver_id, authorization="Bearer x")
     assert exc.value.status_code == 400
+
+
+def test_set_driver_active_is_desired_state_and_idempotent(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    created = carrier_portal.create_driver(
+        carrier_portal.DriverCreate(
+            first_name="Ada", last_name="Driver", email="ada@example.com"
+        ),
+        authorization="Bearer carrier",
+    )
+    first = carrier_portal.set_driver_active(
+        created["driver_id"],
+        carrier_portal.DriverActiveRequest(active=False),
+        authorization="Bearer carrier",
+    )
+    replay = carrier_portal.set_driver_active(
+        created["driver_id"],
+        carrier_portal.DriverActiveRequest(active=False),
+        authorization="Bearer carrier",
+    )
+    assert first == {"ok": True, "active": False, "duplicate": False}
+    assert replay == {"ok": True, "active": False, "duplicate": True}
+
+
+def test_roster_create_is_idempotent_and_tenant_scoped(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    first = carrier_portal.create_driver(
+        carrier_portal.DriverCreate(
+            first_name=" Ada ",
+            last_name="Lovelace",
+            email="ADA@EXAMPLE.COM",
+        ),
+        authorization="Bearer carrier-1",
+    )
+    replay = carrier_portal.create_driver(
+        carrier_portal.DriverCreate(
+            first_name="Ada",
+            last_name="Lovelace",
+            email="ada@example.com",
+        ),
+        authorization="Bearer carrier-1",
+    )
+    assert first["duplicate"] is False
+    assert replay == {**first, "duplicate": True}
+    assert db.collection("carriers").document("carrier_1").collection("drivers").rows[
+        first["driver_id"]
+    ]["email"] == "ada@example.com"
+
+    _wire(monkeypatch, db, token={
+        "uid": "carrier_2",
+        "email": "two@example.com",
+        "email_verified": True,
+        "role": "carrier",
+    })
+    other_tenant = carrier_portal.create_driver(
+        carrier_portal.DriverCreate(
+            first_name="Ada",
+            last_name="Lovelace",
+            email="ada@example.com",
+        ),
+        authorization="Bearer carrier-2",
+    )
+    assert other_tenant["duplicate"] is False
+    assert other_tenant["driver_id"] != first["driver_id"]
+
+
+def test_roster_update_reconciles_identity_and_rejects_collision(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    first = carrier_portal.create_driver(
+        carrier_portal.DriverCreate(
+            first_name="Ada", last_name="One", email="ada@example.com"
+        ),
+        authorization="Bearer carrier",
+    )
+    second = carrier_portal.create_driver(
+        carrier_portal.DriverCreate(
+            first_name="Grace", last_name="Two", email="grace@example.com"
+        ),
+        authorization="Bearer carrier",
+    )
+
+    carrier_portal.update_driver(
+        first["driver_id"],
+        carrier_portal.DriverUpdate(email="new@example.com"),
+        authorization="Bearer carrier",
+    )
+    replay_new_identity = carrier_portal.create_driver(
+        carrier_portal.DriverCreate(
+            first_name="Ada", last_name="One", email="NEW@EXAMPLE.COM"
+        ),
+        authorization="Bearer carrier",
+    )
+    assert replay_new_identity["duplicate"] is True
+    assert replay_new_identity["driver_id"] == first["driver_id"]
+
+    with pytest.raises(HTTPException) as collision:
+        carrier_portal.update_driver(
+            second["driver_id"],
+            carrier_portal.DriverUpdate(email="new@example.com"),
+            authorization="Bearer carrier",
+        )
+    assert collision.value.status_code == 409
 
 
 def test_bulk_rejects_duplicate_cdl_and_commits_nothing(monkeypatch):
@@ -448,8 +558,33 @@ def test_bulk_commits_valid_rows_and_uppercases_state(monkeypatch):
     ])
     result = carrier_portal.bulk_create_drivers(body, authorization="Bearer x")
     assert result["created"] == 2
+    assert result["duplicates"] == 0
     listed = carrier_portal.list_drivers(authorization="Bearer x")["drivers"]
     assert sorted(d["cdl_state"] for d in listed) == ["OK", "TX"]
+
+    replay = carrier_portal.bulk_create_drivers(body, authorization="Bearer x")
+    assert replay["created"] == 0
+    assert replay["duplicates"] == 2
+    assert carrier_portal.list_drivers(authorization="Bearer x")["count"] == 2
+
+
+def test_bulk_is_limited_to_pilot_capacity(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    rows = [
+        carrier_portal.DriverCreate(
+            first_name="Driver",
+            last_name=str(index),
+            email=f"driver{index}@example.com",
+        )
+        for index in range(101)
+    ]
+    with pytest.raises(HTTPException) as exc:
+        carrier_portal.bulk_create_drivers(
+            carrier_portal.BulkDriverCreate(drivers=rows),
+            authorization="Bearer carrier",
+        )
+    assert exc.value.status_code == 400
 
 
 def test_subscription_uses_integer_cents_without_guessing_legacy_units(monkeypatch):

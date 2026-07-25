@@ -43,7 +43,7 @@ from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from firebase_admin import storage
 from google.api_core.exceptions import Aborted, AlreadyExists, FailedPrecondition
 from google.cloud.firestore_v1 import LastUpdateOption
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.platform.service import (
     PlatformService,
@@ -369,12 +369,12 @@ def update_my_carrier_profile(body: CarrierProfileUpdate, authorization: Optiona
 # ── Driver roster ─────────────────────────────────────────────────────────────
 
 class DriverCreate(BaseModel):
-    first_name: str
-    last_name: str
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    cdl_number: Optional[str] = None
-    cdl_state: Optional[str] = None
+    first_name: str = Field(min_length=1, max_length=80)
+    last_name: str = Field(min_length=1, max_length=80)
+    email: Optional[str] = Field(default=None, max_length=254)
+    phone: Optional[str] = Field(default=None, max_length=32)
+    cdl_number: Optional[str] = Field(default=None, max_length=40)
+    cdl_state: Optional[str] = Field(default=None, max_length=2)
     dob: Optional[str] = None
     med_cert_expiration: Optional[str] = None
     employment_type: Optional[str] = None
@@ -382,6 +382,14 @@ class DriverCreate(BaseModel):
     subscription_start_date: Optional[str] = None
     psp_status: Optional[str] = None
     mvr_status: Optional[str] = None
+
+    @model_validator(mode="after")
+    def require_roster_identity(self):
+        if self.cdl_number and not self.cdl_state:
+            raise ValueError("cdl_state is required when cdl_number is provided.")
+        if not any((self.cdl_number, self.email, self.phone)):
+            raise ValueError("A CDL number, email, or phone is required to prevent duplicate roster records.")
+        return self
 
 
 class DriverUpdate(BaseModel):
@@ -416,6 +424,10 @@ class EndDriverRelationshipRequest(BaseModel):
     reason: str = Field(min_length=1, max_length=500)
 
 
+class DriverActiveRequest(BaseModel):
+    active: bool
+
+
 def _driver_out(doc) -> dict:
     d = doc.to_dict()
     d["driver_id"] = doc.id
@@ -423,6 +435,52 @@ def _driver_out(doc) -> dict:
         if d.get(k) is not None:
             d[k] = iso(d[k])
     return d
+
+
+def _normalized_driver_data(data: dict) -> dict:
+    normalized = dict(data)
+    normalized["first_name"] = " ".join(str(normalized.get("first_name") or "").split())
+    normalized["last_name"] = " ".join(str(normalized.get("last_name") or "").split())
+    if normalized.get("email"):
+        normalized["email"] = str(normalized["email"]).strip().lower()
+    if normalized.get("phone"):
+        digits = "".join(character for character in str(normalized["phone"]) if character.isdigit())
+        normalized["phone"] = digits or None
+    if normalized.get("cdl_number"):
+        normalized["cdl_number"] = str(normalized["cdl_number"]).strip().upper()
+        normalized["cdl_state"] = str(normalized.get("cdl_state") or "").strip().upper()
+    elif normalized.get("cdl_state"):
+        normalized["cdl_state"] = str(normalized["cdl_state"]).strip().upper()
+    return normalized
+
+
+def _driver_identity(data: dict) -> str:
+    if data.get("cdl_number"):
+        value = f"cdl:{data.get('cdl_state', '')}:{data['cdl_number']}"
+    elif data.get("email"):
+        value = f"email:{data['email']}"
+    else:
+        value = f"phone:{data.get('phone', '')}"
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _driver_document_id(carrier_id: str, data: dict) -> str:
+    digest = hashlib.sha256(
+        f"{carrier_id}:{_driver_identity(data)}".encode("utf-8")
+    ).hexdigest()[:32]
+    return f"roster_{digest}"
+
+
+def _roster_identities(roster) -> dict[str, str]:
+    identities = {}
+    for snapshot in roster.stream():
+        data = snapshot.to_dict() or {}
+        identity = data.get("roster_identity")
+        if not identity and any(data.get(key) for key in ("cdl_number", "email", "phone")):
+            identity = _driver_identity(_normalized_driver_data(data))
+        if identity:
+            identities[str(identity)] = snapshot.id
+    return identities
 
 
 @router.get("/drivers")
@@ -436,12 +494,21 @@ def list_drivers(include_fired: bool = False, authorization: Optional[str] = Hea
 
 @router.post("/drivers")
 def create_driver(body: DriverCreate, authorization: Optional[str] = Header(None)):
-    _, _, ref = _carrier(authorization)
+    decoded, _, ref = _carrier(authorization)
+    data = _normalized_driver_data(body.model_dump())
     now = datetime.now(timezone.utc)
-    doc = ref.collection("drivers").document()
-    doc.set({**body.model_dump(), "active": True, "fired_at": None,
+    roster = ref.collection("drivers")
+    identity = _driver_identity(data)
+    existing_id = _roster_identities(roster).get(identity)
+    doc = roster.document(
+        existing_id or _driver_document_id(decoded["uid"], data)
+    )
+    if existing_id or doc.get().exists:
+        return {"ok": True, "driver_id": doc.id, "duplicate": True}
+    doc.set({**data, "roster_identity": _driver_identity(data),
+             "active": True, "fired_at": None,
              "created_at": now, "updated_at": now})
-    return {"ok": True, "driver_id": doc.id}
+    return {"ok": True, "driver_id": doc.id, "duplicate": False}
 
 
 def _carrier_platform(decoded: dict, db, carrier_ref):
@@ -553,43 +620,79 @@ def end_driver_relationship(
 @router.post("/drivers/bulk")
 def bulk_create_drivers(body: BulkDriverCreate, authorization: Optional[str] = Header(None)):
     """Validate the complete payload before committing any row."""
-    _, db, ref = _carrier(authorization)
-    if not body.drivers or len(body.drivers) > 1000:
-        raise HTTPException(status_code=400, detail="Upload between 1 and 1,000 drivers at a time.")
-    seen: set[tuple[str, str]] = set()
+    decoded, db, ref = _carrier(authorization)
+    if not body.drivers or len(body.drivers) > 100:
+        raise HTTPException(status_code=400, detail="Upload between 1 and 100 drivers at a time.")
+    seen: set[str] = set()
     errors = []
+    normalized_rows = []
     for row, driver in enumerate(body.drivers, start=2):
-        key = ((driver.cdl_state or "").strip().upper(), (driver.cdl_number or "").strip().upper())
-        if not driver.first_name.strip() or not driver.last_name.strip():
-            errors.append({"row": row, "message": "First and last name are required."})
-        if key[1] and key in seen:
-            errors.append({"row": row, "message": "Duplicate CDL number in this file."})
-        seen.add(key)
+        data = _normalized_driver_data(driver.model_dump())
+        identity = _driver_identity(data)
+        if identity in seen:
+            errors.append({"row": row, "message": "Duplicate Driver identity in this file."})
+        seen.add(identity)
+        normalized_rows.append((data, identity))
     if errors:
         raise HTTPException(status_code=422, detail={"message": "No drivers were imported.", "errors": errors})
     roster = ref.collection("drivers")
+    existing_identities = _roster_identities(roster)
     now = datetime.now(timezone.utc)
     batch = db.batch()
     ids = []
-    for driver in body.drivers:
-        doc = roster.document()
-        data = driver.model_dump()
-        data["cdl_state"] = (data.get("cdl_state") or "").upper() or None
-        batch.set(doc, {**data, "active": True, "fired_at": None, "created_at": now, "updated_at": now})
+    duplicate_ids = []
+    for data, identity in normalized_rows:
+        existing_id = existing_identities.get(identity)
+        doc = roster.document(
+            existing_id or _driver_document_id(decoded["uid"], data)
+        )
+        if existing_id or doc.get().exists:
+            duplicate_ids.append(doc.id)
+            continue
+        batch.set(doc, {
+            **data,
+            "roster_identity": identity,
+            "active": True,
+            "fired_at": None,
+            "created_at": now,
+            "updated_at": now,
+        })
         ids.append(doc.id)
     batch.commit()
-    return {"ok": True, "created": len(ids), "driver_ids": ids}
+    return {
+        "ok": True,
+        "created": len(ids),
+        "duplicates": len(duplicate_ids),
+        "driver_ids": ids,
+        "duplicate_driver_ids": duplicate_ids,
+    }
 
 
 @router.patch("/drivers/{driver_id}")
 def update_driver(driver_id: str, body: DriverUpdate, authorization: Optional[str] = Header(None)):
     _, _, ref = _carrier(authorization)
-    doc = ref.collection("drivers").document(driver_id)
-    if not doc.get().exists:
+    roster = ref.collection("drivers")
+    doc = roster.document(driver_id)
+    snapshot = doc.get()
+    if not snapshot.exists:
         raise HTTPException(status_code=404, detail="Driver not found.")
     patch = {k: v for k, v in body.model_dump().items() if v is not None}
     if not patch:
         raise HTTPException(status_code=400, detail="No fields to update.")
+    merged = _normalized_driver_data({**(snapshot.to_dict() or {}), **patch})
+    try:
+        DriverCreate.model_validate(merged)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    identity = _driver_identity(merged)
+    collision = _roster_identities(roster).get(identity)
+    if collision and collision != driver_id:
+        raise HTTPException(status_code=409, detail="Another roster record has the same CDL or contact identity.")
+    patch = {
+        key: merged[key]
+        for key in patch
+    }
+    patch["roster_identity"] = identity
     patch["updated_at"] = datetime.now(timezone.utc)
     doc.set(patch, merge=True)
     return {"ok": True, "updated": list(patch.keys())}
@@ -609,16 +712,45 @@ def toggle_driver_active(driver_id: str, authorization: Optional[str] = Header(N
     return {"ok": True, "active": new_active}
 
 
+@router.put("/drivers/{driver_id}/active")
+def set_driver_active(
+    driver_id: str,
+    body: DriverActiveRequest,
+    authorization: Optional[str] = Header(None),
+):
+    _, _, ref = _carrier(authorization)
+    doc = ref.collection("drivers").document(driver_id)
+    snapshot = doc.get()
+    if not snapshot.exists:
+        raise HTTPException(status_code=404, detail="Driver not found.")
+    data = snapshot.to_dict() or {}
+    if data.get("fired_at"):
+        raise HTTPException(status_code=409, detail="A former Driver cannot be reactivated.")
+    current = bool(data.get("active", True))
+    if current == body.active:
+        return {"ok": True, "active": current, "duplicate": True}
+    doc.update({"active": body.active, "updated_at": datetime.now(timezone.utc)})
+    return {"ok": True, "active": body.active, "duplicate": False}
+
+
 @router.post("/drivers/{driver_id}/fire")
 def fire_driver(driver_id: str, authorization: Optional[str] = Header(None)):
     """Soft-remove — keeps the record (and ticket/MVR history) intact."""
     _, _, ref = _carrier(authorization)
     doc = ref.collection("drivers").document(driver_id)
-    if not doc.get().exists:
+    snapshot = doc.get()
+    if not snapshot.exists:
         raise HTTPException(status_code=404, detail="Driver not found.")
+    existing = snapshot.to_dict() or {}
+    if existing.get("fired_at"):
+        return {
+            "ok": True,
+            "fired_at": iso(existing["fired_at"]),
+            "duplicate": True,
+        }
     now = datetime.now(timezone.utc)
     doc.update({"active": False, "fired_at": now, "updated_at": now})
-    return {"ok": True, "fired_at": iso(now)}
+    return {"ok": True, "fired_at": iso(now), "duplicate": False}
 
 
 @router.get("/drivers/{driver_id}/profile")
