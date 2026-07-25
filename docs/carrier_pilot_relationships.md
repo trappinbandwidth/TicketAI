@@ -23,6 +23,27 @@ connect a Driver and Carrier.
 Possession of a code does not expose the Driver's Firebase UID, profile,
 credentials, tickets, legal records, or consent.
 
+## In-app notifications
+
+Relationship state changes use first-party in-app notifications; no paid email,
+SMS, or push provider is required for the Pilot.
+
+- A connection request notifies only the Driver principal that issued the code.
+- Accept/decline and safety-consent changes notify active Carrier administrators,
+  safety managers, and fleet managers in that Carrier organization.
+- Ending a relationship notifies the other party.
+- Notification IDs are deterministic per recipient and state-transition
+  instance, so retries do not create duplicates or reset an alert that was
+  already read while a later valid relationship lifecycle can still alert.
+- Driver and Carrier notification reads are principal-scoped. Looking up or
+  marking another principal's notification returns not found.
+
+The Driver uses `GET /api/v1/driver/profile/notifications` and
+`POST /api/v1/driver/profile/notifications/{notification_id}/read`. The Carrier
+uses the equivalent `/api/v1/carrier/notifications` routes. These notifications
+contain relationship state only; they do not contain Driver identifiers, safety
+records, ticket/case data, or attorney material.
+
 ## Former Drivers and revocation
 
 Either the Driver or an authorized Carrier administrator can end the

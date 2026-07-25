@@ -157,6 +157,33 @@ def list_carrier_relationships(authorization: Optional[str] = Header(None)):
     }
 
 
+@router.get("/notifications")
+def list_notifications(
+    unread_only: bool = False, authorization: Optional[str] = Header(None)
+):
+    """Return only in-app notifications owned by the authenticated Driver."""
+    claims = _driver_claims(authorization)
+    service, principal_id = _platform(get_db(), claims)
+    items = service.list_notifications(principal_id, unread_only=unread_only)
+    return {
+        "notifications": items,
+        "unread_count": sum(1 for item in items if not item.get("read", False)),
+    }
+
+
+@router.post("/notifications/{notification_id}/read")
+def mark_notification_read(
+    notification_id: str, authorization: Optional[str] = Header(None)
+):
+    claims = _driver_claims(authorization)
+    service, principal_id = _platform(get_db(), claims)
+    try:
+        service.mark_notification_read(principal_id, notification_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {"ok": True}
+
+
 @router.post("/carrier-relationships/{relationship_id}/respond")
 def respond_to_carrier_relationship(
     relationship_id: str,

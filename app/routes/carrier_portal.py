@@ -7,7 +7,7 @@ so the platform exposes one API. All routes live under /api/v1/carrier/*.
   PATCH /carrier/me                            Update own company profile.
   GET   /carrier/drivers                       Roster list (?include_fired=true).
   POST  /carrier/drivers                       Add one driver.
-  POST  /carrier/drivers/bulk                  Validate-then-commit bulk add (≤1000).
+  POST  /carrier/drivers/bulk                  Validate-then-commit bulk add (≤100).
   PATCH /carrier/drivers/{id}                  Update driver fields.
   PATCH /carrier/drivers/{id}/toggle-active    Enable/disable (blocked for fired).
   POST  /carrier/drivers/{id}/fire             Soft-remove; history kept.
@@ -25,11 +25,12 @@ so the platform exposes one API. All routes live under /api/v1/carrier/*.
   POST  /carrier/documents                     Upload (≤20 MB) to Firebase Storage.
   GET   /carrier/documents/{id}/download       15-min signed URL.
 
-Data model is unchanged from the standalone service: carriers/{uid} keyed by the
-carrier's own Firebase uid, with drivers/notifications/documents subcollections.
-(The staff CRM in carriers_crm.py tracks prospect carriers by DOT number in the
-same collection — mixed keying is pre-existing and resolved by the canonical
-records migration, not here.)
+Legacy Carrier data remains under carriers/{uid}, with drivers, notifications,
+and documents subcollections. New cross-role relationship notifications use
+principal_notifications with recipient-principal ownership. (The staff CRM in
+carriers_crm.py tracks prospect carriers by DOT number in the same collection —
+mixed keying is pre-existing and resolved by the canonical records migration,
+not here.)
 """
 from __future__ import annotations
 
@@ -872,14 +873,21 @@ def subscription(authorization: Optional[str] = Header(None)):
 
 @router.get("/notifications")
 def notifications(unread_only: bool = False, authorization: Optional[str] = Header(None)):
-    _, _, ref = _carrier(authorization)
-    items = []
+    decoded, db, ref = _carrier(authorization)
+    principal_id = principal_id_for_uid(decoded["uid"])
+    items = PlatformService(db).list_notifications(
+        principal_id, unread_only=unread_only
+    )
+    # Preserve legacy Carrier alerts while new cross-role events use the
+    # principal-owned collection.
     for snap in ref.collection("notifications").stream():
         data = snap.to_dict()
         data["notification_id"] = snap.id
         if data.get("created_at"):
             data["created_at"] = iso(data["created_at"])
-        if not unread_only or not data.get("read", False):
+        if (
+            not unread_only or not data.get("read", False)
+        ) and not any(item.get("id") == data["notification_id"] for item in items):
             items.append(data)
     items.sort(key=lambda item: item.get("created_at") or "", reverse=True)
     return {"notifications": items[:50],
@@ -888,7 +896,14 @@ def notifications(unread_only: bool = False, authorization: Optional[str] = Head
 
 @router.post("/notifications/{notification_id}/read")
 def mark_notification_read(notification_id: str, authorization: Optional[str] = Header(None)):
-    _, _, ref = _carrier(authorization)
+    decoded, db, ref = _carrier(authorization)
+    try:
+        PlatformService(db).mark_notification_read(
+            principal_id_for_uid(decoded["uid"]), notification_id
+        )
+        return {"ok": True}
+    except LookupError:
+        pass
     note = ref.collection("notifications").document(notification_id)
     if not note.get().exists:
         raise HTTPException(status_code=404, detail="Notification not found.")

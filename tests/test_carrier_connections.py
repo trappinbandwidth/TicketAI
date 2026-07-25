@@ -4,6 +4,7 @@ import pytest
 from fastapi import HTTPException
 
 from app.platform.service import PlatformService
+from app.platform.service import principal_id_for_uid
 from app.routes import carrier_portal, driver_profile
 from app.services.carrier_resolve import CarrierResolveService
 from tests.test_platform_identity import FakeDb
@@ -54,6 +55,23 @@ def test_one_time_code_creates_invitation_then_driver_controls_consent(monkeypat
     assert relationship.carrier_organization_id == organization_id
     assert relationship.status.value == "invited"
 
+    driver_notifications = driver_profile.list_notifications(
+        authorization="Bearer driver"
+    )
+    assert driver_notifications["unread_count"] == 1
+    invitation = driver_notifications["notifications"][0]
+    assert invitation["event_type"] == "relationship_invited"
+    assert invitation["resource_id"] == relationship.id
+
+    assert driver_profile.mark_notification_read(
+        invitation["id"], authorization="Bearer driver"
+    ) == {"ok": True}
+    # Read is desired-state/idempotent and a relationship replay cannot recreate
+    # or unread the same event.
+    assert driver_profile.mark_notification_read(
+        invitation["id"], authorization="Bearer driver"
+    ) == {"ok": True}
+
     with pytest.raises(HTTPException) as replay:
         carrier_portal.connect_driver(
             carrier_portal.DriverConnectionRequest(code=issued["code"]),
@@ -73,6 +91,12 @@ def test_one_time_code_creates_invitation_then_driver_controls_consent(monkeypat
         authorization="Bearer driver",
     )
     assert accepted["relationship"].status.value == "active"
+    carrier_notifications = PlatformService(db).list_notifications(
+        principal_id_for_uid(CARRIER["uid"])
+    )
+    assert [item["event_type"] for item in carrier_notifications] == [
+        "relationship_accepted"
+    ]
 
     consent_result = driver_profile.grant_carrier_safety_consent(
         relationship.id,
@@ -86,6 +110,12 @@ def test_one_time_code_creates_invitation_then_driver_controls_consent(monkeypat
     assert consent.record_categories == [
         "profile", "credential", "employment", "inspection"
     ]
+    carrier_notifications = PlatformService(db).list_notifications(
+        principal_id_for_uid(CARRIER["uid"])
+    )
+    assert {
+        item["event_type"] for item in carrier_notifications
+    } == {"relationship_accepted", "safety_consent_granted"}
 
     carrier_summary = CarrierResolveService(db).driver_summary(
         relationship.invited_by_principal_id,
@@ -113,6 +143,16 @@ def test_one_time_code_creates_invitation_then_driver_controls_consent(monkeypat
         authorization="Bearer driver",
     )
     assert revoked["consent"].status.value == "revoked"
+    carrier_notifications = PlatformService(db).list_notifications(
+        principal_id_for_uid(CARRIER["uid"])
+    )
+    assert {
+        item["event_type"] for item in carrier_notifications
+    } == {
+        "relationship_accepted",
+        "safety_consent_granted",
+        "safety_consent_revoked",
+    }
 
     acquisition = db.collection("acquisition_events").rows
     assert any(
@@ -122,7 +162,7 @@ def test_one_time_code_creates_invitation_then_driver_controls_consent(monkeypat
 
 
 def test_connection_code_is_not_a_consent_and_wrong_driver_cannot_respond(monkeypatch):
-    _, _ = setup_connection_stack(monkeypatch)
+    db, _ = setup_connection_stack(monkeypatch)
     issued = driver_profile.create_carrier_connection_code(authorization="Bearer driver")
     connected = carrier_portal.connect_driver(
         carrier_portal.DriverConnectionRequest(
@@ -154,3 +194,12 @@ def test_connection_code_is_not_a_consent_and_wrong_driver_cannot_respond(monkey
             authorization="Bearer other",
         )
     assert no_consent.value.status_code == 404
+
+    invitation = PlatformService(db).list_notifications(
+        principal_id_for_uid(DRIVER["uid"])
+    )[0]
+    with pytest.raises(HTTPException) as hidden_notification:
+        driver_profile.mark_notification_read(
+            invitation["id"], authorization="Bearer other"
+        )
+    assert hidden_notification.value.status_code == 404

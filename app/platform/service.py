@@ -6,6 +6,8 @@ import uuid
 from datetime import datetime, timezone
 from typing import Iterable, Optional
 
+from google.api_core.exceptions import AlreadyExists
+
 from app.platform.models import (
     AuthorizationDecision,
     AuthorizationRequest,
@@ -48,6 +50,16 @@ def membership_id_for_principal(organization_id: str, principal_id: str) -> str:
 def relationship_id_for_parties(organization_id: str, driver_principal_id: str) -> str:
     digest = hashlib.sha256(f"{organization_id}:{driver_principal_id}".encode("utf-8")).hexdigest()[:32]
     return f"rel_{digest}"
+
+
+def notification_id_for_event(
+    recipient_principal_id: str, event_type: str, resource_id: str
+) -> str:
+    """Return a stable notification ID so retries cannot create duplicate alerts."""
+    digest = hashlib.sha256(
+        f"{recipient_principal_id}:{event_type}:{resource_id}".encode("utf-8")
+    ).hexdigest()[:32]
+    return f"ntf_{digest}"
 
 
 def mask_email(value: Optional[str]) -> Optional[str]:
@@ -95,6 +107,116 @@ class PlatformService:
             "created_at": utc_now().isoformat(),
         })
         return event_id
+
+    def _notify_relationship(
+        self,
+        recipient_principal_id: str,
+        event_type: str,
+        relationship: DriverCarrierRelationship,
+        event_instance_id: Optional[str] = None,
+    ) -> dict:
+        """Write one privacy-minimized in-app notification per state event."""
+        copy = {
+            "relationship_invited": (
+                "Carrier connection request",
+                "A Carrier requested a connection. Review the relationship before sharing safety data.",
+            ),
+            "relationship_accepted": (
+                "Driver connection accepted",
+                "The Driver accepted the Carrier relationship. Safety data remains unavailable until separately consented.",
+            ),
+            "relationship_declined": (
+                "Driver connection declined",
+                "The Driver declined the Carrier relationship request.",
+            ),
+            "relationship_ended": (
+                "Driver connection ended",
+                "The Driver–Carrier relationship ended. Carrier access to Driver safety data is no longer available.",
+            ),
+            "safety_consent_granted": (
+                "Driver safety consent granted",
+                "The Driver granted read-only access to the approved safety categories.",
+            ),
+            "safety_consent_revoked": (
+                "Driver safety consent revoked",
+                "The Driver revoked safety-data access. The Carrier can no longer view the consented projection.",
+            ),
+        }
+        title, message = copy[event_type]
+        notification_id = notification_id_for_event(
+            recipient_principal_id,
+            event_type,
+            event_instance_id or relationship.id,
+        )
+        ref = self.db.collection("principal_notifications").document(notification_id)
+        notification = {
+            "id": notification_id,
+            "recipient_principal_id": recipient_principal_id,
+            "event_type": event_type,
+            "title": title,
+            "message": message,
+            "resource_type": "driver_carrier_relationship",
+            "resource_id": relationship.id,
+            "carrier_organization_id": relationship.carrier_organization_id,
+            "read": False,
+            "created_at": utc_now().isoformat(),
+        }
+        try:
+            ref.create(notification)
+        except AlreadyExists:
+            return ref.get().to_dict() or {}
+        return notification
+
+    def _notify_active_carrier_members(
+        self,
+        event_type: str,
+        relationship: DriverCarrierRelationship,
+        event_instance_id: Optional[str] = None,
+    ) -> None:
+        memberships = self.db.collection("organization_memberships").where(
+            "organization_id", "==", relationship.carrier_organization_id
+        ).stream()
+        for snapshot in memberships:
+            membership = Membership.model_validate(snapshot.to_dict())
+            if (
+                membership.status == MembershipStatus.ACTIVE
+                and membership.role in {"carrier_admin", "safety_manager", "fleet_manager"}
+            ):
+                self._notify_relationship(
+                    membership.principal_id,
+                    event_type,
+                    relationship,
+                    event_instance_id,
+                )
+
+    def list_notifications(
+        self, recipient_principal_id: str, unread_only: bool = False, limit: int = 50
+    ) -> list[dict]:
+        docs = self.db.collection("principal_notifications").where(
+            "recipient_principal_id", "==", recipient_principal_id
+        ).stream()
+        items = [dict(snapshot.to_dict() or {}) for snapshot in docs]
+        if unread_only:
+            items = [item for item in items if not item.get("read", False)]
+        items.sort(key=lambda item: item.get("created_at") or "", reverse=True)
+        return items[:limit]
+
+    def mark_notification_read(
+        self, recipient_principal_id: str, notification_id: str
+    ) -> dict:
+        ref = self.db.collection("principal_notifications").document(notification_id)
+        snapshot = ref.get()
+        if not getattr(snapshot, "exists", False):
+            raise LookupError("Notification not found.")
+        notification = snapshot.to_dict() or {}
+        if notification.get("recipient_principal_id") != recipient_principal_id:
+            # Do not disclose whether another principal's notification exists.
+            raise LookupError("Notification not found.")
+        if notification.get("read", False):
+            return notification
+        read_at = utc_now().isoformat()
+        ref.set({"read": True, "read_at": read_at}, merge=True)
+        return {**notification, "read": True, "read_at": read_at}
 
     def bootstrap_principal(self, claims: dict) -> tuple[Principal, bool]:
         uid = claims.get("uid") or claims.get("sub")
@@ -278,6 +400,22 @@ class PlatformService:
         )
         self.db.collection("consent_grants").document(consent.id).set(_serialize(consent))
         self._audit("consent.granted", actor_id, "consent", consent.id, {"purpose": consent.purpose})
+        if (
+            consent.purpose == "safety_compliance"
+            and consent.related_resource_type == "driver_carrier_relationship"
+            and consent.related_resource_id
+        ):
+            relationship_snapshot = self.db.collection(
+                "driver_carrier_relationships"
+            ).document(consent.related_resource_id).get()
+            if getattr(relationship_snapshot, "exists", False):
+                self._notify_active_carrier_members(
+                    "safety_consent_granted",
+                    DriverCarrierRelationship.model_validate(
+                        relationship_snapshot.to_dict()
+                    ),
+                    consent.id,
+                )
         return consent
 
     def list_consents(self, subject_principal_id: str) -> list[ConsentGrant]:
@@ -300,6 +438,22 @@ class PlatformService:
         consent.updated_at = utc_now()
         ref.set(_serialize(consent))
         self._audit("consent.revoked", actor_id, "consent", consent.id, {"reason": reason})
+        if (
+            consent.purpose == "safety_compliance"
+            and consent.related_resource_type == "driver_carrier_relationship"
+            and consent.related_resource_id
+        ):
+            relationship_snapshot = self.db.collection(
+                "driver_carrier_relationships"
+            ).document(consent.related_resource_id).get()
+            if getattr(relationship_snapshot, "exists", False):
+                self._notify_active_carrier_members(
+                    "safety_consent_revoked",
+                    DriverCarrierRelationship.model_validate(
+                        relationship_snapshot.to_dict()
+                    ),
+                    consent.id,
+                )
         return consent
 
     def create_delegation(
@@ -393,6 +547,12 @@ class PlatformService:
             relationship.id,
             {"organization_id": organization_id},
         )
+        self._notify_relationship(
+            relationship.driver_principal_id,
+            "relationship_invited",
+            relationship,
+            f"{relationship.id}:{relationship.invited_at.isoformat()}",
+        )
         return relationship, True
 
     def list_driver_relationships(self, driver_principal_id: str) -> list[DriverCarrierRelationship]:
@@ -434,6 +594,11 @@ class PlatformService:
             "driver_carrier_relationship",
             relationship.id,
         )
+        self._notify_active_carrier_members(
+            "relationship_accepted" if accept else "relationship_declined",
+            relationship,
+            f"{relationship.id}:{relationship.responded_at.isoformat()}",
+        )
         return relationship
 
     def end_driver_relationship(
@@ -464,6 +629,19 @@ class PlatformService:
         relationship.updated_at = utc_now()
         ref.set(_serialize(relationship))
         self._audit("relationship.ended", actor_id, "driver_carrier_relationship", relationship.id)
+        if actor_is_driver:
+            self._notify_active_carrier_members(
+                "relationship_ended",
+                relationship,
+                f"{relationship.id}:{relationship.ended_at.isoformat()}",
+            )
+        else:
+            self._notify_relationship(
+                relationship.driver_principal_id,
+                "relationship_ended",
+                relationship,
+                f"{relationship.id}:{relationship.ended_at.isoformat()}",
+            )
         return relationship
 
 

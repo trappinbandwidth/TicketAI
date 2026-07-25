@@ -13,7 +13,7 @@ from google.api_core.exceptions import AlreadyExists
 
 from app.routes import carrier_portal, carriers_crm
 from app.platform.models import ConsentGrantCreate, DriverCarrierRelationshipCreate
-from app.platform.service import PlatformService
+from app.platform.service import PlatformService, principal_id_for_uid
 
 
 # ── Local fake Firestore (richer than tests.test_platform_identity.FakeDb:
@@ -175,6 +175,10 @@ def test_carrier_openapi_matches_frontend_route_matrix():
         if path not in paths or method not in paths[path]
     }
     assert missing == set()
+    assert "get" in paths["/api/v1/driver/profile/notifications"]
+    assert "post" in paths[
+        "/api/v1/driver/profile/notifications/{notification_id}/read"
+    ]
     for legacy in (
             "/api/v1/drivers",
             "/api/v1/fmcsa/safety",
@@ -182,6 +186,56 @@ def test_carrier_openapi_matches_frontend_route_matrix():
             "/api/v1/billing",
         ):
         assert legacy not in paths
+
+
+def test_carrier_notifications_are_principal_scoped_and_read_is_idempotent(
+    monkeypatch,
+):
+    db = Db()
+    _wire(monkeypatch, db)
+    _register(monkeypatch, db)
+    recipient = principal_id_for_uid(CARRIER_TOKEN["uid"])
+    service = PlatformService(db)
+    db.collection("principal_notifications").document("ntf_owned").set({
+        "id": "ntf_owned",
+        "recipient_principal_id": recipient,
+        "event_type": "relationship_accepted",
+        "title": "Driver connection accepted",
+        "message": "The Driver accepted.",
+        "resource_type": "driver_carrier_relationship",
+        "resource_id": "rel_owned",
+        "read": False,
+        "created_at": "2026-07-25T12:00:00+00:00",
+    })
+    db.collection("principal_notifications").document("ntf_other").set({
+        "id": "ntf_other",
+        "recipient_principal_id": principal_id_for_uid("another_carrier"),
+        "event_type": "relationship_accepted",
+        "title": "Other tenant",
+        "message": "Private",
+        "resource_type": "driver_carrier_relationship",
+        "resource_id": "rel_other",
+        "read": False,
+        "created_at": "2026-07-25T12:01:00+00:00",
+    })
+
+    result = carrier_portal.notifications(authorization="Bearer x")
+    assert [item["id"] for item in result["notifications"]] == ["ntf_owned"]
+    assert result["unread_count"] == 1
+
+    assert carrier_portal.mark_notification_read(
+        "ntf_owned", authorization="Bearer x"
+    ) == {"ok": True}
+    assert carrier_portal.mark_notification_read(
+        "ntf_owned", authorization="Bearer x"
+    ) == {"ok": True}
+    assert service.list_notifications(recipient)[0]["read"] is True
+
+    with pytest.raises(HTTPException) as cross_tenant:
+        carrier_portal.mark_notification_read(
+            "ntf_other", authorization="Bearer x"
+        )
+    assert cross_tenant.value.status_code == 404
 
 
 # ── Registration + profile ───────────────────────────────────────────────────
