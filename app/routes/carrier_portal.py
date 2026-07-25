@@ -608,6 +608,35 @@ def driver_tickets(driver_id: str, authorization: Optional[str] = Header(None)):
 
 # ── FMCSA / subscription / notifications / billing ──────────────────────────
 
+def _fmcsa_basics(raw: dict) -> list[dict]:
+    source = (
+        raw.get("basics")
+        or raw.get("sms_basics")
+        or (raw.get("risk_profile") or {}).get("basics")
+        or []
+    )
+    normalized = []
+    for item in source:
+        if not isinstance(item, dict):
+            continue
+        percentile = item.get("percentile")
+        if isinstance(percentile, bool) or not isinstance(percentile, (int, float)):
+            percentile = None
+        elif percentile < 0 or percentile > 100:
+            percentile = None
+        normalized.append({
+            "code": item.get("code"),
+            "name": item.get("name") or item.get("basic") or item.get("code") or "BASIC",
+            "percentile": percentile,
+            "measure": item.get("measure"),
+            "threshold": item.get("threshold"),
+            "alert": bool(item.get("alert")),
+            "metric_name": "FMCSA SMS BASIC percentile",
+            "scale": {"minimum": 0, "maximum": 100, "direction": "0 best; 100 worst"},
+        })
+    return normalized
+
+
 @router.get("/fmcsa/safety")
 def fmcsa_safety(authorization: Optional[str] = Header(None)):
     decoded, db, ref = _carrier(authorization)
@@ -624,12 +653,15 @@ def fmcsa_safety(authorization: Optional[str] = Header(None)):
                 "message": "No cached FMCSA record was found for this USDOT number."}
     raw = snap.to_dict() or {}
     updated = raw.get("fmcsa_updated_at") or raw.get("updated_at") or raw.get("last_modified")
-    return {"status": "ready", "source": "FMCSA cached database", "dot_number": dot,
+    safety_rating = raw.get("safety_rating") or raw.get("fmcsa_safety_rating")
+    return {"status": "ready", "source": "FMCSA SMS cached data", "dot_number": dot,
             "last_updated": iso(updated) if updated else None,
             "carrier": {k: raw.get(k) for k in (
                 "legal_name", "dba_name", "operating_status", "power_units", "driver_count",
                 "inspection_count", "violation_count", "crash_count", "oos_status", "oos_date", "oos_reason")},
-            "basics": raw.get("basics") or raw.get("sms_basics") or [],
+            "safety_rating": safety_rating,
+            "safety_rating_note": "FMCSA Safety Rating is separate from SMS BASIC percentiles.",
+            "basics": _fmcsa_basics(raw),
             "inspections": raw.get("inspections") or []}
 
 

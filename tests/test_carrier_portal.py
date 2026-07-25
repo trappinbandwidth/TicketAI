@@ -442,6 +442,38 @@ def test_subscription_uses_integer_cents_without_guessing_legacy_units(monkeypat
     assert unresolved["pricing_data_status"] == "legacy_unit_unresolved"
 
 
+def test_fmcsa_returns_separate_named_basic_percentiles_and_safety_rating(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    db.collection("carriers").document("carrier_1").set({
+        "company_name": "Big Rig",
+        "dot_number": "1234567",
+    })
+    db.collection("carriers").document("1234567").set({
+        "legal_name": "BIG RIG FREIGHT LLC",
+        "safety_rating": "Satisfactory",
+        "risk_profile": {
+            "basics": [
+                {"code": "unsafe", "name": "Unsafe Driving", "percentile": 78, "measure": 2.4},
+                {"code": "hazmat", "name": "HM Compliance", "percentile": None},
+                {"code": "bad", "name": "Invalid source value", "percentile": 140},
+            ],
+        },
+    })
+
+    result = carrier_portal.fmcsa_safety(authorization="Bearer carrier")
+
+    assert result["status"] == "ready"
+    assert result["source"] == "FMCSA SMS cached data"
+    assert result["safety_rating"] == "Satisfactory"
+    assert result["safety_rating_note"].startswith("FMCSA Safety Rating is separate")
+    assert result["basics"][0]["metric_name"] == "FMCSA SMS BASIC percentile"
+    assert result["basics"][0]["scale"]["direction"] == "0 best; 100 worst"
+    assert result["basics"][0]["percentile"] == 78
+    assert result["basics"][2]["percentile"] is None
+    assert "score" not in result
+
+
 def test_crm_keeps_record_id_and_dot_identifier_distinct(monkeypatch):
     db = Db()
     db.collection("carriers").document("carrier_uuid").set(
