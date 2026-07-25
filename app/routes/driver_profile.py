@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import hashlib
+import os
 from typing import Literal, Optional
 
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
@@ -155,8 +156,14 @@ async def upload_ticket_document(
     if existing.exists:
         return {"ok": True, "document_id": document_id, "status": "received", "duplicate": True}
     path = f"drivers/{claims['uid']}/tickets/{ticket_id}/documents/{document_id}_{safe_name}"
+    project_id = os.getenv("FIREBASE_PROJECT_ID", "").strip()
+    if not project_id:
+        raise HTTPException(status_code=503, detail="Document storage is unavailable.")
     try:
-        storage.bucket().blob(path).upload_from_string(content, content_type=file.content_type)
+        storage.bucket(f"{project_id}.appspot.com").blob(path).upload_from_string(
+            content,
+            content_type=file.content_type,
+        )
     except Exception as exc:
         raise HTTPException(status_code=503, detail="Document storage is unavailable.") from exc
 

@@ -47,7 +47,7 @@ case "${1:-}" in
       TIP_OS_ENTITY_RESOLUTION_ENABLED TIP_OS_ATTORNEY_GOVERNANCE_ENABLED \
       TIP_OS_LAUNCH_ASSESSMENT_ENABLED TIP_OS_AUTH_SHADOW_ENABLED
     do export "$flag=true"; done
-    exec .venv/bin/python -m uvicorn app.main:app --reload --port 8000
+    exec .venv/bin/python -m uvicorn app.main:app --reload --port "${PORT:-8000}"
     ;;
 
   *)
