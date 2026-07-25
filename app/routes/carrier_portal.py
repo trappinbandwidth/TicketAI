@@ -37,7 +37,6 @@ import os
 from datetime import datetime, timezone
 import hashlib
 from typing import Optional
-from uuid import uuid4
 
 import firebase_admin.auth as fb_auth
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
@@ -52,6 +51,7 @@ from app.platform.service import (
     principal_id_for_uid,
 )
 from app.platform.models import DriverCarrierRelationshipCreate
+from app.platform.documents import validate_upload
 from app.platform.shadow_service import shadow_authorization, shadow_enabled
 from app.routes._common import get_db, iso, verify_token
 from app.services.auth_rbac import require_carrier
@@ -74,7 +74,7 @@ def _carrier(authorization: Optional[str]):
 
 def _bucket():
     name = os.getenv("FIREBASE_STORAGE_BUCKET") or (
-        f'{os.getenv("FIREBASE_PROJECT_ID", "rigresolve")}.firebasestorage.app'
+        f'{os.getenv("FIREBASE_PROJECT_ID", "rigresolve")}.appspot.com'
     )
     return storage.bucket(name)
 
@@ -705,20 +705,51 @@ def list_documents(authorization: Optional[str] = Header(None)):
 
 
 @router.post("/documents")
-async def upload_document(file: UploadFile = File(...), category: str = Form(...),
-                          name: str = Form(...), authorization: Optional[str] = Header(None)):
+async def upload_document(
+    file: UploadFile = File(...),
+    category: str = Form(..., min_length=1, max_length=80),
+    name: str = Form(..., min_length=1, max_length=160),
+    authorization: Optional[str] = Header(None),
+):
     decoded, _, ref = _carrier(authorization)
     content = await file.read()
-    if not content or len(content) > 20 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Files must be between 1 byte and 20 MB.")
-    path = f"carriers/{decoded['uid']}/documents/{uuid4().hex}_{file.filename or 'document'}"
-    _bucket().blob(path).upload_from_string(content, content_type=file.content_type)
+    try:
+        safe_name, digest = validate_upload(
+            file.filename or "document",
+            file.content_type or "",
+            content,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    category = category.strip()
+    name = name.strip()
+    identity = f"{decoded['uid']}:{category}:{name}:{digest}".encode("utf-8")
+    document_id = f"carrier_doc_{hashlib.sha256(identity).hexdigest()[:32]}"
+    doc = ref.collection("documents").document(document_id)
+    existing = doc.get()
+    if existing.exists:
+        return {
+            "ok": True,
+            "document_id": document_id,
+            "created_at": iso((existing.to_dict() or {}).get("created_at")),
+            "duplicate": True,
+        }
+    path = f"carriers/{decoded['uid']}/documents/{document_id}_{safe_name}"
+    try:
+        _bucket().blob(path).upload_from_string(content, content_type=file.content_type)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Document storage is unavailable.") from exc
     now = datetime.now(timezone.utc)
-    doc = ref.collection("documents").document()
-    doc.set({"name": name.strip(), "category": category, "file_name": file.filename,
+    doc.set({"name": name, "category": category, "file_name": safe_name,
              "storage_path": path, "content_type": file.content_type,
-             "size_bytes": len(content), "created_at": now, "uploaded_by": decoded["uid"]})
-    return {"ok": True, "document_id": doc.id, "created_at": iso(now)}
+             "size_bytes": len(content), "sha256": digest, "status": "received",
+             "created_at": now, "uploaded_by": decoded["uid"]})
+    return {
+        "ok": True,
+        "document_id": document_id,
+        "created_at": iso(now),
+        "duplicate": False,
+    }
 
 
 @router.get("/documents/{document_id}/download")
@@ -727,6 +758,9 @@ def download_document(document_id: str, authorization: Optional[str] = Header(No
     snap = ref.collection("documents").document(document_id).get()
     if not snap.exists:
         raise HTTPException(status_code=404, detail="Document not found.")
-    url = _bucket().blob(snap.to_dict()["storage_path"]).generate_signed_url(
-        version="v4", expiration=900, method="GET")
+    try:
+        url = _bucket().blob(snap.to_dict()["storage_path"]).generate_signed_url(
+            version="v4", expiration=900, method="GET")
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Document download is unavailable.") from exc
     return {"url": url, "expires_in": 900}
