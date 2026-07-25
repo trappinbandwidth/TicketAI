@@ -55,6 +55,39 @@ revokes the consent record.
 The Driver remains the only party that can revoke the Driver-granted consent.
 Relationship, consent, and revocation events are audit logged.
 
+## Acquisition funnel (ADR-010)
+
+Open self-service acquisition is measured with first-party, privacy-minimized
+funnel events; no paid analytics vendor is used. Six steps are recorded:
+
+| Step | Where recorded |
+| --- | --- |
+| `signup_viewed` | `POST /api/v1/carrier/acquisition/funnel` (open, pre-auth) |
+| `signup_started` | `POST /api/v1/carrier/acquisition/funnel` (open, pre-auth) |
+| `account_created` | server-side during `POST /api/v1/carrier/register` |
+| `email_verified` | server-side during registration |
+| `carrier_profile_completed` | server-side during registration |
+| `first_driver_relationship_requested` | server-side on first relationship |
+
+The two pre-authentication steps have no principal yet, so they use an open
+endpoint that accepts **only** those two event types (authenticated steps are
+rejected, so the open route cannot inflate them). Events are keyed by a salted
+hash of a client-generated visit id — no raw client id, IP, or PII is retained —
+and are idempotent per visitor and step. All events are stored in
+`acquisition_events` under `funnel = carrier_self_service_pilot`.
+
+## Projection reconciliation
+
+A relationship is stored once in `driver_carrier_relationships`, keyed
+deterministically by `(organization_id, driver_principal_id)`. The Carrier
+projection (`GET /api/v1/carrier/relationships`) filters that collection by
+`carrier_organization_id`; the Driver projection
+(`GET /api/v1/driver/profile/carrier-relationships`) filters the same collection
+by `driver_principal_id`. Because both read one canonical record, the two views
+reconcile field-for-field at every lifecycle state with zero unexplained
+differences, and a relationship never appears in an unrelated Driver's view.
+`tests/test_carrier_connections.py` asserts this across invited → active → ended.
+
 ## Support response
 
 - Expired or used code: ask the Driver to generate a new code.
