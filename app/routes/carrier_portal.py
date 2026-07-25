@@ -64,6 +64,14 @@ from app.services.carrier_lookup import (
 
 router = APIRouter(prefix="/carrier", tags=["carrier-portal"])
 
+# Pre-signup funnel events are anonymous (no principal exists yet), so they are
+# keyed by a salted hash of a client-generated visit id — never a raw client
+# identifier, IP, or PII. Only these two pre-account steps are accepted from the
+# open endpoint; the authenticated steps are recorded from their own verified
+# server actions so an unauthenticated caller cannot inflate them.
+_ACQUISITION_SALT = os.getenv("CARRIER_ACQUISITION_SALT", "tip-os-carrier-pilot")
+_ANONYMOUS_FUNNEL_EVENTS = frozenset({"signup_viewed", "signup_started"})
+
 
 def _rate_cents(data: dict) -> Optional[int]:
     value = data.get("per_driver_rate_cents")
@@ -190,6 +198,35 @@ def discover_carrier(dot_number: str):
     }
 
 
+class AcquisitionFunnelEvent(BaseModel):
+    """A pre-signup, first-party funnel event from an anonymous visitor."""
+
+    event_type: str = Field(min_length=1, max_length=40)
+    visit_id: str = Field(min_length=8, max_length=128)
+
+    @model_validator(mode="after")
+    def _only_pre_signup_events(self) -> "AcquisitionFunnelEvent":
+        if self.event_type not in _ANONYMOUS_FUNNEL_EVENTS:
+            raise ValueError("Only pre-signup funnel events are accepted here.")
+        return self
+
+
+@router.post("/acquisition/funnel", status_code=202)
+def record_acquisition_funnel_event(body: AcquisitionFunnelEvent):
+    """Record a privacy-minimized pre-signup funnel event (viewed / started).
+
+    Open by design: these steps happen before an account exists, so ADR-010's
+    "discover, start, and complete signup" measurement needs an unauthenticated
+    entry point. It stores only a salted visitor hash, is idempotent per
+    visitor+step, and rejects authenticated steps so it cannot inflate them.
+    """
+    visit_hash = hashlib.sha256(
+        f"{_ACQUISITION_SALT}:{body.visit_id}".encode("utf-8")
+    ).hexdigest()[:32]
+    _record_anonymous_acquisition_event(get_db(), body.event_type, visit_hash)
+    return {"ok": True}
+
+
 def _claim_dot_number(db, uid: str, dot_number: Optional[str]) -> str:
     """Atomically reserve a self-service USDOT claim without merging tenants."""
     if not dot_number:
@@ -247,6 +284,23 @@ def _record_acquisition_event(db, principal_id: str, event_type: str) -> None:
             "event_id": event_id,
             "event_type": event_type,
             "principal_id": principal_id,
+            "funnel": "carrier_self_service_pilot",
+            "created_at": datetime.now(timezone.utc),
+        })
+    except AlreadyExists:
+        pass
+
+
+def _record_anonymous_acquisition_event(db, event_type: str, visit_hash: str) -> None:
+    """Idempotently store one pre-signup funnel event keyed by an anonymous
+    visitor hash. No raw client identifier, IP, or PII is retained."""
+    event_id = f"{event_type}_{visit_hash}"
+    try:
+        db.collection("acquisition_events").document(event_id).create({
+            "event_id": event_id,
+            "event_type": event_type,
+            "principal_id": None,
+            "visit_hash": visit_hash,
             "funnel": "carrier_self_service_pilot",
             "created_at": datetime.now(timezone.utc),
         })

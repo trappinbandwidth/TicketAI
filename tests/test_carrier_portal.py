@@ -149,6 +149,7 @@ def test_carrier_openapi_matches_frontend_route_matrix():
     expected = {
         ("get", "/api/v1/carrier/discovery/search"),
         ("get", "/api/v1/carrier/discovery/{dot_number}"),
+        ("post", "/api/v1/carrier/acquisition/funnel"),
         ("post", "/api/v1/carrier/register"),
         ("get", "/api/v1/carrier/authority-verification"),
         ("post", "/api/v1/carrier/authority-verification/evidence"),
@@ -199,6 +200,37 @@ def test_carrier_openapi_matches_frontend_route_matrix():
             "/api/v1/billing",
         ):
         assert legacy not in paths
+
+
+def test_pre_signup_funnel_events_are_anonymous_idempotent_and_bounded(monkeypatch):
+    db = Db()
+    monkeypatch.setattr(carrier_portal, "get_db", lambda: db)
+
+    def record(event_type, visit_id):
+        return carrier_portal.record_acquisition_funnel_event(
+            carrier_portal.AcquisitionFunnelEvent(event_type=event_type, visit_id=visit_id)
+        )
+
+    assert record("signup_viewed", "visitor-abc123")["ok"] is True
+    record("signup_started", "visitor-abc123")
+
+    rows = db.collection("acquisition_events").rows
+    assert len(rows) == 2
+    for row in rows.values():
+        # Privacy-minimized: no principal yet, and the raw client id is never kept.
+        assert row["principal_id"] is None
+        assert row["funnel"] == "carrier_self_service_pilot"
+        assert row["visit_hash"] and row["visit_hash"] != "visitor-abc123"
+        assert "visitor-abc123" not in str(row)
+
+    # Idempotent per visitor + step: replaying does not inflate the funnel.
+    record("signup_viewed", "visitor-abc123")
+    assert len(db.collection("acquisition_events").rows) == 2
+
+    # The open endpoint cannot record authenticated funnel steps.
+    for spoofed in ("account_created", "email_verified", "carrier_profile_completed"):
+        with pytest.raises(ValidationError):
+            carrier_portal.AcquisitionFunnelEvent(event_type=spoofed, visit_id="visitor-abc123")
 
 
 def test_public_discovery_grants_no_account_authority(monkeypatch):
