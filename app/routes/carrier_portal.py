@@ -11,8 +11,8 @@ so the platform exposes one API. All routes live under /api/v1/carrier/*.
   PATCH /carrier/drivers/{id}                  Update driver fields.
   PATCH /carrier/drivers/{id}/toggle-active    Enable/disable (blocked for fired).
   POST  /carrier/drivers/{id}/fire             Soft-remove; history kept.
-  GET   /carrier/drivers/{id}/profile          Driver + their tickets (shadow-compared).
-  GET   /carrier/drivers/{id}/tickets          Tickets only.
+  GET   /carrier/drivers/{id}/profile          Roster or consent-limited safety summary.
+  GET   /carrier/drivers/{id}/tickets          Denied: safety consent excludes legal cases.
   GET   /carrier/relationships                 Consented Driver relationship list.
   POST  /carrier/relationships/connect         Consume Driver one-time connection code.
   POST  /carrier/relationships/{id}/end        End relationship; access stops immediately.
@@ -52,9 +52,9 @@ from app.platform.service import (
 )
 from app.platform.models import DriverCarrierRelationshipCreate
 from app.platform.documents import validate_upload
-from app.platform.shadow_service import shadow_authorization, shadow_enabled
 from app.routes._common import get_db, iso, verify_token
 from app.services.auth_rbac import require_carrier
+from app.services.carrier_resolve import CarrierResolveService
 
 router = APIRouter(prefix="/carrier", tags=["carrier-portal"])
 
@@ -629,31 +629,36 @@ def driver_profile(driver_id: str, authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=404, detail="Driver not found.")
     driver = snap.to_dict()
     driver["driver_id"] = snap.id
-    if shadow_enabled():
-        carrier_doc = ref.get().to_dict() or {}
-        shadow_authorization(
-            db, decoded,
-            legacy_allowed=True,
-            legacy_reason="carrier_roster_ownership",
-            action="read",
-            resource_type="driver_profile",
-            resource_id=driver_id,
-            tenant_id=carrier_doc.get("organization_id"),
-            purpose="safety_compliance",
-            record_category="driver_profile",
-            subject_principal_id=driver.get("principal_id"),
+    principal_id = driver.pop("principal_id", None)
+    if not principal_id:
+        return {
+            "driver": driver,
+            "relationship_status": "carrier_provided_roster_only",
+            "safety_summary": None,
+            "case_data_shared": False,
+        }
+    _, actor_id, organization_id = _carrier_platform(decoded, db, ref)
+    try:
+        summary = CarrierResolveService(db).driver_summary(
+            actor_id, organization_id, principal_id
         )
-    tickets = [dict(t.to_dict(), ticket_id=t.id)
-               for t in db.collection("tickets").where("driver_id", "==", driver_id).stream()]
-    return {"driver": driver, "tickets": tickets, "ticket_count": len(tickets),
-            "open_ticket_count": sum(1 for t in tickets
-                                     if t.get("attorney_status") not in ("Ticket Closed", "Rejected"))}
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {
+        "driver": driver,
+        "relationship_status": "active_consented",
+        "safety_summary": summary,
+        "case_data_shared": False,
+    }
 
 
 @router.get("/drivers/{driver_id}/tickets")
 def driver_tickets(driver_id: str, authorization: Optional[str] = Header(None)):
-    profile = driver_profile(driver_id, authorization)
-    return {"driver_id": driver_id, "tickets": profile["tickets"], "count": profile["ticket_count"]}
+    _carrier(authorization)
+    raise HTTPException(
+        status_code=403,
+        detail="Driver legal case data is not shared by Carrier safety consent.",
+    )
 
 
 # ── FMCSA / subscription / notifications / billing ──────────────────────────

@@ -12,6 +12,8 @@ from starlette.datastructures import Headers, UploadFile
 from google.api_core.exceptions import AlreadyExists
 
 from app.routes import carrier_portal, carriers_crm
+from app.platform.models import ConsentGrantCreate, DriverCarrierRelationshipCreate
+from app.platform.service import PlatformService
 
 
 # ── Local fake Firestore (richer than tests.test_platform_identity.FakeDb:
@@ -526,47 +528,68 @@ def test_crm_keeps_record_id_and_dot_identifier_distinct(monkeypatch):
     assert roster["drivers"][0]["driver_id"] == "driver_1"
 
 
-# ── Driver profile + shadow ──────────────────────────────────────────────────
+# ── Driver profile privacy boundary ─────────────────────────────────────────
 
-def test_driver_profile_returns_tickets_and_emits_shadow_when_enabled(monkeypatch):
-    db = Db()
-    _wire(monkeypatch, db)
-    db.collection("carriers").document("carrier_1").set(
-        {"company_name": "Big Rig Co", "organization_id": "org_carrier_1"})
-    roster = db.collection("carriers").document("carrier_1").collection("drivers")
-    roster.document("drv_1").set({"first_name": "Ada", "principal_id": "prn_drv_1"})
-    db.collection("tickets").document("t1").set(
-        {"driver_id": "drv_1", "attorney_status": "New"})
-    db.collection("tickets").document("t2").set(
-        {"driver_id": "drv_1", "attorney_status": "Ticket Closed"})
-
-    calls = []
-    monkeypatch.setattr(carrier_portal, "shadow_enabled", lambda: True)
-    monkeypatch.setattr(carrier_portal, "shadow_authorization",
-                        lambda _db, _claims, **kw: calls.append(kw) or "cmp_1")
-
-    profile = carrier_portal.driver_profile("drv_1", authorization="Bearer x")
-
-    assert profile["ticket_count"] == 2
-    assert profile["open_ticket_count"] == 1
-    assert len(calls) == 1
-    assert calls[0]["tenant_id"] == "org_carrier_1"
-    assert calls[0]["subject_principal_id"] == "prn_drv_1"
-    assert calls[0]["resource_type"] == "driver_profile"
-
-
-def test_driver_profile_skips_shadow_read_when_disabled(monkeypatch):
+def test_carrier_provided_roster_profile_never_joins_global_ticket_data(monkeypatch):
     db = Db()
     _wire(monkeypatch, db)
     roster = db.collection("carriers").document("carrier_1").collection("drivers")
     roster.document("drv_1").set({"first_name": "Ada"})
-
-    monkeypatch.setattr(carrier_portal, "shadow_enabled", lambda: False)
-    monkeypatch.setattr(carrier_portal, "shadow_authorization",
-                        lambda *a, **kw: pytest.fail("shadow must not be called when disabled"))
+    db.collection("tickets").document("t1").set(
+        {"driver_id": "drv_1", "attorney_status": "New"})
 
     profile = carrier_portal.driver_profile("drv_1", authorization="Bearer x")
+
     assert profile["driver"]["first_name"] == "Ada"
+    assert profile["relationship_status"] == "carrier_provided_roster_only"
+    assert profile["safety_summary"] is None
+    assert profile["case_data_shared"] is False
+    assert "tickets" not in profile
+
+    with pytest.raises(HTTPException) as legal:
+        carrier_portal.driver_tickets("drv_1", authorization="Bearer x")
+    assert legal.value.status_code == 403
+
+
+def test_connected_driver_profile_requires_relationship_and_safety_consent(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    service = PlatformService(db)
+    carrier_principal, _ = service.bootstrap_principal(CARRIER_TOKEN)
+    db.collection("carriers").document("carrier_1").set({"company_name": "Big Rig"})
+    organization, _, _ = service.bootstrap_role_organization(CARRIER_TOKEN)
+    driver_principal, _ = service.bootstrap_principal({
+        "uid": "driver_uid",
+        "role": "driver",
+    })
+    relationship, _ = service.create_driver_relationship_invitation(
+        carrier_principal.id,
+        organization.id,
+        DriverCarrierRelationshipCreate(driver_principal_id=driver_principal.id),
+    )
+    service.respond_to_driver_relationship(driver_principal.id, relationship.id, True)
+    service.create_consent(
+        driver_principal.id,
+        ConsentGrantCreate(
+            subject_principal_id=driver_principal.id,
+            recipient_organization_id=organization.id,
+            purpose="safety_compliance",
+            record_categories=["profile", "credential", "employment", "inspection"],
+            disclosure_version="carrier-safety-pilot-v1",
+        ),
+    )
+    roster = db.collection("carriers").document("carrier_1").collection("drivers")
+    roster.document("roster_1").set({
+        "first_name": "Ada",
+        "principal_id": driver_principal.id,
+    })
+
+    profile = carrier_portal.driver_profile("roster_1", authorization="Bearer carrier")
+
+    assert profile["relationship_status"] == "active_consented"
+    assert profile["case_data_shared"] is False
+    assert profile["safety_summary"]["driver_principal_id"] == driver_principal.id
+    assert "principal_id" not in profile["driver"]
 
 
 def test_driver_profile_is_scoped_to_authenticated_carrier(monkeypatch):
@@ -577,8 +600,6 @@ def test_driver_profile_is_scoped_to_authenticated_carrier(monkeypatch):
         .collection("drivers")
     )
     carrier_two_roster.document("shared_driver_id").set({"first_name": "Other"})
-    monkeypatch.setattr(carrier_portal, "shadow_enabled", lambda: False)
-
     _wire(monkeypatch, db, token={"uid": "carrier_1", "role": "carrier"})
     with pytest.raises(HTTPException) as exc:
         carrier_portal.driver_profile("shared_driver_id", authorization="Bearer carrier-1")
