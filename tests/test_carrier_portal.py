@@ -6,6 +6,7 @@ import secrets
 
 import pytest
 from fastapi import HTTPException
+from google.api_core.exceptions import AlreadyExists
 
 from app.routes import carrier_portal, carriers_crm
 
@@ -40,6 +41,11 @@ class Document:
             self._coll.rows[self.id].update(data)
         else:
             self._coll.rows[self.id] = dict(data)
+
+    def create(self, data):
+        if self.id in self._coll.rows:
+            raise AlreadyExists("already exists")
+        self._coll.rows[self.id] = dict(data)
 
     def update(self, data):
         if self.id not in self._coll.rows:
@@ -104,7 +110,12 @@ class Db:
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
-CARRIER_TOKEN = {"uid": "carrier_1", "email": "fleet@example.com", "role": "carrier"}
+CARRIER_TOKEN = {
+    "uid": "carrier_1",
+    "email": "fleet@example.com",
+    "email_verified": True,
+    "role": "carrier",
+}
 
 
 def _wire(monkeypatch, db, token=CARRIER_TOKEN):
@@ -112,11 +123,13 @@ def _wire(monkeypatch, db, token=CARRIER_TOKEN):
     monkeypatch.setattr(carrier_portal, "verify_token", lambda _h: dict(token))
 
 
-def _register(monkeypatch, db):
+def _register(monkeypatch, db, body=None):
     claims = {}
     monkeypatch.setattr(carrier_portal.fb_auth, "set_custom_user_claims",
                         lambda uid, c: claims.update({uid: c}))
-    body = carrier_portal.CarrierRegistration(company_name="Big Rig Co", dot_number="1234567")
+    body = body or carrier_portal.CarrierRegistration(
+        company_name="Big Rig Co", dot_number="1234567"
+    )
     return carrier_portal.register_carrier(body, authorization="Bearer x"), claims
 
 
@@ -165,14 +178,81 @@ def test_carrier_openapi_matches_frontend_route_matrix():
 
 def test_register_sets_claim_creates_profile_and_is_idempotent(monkeypatch):
     db = Db()
-    _wire(monkeypatch, db, token={"uid": "carrier_1", "email": "fleet@example.com"})  # no role yet
+    _wire(monkeypatch, db, token={
+        "uid": "carrier_1",
+        "email": "fleet@example.com",
+        "email_verified": True,
+    })  # no role yet
     first, claims = _register(monkeypatch, db)
-    assert first == {"ok": True, "carrier_id": "carrier_1", "already_registered": False}
-    assert claims == {"carrier_1": {"role": "carrier"}}
+    assert first["carrier_id"] == "carrier_1"
+    assert first["already_registered"] is False
+    assert first["dot_claim_status"] == "pending_review"
+    assert first["tenant_status"] == "pending"
+    assert first["token_refresh_required"] is True
+    assert claims["carrier_1"]["role"] == "carrier"
+    assert claims["carrier_1"]["carrier_id"] == "carrier_1"
+    assert claims["carrier_1"]["organization_id"] == first["organization_id"]
     assert db.collection("carriers").rows["carrier_1"]["subscription_status"] == "trial"
+    assert db.collection("carriers").rows["carrier_1"]["verification_status"] == "unverified"
+    assert len(db.collection("organizations").rows) == 1
+    assert len(db.collection("organization_memberships").rows) == 1
+    assert len(db.collection("acquisition_events").rows) == 3
 
     second, _ = _register(monkeypatch, db)
     assert second["already_registered"] is True
+    assert second["organization_id"] == first["organization_id"]
+    assert len(db.collection("organizations").rows) == 1
+    assert len(db.collection("acquisition_events").rows) == 3
+
+
+def test_register_requires_verified_email_and_rejects_existing_other_role(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db, token={
+        "uid": "carrier_1",
+        "email": "fleet@example.com",
+        "email_verified": False,
+    })
+    with pytest.raises(HTTPException) as exc:
+        _register(monkeypatch, db)
+    assert exc.value.status_code == 403
+    assert not db.collection("carriers").rows
+
+    _wire(monkeypatch, db, token={
+        "uid": "carrier_1",
+        "email": "fleet@example.com",
+        "email_verified": True,
+        "role": "driver",
+    })
+    with pytest.raises(HTTPException) as exc:
+        _register(monkeypatch, db)
+    assert exc.value.status_code == 403
+    assert not db.collection("carriers").rows
+
+
+def test_register_quarantines_duplicate_dot_without_merging_tenants(monkeypatch):
+    db = Db()
+    first_token = {
+        "uid": "carrier_1",
+        "email": "one@example.com",
+        "email_verified": True,
+    }
+    _wire(monkeypatch, db, token=first_token)
+    first, _ = _register(monkeypatch, db)
+
+    second_token = {
+        "uid": "carrier_2",
+        "email": "two@example.com",
+        "email_verified": True,
+    }
+    _wire(monkeypatch, db, token=second_token)
+    second, _ = _register(monkeypatch, db)
+
+    assert first["organization_id"] != second["organization_id"]
+    assert second["dot_claim_status"] == "duplicate_disputed"
+    assert second["tenant_status"] == "quarantined"
+    assert db.collection("carriers").rows["carrier_1"]["tenant_status"] == "quarantined"
+    assert db.collection("carriers").rows["carrier_2"]["tenant_status"] == "quarantined"
+    assert len(db.collection("organizations").rows) == 2
 
 
 def test_me_requires_carrier_role_and_returns_profile(monkeypatch):

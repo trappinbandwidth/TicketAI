@@ -38,8 +38,14 @@ from uuid import uuid4
 import firebase_admin.auth as fb_auth
 from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from firebase_admin import storage
+from google.api_core.exceptions import AlreadyExists
 from pydantic import BaseModel
 
+from app.platform.service import (
+    PlatformService,
+    organization_id_for_profile,
+    principal_id_for_uid,
+)
 from app.platform.shadow_service import shadow_authorization, shadow_enabled
 from app.routes._common import get_db, iso, verify_token
 from app.services.auth_rbac import require_carrier
@@ -110,28 +116,173 @@ class CarrierProfileUpdate(BaseModel):
     billing_zip_code: Optional[str] = None
 
 
+def _normalized_dot(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    digits = "".join(character for character in value if character.isdigit())
+    if not digits:
+        return None
+    if len(digits) > 8:
+        raise HTTPException(status_code=422, detail="Enter a valid USDOT number.")
+    return digits
+
+
+def _claim_dot_number(db, uid: str, dot_number: Optional[str]) -> str:
+    """Atomically reserve a self-service USDOT claim without merging tenants."""
+    if not dot_number:
+        return "not_provided"
+    claim_ref = db.collection("carrier_dot_claims").document(dot_number)
+    try:
+        claim_ref.create({
+            "dot_number": dot_number,
+            "claimant_carrier_id": uid,
+            "status": "pending_review",
+            "created_at": datetime.now(timezone.utc),
+        })
+        return "pending_review"
+    except AlreadyExists:
+        existing = claim_ref.get()
+        owner = (existing.to_dict() or {}).get("claimant_carrier_id") if existing.exists else None
+        if owner == uid:
+            return (existing.to_dict() or {}).get("status", "pending_review")
+        if owner:
+            db.collection("carriers").document(owner).set({
+                "dot_claim_status": "duplicate_disputed",
+                "tenant_status": "quarantined",
+                "updated_at": datetime.now(timezone.utc),
+            }, merge=True)
+            db.collection("organizations").document(
+                organization_id_for_profile("carrier", owner)
+            ).set({
+                "tenant_status": "quarantined",
+                "updated_at": datetime.now(timezone.utc),
+            }, merge=True)
+        return "duplicate_disputed"
+
+
+def _record_acquisition_event(db, principal_id: str, event_type: str) -> None:
+    """Store one privacy-minimized, idempotent first-party funnel event."""
+    event_id = f"{event_type}_{principal_id}"
+    try:
+        db.collection("acquisition_events").document(event_id).create({
+            "event_id": event_id,
+            "event_type": event_type,
+            "principal_id": principal_id,
+            "funnel": "carrier_self_service_pilot",
+            "created_at": datetime.now(timezone.utc),
+        })
+    except AlreadyExists:
+        pass
+
+
+def _ensure_carrier_foundation(db, decoded: dict, profile: dict) -> tuple[str, str]:
+    """Repair-safe canonical identity, organization, audit, funnel, and claims."""
+    uid = decoded["uid"]
+    principal_id = principal_id_for_uid(uid)
+    organization_id = organization_id_for_profile("carrier", uid)
+    claims = {**decoded, "role": "carrier"}
+    platform = PlatformService(db)
+    platform.bootstrap_principal(claims)
+    platform.bootstrap_role_organization(claims)
+    now = datetime.now(timezone.utc)
+    tenant_status = profile.get("tenant_status", "pending")
+    db.collection("organizations").document(organization_id).set({
+        "verification_status": profile.get("verification_status", "unverified"),
+        "tenant_status": tenant_status,
+        "updated_at": now,
+    }, merge=True)
+    audit_id = f"audit_carrier_registration_{principal_id}"
+    try:
+        db.collection("audit_events").document(audit_id).create({
+            "id": audit_id,
+            "event_type": "carrier.self_service_registered",
+            "actor_id": principal_id,
+            "entity_type": "organization",
+            "entity_id": organization_id,
+            "payload": {
+                "dot_claim_status": profile.get("dot_claim_status", "not_provided"),
+                "tenant_status": tenant_status,
+            },
+            "version": "1.0",
+            "created_at": now.isoformat(),
+        })
+    except AlreadyExists:
+        pass
+    _record_acquisition_event(db, principal_id, "account_created")
+    _record_acquisition_event(db, principal_id, "email_verified")
+    _record_acquisition_event(db, principal_id, "carrier_profile_completed")
+    fb_auth.set_custom_user_claims(uid, {
+        "role": "carrier",
+        "carrier_id": uid,
+        "organization_id": organization_id,
+    })
+    return principal_id, organization_id
+
+
 @router.post("/register")
 def register_carrier(body: CarrierRegistration, authorization: Optional[str] = Header(None)):
-    """Bootstraps the carrier profile right after Firebase sign-up and grants the
-    `carrier` role claim. Uses verify_token, not require_carrier: a fresh Firebase
-    user has no role claim yet. Idempotent."""
+    """Create the caller's isolated Carrier tenant after verified email signup."""
     decoded = verify_token(authorization)
     uid = decoded["uid"]
-    if decoded.get("role") != "carrier":
-        fb_auth.set_custom_user_claims(uid, {"role": "carrier"})
+    role = decoded.get("role")
+    if role and role != "carrier":
+        raise HTTPException(status_code=403, detail="This account already has a different portal role.")
+    if not decoded.get("email") or decoded.get("email_verified") is not True:
+        raise HTTPException(status_code=403, detail="Verify your email before creating a Carrier workspace.")
+
     db = get_db()
     ref = db.collection("carriers").document(uid)
     if ref.get().exists:
-        return {"ok": True, "carrier_id": uid, "already_registered": True}
+        existing = ref.get().to_dict() or {}
+        _, organization_id = _ensure_carrier_foundation(db, decoded, existing)
+        return {
+            "ok": True,
+            "carrier_id": uid,
+            "organization_id": organization_id,
+            "dot_claim_status": existing.get("dot_claim_status", "not_provided"),
+            "tenant_status": existing.get("tenant_status", "pending"),
+            "already_registered": True,
+            "token_refresh_required": role != "carrier",
+        }
+
+    company_name = " ".join(body.company_name.split())
+    if not company_name:
+        raise HTTPException(status_code=422, detail="Company name is required.")
+    dot_number = _normalized_dot(body.dot_number)
+    organization_id = organization_id_for_profile("carrier", uid)
+    principal_id = principal_id_for_uid(uid)
+    dot_claim_status = _claim_dot_number(db, uid, dot_number)
+    tenant_status = "quarantined" if dot_claim_status == "duplicate_disputed" else "pending"
     now = datetime.now(timezone.utc)
     ref.set({
         **body.model_dump(),
+        "company_name": company_name,
+        "dot_number": dot_number,
         "email": decoded.get("email"),
+        "email_verified": True,
+        "principal_id": principal_id,
+        "organization_id": organization_id,
+        "verification_status": "unverified",
+        "dot_claim_status": dot_claim_status,
+        "tenant_status": tenant_status,
         "subscription_status": "trial",
         "created_at": now,
         "updated_at": now,
     })
-    return {"ok": True, "carrier_id": uid, "already_registered": False}
+    _ensure_carrier_foundation(db, decoded, {
+        "verification_status": "unverified",
+        "dot_claim_status": dot_claim_status,
+        "tenant_status": tenant_status,
+    })
+    return {
+        "ok": True,
+        "carrier_id": uid,
+        "organization_id": organization_id,
+        "dot_claim_status": dot_claim_status,
+        "tenant_status": tenant_status,
+        "already_registered": False,
+        "token_refresh_required": True,
+    }
 
 
 @router.get("/me")
