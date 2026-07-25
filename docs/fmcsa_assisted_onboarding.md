@@ -42,9 +42,39 @@ Finding or selecting a public Carrier record does not:
 - create a TIP Score, Carrier Passport, payment account, or private FMCSA login.
 
 Duplicate USDOT claims remain isolated and quarantined for Captain review. The
-Pilot records the authority state as pending until a separately approved
-business-email, domain, listed-phone, document, existing-administrator, or
-Captain verification workflow completes.
+Pilot records the authority state as pending until the Carrier uploads accepted
+document evidence and Captain completes the review workflow.
+
+## Authority evidence and Captain review
+
+The Carrier authority page reads only the authenticated Carrier's claim. It
+accepts validated PDF, JPEG, or PNG evidence under these methods:
+
+- MCS-150;
+- operating authority;
+- insurance certificate;
+- EIN letter;
+- state registration;
+- authorization letter; or
+- other supporting evidence.
+
+Retries with the same Carrier, method, and file content return the existing
+evidence identity. The file remains in private Carrier-owned Storage. Neither
+the Carrier status response nor the Captain queue exposes a Storage path,
+digest, or signed URL.
+
+The Captain authority queue is available only when
+`TIP_OS_ADMIN_CONSOLE_ENABLED=true`. Queue listing requires an existing staff
+role. Opening private evidence and recording a decision both require a recent
+authentication event and MFA. Evidence links expire after 15 minutes.
+
+Captain must choose `approve`, `reject`, or `request_more_information`, provide
+a reason, and attach a Support ticket ID. Approval is blocked unless received
+evidence exists and the USDOT reservation belongs to the same Carrier without a
+duplicate/disputed state. A valid approval updates the claim, Carrier profile,
+organization, and USDOT reservation together and activates the isolated tenant.
+Rejection and requests for more information keep the workspace and evidence;
+they do not merge or delete data.
 
 ## Support response
 
@@ -57,6 +87,15 @@ Captain verification workflow completes.
   applicable FMCSA process to change the official record.
 - Applicant disputes control: preserve the claim and audit IDs, keep workspaces
   isolated, and escalate to Captain.
+- Evidence will not upload: confirm PDF/JPEG/PNG format and the 20 MB maximum.
+  A Storage outage returns a retryable unavailable response and creates no
+  evidence metadata.
+- Captain cannot open evidence or decide: confirm the admin feature flag, staff
+  role, recent sign-in, and MFA. Do not copy the private file into another
+  system as a workaround.
+- Duplicate USDOT approval blocked: preserve both isolated tenants and escalate
+  the dispute. Do not change the reservation owner or approve either claim
+  manually.
 - Driver disputes career data: only that Driver may edit or delete the
   self-reported entry.
 

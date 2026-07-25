@@ -34,9 +34,10 @@ not here.)
 """
 from __future__ import annotations
 
+import hashlib
 import os
 from datetime import datetime, timezone
-import hashlib
+from enum import Enum
 from typing import Optional
 
 import firebase_admin.auth as fb_auth
@@ -137,6 +138,16 @@ class CarrierProfileUpdate(BaseModel):
     )
 
 
+class AuthorityEvidenceMethod(str, Enum):
+    MCS150 = "mcs150"
+    OPERATING_AUTHORITY = "operating_authority"
+    INSURANCE_CERTIFICATE = "insurance_certificate"
+    EIN_LETTER = "ein_letter"
+    STATE_REGISTRATION = "state_registration"
+    AUTHORIZATION_LETTER = "authorization_letter"
+    OTHER = "other"
+
+
 def _normalized_dot(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
@@ -198,17 +209,33 @@ def _claim_dot_number(db, uid: str, dot_number: Optional[str]) -> str:
         if owner == uid:
             return (existing.to_dict() or {}).get("status", "pending_review")
         if owner:
+            disputed_at = datetime.now(timezone.utc)
+            claim_ref.set({
+                "status": "duplicate_disputed",
+                "updated_at": disputed_at,
+            }, merge=True)
             db.collection("carriers").document(owner).set({
                 "dot_claim_status": "duplicate_disputed",
                 "tenant_status": "quarantined",
-                "updated_at": datetime.now(timezone.utc),
+                "updated_at": disputed_at,
             }, merge=True)
             db.collection("organizations").document(
                 organization_id_for_profile("carrier", owner)
             ).set({
                 "tenant_status": "quarantined",
-                "updated_at": datetime.now(timezone.utc),
+                "updated_at": disputed_at,
             }, merge=True)
+            owner_authority_id = _authority_claim_id(owner, dot_number)
+            owner_authority = (
+                db.collection("carrier_authority_claims")
+                .document(owner_authority_id)
+            )
+            if owner_authority.get().exists:
+                owner_authority.set({
+                    "status": "duplicate_disputed",
+                    "dot_claim_status": "duplicate_disputed",
+                    "updated_at": disputed_at,
+                }, merge=True)
         return "duplicate_disputed"
 
 
@@ -227,6 +254,54 @@ def _record_acquisition_event(db, principal_id: str, event_type: str) -> None:
         pass
 
 
+def _authority_claim_id(uid: str, dot_number: str) -> str:
+    digest = hashlib.sha256(f"{uid}:{dot_number}".encode("utf-8")).hexdigest()[:32]
+    return f"carrier_authority_{digest}"
+
+
+def _ensure_authority_claim(
+    db,
+    uid: str,
+    organization_id: str,
+    dot_number: Optional[str],
+    fmcsa_snapshot_id: Optional[str],
+    dot_claim_status: str,
+) -> Optional[str]:
+    """Create the private verification queue item without implying authority."""
+    if not dot_number:
+        return None
+    claim_id = _authority_claim_id(uid, dot_number)
+    ref = db.collection("carrier_authority_claims").document(claim_id)
+    now = datetime.now(timezone.utc)
+    existing = ref.get()
+    if existing.exists:
+        current = existing.to_dict() or {}
+        ref.set({
+            "organization_id": organization_id,
+            "fmcsa_snapshot_id": fmcsa_snapshot_id or current.get("fmcsa_snapshot_id"),
+            "dot_claim_status": dot_claim_status,
+            "updated_at": now,
+        }, merge=True)
+        return claim_id
+    ref.create({
+        "id": claim_id,
+        "carrier_profile_id": uid,
+        "organization_id": organization_id,
+        "dot_number": dot_number,
+        "fmcsa_snapshot_id": fmcsa_snapshot_id,
+        "dot_claim_status": dot_claim_status,
+        "status": (
+            "duplicate_disputed"
+            if dot_claim_status == "duplicate_disputed"
+            else "pending_evidence"
+        ),
+        "evidence_ids": [],
+        "created_at": now,
+        "updated_at": now,
+    })
+    return claim_id
+
+
 def _ensure_carrier_foundation(db, decoded: dict, profile: dict) -> tuple[str, str]:
     """Repair-safe canonical identity, organization, audit, funnel, and claims."""
     uid = decoded["uid"]
@@ -243,6 +318,14 @@ def _ensure_carrier_foundation(db, decoded: dict, profile: dict) -> tuple[str, s
         "tenant_status": tenant_status,
         "updated_at": now,
     }, merge=True)
+    _ensure_authority_claim(
+        db,
+        uid,
+        organization_id,
+        _normalized_dot(profile.get("dot_number")),
+        profile.get("fmcsa_snapshot_id"),
+        profile.get("dot_claim_status", "not_provided"),
+    )
     audit_id = f"audit_carrier_registration_{principal_id}"
     try:
         db.collection("audit_events").document(audit_id).create({
@@ -375,6 +458,8 @@ def register_carrier(body: CarrierRegistration, authorization: Optional[str] = H
         "verification_status": "unverified",
         "dot_claim_status": dot_claim_status,
         "tenant_status": tenant_status,
+        "dot_number": dot_number,
+        "fmcsa_snapshot_id": snapshot_id,
     })
     return {
         "ok": True,
@@ -386,6 +471,158 @@ def register_carrier(body: CarrierRegistration, authorization: Optional[str] = H
         "account_authority_status": "pending_verification",
         "already_registered": False,
         "token_refresh_required": True,
+    }
+
+
+def _authority_claim_for_carrier(db, uid: str) -> tuple[object, dict]:
+    profile = db.collection("carriers").document(uid).get()
+    if not profile.exists:
+        raise HTTPException(status_code=404, detail="Carrier profile not found.")
+    carrier = profile.to_dict() or {}
+    dot_number = _normalized_dot(carrier.get("dot_number"))
+    if not dot_number:
+        raise HTTPException(
+            status_code=409,
+            detail="Add a USDOT number before submitting authority evidence.",
+        )
+    claim_id = _ensure_authority_claim(
+        db,
+        uid,
+        carrier.get("organization_id")
+        or organization_id_for_profile("carrier", uid),
+        dot_number,
+        carrier.get("fmcsa_snapshot_id"),
+        carrier.get("dot_claim_status", "pending_review"),
+    )
+    ref = db.collection("carrier_authority_claims").document(claim_id)
+    return ref, ref.get().to_dict() or {}
+
+
+def _authority_evidence_metadata(db, claim_id: str) -> list[dict]:
+    rows = []
+    query = db.collection("carrier_authority_evidence").where(
+        "claim_id",
+        "==",
+        claim_id,
+    )
+    for snap in query.stream():
+        data = snap.to_dict() or {}
+        rows.append({
+            "id": data.get("id") or snap.id,
+            "evidence_method": data.get("evidence_method"),
+            "file_name": data.get("file_name"),
+            "content_type": data.get("content_type"),
+            "size_bytes": data.get("size_bytes"),
+            "status": data.get("status"),
+            "created_at": iso(data.get("created_at")),
+        })
+    rows.sort(key=lambda item: item.get("created_at") or "")
+    return rows
+
+
+@router.get("/authority-verification")
+def get_authority_verification(authorization: Optional[str] = Header(None)):
+    decoded, db, _ = _carrier(authorization)
+    ref, claim = _authority_claim_for_carrier(db, decoded["uid"])
+    return {
+        "claim": {
+            "id": ref.id,
+            "dot_number": claim.get("dot_number"),
+            "status": claim.get("status"),
+            "dot_claim_status": claim.get("dot_claim_status"),
+            "decision_reason": claim.get("decision_reason"),
+            "updated_at": iso(claim.get("updated_at")),
+        },
+        "evidence": _authority_evidence_metadata(db, ref.id),
+    }
+
+
+@router.post("/authority-verification/evidence")
+async def upload_authority_evidence(
+    file: UploadFile = File(...),
+    evidence_method: AuthorityEvidenceMethod = Form(...),
+    authorization: Optional[str] = Header(None),
+):
+    decoded, db, _ = _carrier(authorization)
+    claim_ref, claim = _authority_claim_for_carrier(db, decoded["uid"])
+    if claim.get("status") == "verified":
+        raise HTTPException(
+            status_code=409,
+            detail="This Carrier authority claim is already verified.",
+        )
+    if claim.get("status") == "duplicate_disputed":
+        raise HTTPException(
+            status_code=409,
+            detail="Duplicate or disputed USDOT claims require Captain review.",
+        )
+    content = await file.read()
+    try:
+        safe_name, digest = validate_upload(
+            file.filename or "authority-evidence",
+            file.content_type or "",
+            content,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    method = evidence_method.value
+    identity = f"{decoded['uid']}:{method}:{digest}".encode("utf-8")
+    evidence_id = f"authority_evidence_{hashlib.sha256(identity).hexdigest()[:32]}"
+    evidence_ref = db.collection("carrier_authority_evidence").document(evidence_id)
+    existing = evidence_ref.get()
+    if existing.exists:
+        return {
+            "ok": True,
+            "evidence_id": evidence_id,
+            "claim_id": claim_ref.id,
+            "duplicate": True,
+        }
+    path = (
+        f"carriers/{decoded['uid']}/authority-verification/"
+        f"{evidence_id}_{safe_name}"
+    )
+    try:
+        _bucket().blob(path).upload_from_string(
+            content,
+            content_type=file.content_type,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Authority evidence storage is unavailable.",
+        ) from exc
+    now = datetime.now(timezone.utc)
+    evidence_ref.set({
+        "id": evidence_id,
+        "claim_id": claim_ref.id,
+        "carrier_profile_id": decoded["uid"],
+        "organization_id": claim.get("organization_id"),
+        "dot_number": claim.get("dot_number"),
+        "evidence_method": method,
+        "file_name": safe_name,
+        "content_type": file.content_type,
+        "size_bytes": len(content),
+        "sha256": digest,
+        "storage_path": path,
+        "status": "received",
+        "created_at": now,
+        "uploaded_by": decoded["uid"],
+    })
+    evidence_ids = list(dict.fromkeys([
+        *(claim.get("evidence_ids") or []),
+        evidence_id,
+    ]))
+    claim_ref.set({
+        "status": "pending_review",
+        "evidence_ids": evidence_ids,
+        "updated_at": now,
+        "decision": None,
+        "decision_reason": None,
+    }, merge=True)
+    return {
+        "ok": True,
+        "evidence_id": evidence_id,
+        "claim_id": claim_ref.id,
+        "duplicate": False,
     }
 
 

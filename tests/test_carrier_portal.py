@@ -150,6 +150,8 @@ def test_carrier_openapi_matches_frontend_route_matrix():
         ("get", "/api/v1/carrier/discovery/search"),
         ("get", "/api/v1/carrier/discovery/{dot_number}"),
         ("post", "/api/v1/carrier/register"),
+        ("get", "/api/v1/carrier/authority-verification"),
+        ("post", "/api/v1/carrier/authority-verification/evidence"),
         ("get", "/api/v1/carrier/me"),
         ("patch", "/api/v1/carrier/me"),
         ("get", "/api/v1/carrier/drivers"),
@@ -426,6 +428,11 @@ def test_register_quarantines_duplicate_dot_without_merging_tenants(monkeypatch)
     assert second["tenant_status"] == "quarantined"
     assert db.collection("carriers").rows["carrier_1"]["tenant_status"] == "quarantined"
     assert db.collection("carriers").rows["carrier_2"]["tenant_status"] == "quarantined"
+    assert db.collection("carrier_dot_claims").rows["1234567"]["status"] == "duplicate_disputed"
+    authority_claims = db.collection("carrier_authority_claims").rows.values()
+    assert {claim["status"] for claim in authority_claims} == {
+        "duplicate_disputed"
+    }
     assert len(db.collection("organizations").rows) == 2
 
 
@@ -605,6 +612,95 @@ def test_document_upload_rejects_disguised_content_before_storage(monkeypatch):
         ))
 
     assert exc.value.status_code == 422
+
+
+def test_authority_evidence_is_private_idempotent_and_routes_claim_to_review(
+    monkeypatch,
+):
+    db = Db()
+    _wire(monkeypatch, db)
+    _register(monkeypatch, db)
+    uploads = []
+
+    class Blob:
+        def __init__(self, path):
+            self.path = path
+
+        def upload_from_string(self, content, content_type=None):
+            uploads.append((self.path, content, content_type))
+
+    class Bucket:
+        def blob(self, path):
+            return Blob(path)
+
+    monkeypatch.setattr(carrier_portal, "_bucket", lambda: Bucket())
+    initial = carrier_portal.get_authority_verification(
+        authorization="Bearer carrier"
+    )
+    assert initial["claim"]["status"] == "pending_evidence"
+    assert initial["evidence"] == []
+
+    first = asyncio.run(carrier_portal.upload_authority_evidence(
+        file=_upload("../MCS-150.pdf", "application/pdf", b"%PDF-authority"),
+        evidence_method=carrier_portal.AuthorityEvidenceMethod.MCS150,
+        authorization="Bearer carrier",
+    ))
+    replay = asyncio.run(carrier_portal.upload_authority_evidence(
+        file=_upload("../MCS-150.pdf", "application/pdf", b"%PDF-authority"),
+        evidence_method=carrier_portal.AuthorityEvidenceMethod.MCS150,
+        authorization="Bearer carrier",
+    ))
+
+    assert first["duplicate"] is False
+    assert replay == {**first, "duplicate": True}
+    assert len(uploads) == 1
+    assert uploads[0][0].startswith(
+        "carriers/carrier_1/authority-verification/"
+    )
+    assert ".." not in uploads[0][0]
+    routed = carrier_portal.get_authority_verification(
+        authorization="Bearer carrier"
+    )
+    assert routed["claim"]["status"] == "pending_review"
+    assert routed["evidence"][0]["evidence_method"] == "mcs150"
+    assert "storage_path" not in routed["evidence"][0]
+    assert "sha256" not in routed["evidence"][0]
+
+
+def test_authority_evidence_rejects_invalid_content_and_storage_failure(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    _register(monkeypatch, db)
+    monkeypatch.setattr(
+        carrier_portal,
+        "_bucket",
+        lambda: pytest.fail("Storage must not run for invalid content."),
+    )
+    with pytest.raises(HTTPException) as invalid:
+        asyncio.run(carrier_portal.upload_authority_evidence(
+            file=_upload("fake.pdf", "application/pdf", b"not-a-pdf"),
+            evidence_method=carrier_portal.AuthorityEvidenceMethod.OTHER,
+            authorization="Bearer carrier",
+        ))
+    assert invalid.value.status_code == 422
+
+    class FailingBlob:
+        def upload_from_string(self, *_args, **_kwargs):
+            raise RuntimeError("offline")
+
+    class FailingBucket:
+        def blob(self, _path):
+            return FailingBlob()
+
+    monkeypatch.setattr(carrier_portal, "_bucket", lambda: FailingBucket())
+    with pytest.raises(HTTPException) as unavailable:
+        asyncio.run(carrier_portal.upload_authority_evidence(
+            file=_upload("letter.pdf", "application/pdf", b"%PDF-letter"),
+            evidence_method=carrier_portal.AuthorityEvidenceMethod.AUTHORIZATION_LETTER,
+            authorization="Bearer carrier",
+        ))
+    assert unavailable.value.status_code == 503
+    assert db.collection("carrier_authority_evidence").rows == {}
 
 
 # ── Roster lifecycle ─────────────────────────────────────────────────────────
