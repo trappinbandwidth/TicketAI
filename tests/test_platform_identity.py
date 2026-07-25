@@ -57,6 +57,9 @@ class FakeDocument:
             raise KeyError(self.document_id)
         self.collection.rows[self.document_id].update(data)
 
+    def delete(self):
+        self.collection.rows.pop(self.document_id, None)
+
 
 class FakeQuery:
     def __init__(self, collection, field, value):

@@ -17,6 +17,7 @@ from app.platform.models import ConsentGrantCreate
 from app.platform.service import PlatformService, principal_id_for_uid
 from app.services.auth_rbac import require_role, verify_firebase_token
 from app.services.driver_profile import DriverProfileService, PiiCipher
+from app.services.carrier_lookup import carrier_discovery_detail
 
 router = APIRouter(prefix="/driver/profile", tags=["driver-profile"])
 
@@ -94,10 +95,84 @@ class RevokeSafetyConsentRequest(BaseModel):
     reason: str = Field(min_length=1, max_length=500)
 
 
+class EmploymentHistoryWrite(BaseModel):
+    dot_number: str = Field(min_length=1, max_length=24)
+    started_on: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    ended_on: Optional[str] = Field(
+        default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"
+    )
+    relationship_type: Literal[
+        "employee", "contractor", "lease_operator", "owner_operator"
+    ]
+    title: Optional[str] = Field(default=None, max_length=120)
+    source_record_reviewed: bool
+
+    @model_validator(mode="after")
+    def validate_dates_and_confirmation(self):
+        try:
+            started = datetime.fromisoformat(self.started_on).date()
+            ended = (
+                datetime.fromisoformat(self.ended_on).date()
+                if self.ended_on
+                else None
+            )
+        except ValueError as exc:
+            raise ValueError("Enter valid employment dates.") from exc
+        if ended and ended < started:
+            raise ValueError("Employment end date cannot be before the start date.")
+        if not self.source_record_reviewed:
+            raise ValueError("Review the selected FMCSA Carrier record first.")
+        return self
+
+
 def _platform(db, claims: dict) -> tuple[PlatformService, str]:
     service = PlatformService(db)
     principal, _ = service.bootstrap_principal({**claims, "role": "driver"})
     return service, principal.id
+
+
+def _employment_identity(
+    driver_principal_id: str, dot_number: str, started_on: str
+) -> str:
+    digest = hashlib.sha256(
+        f"{driver_principal_id}:{dot_number}:{started_on}".encode("utf-8")
+    ).hexdigest()[:32]
+    return f"emp_{digest}"
+
+
+def _normalized_dot(value: str) -> str:
+    return "".join(character for character in value if character.isdigit())
+
+
+def _employment_record(
+    principal_id: str, body: EmploymentHistoryWrite, existing: Optional[dict] = None
+) -> tuple[str, dict]:
+    dot_number = _normalized_dot(body.dot_number)
+    carrier = carrier_discovery_detail(dot_number)
+    if carrier is None:
+        raise HTTPException(status_code=404, detail="FMCSA Carrier record not found.")
+    employment_id = _employment_identity(
+        principal_id, dot_number, body.started_on
+    )
+    now = datetime.now(timezone.utc)
+    return employment_id, {
+        "id": employment_id,
+        "driver_principal_id": principal_id,
+        "dot_number": dot_number,
+        "employment_claim": {
+            "started_on": body.started_on,
+            "ended_on": body.ended_on,
+            "relationship_type": body.relationship_type,
+            "title": body.title.strip() if body.title else None,
+            "source_kind": "driver_self_reported",
+            "verification_status": "self_reported",
+        },
+        "carrier_source_snapshot": carrier,
+        "carrier_context_scope": "carrier_level_public_context",
+        "individual_driver_safety_record": False,
+        "created_at": (existing or {}).get("created_at", now),
+        "updated_at": now,
+    }
 
 
 @router.get("")
@@ -116,6 +191,121 @@ def save_profile(body: DriverProfileUpdate, authorization: Optional[str] = Heade
 def edit_profile(body: DriverProfileEdit, authorization: Optional[str] = Header(None)):
     claims = _driver_claims(authorization)
     return _service().edit_public(claims["uid"], body, phone=claims.get("phone_number"))
+
+
+@router.get("/employment-history")
+def list_employment_history(authorization: Optional[str] = Header(None)):
+    claims = _driver_claims(authorization)
+    db = get_db()
+    _, principal_id = _platform(db, claims)
+    docs = db.collection("driver_employment_history").where(
+        "driver_principal_id", "==", principal_id
+    ).stream()
+    items = [dict(snapshot.to_dict() or {}) for snapshot in docs]
+    for item in items:
+        for field in ("created_at", "updated_at"):
+            value = item.get(field)
+            if hasattr(value, "isoformat"):
+                item[field] = value.isoformat()
+    items.sort(
+        key=lambda item: (
+            (item.get("employment_claim") or {}).get("started_on") or ""
+        ),
+        reverse=True,
+    )
+    return {"employment_history": items, "count": len(items)}
+
+
+@router.post("/employment-history")
+def create_employment_history(
+    body: EmploymentHistoryWrite,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _driver_claims(authorization)
+    db = get_db()
+    service, principal_id = _platform(db, claims)
+    employment_id, record = _employment_record(principal_id, body)
+    ref = db.collection("driver_employment_history").document(employment_id)
+    existing = ref.get()
+    if getattr(existing, "exists", False):
+        return {
+            "employment": existing.to_dict(),
+            "created": False,
+            "duplicate": True,
+        }
+    try:
+        ref.create(record)
+    except AlreadyExists:
+        return {
+            "employment": ref.get().to_dict(),
+            "created": False,
+            "duplicate": True,
+        }
+    service._audit(
+        "driver.employment_history_created",
+        principal_id,
+        "driver_employment_history",
+        employment_id,
+        {"dot_number": record["dot_number"], "source_kind": "driver_self_reported"},
+    )
+    return {"employment": record, "created": True, "duplicate": False}
+
+
+@router.put("/employment-history/{employment_id}")
+def update_employment_history(
+    employment_id: str,
+    body: EmploymentHistoryWrite,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _driver_claims(authorization)
+    db = get_db()
+    service, principal_id = _platform(db, claims)
+    ref = db.collection("driver_employment_history").document(employment_id)
+    snapshot = ref.get()
+    if not getattr(snapshot, "exists", False):
+        raise HTTPException(status_code=404, detail="Employment record not found.")
+    existing = snapshot.to_dict() or {}
+    if existing.get("driver_principal_id") != principal_id:
+        raise HTTPException(status_code=404, detail="Employment record not found.")
+    expected_id, record = _employment_record(principal_id, body, existing)
+    if expected_id != employment_id:
+        raise HTTPException(
+            status_code=409,
+            detail="USDOT and employment start date identify this record and cannot be changed.",
+        )
+    ref.set(record)
+    service._audit(
+        "driver.employment_history_updated",
+        principal_id,
+        "driver_employment_history",
+        employment_id,
+        {"fields": ["ended_on", "relationship_type", "title"]},
+    )
+    return {"employment": record, "updated": True}
+
+
+@router.delete("/employment-history/{employment_id}")
+def delete_employment_history(
+    employment_id: str, authorization: Optional[str] = Header(None)
+):
+    claims = _driver_claims(authorization)
+    db = get_db()
+    service, principal_id = _platform(db, claims)
+    ref = db.collection("driver_employment_history").document(employment_id)
+    snapshot = ref.get()
+    if (
+        not getattr(snapshot, "exists", False)
+        or (snapshot.to_dict() or {}).get("driver_principal_id") != principal_id
+    ):
+        raise HTTPException(status_code=404, detail="Employment record not found.")
+    ref.delete()
+    service._audit(
+        "driver.employment_history_deleted",
+        principal_id,
+        "driver_employment_history",
+        employment_id,
+    )
+    return {"ok": True}
 
 
 @router.post("/carrier-connection-code")

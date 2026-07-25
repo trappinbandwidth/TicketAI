@@ -59,6 +59,7 @@ from app.routes.entity_resolution import router as entity_resolution_router
 from app.routes.driver_profile import router as driver_profile_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
+from app.services.carrier_lookup import warm_carrier_search_index
 from app.security import SecurityHeadersMiddleware, allowed_origins
 
 logger = logging.getLogger(__name__)
@@ -115,6 +116,8 @@ async def lifespan(app: FastAPI):
     _check_env()
     init_db()
     init_firebase()
+    carrier_count = warm_carrier_search_index()
+    logger.info("[startup] FMCSA Carrier discovery index ready: %d records", carrier_count)
     yield
 
 

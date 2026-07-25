@@ -147,6 +147,8 @@ def test_carrier_openapi_matches_frontend_route_matrix():
 
     paths = app.openapi()["paths"]
     expected = {
+        ("get", "/api/v1/carrier/discovery/search"),
+        ("get", "/api/v1/carrier/discovery/{dot_number}"),
         ("post", "/api/v1/carrier/register"),
         ("get", "/api/v1/carrier/me"),
         ("patch", "/api/v1/carrier/me"),
@@ -180,6 +182,14 @@ def test_carrier_openapi_matches_frontend_route_matrix():
     assert "post" in paths[
         "/api/v1/driver/profile/notifications/{notification_id}/read"
     ]
+    assert "get" in paths["/api/v1/driver/profile/employment-history"]
+    assert "post" in paths["/api/v1/driver/profile/employment-history"]
+    assert "put" in paths[
+        "/api/v1/driver/profile/employment-history/{employment_id}"
+    ]
+    assert "delete" in paths[
+        "/api/v1/driver/profile/employment-history/{employment_id}"
+    ]
     for legacy in (
             "/api/v1/drivers",
             "/api/v1/fmcsa/safety",
@@ -187,6 +197,105 @@ def test_carrier_openapi_matches_frontend_route_matrix():
             "/api/v1/billing",
         ):
         assert legacy not in paths
+
+
+def test_public_discovery_grants_no_account_authority(monkeypatch):
+    record = {
+        "dot_number": "1234567",
+        "legal_name": "OPEN ROAD FREIGHT LLC",
+        "provenance": {"source_kind": "authoritative_public"},
+    }
+    monkeypatch.setattr(
+        carrier_portal, "search_carriers", lambda *_args, **_kwargs: [record]
+    )
+    monkeypatch.setattr(
+        carrier_portal, "carrier_discovery_detail", lambda _dot: record
+    )
+
+    results = carrier_portal.discover_carriers(q="Open Road")
+    selected = carrier_portal.discover_carrier("USDOT 1234567")
+
+    assert results["carriers"] == [record]
+    assert results["account_authority_proven"] is False
+    assert selected["carrier"] == record
+    assert selected["account_authority_proven"] is False
+    assert "does not prove authority" in selected["claim_note"]
+
+
+def test_selected_fmcsa_registration_reloads_and_preserves_source_snapshot(
+    monkeypatch,
+):
+    db = Db()
+    _wire(monkeypatch, db)
+    monkeypatch.setattr(
+        carrier_portal,
+        "carrier_discovery_detail",
+        lambda dot: {
+            "dot_number": dot,
+            "legal_name": "FMCSA LEGAL NAME LLC",
+            "dba_name": "FMCSA DBA",
+            "operating_status": "Active",
+            "provenance": {"source_kind": "authoritative_public"},
+        },
+    )
+    monkeypatch.setattr(
+        carrier_portal.fb_auth, "set_custom_user_claims", lambda *_args: None
+    )
+
+    result = carrier_portal.register_carrier(
+        carrier_portal.CarrierRegistration(
+            company_name="Carrier Confirmed Name",
+            dot_number="1234567",
+            selected_fmcsa_dot_number="USDOT 1234567",
+            fmcsa_record_confirmed=True,
+        ),
+        authorization="Bearer carrier",
+    )
+
+    profile = db.collection("carriers").rows[CARRIER_TOKEN["uid"]]
+    snapshot = db.collection("carrier_fmcsa_snapshots").rows[
+        result["fmcsa_snapshot_id"]
+    ]
+    assert profile["company_name"] == "Carrier Confirmed Name"
+    assert profile["account_authority_status"] == "pending_verification"
+    assert snapshot["record"]["legal_name"] == "FMCSA LEGAL NAME LLC"
+    assert snapshot["account_authority_proven"] is False
+    assert result["account_authority_status"] == "pending_verification"
+
+
+def test_selected_fmcsa_registration_rejects_mismatch_and_unconfirmed_record(
+    monkeypatch,
+):
+    db = Db()
+    _wire(monkeypatch, db)
+    monkeypatch.setattr(
+        carrier_portal.fb_auth, "set_custom_user_claims", lambda *_args: None
+    )
+    with pytest.raises(HTTPException) as mismatch:
+        carrier_portal.register_carrier(
+            carrier_portal.CarrierRegistration(
+                company_name="Another",
+                dot_number="7654321",
+                selected_fmcsa_dot_number="1234567",
+                fmcsa_record_confirmed=True,
+            ),
+            authorization="Bearer carrier",
+        )
+    assert mismatch.value.status_code == 422
+    assert db.collection("carriers").rows == {}
+
+    with pytest.raises(HTTPException) as unconfirmed:
+        carrier_portal.register_carrier(
+            carrier_portal.CarrierRegistration(
+                company_name="Another",
+                dot_number="1234567",
+                selected_fmcsa_dot_number="1234567",
+                fmcsa_record_confirmed=False,
+            ),
+            authorization="Bearer carrier",
+        )
+    assert unconfirmed.value.status_code == 422
+    assert db.collection("carriers").rows == {}
 
 
 def test_carrier_notifications_are_principal_scoped_and_read_is_idempotent(

@@ -40,7 +40,7 @@ import hashlib
 from typing import Optional
 
 import firebase_admin.auth as fb_auth
-from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, Header, HTTPException, Query, UploadFile
 from firebase_admin import storage
 from google.api_core.exceptions import Aborted, AlreadyExists, FailedPrecondition
 from google.cloud.firestore_v1 import LastUpdateOption
@@ -56,6 +56,10 @@ from app.platform.documents import validate_upload
 from app.routes._common import get_db, iso, verify_token
 from app.services.auth_rbac import require_carrier
 from app.services.carrier_resolve import CarrierResolveService
+from app.services.carrier_lookup import (
+    carrier_discovery_detail,
+    search_carriers,
+)
 
 router = APIRouter(prefix="/carrier", tags=["carrier-portal"])
 
@@ -87,6 +91,8 @@ class CarrierRegistration(BaseModel):
     dot_number: Optional[str] = Field(default=None, max_length=24)
     mc_number: Optional[str] = Field(default=None, max_length=40)
     phone: Optional[str] = Field(default=None, max_length=32)
+    selected_fmcsa_dot_number: Optional[str] = Field(default=None, max_length=24)
+    fmcsa_record_confirmed: bool = False
 
 
 class CarrierProfileUpdate(BaseModel):
@@ -140,6 +146,37 @@ def _normalized_dot(value: Optional[str]) -> Optional[str]:
     if len(digits) > 8:
         raise HTTPException(status_code=422, detail="Enter a valid USDOT number.")
     return digits
+
+
+@router.get("/discovery/search")
+def discover_carriers(
+    q: str = Query(min_length=2, max_length=160),
+    state: Optional[str] = Query(default=None, pattern=r"^[A-Za-z]{2}$"),
+    limit: int = Query(default=10, ge=1, le=20),
+):
+    """Search the bounded local public FMCSA Carrier index before signup."""
+    return {
+        "carriers": search_carriers(q, state=state, limit=limit),
+        "source": "FMCSA public motor-carrier authority data",
+        "account_authority_proven": False,
+    }
+
+
+@router.get("/discovery/{dot_number}")
+def discover_carrier(dot_number: str):
+    """Review one public source record; selection grants no TIP access."""
+    normalized = _normalized_dot(dot_number)
+    record = carrier_discovery_detail(normalized or "")
+    if record is None:
+        raise HTTPException(status_code=404, detail="FMCSA Carrier record not found.")
+    return {
+        "carrier": record,
+        "account_authority_proven": False,
+        "claim_note": (
+            "Selecting this public record does not prove authority over the Carrier "
+            "or grant access to an existing TIP workspace."
+        ),
+    }
 
 
 def _claim_dot_number(db, uid: str, dot_number: Optional[str]) -> str:
@@ -256,6 +293,10 @@ def register_carrier(body: CarrierRegistration, authorization: Optional[str] = H
             "organization_id": organization_id,
             "dot_claim_status": existing.get("dot_claim_status", "not_provided"),
             "tenant_status": existing.get("tenant_status", "pending"),
+            "fmcsa_snapshot_id": existing.get("fmcsa_snapshot_id"),
+            "account_authority_status": existing.get(
+                "account_authority_status", "pending_verification"
+            ),
             "already_registered": True,
             "token_refresh_required": role != "carrier",
         }
@@ -264,13 +305,54 @@ def register_carrier(body: CarrierRegistration, authorization: Optional[str] = H
     if not company_name:
         raise HTTPException(status_code=422, detail="Company name is required.")
     dot_number = _normalized_dot(body.dot_number)
+    selected_dot = _normalized_dot(body.selected_fmcsa_dot_number)
+    fmcsa_snapshot = None
+    if selected_dot:
+        if dot_number and dot_number != selected_dot:
+            raise HTTPException(
+                status_code=422,
+                detail="The selected FMCSA record does not match the submitted USDOT number.",
+            )
+        if not body.fmcsa_record_confirmed:
+            raise HTTPException(
+                status_code=422,
+                detail="Confirm that you reviewed the selected FMCSA record.",
+            )
+        fmcsa_snapshot = carrier_discovery_detail(selected_dot)
+        if fmcsa_snapshot is None:
+            raise HTTPException(
+                status_code=409,
+                detail="The selected FMCSA record is no longer available. Search again.",
+            )
+        dot_number = selected_dot
     organization_id = organization_id_for_profile("carrier", uid)
     principal_id = principal_id_for_uid(uid)
     dot_claim_status = _claim_dot_number(db, uid, dot_number)
     tenant_status = "quarantined" if dot_claim_status == "duplicate_disputed" else "pending"
     now = datetime.now(timezone.utc)
+    snapshot_id = None
+    if fmcsa_snapshot:
+        snapshot_id = "fmcsa_" + hashlib.sha256(
+            f"{uid}:{dot_number}".encode("utf-8")
+        ).hexdigest()[:32]
+        try:
+            db.collection("carrier_fmcsa_snapshots").document(snapshot_id).create({
+                "id": snapshot_id,
+                "carrier_profile_id": uid,
+                "organization_id": organization_id,
+                "dot_number": dot_number,
+                "record": fmcsa_snapshot,
+                "selection_confirmation": "applicant_confirmed_record_match",
+                "account_authority_proven": False,
+                "captured_at": now,
+            })
+        except AlreadyExists:
+            # A concurrent registration retry keeps the first source snapshot.
+            pass
     ref.set({
-        **body.model_dump(),
+        **body.model_dump(exclude={
+            "selected_fmcsa_dot_number", "fmcsa_record_confirmed"
+        }),
         "company_name": company_name,
         "dot_number": dot_number,
         "email": decoded.get("email"),
@@ -281,6 +363,11 @@ def register_carrier(body: CarrierRegistration, authorization: Optional[str] = H
         "dot_claim_status": dot_claim_status,
         "tenant_status": tenant_status,
         "subscription_status": "trial",
+        "fmcsa_snapshot_id": snapshot_id,
+        "fmcsa_match_status": (
+            "applicant_confirmed_record_match" if snapshot_id else "not_selected"
+        ),
+        "account_authority_status": "pending_verification",
         "created_at": now,
         "updated_at": now,
     })
@@ -295,6 +382,8 @@ def register_carrier(body: CarrierRegistration, authorization: Optional[str] = H
         "organization_id": organization_id,
         "dot_claim_status": dot_claim_status,
         "tenant_status": tenant_status,
+        "fmcsa_snapshot_id": snapshot_id,
+        "account_authority_status": "pending_verification",
         "already_registered": False,
         "token_refresh_required": True,
     }
