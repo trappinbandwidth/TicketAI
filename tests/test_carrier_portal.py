@@ -280,6 +280,35 @@ def test_me_requires_carrier_role_and_returns_profile(monkeypatch):
     assert profile["company_name"] == "Big Rig Co"
 
 
+def test_profile_dot_claim_cannot_bypass_duplicate_quarantine_or_change_identity(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    monkeypatch.setattr(carrier_portal.fb_auth, "set_custom_user_claims", lambda *_args: None)
+    db.collection("carriers").document("carrier_1").set({
+        "company_name": "Big Rig Co",
+        "email": "fleet@example.com",
+        "verification_status": "unverified",
+        "tenant_status": "pending",
+    })
+
+    added = carrier_portal.update_my_carrier_profile(
+        carrier_portal.CarrierProfileUpdate(dot_number="USDOT 1234567"),
+        authorization="Bearer carrier",
+    )
+    assert "dot_claim_status" in added["updated"]
+    profile = db.collection("carriers").rows["carrier_1"]
+    assert profile["dot_number"] == "1234567"
+    assert profile["dot_claim_status"] == "pending_review"
+
+    with pytest.raises(HTTPException) as changed:
+        carrier_portal.update_my_carrier_profile(
+            carrier_portal.CarrierProfileUpdate(dot_number="7654321"),
+            authorization="Bearer carrier",
+        )
+    assert changed.value.status_code == 409
+    assert db.collection("carriers").rows["carrier_1"]["dot_number"] == "1234567"
+
+
 def test_carrier_route_rejects_anonymous(monkeypatch):
     db = Db()
     monkeypatch.setattr(carrier_portal, "get_db", lambda: db)

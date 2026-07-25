@@ -307,12 +307,62 @@ def get_my_carrier_profile(authorization: Optional[str] = Header(None)):
 
 @router.patch("/me")
 def update_my_carrier_profile(body: CarrierProfileUpdate, authorization: Optional[str] = Header(None)):
-    _, _, ref = _carrier(authorization)
+    decoded, db, ref = _carrier(authorization)
+    existing = ref.get().to_dict() or {}
     patch = {k: v for k, v in body.model_dump().items() if v is not None}
     if not patch:
         raise HTTPException(status_code=400, detail="No fields to update.")
-    patch["updated_at"] = datetime.now(timezone.utc)
+    if "company_name" in patch:
+        patch["company_name"] = " ".join(str(patch["company_name"]).split())
+        if not patch["company_name"]:
+            raise HTTPException(status_code=422, detail="Company name is required.")
+    if "dot_number" in patch:
+        next_dot = _normalized_dot(str(patch["dot_number"]))
+        if not next_dot:
+            raise HTTPException(status_code=422, detail="Enter a valid USDOT number.")
+        current_dot = _normalized_dot(existing.get("dot_number"))
+        if current_dot and next_dot != current_dot:
+            raise HTTPException(
+                status_code=409,
+                detail="USDOT changes require Captain review so Carrier identities are not merged.",
+            )
+        if not current_dot:
+            dot_claim_status = _claim_dot_number(db, decoded["uid"], next_dot)
+            patch.update({
+                "dot_number": next_dot,
+                "dot_claim_status": dot_claim_status,
+                "tenant_status": (
+                    "quarantined" if dot_claim_status == "duplicate_disputed" else "pending"
+                ),
+                "verification_status": "unverified",
+            })
+    now = datetime.now(timezone.utc)
+    patch["updated_at"] = now
     ref.set(patch, merge=True)
+    service, principal_id, organization_id = _carrier_platform(decoded, db, ref)
+    organization_patch = {"updated_at": now}
+    if "company_name" in patch:
+        organization_patch.update({
+            "legal_name": patch["company_name"],
+            "display_name": patch["company_name"],
+        })
+    if "dot_number" in patch:
+        organization_patch.update({
+            "external_identifiers": {
+                **(service.get_organization(organization_id).external_identifiers or {}),
+                "dot_number": patch["dot_number"],
+            },
+            "verification_status": patch["verification_status"],
+            "tenant_status": patch["tenant_status"],
+        })
+    db.collection("organizations").document(organization_id).set(organization_patch, merge=True)
+    service._audit(
+        "carrier.profile_updated",
+        principal_id,
+        "organization",
+        organization_id,
+        {"fields": sorted(key for key in patch if key != "updated_at")},
+    )
     return {"ok": True, "updated": list(patch.keys())}
 
 
