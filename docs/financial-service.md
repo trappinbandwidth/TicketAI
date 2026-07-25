@@ -19,6 +19,9 @@ credentials for tests.
 - Approve payout requests with staff identity.
 - Submit payouts through a provider adapter once provider API details exist.
 - Emit financial events through the shared event service.
+- Expose a customer wallet projection for payment methods, balances,
+  invoices, retainers, refunds, and subscriptions without storing raw payment
+  credentials.
 
 ## Collections
 
@@ -113,7 +116,14 @@ directly, for new money movement.
 ## Security Rules
 
 - Frontends never send provider secret keys.
+- TIP never stores raw card numbers, CVV, bank credentials, or digital-wallet
+  credentials; it stores provider tokens/references and safe display metadata.
 - Payout approval requires staff/admin custom claims before route handlers call
   this service.
 - Provider references may be stored; sensitive banking details must not be.
 - Webhooks must verify provider signatures before mutating financial state.
+- Webhooks and money mutations are idempotent, replay-safe, audited, and
+  reconciled to provider events and the internal ledger.
+- Marketplace offers, pricing, retainers, refunds, taxes, and eligibility remain
+  unavailable until the capability registry and human-approved policies allow
+  them.

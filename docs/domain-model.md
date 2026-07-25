@@ -46,12 +46,13 @@ authority.
 ```json
 {
   "id": "carrier_...",
+  "organization_id": "org_...",
   "company_name": "...",
   "dot_number": "...",
   "mc_number": "...",
   "carrier_type": "small|medium|enterprise|owner_operator_authority",
   "billing_type": "invoice|payroll|card|ach",
-  "per_driver_rate": 9.00,
+  "per_driver_rate_cents": 900,
   "status": "prospect|enrolled|active|terminated",
   "created_at": "..."
 }
@@ -229,16 +230,68 @@ All uploaded or generated documents.
 }
 ```
 
+Raw artifacts are protected. Portal projections return authorized metadata or a
+short-lived authorized delivery URL, never a permanent public object URL.
+
+## Transportation Intelligence Objects
+
+These objects are planned under CONTRACT-004 and must not be treated as
+certified merely because their schemas are documented.
+
+### SourceRecord
+
+Immutable evidence plus source class (`authoritative`,
+`verified_third_party`, `self_reported`, or `inferred`), source system/agency,
+jurisdiction, protected artifact/hash, observed/effective/expiry/retrieval
+times, verification/dispute/supersession state, and consent reference.
+
+### NormalizedTransportationFact
+
+A typed, versioned fact derived reproducibly from one SourceRecord. Facts retain
+verification, effective/expiry, dispute, and normalization-version metadata.
+
+### TransportationIntelligencePassport
+
+A role-safe, versioned projection with `completion_percent`,
+`confidence_percent`, source-aware sections, issues, recommendations,
+challenges, and an optional published score snapshot. Completion and confidence
+are separate.
+
+### TransportationIntelligenceScoreSnapshot
+
+A proprietary 300–850, versioned score with grade, category results, eligible
+inputs, excluded inputs/reasons, explanations, confidence, calculation time,
+supersession, and `shadow|human_review|published|withdrawn` status.
+
+No existing safety, CSA, risk, or other metric can populate this object without
+an approved calculation version.
+
+### IntelligenceIssue And Challenge
+
+An Issue links source facts to labeled impact, eligibility, reasons, evidence,
+and recommended actions. A Challenge tracks cited drafts, evidence, supporting
+authority, deadlines, professional review, submission, response, outcome, and
+audit events.
+
+### Capability
+
+Records `planned|prototype|pilot|certified|production`, supported roles/sources,
+limitations, Support owner, and release evidence so portals and Website copy
+cannot overstate availability.
+
 ## Platform Primitives
 
 - Event: see `event-model.md`.
 - Recommendation: see `recommendation-contract.md`.
 - Payment / Transaction / Payout: see `financial-service.md`.
 
-## Future Domain Objects
+## Additional future domain work
 
 - DataQ opportunity and packet
 - MVR request and report
 - PSP request and report
 - Insurance/risk profile
-- Consent grant and relationship permission
+- Consent grant and purpose-bound relationship permission
+- Monitoring connector cursor, freshness, retry, dead-letter, and alert state
+- Passport/score dispute and recalculation workflow
+- Marketplace offer/order and customer wallet projection

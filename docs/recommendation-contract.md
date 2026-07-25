@@ -22,7 +22,7 @@ explainable intelligence.
   "summary": "...",
   "why_it_matters": "...",
   "recommended_action": "...",
-  "confidence": 0.91,
+  "model_confidence": 0.91,
   "severity": "low|medium|high|critical",
   "status": "pending_review|approved|dismissed|acted_on|expired",
   "requires_human_approval": true,
@@ -30,7 +30,7 @@ explainable intelligence.
     {
       "source_type": "ticket|inspection|mvr|psp|court|ai_extraction|human_note",
       "source_id": "...",
-      "quote": "...",
+      "excerpt": "...",
       "field": "violation_description",
       "confidence": 0.95
     }
@@ -41,6 +41,15 @@ explainable intelligence.
   "expires_at": null
 }
 ```
+
+`model_confidence` describes the recommendation process; it is not Passport
+`confidence_percent`, legal-success probability, record-removal probability,
+employment likelihood, or insurance likelihood. Current stored records that use
+the legacy `confidence` field retain it until an approved compatibility change;
+new Transportation Intelligence contracts use the unambiguous name.
+
+Evidence must reference an authorized SourceRecord/normalized fact or another
+documented source. Generated reasoning cannot cite itself.
 
 ## Recommendation Types
 
@@ -53,6 +62,10 @@ Driver-facing:
 - `medical_card_expiration`
 - `mvr_psp_explanation`
 - `safe_driver_discount_eligible`
+- `passport_completion_action`
+- `record_verification_action`
+- `record_restoration_candidate`
+- `career_improvement_action`
 
 Attorney-facing:
 
@@ -103,5 +116,9 @@ Current recommendation writes:
 
 - `court_deadline_warning` from urgency output
 - `attorney_match_recommendation` from attorney matching output
+
+These current writes are not proof that Passport, TIS, record restoration,
+monitoring, or career coaching is implemented. Capability maturity controls
+whether a recommendation type may be shown to users.
 
 Recommendation creation also emits `recommendation.created`.
