@@ -1,4 +1,5 @@
 import base64
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi import HTTPException
@@ -29,8 +30,14 @@ class Document:
     def get(self):
         return Snapshot(self.collection.rows.get(self.key))
 
-    def set(self, value):
-        self.collection.rows[self.key] = dict(value)
+    def set(self, value, merge=False):
+        if merge:
+            self.collection.rows[self.key] = {
+                **self.collection.rows.get(self.key, {}),
+                **dict(value),
+            }
+        else:
+            self.collection.rows[self.key] = dict(value)
 
 
 class Collection:
@@ -152,6 +159,33 @@ def test_save_removes_legacy_plaintext_from_public_profile():
     )
 
 
+def test_edit_public_profile_preserves_identity_and_verification_data():
+    db = Db()
+    db.collection("drivers").rows["driver_1"] = {
+        "driver_id": "driver_1",
+        "first_name": "Ada",
+        "email": "old@example.com",
+        "profile_complete": True,
+    }
+    db.collection("driver_private").rows["driver_1"] = {
+        "cdl_number": "TX8841203",
+        "ssn_last4_encrypted": {"ciphertext_b64": "protected"},
+    }
+    service = DriverProfileService(db, PiiCipher(b"\x07" * 32, "test-v1"))
+    body = driver_profile.DriverProfileEdit(
+        email="new@example.com",
+        driver_role="owner_operator",
+        business_name="Ada Hauling LLC",
+    )
+
+    result = service.edit_public("driver_1", body)
+
+    assert result["email"] == "new@example.com"
+    assert result["first_name"] == "Ada"
+    assert result["cdl_number"] == "TX8841203"
+    assert result["ssn_last4_present"] is True
+
+
 def test_cipher_fails_closed_without_valid_key(monkeypatch):
     monkeypatch.delenv("PII_ENCRYPTION_KEY_B64", raising=False)
     monkeypatch.delenv("PII_ENCRYPTION_KEY_ID", raising=False)
@@ -216,3 +250,39 @@ def test_profile_route_uses_token_uid(monkeypatch):
 
     assert result == {"driver_id": "driver_from_token"}
     assert seen == {"uid": "driver_from_token", "phone": "+15125550101"}
+
+
+def test_driver_ticket_document_lookup_rejects_cross_driver_access():
+    db = MagicMock()
+    owned_ref = (
+        db.collection.return_value
+        .document.return_value
+        .collection.return_value
+        .document.return_value
+    )
+    owned_ref.get.return_value.exists = False
+    canonical_ref = db.collection.return_value.document.return_value
+    canonical_ref.get.return_value.exists = True
+    canonical_ref.get.return_value.to_dict.return_value = {"driver_id": "driver_other"}
+
+    with pytest.raises(HTTPException) as exc:
+        driver_profile._driver_ticket(db, "driver_1", "ticket_1")
+
+    assert exc.value.status_code == 404
+
+
+def test_requested_document_is_marked_received_without_changing_other_requests():
+    ticket = {
+        "documents_needed": [
+            {"label": "Court notice", "status": "requested"},
+            {"label": "CDL copy", "status": "requested"},
+        ],
+    }
+
+    updated = driver_profile._mark_requested_document_received(ticket, "CDL copy")
+
+    assert updated == [
+        {"label": "Court notice", "status": "requested"},
+        {"label": "CDL copy", "status": "received"},
+    ]
+    assert ticket["documents_needed"][1]["status"] == "requested"

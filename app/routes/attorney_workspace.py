@@ -170,9 +170,34 @@ def case_files(ticket_id: str, authorization: Optional[str] = Header(None)):
         dd = d.to_dict()
         for url in dd.get("file_urls") or []:
             requested_files.append({"url": url, "description": dd.get("description")})
+    driver_files = []
+    for snap in tsnap.reference.collection("driver_documents").stream():
+        document = snap.to_dict() or {}
+        path = document.get("storage_path")
+        if not path:
+            continue
+        try:
+            from firebase_admin import storage
+
+            url = storage.bucket().blob(path).generate_signed_url(
+                version="v4",
+                expiration=900,
+                method="GET",
+            )
+        except Exception:
+            # Do not leak a private storage path when signing is unavailable.
+            continue
+        driver_files.append({
+            "document_id": snap.id,
+            "url": url,
+            "description": document.get("label"),
+            "file_name": document.get("file_name"),
+            "content_type": document.get("content_type"),
+        })
     return {
         "ticket_images": t.get("image_urls") or t.get("attachments") or [],
         "requested_documents": requested_files,
+        "driver_documents": driver_files,
         "mvr": {"status": (t.get("mvr_request") or {}).get("status", "not_available")},
         "psp": {"status": (t.get("psp_request") or {}).get("status", "not_available")},
     }

@@ -179,3 +179,18 @@ class DriverProfileService:
         batch.set(private_ref, private)
         batch.commit()
         return self.get(uid, phone=phone)
+
+    def edit_public(self, uid: str, body: Any, phone: Optional[str] = None) -> dict:
+        """Edit non-verification profile fields without re-sending protected PII."""
+        ref = self.db.collection("drivers").document(uid)
+        snap = ref.get()
+        if not snap.exists or not (snap.to_dict() or {}).get("profile_complete"):
+            raise HTTPException(status_code=409, detail="Complete Driver setup before editing your profile.")
+        ref.set({
+            "email": body.email.strip().lower(),
+            "driver_role": body.driver_role,
+            "carrier_name": body.carrier_name.strip() if body.carrier_name else None,
+            "business_name": body.business_name.strip() if body.business_name else None,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }, merge=True)
+        return self.get(uid, phone=phone)
