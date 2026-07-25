@@ -161,6 +161,62 @@ def test_one_time_code_creates_invitation_then_driver_controls_consent(monkeypat
     )
 
 
+def _reconcile_projections(db, expected_status: str) -> dict:
+    """Carrier and Driver projections of the same relationship must reconcile with
+    zero unexplained differences (PILOT-CARRIER-001 acceptance). Both portals read
+    the one canonical `driver_carrier_relationships` record, so the API projection
+    each app actually serves must agree field-for-field."""
+    driver_view = driver_profile.list_carrier_relationships(authorization="Bearer driver")
+    carrier_view = carrier_portal.list_driver_relationships(authorization="Bearer carrier")
+    driver_by_id = {r.id: r.model_dump() for r in driver_view["relationships"]}
+    carrier_by_id = {r.id: r.model_dump() for r in carrier_view["relationships"]}
+
+    # Both sides see exactly the same relationships…
+    assert set(driver_by_id) == set(carrier_by_id)
+    # …and every shared record is identical, at the expected lifecycle state.
+    for relationship_id, driver_record in driver_by_id.items():
+        assert driver_record == carrier_by_id[relationship_id], (
+            f"projection drift on {relationship_id}"
+        )
+        assert driver_record["status"] == expected_status
+    return driver_by_id
+
+
+def test_carrier_and_driver_projections_reconcile_across_the_lifecycle(monkeypatch):
+    db, organization_id = setup_connection_stack(monkeypatch)
+
+    issued = driver_profile.create_carrier_connection_code(authorization="Bearer driver")
+    connected = carrier_portal.connect_driver(
+        carrier_portal.DriverConnectionRequest(code=issued["code"]),
+        authorization="Bearer carrier",
+    )
+    relationship_id = connected["relationship"].id
+
+    # Invited → active → ended: the two projections reconcile at every state.
+    invited = _reconcile_projections(db, "invited")
+    assert relationship_id in invited
+    assert invited[relationship_id]["carrier_organization_id"] == organization_id
+
+    driver_profile.respond_to_carrier_relationship(
+        relationship_id,
+        driver_profile.RelationshipResponse(accept=True),
+        authorization="Bearer driver",
+    )
+    _reconcile_projections(db, "active")
+
+    carrier_portal.end_driver_relationship(
+        relationship_id,
+        carrier_portal.EndDriverRelationshipRequest(reason="Employment ended"),
+        authorization="Bearer carrier",
+    )
+    _reconcile_projections(db, "ended")
+
+    # No cross-driver bleed: an unrelated Driver's projection stays empty.
+    assert PlatformService(db).list_driver_relationships(
+        principal_id_for_uid("unrelated_driver")
+    ) == []
+
+
 def test_connection_code_is_not_a_consent_and_wrong_driver_cannot_respond(monkeypatch):
     db, _ = setup_connection_stack(monkeypatch)
     issued = driver_profile.create_carrier_connection_code(authorization="Bearer driver")
