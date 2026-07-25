@@ -8,6 +8,7 @@ from io import BytesIO
 
 import pytest
 from fastapi import HTTPException
+from pydantic import ValidationError
 from starlette.datastructures import Headers, UploadFile
 from google.api_core.exceptions import AlreadyExists
 
@@ -364,6 +365,47 @@ def test_profile_dot_claim_cannot_bypass_duplicate_quarantine_or_change_identity
         )
     assert changed.value.status_code == 409
     assert db.collection("carriers").rows["carrier_1"]["dot_number"] == "1234567"
+
+
+def test_profile_settings_validate_normalize_and_audit_routed_fields(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    _register(monkeypatch, db)
+
+    result = carrier_portal.update_my_carrier_profile(
+        carrier_portal.CarrierProfileUpdate(
+            company_name="  Big   Rig Logistics  ",
+            phone="  +1 512 555 0100  ",
+            mc_number="  MC-765432  ",
+            billing_email="BILLING@EXAMPLE.COM",
+            billing_state="tx",
+            total_driver_count=100,
+        ),
+        authorization="Bearer carrier",
+    )
+
+    profile = db.collection("carriers").rows[CARRIER_TOKEN["uid"]]
+    assert profile["company_name"] == "Big Rig Logistics"
+    assert profile["phone"] == "+1 512 555 0100"
+    assert profile["mc_number"] == "MC-765432"
+    assert profile["billing_email"] == "billing@example.com"
+    assert profile["billing_state"] == "TX"
+    assert profile["total_driver_count"] == 100
+    assert set(result["updated"]) >= {
+        "company_name", "phone", "mc_number", "billing_email", "billing_state"
+    }
+    assert any(
+        event["event_type"] == "carrier.profile_updated"
+        and "billing_email" in event["payload"]["fields"]
+        for event in db.collection("audit_events").rows.values()
+    )
+
+    with pytest.raises(ValidationError):
+        carrier_portal.CarrierProfileUpdate(billing_email="not-an-email")
+    with pytest.raises(ValidationError):
+        carrier_portal.CarrierProfileUpdate(billing_state="Texas")
+    with pytest.raises(ValidationError):
+        carrier_portal.CarrierProfileUpdate(total_driver_count=-1)
 
 
 def test_carrier_route_rejects_anonymous(monkeypatch):

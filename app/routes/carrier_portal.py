@@ -83,44 +83,52 @@ def _bucket():
 # ── Company profile ───────────────────────────────────────────────────────────
 
 class CarrierRegistration(BaseModel):
-    company_name: str
-    dot_number: Optional[str] = None
-    mc_number: Optional[str] = None
-    phone: Optional[str] = None
+    company_name: str = Field(min_length=1, max_length=200)
+    dot_number: Optional[str] = Field(default=None, max_length=24)
+    mc_number: Optional[str] = Field(default=None, max_length=40)
+    phone: Optional[str] = Field(default=None, max_length=32)
 
 
 class CarrierProfileUpdate(BaseModel):
-    company_name: Optional[str] = None
-    dot_number: Optional[str] = None
-    mc_number: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    zip_code: Optional[str] = None
-    billing_email: Optional[str] = None
-    website: Optional[str] = None
-    point_of_contact_name: Optional[str] = None
-    point_of_contact_title: Optional[str] = None
-    point_of_contact_email: Optional[str] = None
-    point_of_contact_phone: Optional[str] = None
-    main_admin_name: Optional[str] = None
-    main_admin_email: Optional[str] = None
-    main_admin_phone: Optional[str] = None
-    dispatch_phone: Optional[str] = None
-    safety_phone: Optional[str] = None
-    total_driver_count: Optional[int] = None
-    employee_driver_count: Optional[int] = None
-    contractor_driver_count: Optional[int] = None
-    owner_operator_count: Optional[int] = None
-    fleet_locations: Optional[list[str]] = None
-    billing_type: Optional[str] = None
-    billing_contact_name: Optional[str] = None
-    billing_phone: Optional[str] = None
-    billing_address: Optional[str] = None
-    billing_city: Optional[str] = None
-    billing_state: Optional[str] = None
-    billing_zip_code: Optional[str] = None
+    company_name: Optional[str] = Field(default=None, max_length=200)
+    dot_number: Optional[str] = Field(default=None, max_length=24)
+    mc_number: Optional[str] = Field(default=None, max_length=40)
+    phone: Optional[str] = Field(default=None, max_length=32)
+    address: Optional[str] = Field(default=None, max_length=200)
+    city: Optional[str] = Field(default=None, max_length=100)
+    state: Optional[str] = Field(default=None, pattern=r"^[A-Za-z]{2}$")
+    zip_code: Optional[str] = Field(default=None, pattern=r"^\d{5}(?:-\d{4})?$")
+    billing_email: Optional[str] = Field(
+        default=None, max_length=254, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+    )
+    website: Optional[str] = Field(default=None, max_length=500)
+    point_of_contact_name: Optional[str] = Field(default=None, max_length=160)
+    point_of_contact_title: Optional[str] = Field(default=None, max_length=120)
+    point_of_contact_email: Optional[str] = Field(
+        default=None, max_length=254, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+    )
+    point_of_contact_phone: Optional[str] = Field(default=None, max_length=32)
+    main_admin_name: Optional[str] = Field(default=None, max_length=160)
+    main_admin_email: Optional[str] = Field(
+        default=None, max_length=254, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+    )
+    main_admin_phone: Optional[str] = Field(default=None, max_length=32)
+    dispatch_phone: Optional[str] = Field(default=None, max_length=32)
+    safety_phone: Optional[str] = Field(default=None, max_length=32)
+    total_driver_count: Optional[int] = Field(default=None, ge=0, le=100_000)
+    employee_driver_count: Optional[int] = Field(default=None, ge=0, le=100_000)
+    contractor_driver_count: Optional[int] = Field(default=None, ge=0, le=100_000)
+    owner_operator_count: Optional[int] = Field(default=None, ge=0, le=100_000)
+    fleet_locations: Optional[list[str]] = Field(default=None, max_length=100)
+    billing_type: Optional[str] = Field(default=None, max_length=80)
+    billing_contact_name: Optional[str] = Field(default=None, max_length=160)
+    billing_phone: Optional[str] = Field(default=None, max_length=32)
+    billing_address: Optional[str] = Field(default=None, max_length=200)
+    billing_city: Optional[str] = Field(default=None, max_length=100)
+    billing_state: Optional[str] = Field(default=None, pattern=r"^[A-Za-z]{2}$")
+    billing_zip_code: Optional[str] = Field(
+        default=None, pattern=r"^\d{5}(?:-\d{4})?$"
+    )
 
 
 def _normalized_dot(value: Optional[str]) -> Optional[str]:
@@ -317,6 +325,17 @@ def update_my_carrier_profile(body: CarrierProfileUpdate, authorization: Optiona
         patch["company_name"] = " ".join(str(patch["company_name"]).split())
         if not patch["company_name"]:
             raise HTTPException(status_code=422, detail="Company name is required.")
+    email_fields = {"billing_email", "point_of_contact_email", "main_admin_email"}
+    state_fields = {"state", "billing_state"}
+    for key, value in tuple(patch.items()):
+        if not isinstance(value, str) or key == "company_name":
+            continue
+        normalized = value.strip()
+        if key in email_fields:
+            normalized = normalized.lower()
+        elif key in state_fields:
+            normalized = normalized.upper()
+        patch[key] = normalized or None
     if "dot_number" in patch:
         next_dot = _normalized_dot(str(patch["dot_number"]))
         if not next_dot:
