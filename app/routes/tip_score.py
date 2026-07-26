@@ -16,7 +16,12 @@ from app.platform.service import (
 from app.routes._common import get_db, verify_token
 from app.services.auth_rbac import STAFF_ROLES
 from app.services.carrier_resolve import CarrierResolveService
-from app.services.tip_score import TipScoreCalculator, TipScoreSnapshot, thin_file_input
+from app.services.tip_score import (
+    ScoreCalculationInput,
+    TipScoreCalculator,
+    TipScoreSnapshot,
+    thin_file_input,
+)
 
 
 router = APIRouter(prefix="/tip-score", tags=["tip-score"])
@@ -73,7 +78,7 @@ def _authorize_carrier(claims: dict, driver_id: str) -> None:
         raise HTTPException(status_code=403, detail="Carrier role required.")
     db = get_db()
     uid = claims.get("uid") or claims.get("sub")
-    organization_id = organization_id_for_profile(uid)
+    organization_id = organization_id_for_profile("carrier", uid)
     CarrierResolveService(db)._authorize(
         principal_id_for_uid(uid), organization_id, driver_id
     )
@@ -85,7 +90,7 @@ def _carrier_context(claims: dict):
     db = get_db()
     uid = claims.get("uid") or claims.get("sub")
     actor_id = principal_id_for_uid(uid)
-    organization_id = organization_id_for_profile(uid)
+    organization_id = organization_id_for_profile("carrier", uid)
     return db, actor_id, organization_id
 
 
@@ -95,24 +100,75 @@ def _authorize_attorney(claims: dict, driver_id: str) -> None:
     db = get_db()
     uid = claims.get("uid") or claims.get("sub")
     attorney_id = claims.get("attorney_id") or uid
-    # Attorney access is tied to an active case and explicit client consent.
-    matches = (
-        db.collection("cases")
-        .where("driver_id", "==", driver_id)
-        .where("attorney_id", "==", attorney_id)
-        .limit(5)
-        .stream()
-    )
-    allowed = any(
-        (doc.to_dict() or {}).get("consent_on_file") is True
-        and (doc.to_dict() or {}).get("status") not in {"closed", "cancelled"}
-        for doc in matches
-    )
+    # Attorney access follows the canonical ticket/case assignment used by the
+    # Attorney portal. Score sharing is a separate, explicit client consent;
+    # assignment alone is never enough.
+    identifiers = {driver_id}
+    principal = db.collection("principals").document(driver_id).get()
+    if principal.exists:
+        firebase_uid = (principal.to_dict() or {}).get("firebase_uid")
+        if isinstance(firebase_uid, str):
+            identifiers.add(firebase_uid)
+    terminal = {"ticket closed", "outcome logged", "payout sent", "closed", "cancelled"}
+    allowed = False
+    for identifier in identifiers:
+        matches = db.collection("tickets").where("driver_id", "==", identifier).limit(20).stream()
+        for document in matches:
+            case = document.to_dict() or {}
+            owns_case = attorney_id in {
+                case.get("assigned_attorney_id"),
+                case.get("claimed_by"),
+                case.get("closed_by_attorney_id"),
+            }
+            active = str(case.get("attorney_status") or case.get("status") or "").lower() not in terminal
+            if owns_case and active and case.get("tip_score_consent_on_file") is True:
+                allowed = True
+                break
+        if allowed:
+            break
     if not allowed:
         raise HTTPException(
             status_code=403,
             detail="Active client case and score-sharing consent required.",
         )
+
+
+def _attorney_case(claims: dict, ticket_id: str) -> tuple[dict, str]:
+    if claims.get("role") != "attorney":
+        raise HTTPException(status_code=403, detail="Attorney role required.")
+    db = get_db()
+    uid = claims.get("uid") or claims.get("sub")
+    attorney_id = claims.get("attorney_id") or uid
+    snapshot = db.collection("tickets").document(ticket_id).get()
+    if not snapshot.exists:
+        raise HTTPException(status_code=404, detail="Case not found.")
+    case = snapshot.to_dict() or {}
+    if attorney_id not in {
+        case.get("assigned_attorney_id"),
+        case.get("claimed_by"),
+        case.get("closed_by_attorney_id"),
+    }:
+        raise HTTPException(status_code=404, detail="Case not found.")
+    terminal = {"ticket closed", "outcome logged", "payout sent", "closed", "cancelled"}
+    if str(case.get("attorney_status") or case.get("status") or "").lower() in terminal:
+        raise HTTPException(status_code=409, detail="The case is no longer active.")
+    if case.get("tip_score_consent_on_file") is not True:
+        raise HTTPException(
+            status_code=403,
+            detail="Client TIP Score sharing consent required.",
+        )
+    driver_uid = case.get("driver_id")
+    if not isinstance(driver_uid, str) or not driver_uid:
+        raise HTTPException(status_code=409, detail="Case Driver identity is unavailable.")
+    principal_id = (
+        driver_uid if driver_uid.startswith("prn_") else principal_id_for_uid(driver_uid)
+    )
+    return case, principal_id
+
+
+class AttorneySimulationRequest(BaseModel):
+    scenario: str = Field(min_length=1, max_length=80)
+    event_ids: list[str] = Field(default_factory=list, max_length=50)
 
 
 @router.get("/me")
@@ -212,6 +268,81 @@ def get_carrier_score_summary(authorization: Optional[str] = Header(None)):
     }
 
 
+@router.get("/attorney/cases")
+def list_attorney_score_cases(authorization: Optional[str] = Header(None)):
+    claims = _claims(authorization)
+    if claims.get("role") != "attorney":
+        raise HTTPException(status_code=403, detail="Attorney role required.")
+    db = get_db()
+    uid = claims.get("uid") or claims.get("sub")
+    attorney_id = claims.get("attorney_id") or uid
+    documents: dict[str, dict] = {}
+    for field in ("assigned_attorney_id", "claimed_by"):
+        for document in db.collection("tickets").where(field, "==", attorney_id).limit(100).stream():
+            documents[document.id] = document.to_dict() or {}
+    from app.services.case_lifecycle import mask_driver_name
+    cases = []
+    for ticket_id, case in documents.items():
+        if case.get("tip_score_consent_on_file") is not True:
+            continue
+        status = str(case.get("attorney_status") or case.get("status") or "")
+        if status.lower() in {"ticket closed", "outcome logged", "payout sent", "closed", "cancelled"}:
+            continue
+        cases.append({
+            "ticket_id": ticket_id,
+            "driver_name": mask_driver_name(
+                case.get("driver_full_name") or case.get("driver_name")
+            ),
+            "violation": case.get("violation_category") or "Citation",
+            "state": case.get("ticket_state"),
+            "county": case.get("ticket_county"),
+            "court_date": case.get("court_date"),
+            "attorney_status": status or "Active",
+            "tip_score_consent": True,
+        })
+    cases.sort(key=lambda item: str(item.get("court_date") or ""))
+    return {"cases": cases, "count": len(cases)}
+
+
+@router.get("/attorney/cases/{ticket_id}")
+def get_attorney_case_score(
+    ticket_id: str,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    _, driver_id = _attorney_case(claims, ticket_id)
+    result = _public_projection(_snapshot(driver_id))
+    result["projection"] = "attorney"
+    result["components"].pop("substanceAlcohol", None)
+    result["restricted_components"] = ["substanceAlcohol"]
+    result["case_id"] = ticket_id
+    return result
+
+
+@router.post("/attorney/cases/{ticket_id}/simulations")
+def simulate_attorney_case_score(
+    ticket_id: str,
+    body: AttorneySimulationRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    _, driver_id = _attorney_case(claims, ticket_id)
+    current = _snapshot(driver_id)
+    return {
+        "case_id": ticket_id,
+        "current_score": current.score,
+        "projected_score": current.score,
+        "estimated_delta": 0,
+        "projection_status": "ESTIMATE",
+        "scenario": body.scenario,
+        "event_ids": body.event_ids,
+        "assumptions": [
+            "No verified disposition has been recorded for this simulation.",
+            "Projected score—not guaranteed.",
+        ],
+    }
+
+
 @router.get("/drivers/{driver_id}/history")
 def get_score_history(
     driver_id: str,
@@ -230,6 +361,62 @@ def get_score_history(
         history = [result]
     history.sort(key=lambda item: item["calculated_at"], reverse=True)
     return {"driver_id": driver_id, "history": history}
+
+
+@router.post("/drivers/{driver_id}/recalculate", status_code=201)
+def recalculate_score(
+    driver_id: str,
+    body: ScoreCalculationInput,
+    authorization: Optional[str] = Header(None),
+):
+    """Create an immutable governed snapshot and advance the current pointer.
+
+    Staff cannot directly edit a score. They provide the verified calculation
+    inputs and evidence references; the authoritative calculator determines the
+    result. Replaying identical inputs is idempotent.
+    """
+    claims = _claims(authorization)
+    role = str(claims.get("role") or "")
+    staff_role = str(claims.get("staff_role") or "")
+    if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
+        raise HTTPException(status_code=403, detail="Staff role required.")
+    if body.driver_id != driver_id:
+        raise HTTPException(status_code=422, detail="Driver ID does not match route.")
+    if not body.evidence_ids:
+        raise HTTPException(
+            status_code=422,
+            detail="At least one verified evidence reference is required.",
+        )
+
+    db = get_db()
+    current_ref = db.collection("tip_score_current").document(driver_id)
+    current_doc = current_ref.get()
+    previous = (
+        TipScoreSnapshot.model_validate(current_doc.to_dict())
+        if current_doc.exists
+        else None
+    )
+    governed_input = body.model_copy(
+        update={"previous_score": previous.score if previous else body.previous_score}
+    )
+    snapshot = TipScoreCalculator().calculate(
+        governed_input,
+        supersedes_snapshot_id=previous.id if previous else None,
+        calculated_by=_actor_id(claims),
+    )
+    payload = snapshot.model_dump(mode="python")
+    snapshot_ref = db.collection("tip_score_snapshots").document(snapshot.id)
+    existing = snapshot_ref.get()
+    if existing.exists:
+        stored = TipScoreSnapshot.model_validate(existing.to_dict())
+        if stored.input_hash != snapshot.input_hash:
+            raise HTTPException(status_code=409, detail="Snapshot identifier collision.")
+        snapshot = stored
+        payload = stored.model_dump(mode="python")
+    else:
+        snapshot_ref.create(payload)
+    current_ref.set(payload)
+    return snapshot.model_dump(mode="json")
 
 
 class SimulationRequest(BaseModel):

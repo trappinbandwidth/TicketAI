@@ -21,6 +21,21 @@ MAX_SCORE = 850
 SCORE_RANGE = 500
 ALGORITHM_VERSION = "tip-driver-v1.0.0"
 RULESET_VERSION = "tip-driver-rules-v1.0.0"
+VIOLATION_TABLE_VERSION = "tip-violation-table-v1.0.0"
+EXCLUDED_INPUTS = [
+    "payment",
+    "subscription",
+    "attorney_purchase",
+    "app_engagement",
+    "age",
+    "geography",
+    "income",
+    "credit",
+    "employment_stability",
+    "job_changes",
+    "wellness",
+    "subjective_carrier_ratings",
+]
 
 
 class TipTier(str, Enum):
@@ -90,6 +105,8 @@ class ScoreCalculationInput(BaseModel):
     previous_score: Optional[int] = Field(default=None, ge=MIN_SCORE, le=MAX_SCORE)
     verified_history_months: int = Field(default=0, ge=0)
     verified_inspections: int = Field(default=0, ge=0)
+    evidence_ids: list[str] = Field(default_factory=list, max_length=500)
+    calculation_reason: str = Field(default="scheduled_refresh", min_length=1, max_length=200)
 
 
 class ComponentResult(BaseModel):
@@ -119,6 +136,16 @@ class TipScoreSnapshot(BaseModel):
     data_as_of: datetime
     algorithm_version: str = ALGORITHM_VERSION
     ruleset_version: str = RULESET_VERSION
+    input_hash: str = ""
+    evidence_ids: list[str] = Field(default_factory=list)
+    eligible_input_fact_ids: list[str] = Field(default_factory=list)
+    excluded_inputs: list[str] = Field(default_factory=lambda: list(EXCLUDED_INPUTS))
+    explanation: list[str] = Field(default_factory=list)
+    recommendations: list[str] = Field(default_factory=list)
+    calculation_reason: str = "legacy_import"
+    supersedes_snapshot_id: Optional[str] = None
+    calculated_by: Optional[str] = None
+    violation_table_version: str = VIOLATION_TABLE_VERSION
     proprietary_notice: str = (
         "TIP Score is a proprietary Rig Resolve score, not an official FMCSA score."
     )
@@ -173,6 +200,8 @@ class TipScoreCalculator:
         value: ScoreCalculationInput,
         *,
         calculated_at: Optional[datetime] = None,
+        supersedes_snapshot_id: Optional[str] = None,
+        calculated_by: Optional[str] = None,
     ) -> TipScoreSnapshot:
         missing = set(COMPONENT_WEIGHTS) - set(value.components)
         extra = set(value.components) - set(COMPONENT_WEIGHTS)
@@ -235,10 +264,39 @@ class TipScoreCalculator:
             ],
             "algorithm_version": self.algorithm_version,
             "ruleset_version": self.ruleset_version,
+            "evidence_ids": sorted(value.evidence_ids),
+            "calculation_reason": value.calculation_reason,
         }
-        digest = sha256(
+        input_hash = sha256(
             json.dumps(stable_input, sort_keys=True, separators=(",", ":")).encode()
-        ).hexdigest()[:24]
+        ).hexdigest()
+        digest = input_hash[:24]
+        ranked_components = sorted(
+            component_results.items(),
+            key=lambda item: item[1].weighted_risk,
+            reverse=True,
+        )
+        explanation = [
+            (
+                f"{component.value} contributes {round(result.weighted_risk * 100, 1)} "
+                "weighted risk points."
+            )
+            for component, result in ranked_components[:2]
+            if result.weighted_risk > 0
+        ]
+        if status == TipScoreStatus.INSUFFICIENT_DATA:
+            explanation = [
+                "Insufficient verified history is available for a full assessment.",
+                "The neutral developing-profile value is not evidence of elite performance.",
+            ]
+        recommendations = [
+            "Review the verified source records behind the highest-weighted components.",
+            "Dispute any incorrect source event so a corrected immutable snapshot can be calculated.",
+        ]
+        if status == TipScoreStatus.INSUFFICIENT_DATA:
+            recommendations.insert(
+                0, "Add current verified credentials, inspections, and operating history."
+            )
 
         return TipScoreSnapshot(
             id=f"tips_{digest}",
@@ -261,6 +319,15 @@ class TipScoreCalculator:
             data_as_of=value.data_as_of,
             algorithm_version=self.algorithm_version,
             ruleset_version=self.ruleset_version,
+            input_hash=input_hash,
+            evidence_ids=sorted(value.evidence_ids),
+            eligible_input_fact_ids=sorted(value.evidence_ids),
+            excluded_inputs=list(EXCLUDED_INPUTS),
+            explanation=explanation,
+            recommendations=recommendations,
+            calculation_reason=value.calculation_reason,
+            supersedes_snapshot_id=supersedes_snapshot_id,
+            calculated_by=calculated_by,
         )
 
 
