@@ -160,11 +160,64 @@ def test_captain_driver_ranking_uses_governed_current_scores(monkeypatch):
 
     result = tip_score.list_driver_score_summaries("Bearer token")
 
-    assert [item["driver_id"] for item in result["drivers"]] == [
+    assert [item["profile_id"] for item in result["drivers"]] == [
         "driver_a", "driver_b",
     ]
     assert result["drivers"][0]["score"] > result["drivers"][1]["score"]
     assert result["publication_state"] == "shadow"
+
+
+def test_captain_and_driver_uid_routes_resolve_the_same_principal_score(monkeypatch):
+    db = Db()
+    profile_id = "drv_lovelace"
+    principal_id = principal_id_for_uid(profile_id)
+    db.collection("drivers").rows[profile_id] = {
+        "first_name": "Ada",
+        "principal_id": principal_id,
+    }
+    canonical = tip_score.TipScoreCalculator().calculate(
+        score_input(principal_id, unsafe_risk=0.30)
+    )
+    legacy = tip_score.TipScoreCalculator().calculate(
+        score_input(profile_id, unsafe_risk=0.05)
+    )
+    db.collection("tip_score_current").rows.update({
+        principal_id: canonical.model_dump(mode="python"),
+        profile_id: legacy.model_dump(mode="python"),
+    })
+    wire(monkeypatch, db, {
+        "uid": "staff_1",
+        "role": "staff",
+        "staff_role": "admin",
+    })
+
+    ranking = tip_score.list_driver_score_summaries("Bearer token")
+    detail = tip_score.get_score_for_driver(profile_id, "Bearer token")
+
+    assert ranking["drivers"][0]["profile_id"] == profile_id
+    assert ranking["drivers"][0]["driver_id"] == principal_id
+    assert ranking["drivers"][0]["score"] == canonical.score
+    assert detail["driver_id"] == principal_id
+    assert detail["score"] == canonical.score
+    assert detail["score"] != legacy.score
+
+
+def test_staff_recalculation_by_profile_uid_writes_canonical_principal_pointer(monkeypatch):
+    db = Db()
+    profile_id = "drv_lovelace"
+    principal_id = principal_id_for_uid(profile_id)
+    wire(monkeypatch, db, {
+        "uid": "staff_1",
+        "role": "staff",
+        "staff_role": "reviewer",
+    })
+    request = score_input(profile_id, unsafe_risk=0.30)
+
+    result = tip_score.recalculate_score(profile_id, request, "Bearer token")
+
+    assert result["driver_id"] == principal_id
+    assert principal_id in db.collection("tip_score_current").rows
+    assert profile_id not in db.collection("tip_score_current").rows
 
 
 def test_attorney_case_projection_requires_assignment_consent_and_active_status(monkeypatch):

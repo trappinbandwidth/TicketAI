@@ -45,6 +45,17 @@ def _actor_id(claims: dict) -> str:
     return principal_id_for_uid(uid)
 
 
+def _canonical_driver_id(driver_id: str) -> str:
+    """Normalize a Driver profile/Firebase uid to the platform principal id.
+
+    TIP Score storage is principal-owned. Legacy Captain callers historically
+    passed the `drivers/{uid}` document id, while Driver/Carrier/Attorney
+    projections used the principal id. Normalizing at the API boundary keeps
+    every read and write on one `tip_score_current/{principal_id}` document.
+    """
+    return driver_id if driver_id.startswith("prn_") else principal_id_for_uid(driver_id)
+
+
 def _snapshot(driver_id: str) -> TipScoreSnapshot:
     """Read an immutable snapshot or return the governed thin-file projection.
 
@@ -53,6 +64,7 @@ def _snapshot(driver_id: str) -> TipScoreSnapshot:
     deterministic 700 developing-profile projection.
     """
     db = get_db()
+    driver_id = _canonical_driver_id(driver_id)
     current = db.collection("tip_score_current").document(driver_id).get()
     snapshot = (
         TipScoreSnapshot.model_validate(current.to_dict())
@@ -80,6 +92,7 @@ def _public_projection(snapshot: TipScoreSnapshot) -> dict:
 
 def _authorize_driver_or_staff(claims: dict, driver_id: str) -> str:
     actor_id = _actor_id(claims)
+    driver_id = _canonical_driver_id(driver_id)
     role = str(claims.get("role") or "")
     staff_role = str(claims.get("staff_role") or "")
     if actor_id == driver_id or role in STAFF_ROLES or staff_role in STAFF_ROLES:
@@ -94,7 +107,7 @@ def _authorize_carrier(claims: dict, driver_id: str) -> None:
     uid = claims.get("uid") or claims.get("sub")
     organization_id = organization_id_for_profile("carrier", uid)
     CarrierResolveService(db)._authorize(
-        principal_id_for_uid(uid), organization_id, driver_id
+        principal_id_for_uid(uid), organization_id, _canonical_driver_id(driver_id)
     )
 
 
@@ -210,9 +223,16 @@ def list_driver_score_summaries(authorization: Optional[str] = Header(None)):
 
     rows = []
     for document in get_db().collection("drivers").stream():
-        snapshot = _snapshot(document.id)
+        profile = document.to_dict() or {}
+        canonical_id = (
+            profile.get("principal_id")
+            if isinstance(profile.get("principal_id"), str)
+            else _canonical_driver_id(document.id)
+        )
+        snapshot = _snapshot(canonical_id)
         rows.append({
-            "driver_id": document.id,
+            "profile_id": document.id,
+            "driver_id": canonical_id,
             "score": snapshot.score,
             "tier": snapshot.tier.value,
             "status": snapshot.status.value,
@@ -266,7 +286,7 @@ def get_score_components(
 ):
     result = get_score_for_driver(driver_id, authorization)
     return {
-        "driver_id": driver_id,
+        "driver_id": result["driver_id"],
         "components": result["components"],
         "restricted_components": result.get("restricted_components", []),
         "algorithm_version": result["algorithm_version"],
@@ -424,10 +444,11 @@ def get_score_history(
     authorization: Optional[str] = Header(None),
 ):
     result = get_score_for_driver(driver_id, authorization)
+    canonical_id = _canonical_driver_id(driver_id)
     db = get_db()
     rows = (
         db.collection("tip_score_snapshots")
-        .where("driver_id", "==", driver_id)
+        .where("driver_id", "==", canonical_id)
         .limit(100)
         .stream()
     )
@@ -435,7 +456,7 @@ def get_score_history(
     if not history:
         history = [result]
     history.sort(key=lambda item: item["calculated_at"], reverse=True)
-    return {"driver_id": driver_id, "history": history}
+    return {"driver_id": canonical_id, "history": history}
 
 
 @router.post("/drivers/{driver_id}/recalculate", status_code=201)
@@ -455,7 +476,8 @@ def recalculate_score(
     staff_role = str(claims.get("staff_role") or "")
     if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
         raise HTTPException(status_code=403, detail="Staff role required.")
-    if body.driver_id != driver_id:
+    canonical_id = _canonical_driver_id(driver_id)
+    if _canonical_driver_id(body.driver_id) != canonical_id:
         raise HTTPException(status_code=422, detail="Driver ID does not match route.")
     if not body.evidence_ids:
         raise HTTPException(
@@ -464,7 +486,7 @@ def recalculate_score(
         )
 
     db = get_db()
-    current_ref = db.collection("tip_score_current").document(driver_id)
+    current_ref = db.collection("tip_score_current").document(canonical_id)
     current_doc = current_ref.get()
     previous = (
         TipScoreSnapshot.model_validate(current_doc.to_dict())
@@ -472,7 +494,10 @@ def recalculate_score(
         else None
     )
     governed_input = body.model_copy(
-        update={"previous_score": previous.score if previous else body.previous_score}
+        update={
+            "driver_id": canonical_id,
+            "previous_score": previous.score if previous else body.previous_score,
+        }
     )
     snapshot = TipScoreCalculator().calculate(
         governed_input,
@@ -491,8 +516,8 @@ def recalculate_score(
     else:
         snapshot_ref.create(payload)
     current_ref.set(payload)
-    db.collection("tip_score_lifecycle").document(driver_id).set({
-        "driver_id": driver_id,
+    db.collection("tip_score_lifecycle").document(canonical_id).set({
+        "driver_id": canonical_id,
         "snapshot_id": snapshot.id,
         "publication_state": "shadow",
         "score_status": snapshot.status.value,
@@ -525,6 +550,7 @@ def change_score_lifecycle(
             detail="TIP Score publication is not authorized in this release.",
         )
     db = get_db()
+    driver_id = _canonical_driver_id(driver_id)
     snapshot = _snapshot(driver_id)
     lifecycle_ref = db.collection("tip_score_lifecycle").document(driver_id)
     lifecycle_doc = lifecycle_ref.get()
@@ -578,6 +604,7 @@ def rollback_score(
     if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
         raise HTTPException(status_code=403, detail="Staff role required.")
     db = get_db()
+    driver_id = _canonical_driver_id(driver_id)
     target_doc = db.collection("tip_score_snapshots").document(body.target_snapshot_id).get()
     if not target_doc.exists:
         raise HTTPException(status_code=404, detail="Score snapshot not found.")
@@ -636,6 +663,7 @@ def request_score_recalculation(
     staff_role = str(claims.get("staff_role") or "")
     if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
         raise HTTPException(status_code=403, detail="Staff role required.")
+    driver_id = _canonical_driver_id(driver_id)
     actor_id = _actor_id(claims)
     current = _snapshot(driver_id)
     payload = {
@@ -686,6 +714,7 @@ def submit_dispute(
 ):
     claims = _claims(authorization)
     _authorize_driver_or_staff(claims, driver_id)
+    driver_id = _canonical_driver_id(driver_id)
     actor_id = _actor_id(claims)
     db = get_db()
     payload = {

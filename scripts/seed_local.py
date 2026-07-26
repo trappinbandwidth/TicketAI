@@ -30,6 +30,7 @@ from firebase_admin import auth as fb_auth, firestore  # noqa: E402
 
 from app.services.firebase_service import _emulator_credential  # noqa: E402
 from app.services.driver_profile import PiiCipher  # noqa: E402
+from app.platform.service import principal_id_for_uid  # noqa: E402
 
 PROJECT = os.environ["FIREBASE_PROJECT_ID"]
 if not firebase_admin._apps:
@@ -209,8 +210,9 @@ RISK_DRIVER = {
 
 TIP_SCORE_RISK = {
     "drv_lovelace": {
-        "unsafeDriving": 0.08, "crash": 0.04, "hoursOfService": 0.06,
-        "driverFitness": 0.05, "substanceAlcohol": 0.0, "safetyManagement": 0.12,
+        # Golden cross-portal example: 745 Preferred / 90% confidence.
+        "unsafeDriving": 0.30, "crash": 0.10, "hoursOfService": 0.40,
+        "driverFitness": 0.20, "substanceAlcohol": 0.0, "safetyManagement": 0.25,
     },
     "drv_delgado": {
         "unsafeDriving": 0.31, "crash": 0.18, "hoursOfService": 0.22,
@@ -794,6 +796,7 @@ def seed() -> None:
             key: value for key, value in d.items()
             if key not in {"cdl_number", "cdl_state"}
         }
+        doc["principal_id"] = principal_id_for_uid(d["uid"])
         doc["seeded"] = True
         # The carrier roster endpoint reads full_name; compose it so rosters show
         # people rather than driver ids.
@@ -843,7 +846,8 @@ def seed() -> None:
         TipScoreCalculator,
         TipScoreStatus,
     )
-    for driver_id, risks in TIP_SCORE_RISK.items():
+    for profile_id, risks in TIP_SCORE_RISK.items():
+        driver_id = principal_id_for_uid(profile_id)
         components = {
             TipComponent(component): ComponentInput(
                 risk=risk,
@@ -859,18 +863,32 @@ def seed() -> None:
         snapshot = TipScoreCalculator().calculate(ScoreCalculationInput(
             driver_id=driver_id,
             components=components,
-            confidence=ConfidenceInput(
-                source_completeness=0.82,
-                identity_match_quality=0.96,
-                record_freshness=0.88,
-                credential_verification=0.90,
-                exposure_sufficiency=0.78,
+            confidence=(
+                ConfidenceInput(
+                    source_completeness=0.85,
+                    identity_match_quality=1.0,
+                    record_freshness=0.90,
+                    credential_verification=1.0,
+                    exposure_sufficiency=0.75,
+                )
+                if profile_id == "drv_lovelace"
+                else ConfidenceInput(
+                    source_completeness=0.82,
+                    identity_match_quality=0.96,
+                    record_freshness=0.88,
+                    credential_verification=0.90,
+                    exposure_sufficiency=0.78,
+                )
             ),
-            status=TipScoreStatus.PROVISIONAL,
+            status=(
+                TipScoreStatus.OFFICIAL
+                if profile_id == "drv_lovelace"
+                else TipScoreStatus.PROVISIONAL
+            ),
             data_as_of=NOW,
             verified_history_months=24,
             verified_inspections=max(
-                1, int(RISK_DRIVER[driver_id].get("inspections_24mo") or 0)
+                1, int(RISK_DRIVER[profile_id].get("inspections_24mo") or 0)
             ),
             evidence_ids=[f"seeded-risk-profile:{driver_id}"],
             calculation_reason="local_qa_seed",
@@ -878,6 +896,11 @@ def seed() -> None:
         data = snapshot.model_dump(mode="python")
         db.collection("tip_score_snapshots").document(snapshot.id).set(data)
         db.collection("tip_score_current").document(driver_id).set(data)
+        # Remove the pre-principal current pointer created by older local seeds.
+        # Immutable history remains available for diagnosis, but no portal may
+        # read or advance a score by Firebase uid.
+        db.collection("tip_score_current").document(profile_id).delete()
+        db.collection("tip_score_lifecycle").document(profile_id).delete()
     print(f"  TIP Score snapshots: {len(TIP_SCORE_RISK)} (shadow QA ranking)")
 
     for c in CARRIERS:
