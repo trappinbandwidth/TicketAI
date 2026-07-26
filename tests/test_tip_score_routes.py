@@ -288,3 +288,68 @@ def test_carrier_summary_exposes_consented_driver_trend_without_source_records(m
     assert [row["driver_id"] for row in result["drivers"]] == driver_ids
     assert all("components" not in row for row in result["drivers"])
     assert all("evidence_ids" not in row for row in result["drivers"])
+
+
+def test_score_lifecycle_dispute_and_rollback_are_audited_and_publication_blocked(monkeypatch):
+    db = Db()
+    driver_uid = "driver_1"
+    driver_id = principal_id_for_uid(driver_uid)
+    staff = {"uid": "staff_1", "role": "staff", "staff_role": "reviewer"}
+    wire(monkeypatch, db, staff)
+    first = tip_score.recalculate_score(driver_id, score_input(driver_id), "Bearer token")
+    second = tip_score.recalculate_score(
+        driver_id, score_input(driver_id, unsafe_risk=0.7), "Bearer token"
+    )
+
+    review = tip_score.change_score_lifecycle(
+        driver_id,
+        tip_score.LifecycleRequest(
+            target_state="human_review",
+            reason="Reviewer is validating corrected source evidence.",
+        ),
+        "Bearer token",
+    )
+    assert review["publication_state"] == "human_review"
+    assert tip_score._snapshot(driver_id).publication_state == "human_review"
+    withdrawn = tip_score.change_score_lifecycle(
+        driver_id,
+        tip_score.LifecycleRequest(
+            target_state="withdrawn",
+            reason="Source conflict requires withdrawal from review.",
+        ),
+        "Bearer token",
+    )
+    assert withdrawn["publication_state"] == "withdrawn"
+    with pytest.raises(HTTPException) as publication:
+        tip_score.change_score_lifecycle(
+            driver_id,
+            tip_score.LifecycleRequest(
+                target_state="published",
+                reason="Attempted publication without human approval.",
+            ),
+            "Bearer token",
+        )
+    assert publication.value.status_code == 409
+
+    rollback = tip_score.rollback_score(
+        driver_id,
+        tip_score.RollbackRequest(
+            target_snapshot_id=first["id"],
+            reason="Rollback to the last verified immutable snapshot.",
+        ),
+        "Bearer token",
+    )
+    assert rollback["from_snapshot_id"] == second["id"]
+    assert rollback["current_snapshot_id"] == first["id"]
+    assert len(db.collection("tip_score_rollback_events").rows) == 1
+
+    wire(monkeypatch, db, {"uid": driver_uid, "role": "driver"})
+    dispute = tip_score.submit_dispute(
+        driver_id,
+        tip_score.DisputeRequest(reason="The inspection disposition is incorrect."),
+        "Bearer token",
+    )
+    assert dispute["status"] == "submitted"
+    current = tip_score._snapshot(driver_id)
+    assert current.status == TipScoreStatus.DISPUTED
+    assert current.publication_state == "human_review"
