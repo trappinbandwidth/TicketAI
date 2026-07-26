@@ -18,6 +18,10 @@ Rig Resolve has **15 active pipeline agents in 4 departments**.
 Financial Intelligence, Predictive Intelligence, and Copilot are not active
 agent departments. The proposed Paralegal system is not part of this count.
 
+The approved end-to-end roadmap proposes **8 additional agents in 3 new
+departments**, for a future total of **23 agents across 7 departments**. Planned
+agents are not represented as live, toggleable, or purchasable capabilities.
+
 ## How the Departments Interact
 
 ```text
@@ -324,22 +328,31 @@ presented as verified results.
 
 ## Future Agents — Not Active
 
-The following concepts are proposed only and are not included in the current
-agent or department counts:
+The approved roadmap proposes these agents. They are not included in the active
+count:
 
-- Paralegal Case Brief;
-- Paralegal Draft Writer;
-- Note Router;
-- Deadline Monitor;
-- Account Digest;
-- Outreach Drafter;
-- Court Research;
-- learned attorney matching;
-- Driver Career Coach;
-- Captain Copilot.
+| Planned department | Agent | Responsibility |
+| --- | --- | --- |
+| Restoration Intelligence | Government Record Translator | Explain normalized government facts with citations |
+| Restoration Intelligence | Restoration Analyst | Identify evidence, deadlines, limitations, and potential correction paths |
+| Restoration Intelligence | Challenge Draft Agent | Draft DataQs, MVR, PSP, then court correction packets for professional review |
+| Advisory Intelligence | Attorney Case Brief Agent | Produce an access-scoped case, evidence, and deadline brief |
+| Advisory Intelligence | Career Action Planner | Produce prioritized, measurable, non-guaranteed Driver actions |
+| Network Intelligence | Court Research Agent | Research official/approved court facts with snapshots for verification |
+| Network Intelligence | Outreach Draft Agent | Draft human-approved outreach for verified attorney coverage gaps |
+| Operational Intelligence | Captain Copilot | Answer cited, read-only operational questions under RBAC |
+
+Document upload classification remains in Document Intelligence. SambaSafety
+MVR acquisition, DataQs/PSP/court integrations, monitoring, learned attorney
+ranking, payments, payouts, and notifications are connectors or deterministic
+services—not agents. Driver Career Coach is a later interface over Career Action
+Planner rather than a separate source of facts.
 
 They require separate approved tasks, source/retention/consent contracts,
 provider-neutral telemetry, human-review policy, and role/data-access testing.
+Every restoration or legal draft requires professional approval before
+submission. The full service map and delivery order are recorded in
+`_coordination/AGENT_SYSTEM_ROADMAP.md`.
 
 ## Adding Another Agent
 
