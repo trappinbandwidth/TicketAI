@@ -1,7 +1,11 @@
 import ast
 from pathlib import Path
 
-from app.services.agent_identity import AGENT_IDENTITIES
+from app.services.agent_identity import (
+    AGENT_DEPARTMENTS,
+    AGENT_IDENTITIES,
+    agent_department_summaries,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,9 +58,11 @@ def test_every_logged_agent_has_identity_metadata():
         or not identity.role
         or not identity.category
         or not identity.namesake_note
+        or identity.department not in AGENT_DEPARTMENTS
     )
 
     assert incomplete == []
+    assert {identity.department for identity in AGENT_IDENTITIES.values()} == set(AGENT_DEPARTMENTS)
 
 
 def test_documented_roster_uses_runtime_agent_ids_and_names():
@@ -65,3 +71,33 @@ def test_documented_roster_uses_runtime_agent_ids_and_names():
     for identity in AGENT_IDENTITIES.values():
         assert f"`{identity.agent}`" in roster
         assert f"| {identity.honor_name} | {identity.legacy_name} |" in roster
+
+
+def test_department_rollups_reconcile_agent_events_errors_and_cost():
+    rows = [
+        {
+            "identity": {"department": "document_intelligence"},
+            "total_events": 8,
+            "errors": 2,
+            "cost_usd": 0.125,
+        },
+        {
+            "identity": {"department": "document_intelligence"},
+            "total_events": 2,
+            "errors": 0,
+            "cost_usd": 0.025,
+        },
+    ]
+
+    by_id = {
+        summary["department"]: summary
+        for summary in agent_department_summaries(rows)
+    }
+
+    document = by_id["document_intelligence"]
+    assert document["agent_count"] == 2
+    assert document["total_events"] == 10
+    assert document["errors"] == 2
+    assert document["health_score"] == 0.8
+    assert document["cost_usd"] == 0.15
+    assert by_id["legal_intelligence"]["health_score"] is None

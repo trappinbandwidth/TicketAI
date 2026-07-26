@@ -15,7 +15,12 @@ from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Query
 from fastapi.responses import FileResponse
 
 from app.routes._common import require_staff
-from app.services.agent_identity import canonical_agent_name, agent_display_name, agent_identity_payload
+from app.services.agent_identity import (
+    agent_department_summaries,
+    canonical_agent_name,
+    agent_display_name,
+    agent_identity_payload,
+)
 from app.services.event_service import write_event
 from app.services.staff_audit import write_staff_audit
 from app.services.queue_store import EXTRACTED_FIELDS
@@ -721,9 +726,15 @@ def get_agent_stats(days: int = Query(30, ge=1, le=90), authorization: Optional[
 
         results.append(summary)
 
-    # Sort by health score ascending (worst agents first)
-    results.sort(key=lambda r: r["health_score"])
-    return {"agents": results, "days": days}
+    # Sort observed agents by worst health first; agents without events remain
+    # visible after observed results instead of being reported as healthy.
+    results.sort(key=lambda r: (r["health_score"] is None, r["health_score"] or 0))
+
+    return {
+        "agents": results,
+        "departments": agent_department_summaries(results),
+        "days": days,
+    }
 
 
 # ── Scan feed ────────────────────────────────────────────────────────────────

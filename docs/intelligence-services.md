@@ -16,6 +16,23 @@ describe services by the intelligence they provide.
 | Financial Intelligence | Pricing, payment options, payout queue, Financial Service |
 | Predictive Intelligence | Future scoring, outcome learning, attorney performance learning |
 
+## Agent Departments
+
+The four current departments are runtime-owned by
+`app/services/agent_identity.py`. Each agent belongs to exactly one department,
+and `/api/v1/admin/stats/agents` returns reconciled department and agent
+rollups for the same observation window.
+
+| Department | Current agents | Boundary |
+| --- | ---: | --- |
+| Document Intelligence | 7 | Intake, document/photo routing, extraction, merge, and quality/completeness checks |
+| Compliance Intelligence | 4 | CDL impact, profile match, and approved MVR/PSP request preparation |
+| Legal Intelligence | 3 | Jurisdiction context, attorney matching, accounts, conflicts, and evidence index |
+| Operational Intelligence | 1 | Court-date urgency and work prioritization |
+
+Financial Intelligence and Predictive Intelligence are taxonomy placeholders,
+not active agent departments. Copilot is also not an active department.
+
 ## Current Pipeline Mapping
 
 ```text
