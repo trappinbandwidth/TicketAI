@@ -41,14 +41,15 @@ case "${1:-}" in
     # Browsers and desktop preview links may resolve the same local app through
     # either loopback hostname. Both are explicit development-only origins;
     # production still requires its separately configured allowlist.
-    export CORS_ALLOWED_ORIGINS="http://localhost:5301|http://127.0.0.1:5301|http://localhost:5302|http://127.0.0.1:5302|http://localhost:5303|http://127.0.0.1:5303|http://localhost:5304|http://127.0.0.1:5304"
+    export CORS_ALLOWED_ORIGINS="${CORS_ALLOWED_ORIGINS:-http://localhost:5301|http://127.0.0.1:5301|http://localhost:5302|http://127.0.0.1:5302|http://localhost:5303|http://127.0.0.1:5303|http://localhost:5304|http://127.0.0.1:5304|http://localhost:25302|http://127.0.0.1:25302}"
     for flag in \
       TIP_OS_IDENTITY_ENABLED TIP_OS_RECORDS_ENABLED TIP_OS_DOCUMENTS_ENABLED \
       TIP_OS_WORKFLOWS_ENABLED TIP_OS_INTELLIGENCE_ENABLED TIP_OS_ADMIN_CONSOLE_ENABLED \
       TIP_OS_CARRIER_RESOLVE_ENABLED TIP_OS_FINANCIAL_LEDGER_ENABLED \
       TIP_OS_ANALYTICS_ENABLED TIP_OS_INTEGRATIONS_ENABLED TIP_OS_PARTNER_API_ENABLED \
       TIP_OS_ENTITY_RESOLUTION_ENABLED TIP_OS_ATTORNEY_GOVERNANCE_ENABLED \
-      TIP_OS_LAUNCH_ASSESSMENT_ENABLED TIP_OS_AUTH_SHADOW_ENABLED
+      TIP_OS_LAUNCH_ASSESSMENT_ENABLED TIP_OS_AUTH_SHADOW_ENABLED \
+      TIP_SCORE_ENABLED
     do export "$flag=true"; done
     exec .venv/bin/python -m uvicorn app.main:app --reload --port "${PORT:-8000}"
     ;;
