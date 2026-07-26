@@ -155,6 +155,8 @@ def test_carrier_openapi_matches_frontend_route_matrix():
         ("post", "/api/v1/carrier/authority-verification/evidence"),
         ("get", "/api/v1/carrier/me"),
         ("patch", "/api/v1/carrier/me"),
+        ("get", "/api/v1/carrier/systems"),
+        ("put", "/api/v1/carrier/systems"),
         ("get", "/api/v1/carrier/drivers"),
         ("post", "/api/v1/carrier/drivers"),
         ("post", "/api/v1/carrier/drivers/bulk"),
@@ -554,6 +556,89 @@ def test_profile_settings_validate_normalize_and_audit_routed_fields(monkeypatch
         carrier_portal.CarrierProfileUpdate(billing_state="Texas")
     with pytest.raises(ValidationError):
         carrier_portal.CarrierProfileUpdate(total_driver_count=-1)
+
+
+def test_systems_replace_normalize_isolate_and_audit(monkeypatch):
+    db = Db()
+    _wire(monkeypatch, db)
+    _register(monkeypatch, db)
+
+    saved = carrier_portal.update_carrier_systems(
+        carrier_portal.CarrierSystemsUpdate(
+            eld_provider="  Motive  ",
+            tms_system="  McLeod   Software ",
+            legal_support_type="outside_firm",
+            legal_support="  Example   Transportation Law  ",
+        ),
+        authorization="Bearer carrier",
+    )
+    assert saved == {
+        "ok": True,
+        "systems": {
+            "eld_provider": "Motive",
+            "tms_system": "McLeod Software",
+            "legal_support": "Example Transportation Law",
+            "legal_support_type": "outside_firm",
+        },
+    }
+    first = carrier_portal.get_carrier_systems(
+        authorization="Bearer carrier"
+    )
+    assert first["systems"] == saved["systems"]
+    assert first["updated_at"]
+    assert "updated_at" not in first["systems"]
+    assert any(
+        event["event_type"] == "carrier.systems_updated"
+        and event["payload"]["fields"] == [
+            "eld_provider", "legal_support", "legal_support_type", "tms_system"
+        ]
+        for event in db.collection("audit_events").rows.values()
+    )
+
+    # PUT replaces the record, so an omitted field is intentionally cleared.
+    carrier_portal.update_carrier_systems(
+        carrier_portal.CarrierSystemsUpdate(eld_provider="Samsara"),
+        authorization="Bearer carrier",
+    )
+    assert carrier_portal.get_carrier_systems(
+        authorization="Bearer carrier"
+    )["systems"] == {"eld_provider": "Samsara"}
+
+    # A second Carrier reads only its own nested systems record.
+    second_token = {
+        **CARRIER_TOKEN,
+        "uid": "carrier_2",
+        "email": "second@example.com",
+    }
+    _wire(monkeypatch, db, token=second_token)
+    _register(
+        monkeypatch,
+        db,
+        carrier_portal.CarrierRegistration(
+            company_name="Second Carrier", dot_number="7654321"
+        ),
+    )
+    assert carrier_portal.get_carrier_systems(
+        authorization="Bearer second"
+    )["systems"] == {}
+
+
+def test_systems_reject_invalid_or_anonymous_input(monkeypatch):
+    with pytest.raises(ValidationError):
+        carrier_portal.CarrierSystemsUpdate(legal_support_type="unknown")
+    with pytest.raises(ValidationError):
+        carrier_portal.CarrierSystemsUpdate(eld_provider="x" * 121)
+
+    db = Db()
+    monkeypatch.setattr(carrier_portal, "get_db", lambda: db)
+
+    def reject(_header):
+        raise HTTPException(status_code=401, detail="Missing bearer token.")
+
+    monkeypatch.setattr(carrier_portal, "verify_token", reject)
+    with pytest.raises(HTTPException) as exc:
+        carrier_portal.get_carrier_systems(authorization=None)
+    assert exc.value.status_code == 401
 
 
 def test_carrier_route_rejects_anonymous(monkeypatch):

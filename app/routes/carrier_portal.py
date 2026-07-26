@@ -146,6 +146,80 @@ class CarrierProfileUpdate(BaseModel):
     )
 
 
+class LegalSupportType(str, Enum):
+    NONE = "none"
+    IN_HOUSE = "in_house"
+    OUTSIDE_FIRM = "outside_firm"
+    PER_CASE = "per_case"
+    RIG_RESOLVE = "rig_resolve"
+
+
+class CarrierSystemsUpdate(BaseModel):
+    """The operational systems a Carrier already runs.
+
+    Captured so Rig Resolve knows which integrations are worth building and can
+    automate onboarding against tools the Carrier already uses. Every field is
+    optional and free text — Carriers run a long tail of tools, and forcing a
+    fixed vendor list would lose exactly the signal this is for.
+    """
+
+    hr_system: Optional[str] = Field(default=None, max_length=120)
+    payroll_system: Optional[str] = Field(default=None, max_length=120)
+    driver_management_system: Optional[str] = Field(default=None, max_length=120)
+    eld_provider: Optional[str] = Field(default=None, max_length=120)
+    tms_system: Optional[str] = Field(default=None, max_length=120)
+    safety_compliance_system: Optional[str] = Field(default=None, max_length=120)
+    legal_support: Optional[str] = Field(default=None, max_length=160)
+    legal_support_type: Optional[LegalSupportType] = None
+    notes: Optional[str] = Field(default=None, max_length=2000)
+
+
+@router.get("/systems")
+def get_carrier_systems(authorization: Optional[str] = Header(None)):
+    """Return the Carrier's recorded systems (empty object before first save)."""
+    _, _, ref = _carrier(authorization)
+    data = ref.get().to_dict() or {}
+    systems = data.get("systems") or {}
+    updated_at = systems.get("updated_at")
+    return {
+        "systems": {
+            key: value for key, value in systems.items() if key != "updated_at"
+        },
+        "updated_at": iso(updated_at) if updated_at else None,
+    }
+
+
+@router.put("/systems")
+def update_carrier_systems(
+    body: CarrierSystemsUpdate, authorization: Optional[str] = Header(None)
+):
+    """Replace the Carrier's systems record.
+
+    A PUT, not a PATCH: clearing a field means the Carrier no longer uses that
+    tool, and a merge would make it impossible to say so.
+    """
+    decoded, db, ref = _carrier(authorization)
+    systems = {
+        key: " ".join(
+            str(value.value if isinstance(value, Enum) else value).split()
+        )
+        for key, value in body.model_dump().items()
+        if value is not None and str(value).strip()
+    }
+    now = datetime.now(timezone.utc)
+    stored_systems = {**systems, "updated_at": now}
+    ref.set({"systems": stored_systems, "updated_at": now}, merge=True)
+    service, principal_id, organization_id = _carrier_platform(decoded, db, ref)
+    service._audit(
+        "carrier.systems_updated",
+        principal_id,
+        "organization",
+        organization_id,
+        {"fields": sorted(systems)},
+    )
+    return {"ok": True, "systems": systems}
+
+
 class AuthorityEvidenceMethod(str, Enum):
     MCS150 = "mcs150"
     OPERATING_AUTHORITY = "operating_authority"
