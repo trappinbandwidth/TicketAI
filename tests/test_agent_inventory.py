@@ -67,10 +67,17 @@ def test_every_logged_agent_has_identity_metadata():
 
 def test_documented_roster_uses_runtime_agent_ids_and_names():
     roster = (ROOT / "docs" / "agent-identity-roster.md").read_text()
+    guide = (ROOT / "docs" / "agents.md").read_text()
 
     for identity in AGENT_IDENTITIES.values():
         assert f"`{identity.agent}`" in roster
         assert f"| {identity.honor_name} | {identity.legacy_name} |" in roster
+        assert f"(`{identity.agent}`)" in guide
+
+    for department in AGENT_DEPARTMENTS.values():
+        assert department["name"] in guide
+
+    assert "15 active pipeline agents in 4 departments" in guide
 
 
 def test_department_rollups_reconcile_agent_events_errors_and_cost():

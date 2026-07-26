@@ -10,23 +10,23 @@ leaders," and "institution builders." Internal IDs should not be renamed unless
 there is a migration plan for graph nodes, event history, analytics, tests, and
 admin filters.
 
-| Internal ID | Display name | Legacy name | Operational role |
-| --- | --- | --- | --- |
-| `roux` | Roux | Case Intake | Validates submissions before AI spend. |
-| `document_gate` | Granville T. Woods | Document Gate | Transportation engineering and routing fit the pre-classification gate. |
-| `photo_analyst` | Gordon Parks | Photo Analyst | Photography as evidence, context, and human truth. |
-| `carver` | Carver | Lone Ranger | Performs the primary and secondary extraction passes. |
-| `bolin` | Bolin | Referee | Scores extraction quality and controls review routing. |
-| `bunche` | Bunche | Consensus | Merges two extraction passes and flags conflicts. |
-| `ida_wells` | Ida Wells | Document Completeness | Audits missing fields for attorney preparation. |
-| `charlotte_ray` | Charlotte Ray | Book Worm | Adds CDL point, severity, and disqualification context. |
-| `jollof` | Jollof | PII Match | Verifies CDL identity against the Driver profile. |
-| `stagecoach_mary` | Stagecoach Mary | MVR Request | Queues Motor Vehicle Record pulls. |
-| `bass_reeves` | Bass Reeves | PSP Request | Queues FMCSA PSP safety-record pulls. |
-| `banneker` | Banneker | Research Ron | Builds jurisdiction, court, Carrier, and violation context. |
-| `madam_walker` | Madam Walker | Team Quest | Matches cases to available CDL attorneys. |
-| `tubman` | Tubman | Urgency Router | Calculates court-date urgency and priority. |
-| `douglass` | Douglass | Statement of Record | Builds accounts, conflict maps, and evidence indexes. |
+| Internal ID | Display name | Legacy name | Department | Operational role |
+| --- | --- | --- | --- | --- |
+| `roux` | Roux | Case Intake | Document | Validates submissions before AI spend. |
+| `document_gate` | Granville T. Woods | Document Gate | Document | Routes submissions by supported type. |
+| `photo_analyst` | Gordon Parks | Photo Analyst | Document | Analyzes photo evidence outside ticket extraction. |
+| `carver` | Carver | Lone Ranger | Document | Performs primary and secondary extraction. |
+| `bolin` | Bolin | Referee | Document | Scores extraction quality and controls routing. |
+| `bunche` | Bunche | Consensus | Document | Merges extraction passes and flags conflicts. |
+| `ida_wells` | Ida Wells | Document Completeness | Document | Audits missing fields for preparation. |
+| `charlotte_ray` | Charlotte Ray | Book Worm | Compliance | Adds CDL impact and severity context. |
+| `jollof` | Jollof | PII Match | Compliance | Compares extracted CDL identity to the Driver profile. |
+| `stagecoach_mary` | Stagecoach Mary | MVR Request | Compliance | Prepares Motor Vehicle Record requests. |
+| `bass_reeves` | Bass Reeves | PSP Request | Compliance | Prepares FMCSA PSP safety-record requests. |
+| `banneker` | Banneker | Research Ron | Legal | Builds jurisdiction, court, Carrier, and violation context. |
+| `madam_walker` | Madam Walker | Team Quest | Legal | Prepares attorney coverage matches. |
+| `tubman` | Tubman | Urgency Router | Operational | Calculates court-date urgency and priority. |
+| `douglass` | Douglass | Statement of Record | Legal | Builds accounts, conflict maps, and evidence indexes. |
 
 ## Implementation Standard
 

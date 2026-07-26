@@ -37,10 +37,11 @@ not active agent departments. Copilot is also not an active department.
 
 ```text
 Document Intelligence
-  -> Legal Intelligence
   -> Compliance Intelligence
-  -> Operational Intelligence
-  -> Recommendations
+  -> Legal Intelligence (jurisdiction and attorney match)
+  -> Operational Intelligence (urgency)
+  -> Legal Intelligence (final statement of record)
+  -> Final artifact / human review
 ```
 
 The pipeline should keep returning the existing response shape while also writing
