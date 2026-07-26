@@ -57,6 +57,7 @@ from app.routes.platform_analytics import router as platform_analytics_router
 from app.routes.platform_launch import router as platform_launch_router
 from app.routes.entity_resolution import router as entity_resolution_router
 from app.routes.driver_profile import router as driver_profile_router
+from app.routes.tip_score import router as tip_score_router
 from app.services.queue_store import init_db
 from app.services.firebase_service import _init as init_firebase
 from app.services.carrier_lookup import warm_carrier_search_index
@@ -177,6 +178,7 @@ app.include_router(platform_analytics_router, prefix="/api/v1")
 app.include_router(platform_launch_router, prefix="/api/v1")
 app.include_router(entity_resolution_router, prefix="/api/v1")
 app.include_router(driver_profile_router, prefix="/api/v1")
+app.include_router(tip_score_router, prefix="/api/v1")
 
 
 @app.get("/health")
