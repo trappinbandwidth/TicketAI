@@ -30,6 +30,25 @@ def test_magic_bytes_filename_checksum_and_duplicate_detection():
     assert first.sha256 == second.sha256
 
 
+def test_ingest_can_apply_governed_name_and_preserve_original():
+    service = DocumentService(FakeDb(), CleanScanner())
+    asset = service.ingest(
+        "prn_driver",
+        "../../ticket?.pdf",
+        "application/pdf",
+        b"%PDF governed",
+        subject_name="Jane Doe",
+        department="DRIVER",
+        case_id="CASE-10482",
+    )
+
+    assert asset.filename.startswith("Doe-Jane_DRIVER_CASE-10482_")
+    assert asset.filename.endswith(".pdf")
+    assert asset.original_filename == "ticket_.pdf"
+    assert asset.naming_policy_version == "file-name-v1"
+    assert asset.naming_department == "DRIVER"
+
+
 def test_scanner_unavailable_never_releases_document_and_eicar_is_unsafe():
     service = DocumentService(FakeDb(), SafeFallbackScanner())
 

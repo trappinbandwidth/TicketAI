@@ -665,6 +665,7 @@ def _upload(name: str, content_type: str, content: bytes) -> UploadFile:
 def test_document_upload_validates_content_routes_to_owned_bucket_and_deduplicates(monkeypatch):
     db = Db()
     _wire(monkeypatch, db)
+    db.collection("carriers").document("carrier_1").set({"company_name": "Big Rig Co"})
     uploads = []
 
     class Blob:
@@ -697,8 +698,8 @@ def test_document_upload_validates_content_routes_to_owned_bucket_and_deduplicat
     assert duplicate["duplicate"] is True
     assert duplicate["document_id"] == first["document_id"]
     assert len(uploads) == 1
-    assert uploads[0][0].startswith(
-        f"carriers/carrier_1/documents/{first['document_id']}_"
+    assert uploads[0][0] == (
+        f"carriers/carrier_1/documents/{first['document_id']}.pdf"
     )
     assert ".." not in uploads[0][0]
     document = (
@@ -707,7 +708,10 @@ def test_document_upload_validates_content_routes_to_owned_bucket_and_deduplicat
         .collection("documents")
         .rows[first["document_id"]]
     )
-    assert document["file_name"] == "unsafe name.pdf"
+    assert document["file_name"].startswith("Big-Rig-Co_CARRIER_GENERAL-")
+    assert document["file_name"].endswith(".pdf")
+    assert document["original_file_name"] == "unsafe name.pdf"
+    assert document["naming_policy_version"] == "file-name-v1"
     assert document["sha256"]
 
 

@@ -61,6 +61,7 @@ from app.services.carrier_lookup import (
     carrier_discovery_detail,
     search_carriers,
 )
+from app.services.file_naming import FileDepartment, governed_file_name, opaque_storage_object
 
 router = APIRouter(prefix="/carrier", tags=["carrier-portal"])
 
@@ -704,9 +705,29 @@ async def upload_authority_evidence(
             "claim_id": claim_ref.id,
             "duplicate": True,
         }
+    profile_snapshot = db.collection("carriers").document(decoded["uid"]).get()
+    profile = profile_snapshot.to_dict() if profile_snapshot.exists else {}
+    subject_name = str(
+        profile.get("company_name") or decoded.get("name") or ""
+    ).strip()
+    if not subject_name:
+        raise HTTPException(
+            status_code=422,
+            detail="A verified Carrier name is required before uploading evidence.",
+        )
+    now = datetime.now(timezone.utc)
+    naming = governed_file_name(
+        subject_name=subject_name,
+        department=FileDepartment.CARRIER,
+        case_id=claim_ref.id,
+        general_id=None,
+        uploaded_at=now,
+        content_type=file.content_type or "",
+        entity_name=True,
+    )
     path = (
         f"carriers/{decoded['uid']}/authority-verification/"
-        f"{evidence_id}_{safe_name}"
+        f"{opaque_storage_object(evidence_id, file.content_type or '')}"
     )
     try:
         _bucket().blob(path).upload_from_string(
@@ -718,7 +739,6 @@ async def upload_authority_evidence(
             status_code=503,
             detail="Authority evidence storage is unavailable.",
         ) from exc
-    now = datetime.now(timezone.utc)
     evidence_ref.set({
         "id": evidence_id,
         "claim_id": claim_ref.id,
@@ -726,7 +746,11 @@ async def upload_authority_evidence(
         "organization_id": claim.get("organization_id"),
         "dot_number": claim.get("dot_number"),
         "evidence_method": method,
-        "file_name": safe_name,
+        "file_name": naming.display_name,
+        "original_file_name": safe_name,
+        "naming_policy_version": naming.policy_version,
+        "naming_department": naming.department,
+        "naming_case": naming.case_component,
         "content_type": file.content_type,
         "size_bytes": len(content),
         "sha256": digest,
@@ -1441,13 +1465,39 @@ async def upload_document(
             "created_at": iso((existing.to_dict() or {}).get("created_at")),
             "duplicate": True,
         }
-    path = f"carriers/{decoded['uid']}/documents/{document_id}_{safe_name}"
+    profile_snapshot = ref.get()
+    profile = profile_snapshot.to_dict() if profile_snapshot.exists else {}
+    subject_name = str(
+        profile.get("company_name") or decoded.get("name") or ""
+    ).strip()
+    if not subject_name:
+        raise HTTPException(
+            status_code=422,
+            detail="A verified Carrier name is required before uploading documents.",
+        )
+    now = datetime.now(timezone.utc)
+    naming = governed_file_name(
+        subject_name=subject_name,
+        department=FileDepartment.CARRIER,
+        case_id=None,
+        general_id=document_id[-12:],
+        uploaded_at=now,
+        content_type=file.content_type or "",
+        entity_name=True,
+    )
+    path = (
+        f"carriers/{decoded['uid']}/documents/"
+        f"{opaque_storage_object(document_id, file.content_type or '')}"
+    )
     try:
         _bucket().blob(path).upload_from_string(content, content_type=file.content_type)
     except Exception as exc:
         raise HTTPException(status_code=503, detail="Document storage is unavailable.") from exc
-    now = datetime.now(timezone.utc)
-    doc.set({"name": name, "category": category, "file_name": safe_name,
+    doc.set({"name": name, "category": category, "file_name": naming.display_name,
+             "original_file_name": safe_name,
+             "naming_policy_version": naming.policy_version,
+             "naming_department": naming.department,
+             "naming_case": naming.case_component,
              "storage_path": path, "content_type": file.content_type,
              "size_bytes": len(content), "sha256": digest, "status": "received",
              "created_at": now, "uploaded_by": decoded["uid"]})

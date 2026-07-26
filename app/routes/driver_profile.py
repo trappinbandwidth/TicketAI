@@ -18,6 +18,7 @@ from app.platform.service import PlatformService, principal_id_for_uid
 from app.services.auth_rbac import require_role, verify_firebase_token
 from app.services.driver_profile import DriverProfileService, PiiCipher
 from app.services.carrier_lookup import carrier_discovery_detail
+from app.services.file_naming import FileDepartment, governed_file_name, opaque_storage_object
 
 router = APIRouter(prefix="/driver/profile", tags=["driver-profile"])
 
@@ -503,7 +504,27 @@ async def upload_ticket_document(
     existing = ticket_ref.collection("documents").document(document_id).get()
     if existing.exists:
         return {"ok": True, "document_id": document_id, "status": "received", "duplicate": True}
-    path = f"drivers/{claims['uid']}/tickets/{ticket_id}/documents/{document_id}_{safe_name}"
+    profile_snapshot = db.collection("drivers").document(claims["uid"]).get()
+    profile = profile_snapshot.to_dict() if profile_snapshot.exists else {}
+    subject_name = " ".join(
+        part for part in [profile.get("first_name"), profile.get("last_name")] if part
+    ).strip() or str(claims.get("name") or "").strip()
+    if not subject_name:
+        raise HTTPException(
+            status_code=422,
+            detail="Your verified profile name is required before uploading documents.",
+        )
+    now = datetime.now(timezone.utc)
+    naming = governed_file_name(
+        subject_name=subject_name,
+        department=FileDepartment.DRIVER,
+        case_id=ticket_id,
+        general_id=None,
+        uploaded_at=now,
+        content_type=file.content_type or "",
+    )
+    object_name = opaque_storage_object(document_id, file.content_type or "")
+    path = f"drivers/{claims['uid']}/tickets/{ticket_id}/documents/{object_name}"
     project_id = os.getenv("FIREBASE_PROJECT_ID", "").strip()
     if not project_id:
         raise HTTPException(status_code=503, detail="Document storage is unavailable.")
@@ -515,13 +536,16 @@ async def upload_ticket_document(
     except Exception as exc:
         raise HTTPException(status_code=503, detail="Document storage is unavailable.") from exc
 
-    now = datetime.now(timezone.utc)
     metadata = {
         "document_id": document_id,
         "ticket_id": ticket_id,
         "driver_id": claims["uid"],
         "label": label.strip(),
-        "file_name": safe_name,
+        "file_name": naming.display_name,
+        "original_file_name": safe_name,
+        "naming_policy_version": naming.policy_version,
+        "naming_department": naming.department,
+        "naming_case": naming.case_component,
         "content_type": file.content_type,
         "size_bytes": len(content),
         "sha256": digest,
