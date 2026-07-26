@@ -186,6 +186,42 @@ def test_trusted_manual_upload_retains_service_auth():
     assert r.status_code == 415
 
 
+def test_staff_manual_upload_accepts_bearer_without_service_key(monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "staff_1", "role": "staff"},
+    )
+
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.docx", b"x", "application/octet-stream")},
+        data={"source": "manual"},
+        headers={"authorization": "Bearer staff-token"},
+    )
+
+    assert r.status_code == 415
+
+
+def test_manual_upload_does_not_fall_back_to_service_key_for_wrong_bearer(monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "carrier_1", "role": "carrier"},
+    )
+
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.docx", b"x", "application/octet-stream")},
+        data={"source": "manual"},
+        headers={
+            "authorization": "Bearer carrier-token",
+            "x-api-key": "cdl-local-dev",
+        },
+    )
+
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Staff role required."
+
+
 def test_unsupported_file_type():
     r = client.post(
         "/api/v1/process",

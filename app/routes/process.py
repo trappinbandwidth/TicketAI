@@ -25,7 +25,7 @@ from app.services.event_service import write_event
 from agents.photo_analyst import analyze_photo
 from app.services.court_lookup import lookup_court
 from app.services.enrollment_verifier import verify_enrollment
-from app.services.auth_rbac import require_role, verify_firebase_token
+from app.services.auth_rbac import require_role, require_staff, verify_firebase_token
 from app.services.upload_idempotency import claim_driver_upload
 from app.services.recommendation_service import (
     create_attorney_match_recommendation,
@@ -155,10 +155,14 @@ def _authorize_upload(
 ) -> Optional[str]:
     """Authorize an upload and return its server-trusted Driver identity.
 
-    Driver browsers authenticate with Firebase. Their UID is authoritative and
-    may never be selected by a form field. Existing staff and integration
-    sources retain service-key authentication until their bounded migration.
+    Driver and staff browsers authenticate with Firebase. Driver UID is
+    authoritative and may never be selected by a form field. Service-key
+    authentication remains available only for non-browser integrations during
+    their bounded migration.
     """
+    if source == "manual" and authorization:
+        require_staff(verify_firebase_token(authorization))
+        return driver_id
     if source != "driver_upload":
         _check_auth(x_api_key)
         return driver_id
