@@ -326,10 +326,10 @@ court docket/filing, live FMCSA refresh, email/SMS delivery, marketplace,
 payment, or external monitoring. Pending or unavailable states must never be
 presented as verified results.
 
-## Future Agents — Not Active
+## Planned Agents and Implementation Status
 
 The approved roadmap proposes these agents. They are not included in the active
-count:
+15-agent LangGraph pipeline count:
 
 | Planned department | Agent | Responsibility |
 | --- | --- | --- |
@@ -353,6 +353,24 @@ The File Naming Agent uses the deterministic convention
 `LastName-FirstName_Department_CaseID_YYYY-MM-DD.ext`. Uploads without a case
 use `GENERAL-{short-id}`, and collisions append `_v02`, `_v03`, and so on. It
 does not use an LLM to construct names or infer a person or case from content.
+
+### File Naming implementation checkpoint
+
+The deterministic `file-name-v1` service is implemented for the shared document
+lifecycle, Driver case-document uploads, Carrier documents, and Carrier
+authority evidence. These boundaries:
+
+- preserve the sanitized original filename as immutable metadata;
+- store the generated display filename and naming policy/department/case;
+- derive the extension from the validated media type; and
+- use opaque tenant/document identifiers in private storage object keys.
+
+The shared ticket-processing route and its Attorney-delegated callers are not
+yet governed by this service because those calls do not consistently resolve an
+authoritative subject name. They must use the TIP identity/external-client
+contract rather than trust arbitrary form text or infer identity from contents.
+This partial implementation does not make Records Administration an active
+LangGraph department.
 
 They require separate approved tasks, source/retention/consent contracts,
 provider-neutral telemetry, human-review policy, and role/data-access testing.
