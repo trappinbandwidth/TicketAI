@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
@@ -227,3 +228,63 @@ def test_captain_recalculation_request_is_reason_logged_and_never_edits_score(mo
     assert result["evidence_ids"] == ["evt_1", "evt_2"]
     assert db.collection("tip_score_current").rows[driver_id]["id"] == current["id"]
     assert len(db.collection("tip_score_recalculation_requests").rows) == 1
+
+
+def test_carrier_summary_exposes_consented_driver_trend_without_source_records(monkeypatch):
+    db = Db()
+    driver_ids = ["prn_driver_low", "prn_driver_high"]
+    membership = SimpleNamespace(
+        organization_id="org_carrier", status=SimpleNamespace(value="active")
+    )
+    relationships = [
+        SimpleNamespace(
+            driver_principal_id=driver_id,
+            status=SimpleNamespace(value="active"),
+        )
+        for driver_id in driver_ids
+    ]
+
+    class Platform:
+        def __init__(self, _db):
+            pass
+
+        def list_memberships(self, _actor):
+            return [membership]
+
+        def list_organization_relationships(self, _organization):
+            return relationships
+
+    class Resolve:
+        def __init__(self, _db):
+            pass
+
+        def _authorize(self, _actor, _organization, _driver):
+            return None
+
+    snapshots = {
+        driver_ids[0]: tip_score.TipScoreCalculator().calculate(
+            score_input(driver_ids[0], unsafe_risk=0.6).model_copy(
+                update={"previous_score": 780}
+            )
+        ),
+        driver_ids[1]: tip_score.TipScoreCalculator().calculate(
+            score_input(driver_ids[1], unsafe_risk=0.1).model_copy(
+                update={"previous_score": 760}
+            )
+        ),
+    }
+    wire(monkeypatch, db, {"uid": "carrier_1", "role": "carrier"})
+    monkeypatch.setattr(
+        tip_score, "_carrier_context", lambda _claims: (db, "prn_carrier", "org_carrier")
+    )
+    monkeypatch.setattr(tip_score, "PlatformService", Platform)
+    monkeypatch.setattr(tip_score, "CarrierResolveService", Resolve)
+    monkeypatch.setattr(tip_score, "_snapshot", lambda driver_id: snapshots[driver_id])
+
+    result = tip_score.get_carrier_score_summary("Bearer token")
+    assert result["driver_count"] == 2
+    assert result["trend_driver_count"] == 2
+    assert isinstance(result["fleet_score_delta"], int)
+    assert [row["driver_id"] for row in result["drivers"]] == driver_ids
+    assert all("components" not in row for row in result["drivers"])
+    assert all("evidence_ids" not in row for row in result["drivers"])
