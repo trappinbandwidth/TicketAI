@@ -253,6 +253,9 @@ def get_carrier_score_summary(authorization: Optional[str] = Header(None)):
         if len(scores) % 2
         else round((scores[len(scores) // 2 - 1] + scores[len(scores) // 2]) / 2)
     ) if scores else None
+    deltas = [
+        item.score_delta for item in visible if item.score_delta is not None
+    ]
     return {
         "organization_id": organization_id,
         "driver_count": len(visible),
@@ -261,6 +264,24 @@ def get_carrier_score_summary(authorization: Optional[str] = Header(None)):
         "tier_distribution": tiers,
         "low_confidence_count": sum(item.confidence_percent < 60 for item in visible),
         "critical_condition_count": sum(item.active_ceiling is not None for item in visible),
+        "fleet_score_delta": (
+            round(sum(deltas) / len(deltas)) if deltas else None
+        ),
+        "trend_driver_count": len(deltas),
+        "drivers": [
+            {
+                "driver_id": item.driver_id,
+                "score": item.score,
+                "tier": item.tier.value,
+                "status": item.status.value,
+                "confidence_percent": item.confidence_percent,
+                "confidence_label": item.confidence_label,
+                "score_delta": item.score_delta,
+                "data_as_of": item.data_as_of.isoformat(),
+                "critical_condition": item.active_ceiling is not None,
+            }
+            for item in sorted(visible, key=lambda snapshot: snapshot.score)
+        ],
         "publication_state": "shadow",
         "proprietary_notice": (
             "TIP Score is a proprietary Rig Resolve score, not an official FMCSA score."
