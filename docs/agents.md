@@ -18,8 +18,8 @@ Rig Resolve has **15 active pipeline agents in 4 departments**.
 Financial Intelligence, Predictive Intelligence, and Copilot are not active
 agent departments. The proposed Paralegal system is not part of this count.
 
-The approved end-to-end roadmap proposes **8 additional agents in 3 new
-departments**, for a future total of **23 agents across 7 departments**. Planned
+The approved end-to-end roadmap proposes **9 additional agents in 4 new
+departments**, for a future total of **24 agents across 8 departments**. Planned
 agents are not represented as live, toggleable, or purchasable capabilities.
 
 ## How the Departments Interact
@@ -341,12 +341,18 @@ count:
 | Network Intelligence | Court Research Agent | Research official/approved court facts with snapshots for verification |
 | Network Intelligence | Outreach Draft Agent | Draft human-approved outreach for verified attorney coverage gaps |
 | Operational Intelligence | Captain Copilot | Answer cited, read-only operational questions under RBAC |
+| Records Administration | File Naming Agent | Assign governed display filenames from authorized metadata while preserving original names and opaque storage keys |
 
 Document upload classification remains in Document Intelligence. SambaSafety
 MVR acquisition, DataQs/PSP/court integrations, monitoring, learned attorney
 ranking, payments, payouts, and notifications are connectors or deterministic
 services—not agents. Driver Career Coach is a later interface over Career Action
 Planner rather than a separate source of facts.
+
+The File Naming Agent uses the deterministic convention
+`LastName-FirstName_Department_CaseID_YYYY-MM-DD.ext`. Uploads without a case
+use `GENERAL-{short-id}`, and collisions append `_v02`, `_v03`, and so on. It
+does not use an LLM to construct names or infer a person or case from content.
 
 They require separate approved tasks, source/retention/consent contracts,
 provider-neutral telemetry, human-review policy, and role/data-access testing.
