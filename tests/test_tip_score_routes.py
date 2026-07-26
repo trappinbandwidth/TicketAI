@@ -206,3 +206,24 @@ def test_recalculation_is_staff_only_immutable_idempotent_and_superseding(monkey
     with pytest.raises(HTTPException) as denied:
         tip_score.recalculate_score(driver_id, score_input(driver_id), "Bearer token")
     assert denied.value.status_code == 403
+
+
+def test_captain_recalculation_request_is_reason_logged_and_never_edits_score(monkeypatch):
+    db = Db()
+    driver_id = principal_id_for_uid("driver_1")
+    wire(monkeypatch, db, {"uid": "staff_1", "role": "staff", "staff_role": "reviewer"})
+    current = tip_score.recalculate_score(driver_id, score_input(driver_id), "Bearer token")
+
+    result = tip_score.request_score_recalculation(
+        driver_id,
+        tip_score.RecalculationRequest(
+            reason="Verified court disposition corrected the source event.",
+            evidence_ids=["evt_2", "evt_2", "evt_1"],
+        ),
+        "Bearer token",
+    )
+    assert result["status"] == "queued"
+    assert result["current_snapshot_id"] == current["id"]
+    assert result["evidence_ids"] == ["evt_1", "evt_2"]
+    assert db.collection("tip_score_current").rows[driver_id]["id"] == current["id"]
+    assert len(db.collection("tip_score_recalculation_requests").rows) == 1
