@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
@@ -20,6 +20,7 @@ from app.services.tip_score import (
     ScoreCalculationInput,
     TipScoreCalculator,
     TipScoreSnapshot,
+    TipScoreStatus,
     thin_file_input,
 )
 
@@ -53,11 +54,24 @@ def _snapshot(driver_id: str) -> TipScoreSnapshot:
     """
     db = get_db()
     current = db.collection("tip_score_current").document(driver_id).get()
-    if current.exists:
-        return TipScoreSnapshot.model_validate(current.to_dict())
-    return TipScoreCalculator().calculate(
-        thin_file_input(driver_id, data_as_of=datetime.now(timezone.utc))
+    snapshot = (
+        TipScoreSnapshot.model_validate(current.to_dict())
+        if current.exists
+        else TipScoreCalculator().calculate(
+            thin_file_input(driver_id, data_as_of=datetime.now(timezone.utc))
+        )
     )
+    lifecycle = db.collection("tip_score_lifecycle").document(driver_id).get()
+    if not lifecycle.exists:
+        return snapshot
+    value = lifecycle.to_dict() or {}
+    updates = {}
+    if value.get("snapshot_id") == snapshot.id:
+        if value.get("publication_state") in {"shadow", "human_review", "withdrawn"}:
+            updates["publication_state"] = value["publication_state"]
+        if value.get("score_status") in {item.value for item in TipScoreStatus}:
+            updates["status"] = TipScoreStatus(value["score_status"])
+    return snapshot.model_copy(update=updates)
 
 
 def _public_projection(snapshot: TipScoreSnapshot) -> dict:
@@ -437,7 +451,127 @@ def recalculate_score(
     else:
         snapshot_ref.create(payload)
     current_ref.set(payload)
+    db.collection("tip_score_lifecycle").document(driver_id).set({
+        "driver_id": driver_id,
+        "snapshot_id": snapshot.id,
+        "publication_state": "shadow",
+        "score_status": snapshot.status.value,
+        "reason": body.calculation_reason,
+        "changed_by": _actor_id(claims),
+        "updated_at": datetime.now(timezone.utc),
+    })
     return snapshot.model_dump(mode="json")
+
+
+class LifecycleRequest(BaseModel):
+    target_state: Literal["shadow", "human_review", "published", "withdrawn"]
+    reason: str = Field(min_length=10, max_length=2000)
+
+
+@router.post("/drivers/{driver_id}/lifecycle")
+def change_score_lifecycle(
+    driver_id: str,
+    body: LifecycleRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    role = str(claims.get("role") or "")
+    staff_role = str(claims.get("staff_role") or "")
+    if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
+        raise HTTPException(status_code=403, detail="Staff role required.")
+    if body.target_state == "published":
+        raise HTTPException(
+            status_code=409,
+            detail="TIP Score publication is not authorized in this release.",
+        )
+    db = get_db()
+    snapshot = _snapshot(driver_id)
+    lifecycle_ref = db.collection("tip_score_lifecycle").document(driver_id)
+    lifecycle_doc = lifecycle_ref.get()
+    current_state = (
+        (lifecycle_doc.to_dict() or {}).get("publication_state")
+        if lifecycle_doc.exists
+        else snapshot.publication_state
+    )
+    allowed = {
+        "shadow": {"human_review", "withdrawn"},
+        "human_review": {"shadow", "withdrawn"},
+        "withdrawn": {"shadow", "human_review"},
+    }
+    if body.target_state != current_state and body.target_state not in allowed.get(current_state, set()):
+        raise HTTPException(status_code=409, detail="Invalid TIP Score lifecycle transition.")
+    actor_id = _actor_id(claims)
+    now = datetime.now(timezone.utc)
+    payload = {
+        "driver_id": driver_id,
+        "snapshot_id": snapshot.id,
+        "publication_state": body.target_state,
+        "score_status": snapshot.status.value,
+        "reason": body.reason,
+        "changed_by": actor_id,
+        "updated_at": now,
+    }
+    lifecycle_ref.set(payload)
+    db.collection("tip_score_lifecycle_events").document().set({
+        **payload,
+        "from_state": current_state,
+        "to_state": body.target_state,
+        "created_at": now,
+    })
+    return payload
+
+
+class RollbackRequest(BaseModel):
+    target_snapshot_id: str = Field(min_length=1, max_length=200)
+    reason: str = Field(min_length=10, max_length=2000)
+
+
+@router.post("/drivers/{driver_id}/rollback")
+def rollback_score(
+    driver_id: str,
+    body: RollbackRequest,
+    authorization: Optional[str] = Header(None),
+):
+    claims = _claims(authorization)
+    role = str(claims.get("role") or "")
+    staff_role = str(claims.get("staff_role") or "")
+    if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
+        raise HTTPException(status_code=403, detail="Staff role required.")
+    db = get_db()
+    target_doc = db.collection("tip_score_snapshots").document(body.target_snapshot_id).get()
+    if not target_doc.exists:
+        raise HTTPException(status_code=404, detail="Score snapshot not found.")
+    target = TipScoreSnapshot.model_validate(target_doc.to_dict())
+    if target.driver_id != driver_id:
+        raise HTTPException(status_code=404, detail="Score snapshot not found.")
+    prior = _snapshot(driver_id)
+    db.collection("tip_score_current").document(driver_id).set(
+        target.model_dump(mode="python")
+    )
+    actor_id = _actor_id(claims)
+    now = datetime.now(timezone.utc)
+    lifecycle = {
+        "driver_id": driver_id,
+        "snapshot_id": target.id,
+        "publication_state": "shadow",
+        "score_status": target.status.value,
+        "reason": body.reason,
+        "changed_by": actor_id,
+        "updated_at": now,
+    }
+    db.collection("tip_score_lifecycle").document(driver_id).set(lifecycle)
+    db.collection("tip_score_rollback_events").document().set({
+        **lifecycle,
+        "from_snapshot_id": prior.id,
+        "to_snapshot_id": target.id,
+        "created_at": now,
+    })
+    return {
+        "driver_id": driver_id,
+        "from_snapshot_id": prior.id,
+        "current_snapshot_id": target.id,
+        "publication_state": "shadow",
+    }
 
 
 class SimulationRequest(BaseModel):
@@ -524,4 +658,14 @@ def submit_dispute(
     }
     ref = db.collection("tip_score_disputes").document()
     ref.set(payload)
+    snapshot = _snapshot(driver_id)
+    db.collection("tip_score_lifecycle").document(driver_id).set({
+        "driver_id": driver_id,
+        "snapshot_id": snapshot.id,
+        "publication_state": "human_review",
+        "score_status": TipScoreStatus.DISPUTED.value,
+        "reason": f"Dispute {ref.id} submitted",
+        "changed_by": actor_id,
+        "updated_at": datetime.now(timezone.utc),
+    })
     return {"id": ref.id, **payload}
