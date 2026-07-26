@@ -29,6 +29,14 @@ def test_local_captain_preview_allows_both_loopback_hostnames():
     assert "http://127.0.0.1:5301" in dev_script
 
 
+def test_local_seed_uses_feature_flag_environment_accepted_by_api():
+    seed_script = (
+        Path(__file__).parents[1] / "scripts" / "seed_local.py"
+    ).read_text()
+    assert '"environment": "development"' in seed_script
+    assert '"environment": "local"' not in seed_script
+
+
 def test_security_headers_and_request_limit(monkeypatch):
     client = TestClient(app)
     response = client.get("/health", headers={"x-request-id": "req_test"})

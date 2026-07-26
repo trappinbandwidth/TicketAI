@@ -831,7 +831,10 @@ def seed() -> None:
         "TIP_OS_ENTITY_RESOLUTION_ENABLED", "TIP_OS_ATTORNEY_GOVERNANCE_ENABLED",
         "TIP_OS_LAUNCH_ASSESSMENT_ENABLED",
     ]:
-        flags.document(key).set({"key": key, "enabled": True, "environment": "local"}, merge=True)
+        flags.document(key).set(
+            {"key": key, "enabled": True, "environment": "development"},
+            merge=True,
+        )
     print("  feature flags: 14 enabled (local)")
 
     seed_scans()
