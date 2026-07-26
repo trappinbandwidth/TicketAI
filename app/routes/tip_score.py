@@ -424,6 +424,39 @@ class SimulationRequest(BaseModel):
     event_ids: list[str] = Field(default_factory=list, max_length=50)
 
 
+class RecalculationRequest(BaseModel):
+    reason: str = Field(min_length=10, max_length=2000)
+    evidence_ids: list[str] = Field(min_length=1, max_length=50)
+
+
+@router.post("/drivers/{driver_id}/recalculation-requests", status_code=201)
+def request_score_recalculation(
+    driver_id: str,
+    body: RecalculationRequest,
+    authorization: Optional[str] = Header(None),
+):
+    """Queue a correction-driven recalculation without accepting score edits."""
+    claims = _claims(authorization)
+    role = str(claims.get("role") or "")
+    staff_role = str(claims.get("staff_role") or "")
+    if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
+        raise HTTPException(status_code=403, detail="Staff role required.")
+    actor_id = _actor_id(claims)
+    current = _snapshot(driver_id)
+    payload = {
+        "driver_id": driver_id,
+        "requested_by": actor_id,
+        "reason": body.reason,
+        "evidence_ids": sorted(set(body.evidence_ids)),
+        "current_snapshot_id": current.id,
+        "status": "queued",
+        "created_at": datetime.now(timezone.utc),
+    }
+    ref = get_db().collection("tip_score_recalculation_requests").document()
+    ref.set(payload)
+    return {"id": ref.id, **payload}
+
+
 @router.post("/drivers/{driver_id}/simulations")
 def simulate_score(
     driver_id: str,
