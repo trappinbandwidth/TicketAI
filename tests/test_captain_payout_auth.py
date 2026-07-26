@@ -218,3 +218,92 @@ def test_mark_paid_commit_failure_returns_retryable_service_error(monkeypatch):
 
     assert error.value.status_code == 503
     assert "safe to retry" in error.value.detail
+
+
+class _DetailSnapshot:
+    def __init__(self, ident, data):
+        self.id = ident
+        self._data = data
+        self.exists = data is not None
+
+    def to_dict(self):
+        return self._data
+
+
+class _DetailQuery:
+    def __init__(self, rows, field, value):
+        self.rows = rows
+        self.field = field
+        self.value = value
+
+    def limit(self, _amount):
+        return self
+
+    def stream(self):
+        return [
+            _DetailSnapshot(ident, data)
+            for ident, data in self.rows.items()
+            if data.get(self.field) == self.value
+        ]
+
+
+class _DetailCollection:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def document(self, ident):
+        rows = self.rows
+
+        class _Document:
+            def get(self):
+                return _DetailSnapshot(ident, rows.get(ident))
+
+        return _Document()
+
+    def where(self, field, _operator, value):
+        return _DetailQuery(self.rows, field, value)
+
+
+class _DetailDb:
+    def __init__(self, collections):
+        self.collections = collections
+
+    def collection(self, name):
+        return _DetailCollection(self.collections.setdefault(name, {}))
+
+
+def test_payout_detail_reconciles_case_amounts_and_results():
+    db = _DetailDb({
+        "payout_requests": {
+            "payout-1": {
+                "attorney_id": "attorney-1",
+                "ticket_ids": ["ticket-1", "ticket-2"],
+                "total_amount": 1160.0,
+                "status": "paid",
+            },
+        },
+        "tickets": {
+            "ticket-1": {
+                "selected_fee_cents": 58000,
+                "outcome": "dismissed",
+                "original_points": 3,
+                "final_points": 0,
+            },
+            "ticket-2": {
+                "selected_fee_cents": 58000,
+                "outcome": "fine_reduction",
+                "original_fine_cents": 29000,
+                "final_fine_cents": 14500,
+            },
+        },
+    })
+
+    detail = case_lifecycle.payout_request_detail(db, "payout-1")
+
+    assert detail["case_count"] == 2
+    assert detail["allocated_amount"] == 1160.0
+    assert detail["reconciled"] is True
+    assert [item["amount"] for item in detail["line_items"]] == [580.0, 580.0]
+    assert [item["outcome"] for item in detail["line_items"]] == [
+        "dismissed", "fine_reduction",
+    ]

@@ -106,7 +106,11 @@ def list_drivers(authorization: Optional[str] = Header(None)):
     try:
         docs = list(db.collection("drivers").stream())
         drivers = [{"driver_id": d.id, **_serialize(d.to_dict())} for d in docs]
-        drivers.sort(key=lambda x: x.get("created_at") or "", reverse=True)
+        drivers.sort(key=lambda x: (
+            str(x.get("last_name") or "").casefold(),
+            str(x.get("first_name") or x.get("full_name") or "").casefold(),
+            x["driver_id"],
+        ))
         return {"drivers": drivers, "total": len(drivers)}
     except HTTPException:
         raise

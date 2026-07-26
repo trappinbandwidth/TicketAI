@@ -170,10 +170,81 @@ async def pipeline_summary(authorization: Optional[str] = Header(None)):
 @router.get("/attorneys/{attorney_id}")
 async def get_attorney(attorney_id: str, authorization: Optional[str] = Header(None)):
     require_staff(authorization)
-    doc = _db().collection("attorneys").document(attorney_id).get()
+    db = _db()
+    doc = db.collection("attorneys").document(attorney_id).get()
     if not doc.exists:
         raise HTTPException(status_code=404, detail="Attorney not found")
-    return doc.to_dict() | {"attorney_id": doc.id}
+    profile = doc.to_dict() | {"attorney_id": doc.id}
+
+    cases = []
+    terminal = {"ticket closed", "outcome logged", "payout sent", "closed", "cancelled"}
+    favorable = {
+        "dismissed", "dismissal", "charge_reduction", "point_reduction",
+        "fine_reduction", "driving_school", "deferral", "donation",
+        "no_court_appearance", "dataq_success",
+    }
+    for ticket in db.collection("tickets").stream():
+        value = ticket.to_dict() or {}
+        if attorney_id not in {
+            value.get("assigned_attorney_id"),
+            value.get("claimed_by"),
+            value.get("closed_by_attorney_id"),
+        }:
+            continue
+        status = str(value.get("attorney_status") or value.get("status") or "")
+        outcome = str(value.get("outcome") or "").strip().lower().replace(" ", "_")
+        cases.append({
+            "ticket_id": ticket.id,
+            "driver_name": value.get("driver_full_name") or value.get("driver_name"),
+            "violation": value.get("violation_category") or value.get("violation_description"),
+            "state": value.get("ticket_state"),
+            "county": value.get("ticket_county"),
+            "status": status,
+            "outcome": value.get("outcome"),
+            "selected_fee_cents": value.get("selected_fee_cents"),
+            "court_date": (
+                value.get("court_date").isoformat()
+                if hasattr(value.get("court_date"), "isoformat")
+                else value.get("court_date")
+            ),
+            "active": status.lower() not in terminal,
+        })
+
+    paid_total = 0.0
+    pending_total = 0.0
+    payout_count = 0
+    for payout in db.collection("payout_requests").stream():
+        value = payout.to_dict() or {}
+        if value.get("attorney_id") != attorney_id:
+            continue
+        amount = float(value.get("total_amount") or 0)
+        payout_count += 1
+        if value.get("status") == "paid":
+            paid_total += amount
+        else:
+            pending_total += amount
+
+    resolved = [case for case in cases if case.get("outcome")]
+    favorable_count = sum(
+        1
+        for case in resolved
+        if str(case.get("outcome") or "").strip().lower().replace(" ", "_") in favorable
+    )
+    cases.sort(key=lambda item: str(item.get("court_date") or ""), reverse=True)
+    profile["captain_stats"] = {
+        "total_cases": len(cases),
+        "active_cases": sum(1 for case in cases if case["active"]),
+        "resolved_cases": len(resolved),
+        "favorable_outcomes": favorable_count,
+        "favorable_rate": (
+            round(favorable_count / len(resolved), 4) if resolved else None
+        ),
+        "paid_to_date": round(paid_total, 2),
+        "pending_payout": round(pending_total, 2),
+        "payout_count": payout_count,
+    }
+    profile["recent_cases"] = cases[:20]
+    return profile
 
 
 @router.patch("/attorneys/{attorney_id}/outreach")

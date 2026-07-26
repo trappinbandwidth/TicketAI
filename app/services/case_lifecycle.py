@@ -749,6 +749,73 @@ def list_payout_requests(db, status: Optional[str] = None) -> list[dict]:
     return out
 
 
+def payout_request_detail(db, payout_id: str) -> dict:
+    """Return one payout transaction with its reconciled case allocation."""
+    payout = db.collection("payout_requests").document(payout_id).get()
+    if not payout.exists:
+        raise ValueError("payout_not_found")
+    value = payout.to_dict() or {}
+    ticket_ids = list(value.get("ticket_ids") or [])
+    fallback_amount = (
+        round(float(value.get("total_amount") or 0) / len(ticket_ids), 2)
+        if ticket_ids else 0.0
+    )
+    line_items = []
+    allocated = 0.0
+    for ticket_id in ticket_ids:
+        snapshot = db.collection("tickets").document(ticket_id).get()
+        record = snapshot.to_dict() if snapshot.exists else {}
+        if not record:
+            matches = list(
+                db.collection("cases").where("ticket_id", "==", ticket_id).limit(1).stream()
+            )
+            record = matches[0].to_dict() if matches else {}
+        selected_fee_cents = record.get("selected_fee_cents")
+        amount = (
+            round(float(selected_fee_cents) / 100, 2)
+            if isinstance(selected_fee_cents, (int, float))
+            else fallback_amount
+        )
+        allocated += amount
+        line_items.append({
+            "ticket_id": ticket_id,
+            "case_id": record.get("case_id") or record.get("id"),
+            "driver_id": record.get("driver_id"),
+            "driver_name": record.get("driver_full_name") or record.get("driver_name"),
+            "violation": record.get("violation_category") or record.get("violation_description"),
+            "state": record.get("ticket_state") or record.get("state"),
+            "county": record.get("ticket_county") or record.get("county"),
+            "amount": amount,
+            "outcome": record.get("outcome"),
+            "original_disposition": record.get("original_disposition"),
+            "final_disposition": record.get("final_disposition"),
+            "original_points": record.get("original_points"),
+            "final_points": record.get("final_points"),
+            "original_fine_cents": record.get("original_fine_cents") or record.get("fine_amount_cents"),
+            "final_fine_cents": record.get("final_fine_cents"),
+            "case_status": record.get("attorney_status") or record.get("status"),
+            "court_date": (
+                record.get("court_date").isoformat()
+                if hasattr(record.get("court_date"), "isoformat")
+                else record.get("court_date")
+            ),
+        })
+    total = round(float(value.get("total_amount") or 0), 2)
+    return {
+        "payout_id": payout_id,
+        **{
+            key: (
+                item.isoformat() if hasattr(item, "isoformat") else item
+            )
+            for key, item in value.items()
+        },
+        "line_items": line_items,
+        "case_count": len(line_items),
+        "allocated_amount": round(allocated, 2),
+        "reconciled": round(allocated, 2) == total,
+    }
+
+
 def mark_payout_paid(db, payout_id: str, method: str, staff_id: str) -> dict:
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
     ref = db.collection("payout_requests").document(payout_id)

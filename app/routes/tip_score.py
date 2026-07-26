@@ -194,6 +194,46 @@ def get_my_score(authorization: Optional[str] = Header(None)):
     return _public_projection(_snapshot(driver_id))
 
 
+@router.get("/admin/drivers")
+def list_driver_score_summaries(authorization: Optional[str] = Header(None)):
+    """Return the current governed score ranking for Captain's Driver CRM.
+
+    This is a read projection only. Missing source history receives the same
+    neutral, low-confidence thin-file projection as the individual detail
+    route; listing a Driver never persists or publishes a synthetic score.
+    """
+    claims = _claims(authorization)
+    role = str(claims.get("role") or "")
+    staff_role = str(claims.get("staff_role") or "")
+    if role not in STAFF_ROLES and staff_role not in STAFF_ROLES:
+        raise HTTPException(status_code=403, detail="Staff role required.")
+
+    rows = []
+    for document in get_db().collection("drivers").stream():
+        snapshot = _snapshot(document.id)
+        rows.append({
+            "driver_id": document.id,
+            "score": snapshot.score,
+            "tier": snapshot.tier.value,
+            "status": snapshot.status.value,
+            "confidence_percent": snapshot.confidence_percent,
+            "confidence_label": snapshot.confidence_label,
+            "score_delta": snapshot.score_delta,
+            "data_as_of": snapshot.data_as_of.isoformat(),
+            "critical_condition": snapshot.active_ceiling is not None,
+            "publication_state": snapshot.publication_state,
+        })
+    rows.sort(key=lambda item: (-item["score"], item["driver_id"]))
+    return {
+        "drivers": rows,
+        "count": len(rows),
+        "publication_state": "shadow",
+        "proprietary_notice": (
+            "TIP Score is a proprietary Rig Resolve score, not an official FMCSA score."
+        ),
+    }
+
+
 @router.get("/drivers/{driver_id}")
 def get_score_for_driver(
     driver_id: str,

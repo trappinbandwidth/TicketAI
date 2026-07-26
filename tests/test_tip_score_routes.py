@@ -81,6 +81,12 @@ class Collection:
         assert operator == "=="
         return Query(self, field, value)
 
+    def stream(self):
+        return [
+            Snapshot(document_id, value)
+            for document_id, value in self.rows.items()
+        ]
+
 
 class Db:
     def __init__(self):
@@ -132,6 +138,33 @@ def test_driver_can_only_read_own_score(monkeypatch):
     with pytest.raises(HTTPException) as denied:
         tip_score.get_score_for_driver("prn_someone_else", "Bearer token")
     assert denied.value.status_code == 403
+
+
+def test_captain_driver_ranking_uses_governed_current_scores(monkeypatch):
+    db = Db()
+    db.collection("drivers").rows.update({
+        "driver_b": {"first_name": "B"},
+        "driver_a": {"first_name": "A"},
+    })
+    wire(monkeypatch, db, {
+        "uid": "staff_1",
+        "role": "staff",
+        "staff_role": "admin",
+    })
+    tip_score.recalculate_score(
+        "driver_a", score_input("driver_a", unsafe_risk=0.05), "Bearer token",
+    )
+    tip_score.recalculate_score(
+        "driver_b", score_input("driver_b", unsafe_risk=0.70), "Bearer token",
+    )
+
+    result = tip_score.list_driver_score_summaries("Bearer token")
+
+    assert [item["driver_id"] for item in result["drivers"]] == [
+        "driver_a", "driver_b",
+    ]
+    assert result["drivers"][0]["score"] > result["drivers"][1]["score"]
+    assert result["publication_state"] == "shadow"
 
 
 def test_attorney_case_projection_requires_assignment_consent_and_active_status(monkeypatch):
