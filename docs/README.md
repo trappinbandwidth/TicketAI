@@ -47,7 +47,7 @@ manual scan → AI Review → (approve) → New → Admin Assigned → Accepted 
 driver upload →           New ────────────────────────────────────────────────────────────────→ Closed
 ```
 
-### AI Pipeline (14 agents)
+### AI Pipeline (15 agents)
 ```
 Roux → Carver → Bolin →
   Ida Wells → Charlotte Ray → Jollof →

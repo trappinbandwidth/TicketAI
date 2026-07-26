@@ -47,7 +47,24 @@ _MESSAGES: dict[str, str] = {
         "Our team was unable to process your ticket with the information provided. "
         "A case manager will contact you within 1 business day to assist."
     ),
+    "Document Requested": (
+        "Your attorney requested another document for your case: {description}. "
+        "Open your case to review the request and upload the requested file."
+    ),
 }
+
+
+def _render_message(attorney_status: str, context: Optional[dict] = None) -> Optional[str]:
+    template = _MESSAGES.get(attorney_status)
+    if not template:
+        return None
+    ctx = context or {}
+    return template.format(
+        attorney_name=ctx.get("attorney_name", "your assigned attorney"),
+        attorney_phone=ctx.get("attorney_phone", "the number provided"),
+        outcome=ctx.get("outcome", "see your case record for details"),
+        description=ctx.get("description", "Additional case document"),
+    )
 
 
 def anansi_notify(
@@ -70,20 +87,12 @@ def anansi_notify(
         logger.warning("[anansi] missing driver_id or ticket_id — skipping")
         return False
 
-    template = _MESSAGES.get(attorney_status)
-    if not template:
+    message = _render_message(attorney_status, context)
+    if message is None:
         logger.warning("[anansi] no message template for status=%r — skipping", attorney_status)
         return False
 
     ctx = context or {}
-    try:
-        message = template.format(
-            attorney_name=ctx.get("attorney_name", "your assigned attorney"),
-            attorney_phone=ctx.get("attorney_phone", "the number provided"),
-            outcome=ctx.get("outcome", "see your case record for details"),
-        )
-    except KeyError:
-        message = template
 
     notif_id = str(uuid.uuid4())
     payload = {

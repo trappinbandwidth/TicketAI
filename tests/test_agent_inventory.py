@@ -57,3 +57,11 @@ def test_every_logged_agent_has_identity_metadata():
     )
 
     assert incomplete == []
+
+
+def test_documented_roster_uses_runtime_agent_ids_and_names():
+    roster = (ROOT / "docs" / "agent-identity-roster.md").read_text()
+
+    for identity in AGENT_IDENTITIES.values():
+        assert f"`{identity.agent}`" in roster
+        assert f"| {identity.honor_name} | {identity.legacy_name} |" in roster

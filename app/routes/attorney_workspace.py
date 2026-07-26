@@ -148,17 +148,27 @@ def create_doc_request(ticket_id: str, body: DocRequest, authorization: Optional
     })
     # Notify the driver via the concierge pattern; external clients are notified via
     # their upload link out of band (no app/notification channel).
+    notification_delivered = None
     if body.requested_from == "driver":
         tsnap = db.collection("tickets").document(ticket_id).get()
         driver_id = (tsnap.to_dict() or {}).get("driver_id")
         if driver_id:
             try:
                 from app.services.anansi import anansi_notify
-                anansi_notify(driver_id, ticket_id, "Document Requested",
-                              context={"description": body.description})
+                notification_delivered = anansi_notify(
+                    driver_id,
+                    ticket_id,
+                    "Document Requested",
+                    context={"description": body.description},
+                )
             except Exception as exc:
+                notification_delivered = False
                 logger.warning("[workspace] driver doc-request notify failed: %s", exc)
-    return {"ok": True, "document_request_id": req_id}
+    return {
+        "ok": True,
+        "document_request_id": req_id,
+        "notification_delivered": notification_delivered,
+    }
 
 
 @router.get("/cases/{ticket_id}/document-requests")
