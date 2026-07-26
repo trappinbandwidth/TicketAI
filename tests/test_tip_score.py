@@ -55,6 +55,11 @@ def test_golden_preferred_example_is_745_and_deterministic():
     assert first.score == 745
     assert first.tier == TipTier.PREFERRED
     assert first.total_risk == 0.21
+    assert first.explanation
+    assert first.recommendations
+    assert "payment" in first.excluded_inputs
+    assert first.eligible_input_fact_ids == []
+    assert first.input_hash
     assert first.id == second.id
     assert first == second
 
@@ -101,6 +106,7 @@ def test_thin_file_is_not_elite_and_is_low_confidence():
     assert result.status == TipScoreStatus.INSUFFICIENT_DATA
     assert result.tier == TipTier.STANDARD
     assert result.confidence_percent == 10
+    assert "neutral developing-profile value" in " ".join(result.explanation)
     assert confidence_label(result.confidence_percent) == "Insufficient"
 
 
