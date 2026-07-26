@@ -1,4 +1,5 @@
 import importlib
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
@@ -20,6 +21,12 @@ def test_production_requires_explicit_origins(monkeypatch):
         assert False, "production must fail closed"
     except RuntimeError:
         pass
+
+
+def test_local_captain_preview_allows_both_loopback_hostnames():
+    dev_script = (Path(__file__).parents[1] / "scripts" / "dev.sh").read_text()
+    assert "http://localhost:5301" in dev_script
+    assert "http://127.0.0.1:5301" in dev_script
 
 
 def test_security_headers_and_request_limit(monkeypatch):

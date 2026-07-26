@@ -14,7 +14,12 @@ from app.platform.admin_service import (
     PrivilegedAccessRequest,
 )
 from app.platform.service import principal_id_for_uid
-from app.services.auth_rbac import STAFF_ROLES, require_recent_auth, verify_firebase_token
+from app.services.auth_rbac import (
+    STAFF_ROLES,
+    require_recent_auth,
+    require_staff as require_staff_claim,
+    verify_firebase_token,
+)
 
 
 router = APIRouter(prefix="/platform-admin", tags=["tip-os-platform-admin"])
@@ -53,6 +58,24 @@ def _bucket():
 def operations_summary(authorization: Optional[str] = Header(None)):
     _claims(authorization)
     return _service().operations_summary()
+
+
+@router.get("/system-health")
+def system_health(authorization: Optional[str] = Header(None)):
+    _claims(authorization)
+    return _service().system_health()
+
+
+@router.get("/notifications")
+def notifications(authorization: Optional[str] = Header(None)):
+    _claims(authorization)
+    return {"notifications": _service().list_staff_notifications()}
+
+
+@router.post("/notifications/read-all")
+def mark_notifications_read(authorization: Optional[str] = Header(None)):
+    _claims(authorization)
+    return {"updated": _service().mark_all_staff_notifications_read()}
 
 
 @router.get("/carrier-authority-claims")
@@ -134,6 +157,7 @@ def update_feature_flag(
     key: str, body: FeatureFlagUpdate, authorization: Optional[str] = Header(None)
 ):
     claims = _claims(authorization)
+    require_staff_claim(claims, ["admin", "engineering"])
     require_recent_auth(claims, require_mfa=True)
     if key != body.key:
         raise HTTPException(status_code=400, detail="Feature flag key mismatch.")
@@ -141,6 +165,12 @@ def update_feature_flag(
         return {"feature_flag": _service().set_feature_flag(_actor(claims), body)}
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/feature-flags")
+def list_feature_flags(authorization: Optional[str] = Header(None)):
+    _claims(authorization)
+    return {"feature_flags": _service().list_feature_flags()}
 
 
 @router.post("/privileged-access", status_code=201)

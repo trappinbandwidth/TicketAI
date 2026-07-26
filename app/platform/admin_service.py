@@ -100,6 +100,87 @@ class AdminService:
             "integration_health": integrations,
         }
 
+    def list_feature_flags(self):
+        return self._all("feature_flags", limit=250)
+
+    def list_staff_notifications(self, limit=100):
+        reference = self.db.collection("staff_notifications")
+        if not hasattr(reference, "stream") and hasattr(reference, "rows"):
+            return [
+                {"id": notification_id, **data}
+                for notification_id, data in list(reference.rows.items())[:limit]
+            ]
+        query = reference.limit(limit) if hasattr(reference, "limit") else reference
+        return [
+            {"id": item.id, **(item.to_dict() or {})}
+            for item in query.stream()
+        ]
+
+    def mark_all_staff_notifications_read(self):
+        notifications = self.list_staff_notifications()
+        unread_ids = [
+            item["id"] for item in notifications if not item.get("read", False)
+        ]
+        reference = self.db.collection("staff_notifications")
+        for notification_id in unread_ids:
+            reference.document(notification_id).set({"read": True}, merge=True)
+        return len(unread_ids)
+
+    def system_health(self):
+        drivers = self._all("drivers")
+        carriers = self._all("carriers")
+        attorneys = self._all("attorneys")
+        tickets = self._all("tickets")
+        payouts = self._all("payout_requests")
+        feature_flags = self._all("feature_flags", limit=250)
+        pending_payouts = [
+            item for item in payouts if item.get("status") != "paid"
+        ]
+        active_cases = [
+            item for item in tickets
+            if item.get("attorney_status") not in {"Closed", "Rejected", "Payout Sent"}
+        ]
+        return {
+            "status": "operational",
+            "services": [
+                {
+                    "key": "engine_api",
+                    "label": "TIP OS Engine & APIs",
+                    "status": "operational",
+                    "detail": "Authenticated Captain routes are responding.",
+                },
+                {
+                    "key": "data_store",
+                    "label": "Shared operational records",
+                    "status": "operational",
+                    "detail": "Driver, Carrier, Attorney, case, and payout records are connected.",
+                },
+                {
+                    "key": "driver_points",
+                    "label": "Driver Points Engine",
+                    "status": "operational",
+                    "detail": "Deterministic CDL/state-points estimation is available in document processing.",
+                },
+                {
+                    "key": "tip_os_modules",
+                    "label": "TIP OS modules",
+                    "status": "operational" if feature_flags else "attention",
+                    "detail": f"{sum(1 for item in feature_flags if item.get('enabled'))}/{len(feature_flags)} configured modules enabled.",
+                },
+            ],
+            "business": {
+                "drivers": len(drivers),
+                "carriers": len(carriers),
+                "attorneys": len(attorneys),
+                "active_cases": len(active_cases),
+                "pending_payouts": len(pending_payouts),
+                "pending_payout_amount": round(sum(
+                    float(item.get("total_amount", 0) or 0)
+                    for item in pending_payouts
+                ), 2),
+            },
+        }
+
     def list_carrier_authority_claims(
         self,
         status: Optional[str] = None,

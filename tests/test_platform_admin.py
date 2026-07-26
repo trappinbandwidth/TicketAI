@@ -39,6 +39,57 @@ def test_operations_queues_classify_exceptions_without_sensitive_cross_queue_dat
     assert [item["id"] for item in summary["queues"]["authorization_mismatches"]] == ["cmp_1"]
 
 
+def test_system_health_reconciles_shared_business_records():
+    db = FakeDb()
+    db.collection("drivers").document("driver_1").set({"id": "driver_1"})
+    db.collection("carriers").document("carrier_1").set({"id": "carrier_1"})
+    db.collection("attorneys").document("attorney_1").set({"id": "attorney_1"})
+    db.collection("tickets").document("ticket_1").set({
+        "id": "ticket_1", "attorney_status": "New",
+    })
+    db.collection("payout_requests").document("payout_1").set({
+        "id": "payout_1", "status": "requested", "total_amount": 425.50,
+    })
+    db.collection("feature_flags").document("TIP_OS_DOCUMENTS_ENABLED").set({
+        "key": "TIP_OS_DOCUMENTS_ENABLED", "enabled": True,
+    })
+
+    health = AdminService(db).system_health()
+
+    assert health["status"] == "operational"
+    assert health["business"] == {
+        "drivers": 1,
+        "carriers": 1,
+        "attorneys": 1,
+        "active_cases": 1,
+        "pending_payouts": 1,
+        "pending_payout_amount": 425.5,
+    }
+    assert {service["key"] for service in health["services"]} == {
+        "engine_api", "data_store", "driver_points", "tip_os_modules",
+    }
+
+
+def test_staff_notifications_are_identified_and_marked_read():
+    db = FakeDb()
+    db.collection("staff_notifications").document("note_1").set({
+        "title": "Review needed",
+        "read": False,
+    })
+    db.collection("staff_notifications").document("note_2").set({
+        "title": "Already handled",
+        "read": True,
+    })
+
+    service = AdminService(db)
+    assert service.list_staff_notifications() == [
+        {"id": "note_1", "title": "Review needed", "read": False},
+        {"id": "note_2", "title": "Already handled", "read": True},
+    ]
+    assert service.mark_all_staff_notifications_read() == 1
+    assert db.collection("staff_notifications").rows["note_1"]["read"] is True
+
+
 def test_feature_flag_updates_are_versioned_reasoned_and_audited():
     db = FakeDb()
     service = AdminService(db)
@@ -57,6 +108,45 @@ def test_feature_flag_updates_are_versioned_reasoned_and_audited():
     assert len(db.collection("audit_events").rows) == 1
     with pytest.raises(RuntimeError, match="version conflict"):
         service.set_feature_flag("prn_admin", body)
+
+
+def test_feature_flags_are_listed_and_updates_require_control_plane_role(monkeypatch):
+    db = FakeDb()
+    db.collection("feature_flags").document("TIP_OS_DOCUMENTS_ENABLED").set({
+        "key": "TIP_OS_DOCUMENTS_ENABLED",
+        "enabled": True,
+        "environment": "development",
+        "version": 2,
+    })
+    assert AdminService(db).list_feature_flags() == [{
+        "key": "TIP_OS_DOCUMENTS_ENABLED",
+        "enabled": True,
+        "environment": "development",
+        "version": 2,
+    }]
+
+    monkeypatch.setenv("TIP_OS_ADMIN_CONSOLE_ENABLED", "true")
+    reviewer = {
+        "uid": "reviewer_1",
+        "role": "staff",
+        "staff_role": "reviewer",
+        "auth_time": int(utc_now().timestamp()),
+        "mfa_verified": True,
+    }
+    monkeypatch.setattr(platform_admin, "verify_firebase_token", lambda _header: reviewer)
+    with pytest.raises(HTTPException) as wrong_role:
+        platform_admin.update_feature_flag(
+            "TIP_OS_DOCUMENTS_ENABLED",
+            FeatureFlagUpdate(
+                key="TIP_OS_DOCUMENTS_ENABLED",
+                enabled=False,
+                environment="development",
+                expected_version=2,
+                reason="Reviewer cannot change control-plane state",
+            ),
+            authorization="Bearer reviewer",
+        )
+    assert wrong_role.value.status_code == 403
 
 
 def test_privileged_access_is_reason_coded_ticketed_and_time_bound():

@@ -38,7 +38,10 @@ case "${1:-}" in
     export USE_MOCK="${USE_MOCK:-true}"
     export API_KEY="${API_KEY:-tipos-local-dev}"
     export APP_ENV="development"
-    export CORS_ALLOWED_ORIGINS="http://localhost:5301|http://localhost:5302|http://localhost:5303|http://localhost:5304"
+    # Browsers and desktop preview links may resolve the same local app through
+    # either loopback hostname. Both are explicit development-only origins;
+    # production still requires its separately configured allowlist.
+    export CORS_ALLOWED_ORIGINS="http://localhost:5301|http://127.0.0.1:5301|http://localhost:5302|http://127.0.0.1:5302|http://localhost:5303|http://127.0.0.1:5303|http://localhost:5304|http://127.0.0.1:5304"
     for flag in \
       TIP_OS_IDENTITY_ENABLED TIP_OS_RECORDS_ENABLED TIP_OS_DOCUMENTS_ENABLED \
       TIP_OS_WORKFLOWS_ENABLED TIP_OS_INTELLIGENCE_ENABLED TIP_OS_ADMIN_CONSOLE_ENABLED \

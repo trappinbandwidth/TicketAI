@@ -65,8 +65,8 @@ def upsert_user(uid: str, email: str, claims: dict, password: str = "tipos-local
 
 # ── Staff (the three real accounts + role coverage) ──────────────────────────
 STAFF = [
-    ("staff_quest", "quest@puklabs.com", {"role": "staff", "staff_role": "admin"}),
-    ("staff_eniola", "eniola@rigresolve.com", {"role": "staff", "staff_role": "admin"}),
+    ("staff_quest", "quest@puklabs.com", {"role": "staff", "staff_role": "admin", "mfa_verified": True}),
+    ("staff_eniola", "eniola@rigresolve.com", {"role": "staff", "staff_role": "admin", "mfa_verified": True}),
     ("staff_justin", "justin@rigresolve.com", {"role": "staff", "staff_role": "network_lead"}),
     ("staff_reviewer", "reviewer@rigresolve.local", {"role": "staff", "staff_role": "reviewer"}),
     ("staff_aam", "aam@rigresolve.local", {"role": "staff", "staff_role": "attorney_account_manager"}),
