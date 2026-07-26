@@ -14,10 +14,12 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.routes._common import get_db, require_staff
+from app.services.auth_rbac import require_recent_auth, require_staff as require_staff_claim
 from app.services.agent_identity import agent_identity_payload
+from app.services.staff_audit import write_staff_audit
 
 router = APIRouter(tags=["admin-agent-config"])
 
@@ -50,7 +52,13 @@ def list_agent_config(authorization: Optional[str] = Header(None)):
     configs = {}
     for name in TOGGLEABLE_AGENTS:
         snap = db.collection("agent_config").document(name).get()
-        configs[name] = snap.to_dict().get("enabled", True) if snap.exists else True
+        data = snap.to_dict() if snap.exists else {}
+        configs[name] = {
+            "enabled": data.get("enabled", True),
+            "version": data.get("version", 0),
+            "updated_at": data.get("updated_at"),
+            "updated_by": data.get("updated_by"),
+        }
 
     return {
         "structural": [
@@ -71,7 +79,7 @@ def list_agent_config(authorization: Optional[str] = Header(None)):
                 "legacy_name": agent_identity_payload(name)["legacy_name"],
                 "toggleable": True,
                 "reason": reason,
-                "enabled": configs[name],
+                **configs[name],
                 "identity": agent_identity_payload(name),
             }
             for name, reason in TOGGLEABLE_AGENTS.items()
@@ -81,11 +89,15 @@ def list_agent_config(authorization: Optional[str] = Header(None)):
 
 class AgentConfigUpdate(BaseModel):
     enabled: bool
+    expected_version: int = Field(ge=0)
+    reason: str = Field(min_length=8, max_length=500)
 
 
 @router.patch("/admin/agent-config/{agent_name}")
 def update_agent_config(agent_name: str, body: AgentConfigUpdate, authorization: Optional[str] = Header(None)):
     decoded = require_staff(authorization)
+    require_staff_claim(decoded, ["admin", "engineering"])
+    require_recent_auth(decoded)
     if agent_name not in TOGGLEABLE_AGENTS:
         if agent_name in STRUCTURAL_AGENTS:
             raise HTTPException(
@@ -95,9 +107,53 @@ def update_agent_config(agent_name: str, body: AgentConfigUpdate, authorization:
         raise HTTPException(status_code=404, detail=f"Unknown agent '{agent_name}'.")
 
     db = get_db()
-    db.collection("agent_config").document(agent_name).set({
+    ref = db.collection("agent_config").document(agent_name)
+    snap = ref.get()
+    before = snap.to_dict() if snap.exists else {"enabled": True, "version": 0}
+    current_version = before.get("version", 0)
+    current_enabled = before.get("enabled", True)
+
+    if current_version != body.expected_version:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Agent configuration changed (expected version {body.expected_version}, current version {current_version}). Refresh and try again.",
+        )
+
+    if current_enabled == body.enabled:
+        return {
+            "ok": True,
+            "changed": False,
+            "agent": agent_name,
+            "enabled": body.enabled,
+            "version": current_version,
+        }
+
+    after = {
         "enabled": body.enabled,
+        "version": current_version + 1,
         "updated_at": datetime.now(timezone.utc),
         "updated_by": decoded.get("email") or decoded.get("uid"),
-    }, merge=True)
-    return {"ok": True, "agent": agent_name, "enabled": body.enabled}
+    }
+    ref.set(after, merge=True)
+    if not write_staff_audit(
+        db,
+        decoded,
+        "agent.enabled" if body.enabled else "agent.disabled",
+        "pipeline_agent",
+        agent_name,
+        before=before,
+        after=after,
+        reason=body.reason,
+    ):
+        ref.set(before)
+        raise HTTPException(
+            status_code=503,
+            detail="The change was not saved because its required audit record could not be written.",
+        )
+    return {
+        "ok": True,
+        "changed": True,
+        "agent": agent_name,
+        "enabled": body.enabled,
+        "version": after["version"],
+    }

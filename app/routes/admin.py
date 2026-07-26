@@ -11,7 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Query
 from fastapi.responses import FileResponse
 
 from app.routes._common import require_staff
@@ -346,7 +346,7 @@ def get_field_drilldown(field_key: str, authorization: Optional[str] = Header(No
 # ── Agent scorecard ─────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/agents")
-def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None)):
+def get_agent_stats(days: int = Query(30, ge=1, le=90), authorization: Optional[str] = Header(None)):
     require_staff(authorization)
     db = _fs()
 
@@ -458,8 +458,17 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
         ag["events"] += 1
 
         # Events may carry per-agent token usage directly or inside detail.
-        usage = detail.get("token_usage") or ev.get("token_usage") or []
-        ag["cost_usd"] = ag.get("cost_usd", 0.0) + _compute_scan_cost(usage)
+        usage = detail.get("token_usage") or detail.get("usage") or ev.get("token_usage") or []
+        if isinstance(usage, dict):
+            usage = [usage]
+        explicit_cost = sum(
+            float(call.get("cost_usd", 0) or 0)
+            for call in usage
+            if isinstance(call, dict)
+        )
+        ag["cost_usd"] = ag.get("cost_usd", 0.0) + (
+            explicit_cost if explicit_cost else _compute_scan_cost(usage)
+        )
 
         if "error" in event:
             ag["errors"] += 1
@@ -599,7 +608,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
     for agent_key, ag in agents.items():
         total_events = ag["events"]
         errors = ag["errors"]
-        health = round(1 - (errors / max(total_events, 1)), 3)
+        health = round(1 - (errors / total_events), 3) if total_events else None
 
         summary: dict = {
             "agent": agent_key,

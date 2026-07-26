@@ -16,6 +16,7 @@ from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app.routes._common import get_db, verify_token, require_staff, iso
+from app.services.auth_rbac import require_recent_auth, require_staff as require_staff_claim
 from app.services import case_lifecycle as cl
 
 logger = logging.getLogger(__name__)
@@ -75,15 +76,21 @@ def admin_payout_requests(status: Optional[str] = None, authorization: Optional[
 
 
 class MarkPaid(BaseModel):
-    paid_by: str
     payout_method: str = "Manual"
 
 
 @router.post("/admin/payout-requests/{payout_id}/mark-paid")
 def admin_mark_paid(payout_id: str, body: MarkPaid, authorization: Optional[str] = Header(None)):
-    require_staff(authorization)
+    actor = require_staff(authorization)
+    require_staff_claim(actor, ["admin", "attorney_account_manager"])
+    require_recent_auth(actor, require_mfa=True)
     try:
-        return cl.mark_payout_paid(get_db(), payout_id, body.payout_method, body.paid_by)
+        return cl.mark_payout_paid(
+            get_db(),
+            payout_id,
+            body.payout_method,
+            actor.get("email") or actor.get("uid") or "staff",
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

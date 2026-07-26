@@ -652,6 +652,71 @@ def seed_scans() -> None:
             "consensus_extraction": {},
             "seeded": True,
         }, merge=True)
+        # Deterministic child rows make Captain Agent Health useful immediately
+        # while remaining safe to replay on an existing local emulator.
+        seeded_agent_events = [
+            ("roux", "passed", {}),
+            ("document_gate", "ok", {"doc_type": "Ticket"}),
+            ("photo_analyst", "complete", {"photo_type": "document"}),
+            ("carver", "pass_1_complete", {
+                "fields_filled": len(s["result"]),
+                "empty_fields": [],
+                "low_confidence_fields": s["low"],
+                "usage": {
+                    "provider": "anthropic",
+                    "model": "claude-sonnet-4-6",
+                    "input_tokens": 4200,
+                    "output_tokens": 900,
+                    "cache_read_input_tokens": 0,
+                    "cache_creation_input_tokens": 0,
+                },
+            }),
+            ("bolin", "scored", {
+                "avg_score": s["confidence"],
+                "critical_failures": [],
+                "low_confidence_fields": s["low"],
+            }),
+            ("bunche", "merge_complete", {
+                "improvements_count": len(s["conflicts"]),
+                "dual_conflicts": s["conflicts"],
+            }),
+            ("ida_wells", "complete", {
+                "completeness_score": s["confidence"],
+                "missing_fields": s["low"],
+            }),
+            ("charlotte_ray", "scored", {
+                "unknown_category": False,
+                "zero_points": False,
+                "attorney_recommended": s["matched"],
+            }),
+            ("jollof", "complete", {"cdl_match": "match"}),
+            ("stagecoach_mary", "queued", {}),
+            ("bass_reeves", "queued", {}),
+            ("banneker", "complete", {"court_found": True, "county_court_found": True}),
+            ("madam_walker", "complete", {
+                "matches_found": 1 if s["matched"] else 0,
+                "no_attorney": not s["matched"],
+                "match_types": ["county"] if s["matched"] else [],
+            }),
+            ("tubman", "complete", {"urgency_level": "MEDIUM", "days_until_court": 20}),
+            ("douglass", "complete", {
+                "conflict_count": len(s["conflicts"]),
+                "evidence_count": 1,
+                "uncategorized_evidence": 0,
+                "conflict_types": s["conflicts"],
+            }),
+        ]
+        for agent_name, event_name, detail in seeded_agent_events:
+            db.collection("scan_queue").document(s["id"]).collection("agent_events").document(
+                f"seed-{agent_name}"
+            ).set({
+                "scan_id": s["id"],
+                "agent": agent_name,
+                "event": event_name,
+                "detail": detail,
+                "created_at": created,
+                "seeded": True,
+            }, merge=True)
     print(f"  scan_queue: {len(scans)} (Overview KPIs + Scan Feed + Review Detail)")
 
 
