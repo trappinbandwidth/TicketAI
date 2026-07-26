@@ -93,6 +93,13 @@ def admin_mark_paid(payout_id: str, body: MarkPaid, authorization: Optional[str]
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        if str(e) == "payout_commit_failed":
+            raise HTTPException(
+                status_code=503,
+                detail="Payout update was not committed. It is safe to retry.",
+            ) from e
+        raise
 
 
 # ── Case updates + document requests + files (Slice 4) ───────────────────────

@@ -757,16 +757,56 @@ def mark_payout_paid(db, payout_id: str, method: str, staff_id: str) -> dict:
         raise ValueError("payout_not_found")
     pd = snap.to_dict()
     if pd.get("status") == "paid":
+        if pd.get("payout_method") == method:
+            return {"ok": True, "payout_id": payout_id, "idempotent_replay": True}
         raise ValueError("already_paid")
-    ref.update({"status": "paid", "payout_method": method,
-                "processed_by": staff_id, "paid_at": SERVER_TIMESTAMP})
+    if pd.get("status") not in {"requested", "processing"}:
+        raise ValueError("payout_not_payable")
+
+    # One commit advances the payout, every included case, the recipient
+    # notifications, and the Captain audit record. A failed commit leaves the
+    # request safe to retry; deterministic document IDs prevent duplicate
+    # notifications on replay.
+    batch = db.batch()
+    batch.update(ref, {
+        "status": "paid", "payout_method": method,
+        "processed_by": staff_id, "paid_at": SERVER_TIMESTAMP,
+    })
     for tid in pd.get("ticket_ids") or []:
-        db.collection("tickets").document(tid).update({
+        batch.update(db.collection("tickets").document(tid), {
             "attorney_status": S_PAYOUT_SENT, "last_modified_date": SERVER_TIMESTAMP,
         })
-        notify_attorney(db, pd["attorney_id"], "payout_sent", "Payout sent",
-                        f"Your payout was sent via {method}.", ticket_id=tid)
-    return {"ok": True, "payout_id": payout_id}
+        batch.set(
+            db.collection("attorney_notifications").document(
+                f"payout_sent_{payout_id}_{tid}"
+            ),
+            {
+                "attorney_uid": pd["attorney_id"],
+                "type": "payout_sent",
+                "title": "Payout sent",
+                "body": f"Your payout was sent via {method}.",
+                "ticket_id": tid,
+                "read": False,
+                "created_at": SERVER_TIMESTAMP,
+            },
+        )
+    batch.set(
+        db.collection("captain_action_audits").document(f"payout_paid_{payout_id}"),
+        {
+            "action": "payout_marked_paid",
+            "payout_id": payout_id,
+            "actor_id": staff_id,
+            "method": method,
+            "ticket_ids": pd.get("ticket_ids") or [],
+            "created_at": SERVER_TIMESTAMP,
+        },
+    )
+    try:
+        batch.commit()
+    except Exception as exc:
+        logger.exception("[case_lifecycle] payout commit failed payout=%s", payout_id)
+        raise RuntimeError("payout_commit_failed") from exc
+    return {"ok": True, "payout_id": payout_id, "idempotent_replay": False}
 
 
 def first_view_for_attorney(db, attorney_id: str) -> list[dict]:
