@@ -9,6 +9,7 @@ import os
 from pydantic import BaseModel
 
 from app.services.pricing import get_price_estimate
+from app.services.auth_rbac import require_staff, verify_firebase_token
 
 router = APIRouter()
 
@@ -33,11 +34,15 @@ class PriceEstimateResponse(BaseModel):
 def price_estimate(
     state: str = Query(..., description="Full state name, e.g. 'Florida'"),
     violation: str = Query(..., description="Violation category from picklist"),
+    authorization: Optional[str] = Header(None),
     x_api_key: Optional[str] = Header(None),
 ):
-    expected = os.getenv("API_KEY", "cdl-local-dev")
-    if x_api_key != expected:
-        raise HTTPException(status_code=401, detail="Invalid API key.")
+    if authorization:
+        require_staff(verify_firebase_token(authorization))
+    else:
+        expected = os.getenv("API_KEY", "cdl-local-dev")
+        if x_api_key != expected:
+            raise HTTPException(status_code=401, detail="Invalid API key.")
     est = get_price_estimate(state, violation)
     display = (
         f"${est.driver_price_low:,} – ${est.driver_price_high:,}"

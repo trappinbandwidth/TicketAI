@@ -1,8 +1,8 @@
 # Agent Identity Roster
 
 Rig Resolve keeps each agent's internal ID stable for code, logs, Firestore
-events, and dashboards. The public display name honors Black historical figures
-whose work reflects the agent's job.
+events, and dashboards. Display names and historical aliases are governed by
+`app/services/agent_identity.py`; this table mirrors that runtime contract.
 
 Use respectful language in product and documentation: "enslaved people,"
 "abolitionists," "Black engineers," "researchers," "inventors," "civil rights
@@ -10,23 +10,23 @@ leaders," and "institution builders." Internal IDs should not be renamed unless
 there is a migration plan for graph nodes, event history, analytics, tests, and
 admin filters.
 
-| Internal ID | Display name | Legacy name | Why this fit was chosen |
-| --- | --- | --- | --- |
-| `roux` | Ida B. Wells | Roux | Disciplined investigation and truth documentation before a case moves forward. |
-| `document_gate` | Granville T. Woods | Document Gate | Transportation engineering and routing fit the pre-classification gate. |
-| `photo_analyst` | Gordon Parks | Photo Analyst | Photography as evidence, context, and human truth. |
-| `carver` | Harriet Tubman | Carver | Navigation, precision, courage, and risk-aware extraction. |
-| `bolin` | Thurgood Marshall | Bolin | Legal judgment, standards, and principled review. |
-| `bunche` | Septima Poinsette Clark | Bunche | Civic education and coordinated action from many voices. |
-| `ida_wells` | Mary McLeod Bethune | Ida Wells | Institutional readiness, records, and preparation. |
-| `charlotte_ray` | Carter G. Woodson | Charlotte Ray | Research discipline, historical context, and knowledge preservation. |
-| `jollof` | Rebecca Lee Crumpler | Jollof | Careful professional assessment and service. |
-| `mvr_request` | Frederick McKinley Jones | Stagecoach Mary | Transportation engineering and freight innovation. |
-| `psp_request` | Bessie Coleman | Bass Reeves | Safety, certification, and transportation trailblazing. |
-| `banneker` | Benjamin Banneker | Banneker | Measurement, research, civic knowledge, and practical context. |
-| `madam_walker` | Maggie Lena Walker | Madam Walker | Community networks, practical support, and institution building. |
-| `tubman` | Sojourner Truth | Tubman | Direct advocacy, urgency, and moral clarity. |
-| `statement_of_record` | Frederick Douglass | Douglass | Written testimony, public record, and truth shaped into durable evidence. |
+| Internal ID | Display name | Legacy name | Department | Operational role |
+| --- | --- | --- | --- | --- |
+| `roux` | Roux | Case Intake | Document | Validates submissions before AI spend. |
+| `document_gate` | Granville T. Woods | Document Gate | Document | Routes submissions by supported type. |
+| `photo_analyst` | Gordon Parks | Photo Analyst | Document | Analyzes photo evidence outside ticket extraction. |
+| `carver` | Carver | Lone Ranger | Document | Performs primary and secondary extraction. |
+| `bolin` | Bolin | Referee | Document | Scores extraction quality and controls routing. |
+| `bunche` | Bunche | Consensus | Document | Merges extraction passes and flags conflicts. |
+| `ida_wells` | Ida Wells | Document Completeness | Document | Audits missing fields for preparation. |
+| `charlotte_ray` | Charlotte Ray | Book Worm | Compliance | Adds CDL impact and severity context. |
+| `jollof` | Jollof | PII Match | Compliance | Compares extracted CDL identity to the Driver profile. |
+| `stagecoach_mary` | Stagecoach Mary | MVR Request | Compliance | Prepares Motor Vehicle Record requests. |
+| `bass_reeves` | Bass Reeves | PSP Request | Compliance | Prepares FMCSA PSP safety-record requests. |
+| `banneker` | Banneker | Research Ron | Legal | Builds jurisdiction, court, Carrier, and violation context. |
+| `madam_walker` | Madam Walker | Team Quest | Legal | Prepares attorney coverage matches. |
+| `tubman` | Tubman | Urgency Router | Operational | Calculates court-date urgency and priority. |
+| `douglass` | Douglass | Statement of Record | Legal | Builds accounts, conflict maps, and evidence indexes. |
 
 ## Implementation Standard
 
@@ -35,4 +35,3 @@ admin filters.
 - Staff config should return the same identity payload.
 - Tests must fail if an agent logs events without identity metadata.
 - Historical event keys remain the internal IDs.
-

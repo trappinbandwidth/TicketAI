@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -28,6 +30,11 @@ _SUSPENDED:   set[str]       = set()
 _CRASH_DOT:   dict[str, Any] = {}
 _INSP_STATS:  dict[str, Any] = {}
 _LOADED = False
+_SEARCH_SOURCE_ID: int | None = None
+_SEARCH_ROWS: list[tuple[str, str, str, str, str]] = []
+_DOCKET_INDEX: dict[str, list[str]] = {}
+_PHONE_INDEX: dict[str, list[str]] = {}
+_NON_ALPHANUMERIC = re.compile(r"[^A-Z0-9]+")
 
 
 def _load() -> None:
@@ -69,6 +76,160 @@ def lookup_carrier(dot_number: str) -> dict[str, Any] | None:
     if not dot_number or not _CARRIERS:
         return None
     return _CARRIERS.get(str(dot_number).strip())
+
+
+def _normalized_text(value: Any) -> str:
+    return " ".join(_NON_ALPHANUMERIC.sub(" ", str(value).upper()).split())
+
+
+def _digits(value: Any) -> str:
+    return "".join(character for character in str(value) if character.isdigit())
+
+
+def _ensure_search_index() -> None:
+    global _SEARCH_SOURCE_ID, _SEARCH_ROWS, _DOCKET_INDEX, _PHONE_INDEX
+    if _SEARCH_SOURCE_ID == id(_CARRIERS):
+        return
+    rows: list[tuple[str, str, str, str, str]] = []
+    docket_index: dict[str, list[str]] = {}
+    phone_index: dict[str, list[str]] = {}
+    for dot_number, carrier in _CARRIERS.items():
+        legal = _normalized_text(carrier.get("legal_name", ""))
+        dba = _normalized_text(carrier.get("dba_name", ""))
+        city = _normalized_text(carrier.get("city", ""))
+        state = str(carrier.get("state") or "").upper()
+        rows.append((dot_number, legal, dba, city, state))
+        docket = _normalized_text(carrier.get("docket_number", ""))
+        phone = _digits(carrier.get("phone", ""))
+        if docket:
+            docket_index.setdefault(docket, []).append(dot_number)
+        if phone:
+            phone_index.setdefault(phone, []).append(dot_number)
+    _SEARCH_ROWS = rows
+    _DOCKET_INDEX = docket_index
+    _PHONE_INDEX = phone_index
+    _SEARCH_SOURCE_ID = id(_CARRIERS)
+
+
+def warm_carrier_search_index() -> int:
+    """Load and normalize the public index during app startup, not first search."""
+    _load()
+    _ensure_search_index()
+    return len(_SEARCH_ROWS)
+
+
+def _source_provenance() -> dict[str, Any]:
+    try:
+        modified = datetime.fromtimestamp(
+            _CARRIERS_PATH.stat().st_mtime, tz=timezone.utc
+        ).isoformat()
+    except OSError:
+        modified = None
+    return {
+        "source": "FMCSA public motor-carrier authority data",
+        "source_kind": "authoritative_public",
+        "local_index": _CARRIERS_PATH.name,
+        "cached_at": modified,
+        "official_record_update_note": (
+            "Changes made in TIP do not update FMCSA. Use the applicable FMCSA process "
+            "to change the official record."
+        ),
+    }
+
+
+def public_carrier_record(dot_number: str, include_contact: bool = True) -> dict[str, Any] | None:
+    """Return only whitelisted public FMCSA fields with explicit provenance."""
+    carrier = lookup_carrier(_digits(dot_number))
+    if carrier is None:
+        return None
+    phone = _digits(carrier.get("phone", ""))
+    record = {
+        "dot_number": str(carrier.get("usdot_number") or _digits(dot_number)),
+        "docket_number": carrier.get("docket_number") or None,
+        "legal_name": carrier.get("legal_name") or None,
+        "dba_name": carrier.get("dba_name") or None,
+        "operating_status": carrier.get("status") or "Unknown",
+        "authority_type": carrier.get("auth_type") or None,
+        "city": carrier.get("city") or None,
+        "state": carrier.get("state") or None,
+        "zip": carrier.get("zip") or None,
+        "minimum_coverage": carrier.get("min_coverage") or None,
+        "passenger": bool(carrier.get("passenger", False)),
+        "hazmat": bool(carrier.get("hazmat", False)),
+        "phone": phone or None if include_contact else None,
+        "phone_last4": phone[-4:] if len(phone) >= 4 else None,
+    }
+    if not include_contact:
+        record.pop("phone")
+    return record
+
+
+def search_carriers(
+    query: str, state: str | None = None, limit: int = 10
+) -> list[dict[str, Any]]:
+    """Bounded local search across public USDOT, docket, name, city, and phone."""
+    _load()
+    normalized_query = _normalized_text(query)
+    query_digits = _digits(query)
+    state = (state or "").strip().upper()
+    if len(normalized_query) < 2 or not _CARRIERS:
+        return []
+
+    matches: list[tuple[int, str, dict[str, Any]]] = []
+    if query_digits and query_digits in _CARRIERS:
+        exact = public_carrier_record(query_digits, include_contact=False)
+        if exact and (not state or exact.get("state") == state):
+            return [exact]
+
+    _ensure_search_index()
+    exact_identifiers = {
+        *(_DOCKET_INDEX.get(normalized_query) or []),
+        *((_PHONE_INDEX.get(query_digits) or []) if len(query_digits) >= 7 else ()),
+    }
+    for dot_number in exact_identifiers:
+        public = public_carrier_record(dot_number, include_contact=False)
+        if public and (not state or public.get("state") == state):
+            matches.append((95, _normalized_text(public.get("legal_name", "")), public))
+
+    exact_set = set(exact_identifiers)
+    for dot_number, legal, dba, city, carrier_state in _SEARCH_ROWS:
+        if dot_number in exact_set or (state and carrier_state != state):
+            continue
+        score = 0
+        if normalized_query in {legal, dba}:
+            score = 85
+        elif any(value.startswith(normalized_query) for value in (legal, dba) if value):
+            score = 75
+        elif any(normalized_query in value for value in (legal, dba) if value):
+            score = 60
+        elif city.startswith(normalized_query):
+            score = 40
+        if score:
+            public = public_carrier_record(dot_number, include_contact=False)
+            if public:
+                matches.append((score, legal or dba, public))
+    matches.sort(key=lambda item: (-item[0], item[1], item[2]["dot_number"]))
+    return [item[2] for item in matches[: max(1, min(limit, 20))]]
+
+
+def carrier_discovery_detail(dot_number: str) -> dict[str, Any] | None:
+    """Return a selected public Carrier record plus carrier-level crash context."""
+    record = public_carrier_record(dot_number, include_contact=True)
+    if record is None:
+        return None
+    crash = lookup_crash_history(record["dot_number"]) or {}
+    return {
+        **record,
+        "carrier_level_crash_context": {
+            "crash_count": int(crash.get("crash_count") or 0),
+            "fatal_count": int(crash.get("fatal_count") or 0),
+            "most_recent_year": crash.get("most_recent_year"),
+            "scope_note": (
+                "Carrier-level public context. This is not an individual Driver safety record."
+            ),
+        },
+        "provenance": _source_provenance(),
+    }
 
 
 def is_carrier_active(dot_number: str) -> bool | None:

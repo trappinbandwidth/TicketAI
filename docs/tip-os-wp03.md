@@ -28,6 +28,20 @@ Unsafe and failed states are terminal until an authorized operational reprocessi
 
 All endpoints require a Firebase ID token and enforce document ownership. Extraction requests create idempotent, correlation-ID-bearing asynchronous jobs. Ingestion, queueing, extraction start, and verification emit audit events.
 
+## Governed display filenames
+
+Authenticated document ingestion uses naming policy `file-name-v1`:
+
+```text
+LastName-FirstName_Department_CaseID_YYYY-MM-DD.ext
+```
+
+The API resolves the subject name and department from authenticated claims,
+uses the supplied canonical case ID or a server-issued `GENERAL-{short-id}`,
+derives the extension from validated media type, and preserves the sanitized
+original filename. Storage object keys contain only opaque document IDs, never
+the generated display name or other personal data.
+
 ## Rollout
 
 Keep the feature flag disabled until a production malware scanner, private bucket rules, retention policy, background worker, and operational quarantine queue are verified. Existing `/process` intake remains the compatibility path during shadow rollout.

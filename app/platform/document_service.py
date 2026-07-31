@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 from app.platform.documents import (
     DocumentAsset,
@@ -15,6 +16,7 @@ from app.platform.documents import (
     validate_upload,
 )
 from app.platform.models import utc_now
+from app.services.file_naming import FileDepartment, governed_file_name
 
 
 class DocumentService:
@@ -41,8 +43,28 @@ class DocumentService:
         content_type: str,
         content: bytes,
         storage_path: str | None = None,
+        *,
+        subject_name: str | None = None,
+        department: FileDepartment | str | None = None,
+        case_id: str | None = None,
+        uploaded_at: datetime | None = None,
+        entity_name: bool = False,
     ) -> DocumentAsset:
         safe_name, digest = validate_upload(filename, content_type, content)
+        document_id = new_document_id()
+        governed_name = None
+        if subject_name is not None or department is not None or case_id is not None:
+            if subject_name is None or department is None:
+                raise ValueError("Subject name and department are required for governed naming.")
+            governed_name = governed_file_name(
+                subject_name=subject_name,
+                department=department,
+                case_id=case_id,
+                general_id=document_id[-12:],
+                uploaded_at=uploaded_at or utc_now(),
+                content_type=content_type,
+                entity_name=entity_name,
+            )
         duplicates = list(
             self.db.collection("document_assets").where("owner_principal_id", "==", owner_id).stream()
         )
@@ -57,9 +79,13 @@ class DocumentService:
             ScanResult.UNAVAILABLE: DocumentStatus.SCAN_PENDING,
         }[scan_result]
         asset = DocumentAsset(
-            id=new_document_id(),
+            id=document_id,
             owner_principal_id=owner_id,
-            filename=safe_name,
+            filename=governed_name.display_name if governed_name else safe_name,
+            original_filename=safe_name,
+            naming_policy_version=governed_name.policy_version if governed_name else None,
+            naming_department=governed_name.department if governed_name else None,
+            naming_case=governed_name.case_component if governed_name else None,
             content_type=content_type,
             byte_size=len(content),
             sha256=digest,
@@ -72,6 +98,8 @@ class DocumentService:
         self._audit(owner_id, "document.ingested", asset.id, {
             "status": asset.status.value,
             "duplicate": bool(asset.duplicate_of),
+            "naming_policy_version": asset.naming_policy_version,
+            "naming_department": asset.naming_department,
         })
         return asset
 

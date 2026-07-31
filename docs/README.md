@@ -22,6 +22,7 @@ Rig Resolve legal benefit platform for commercial truck drivers. This directory 
 | [financial-service.md](financial-service.md) | Payment, payout, transaction, and ledger abstraction |
 | [integration-strategy.md](integration-strategy.md) | Systems of record/engagement/intelligence and provider adapter strategy |
 | [tip-os-wp01.md](tip-os-wp01.md) | Feature-flagged canonical identity, organizations, consent and policy foundation |
+| [TRANSPORTATION_INTELLIGENCE_BACKEND.md](TRANSPORTATION_INTELLIGENCE_BACKEND.md) | Phased Passport, provenance, score, restoration, monitoring, AI governance, and wallet backend plan |
 
 ---
 
@@ -46,7 +47,7 @@ manual scan → AI Review → (approve) → New → Admin Assigned → Accepted 
 driver upload →           New ────────────────────────────────────────────────────────────────→ Closed
 ```
 
-### AI Pipeline (14 agents)
+### AI Pipeline (15 agents)
 ```
 Roux → Carver → Bolin →
   Ida Wells → Charlotte Ray → Jollof →

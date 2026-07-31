@@ -72,8 +72,16 @@ _SEED_ATTORNEYS = [
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 def _fs():
-    """Return the Firestore client. Raises RuntimeError if not configured."""
-    if os.getenv("USE_MOCK", "true").lower() == "true":
+    """Return the Firestore client. Raises RuntimeError if not configured.
+
+    USE_MOCK only skips Claude calls (no AI spend during local UI work) — it must
+    not disable Firestore when a local emulator is present, or the reviewer queue
+    and scan-detail endpoints would 500 against the local-first stack. When the
+    Firestore emulator is running (FIRESTORE_EMULATOR_HOST set) we always talk to
+    it; only a real (non-emulator) mock run keeps Firestore off to avoid touching
+    a live project by accident.
+    """
+    if os.getenv("USE_MOCK", "true").lower() == "true" and not os.getenv("FIRESTORE_EMULATOR_HOST"):
         raise RuntimeError("Firestore is disabled in mock mode.")
     from app.services.firebase_service import _firestore_client, _init
     _init()
@@ -278,42 +286,59 @@ def approve_item(id: str, edited_fields: dict, reviewer_id: Optional[str] = None
     if item is None:
         raise ValueError(f"Queue item not found: {id}")
 
-    ts = _now()
     db = _fs()
     ref = db.collection("scan_queue").document(id)
+    queue_update, audits, training_record = approval_documents(
+        item, edited_fields, reviewer_id,
+    )
+    batch = db.batch()
+    batch.update(ref, queue_update)
+    for audit_id, audit in audits:
+        batch.set(ref.collection("field_audit").document(audit_id), audit)
+    batch.set(db.collection("training_records").document(id), training_record)
+    batch.commit()
 
-    # Strip internal feedback key before storing edited_fields
-    field_feedback = edited_fields.pop("__feedback__", {})
 
-    ref.update({
+def approval_documents(
+    item: dict,
+    edited_fields: dict,
+    reviewer_id: Optional[str],
+) -> tuple[dict, list[tuple[str, dict]], dict]:
+    """Build deterministic queue, field-audit, and training writes."""
+    import hashlib
+
+    ts = _now()
+    edits = dict(edited_fields)
+    field_feedback = edits.pop("__feedback__", {})
+    queue_update = {
         "status": "approved",
         "updated_at": ts,
-        "edited_fields": edited_fields,
+        "edited_fields": edits,
         "reviewed_by": reviewer_id,
         "reviewed_at": ts,
-    })
+    }
 
-    # Per-field audit trail
     original = item.get("process_response", {}).get("result", {})
-    for field, new_val in edited_fields.items():
+    audits = []
+    for field, new_val in edits.items():
         if field.startswith("__"):
             continue
         orig_field = original.get(field, {})
         old_val = (orig_field.get("value", "") if isinstance(orig_field, dict) else "") or ""
         if old_val != new_val:
-            ref.collection("field_audit").add({
+            audit_id = hashlib.sha256(field.encode()).hexdigest()[:20]
+            audits.append((audit_id, {
                 "field_key": field,
                 "old_value": old_val,
                 "new_value": new_val,
                 "reviewer_id": reviewer_id,
                 "changed_at": ts,
-            })
+            }))
 
-    # Build final merged values for the training record
     final_values = {}
     for field in EXTRACTED_FIELDS:
-        if field in edited_fields:
-            final_values[field] = edited_fields[field]
+        if field in edits:
+            final_values[field] = edits[field]
         elif field in original and isinstance(original[field], dict):
             final_values[field] = original[field].get("value", "")
         else:
@@ -321,12 +346,11 @@ def approve_item(id: str, edited_fields: dict, reviewer_id: Optional[str] = None
 
     was_edited = any(
         final_values.get(f) != (original.get(f) or {}).get("value", "")
-        for f in EXTRACTED_FIELDS if f in edited_fields
+        for f in EXTRACTED_FIELDS if f in edits
     )
 
-    # Write approved training record to Firestore (replaces approved_tickets.jsonl)
-    db.collection("training_records").document(id).set({
-        "scan_id": id,
+    training_record = {
+        "scan_id": item["id"],
         "filename": item["filename"],
         "approved_at": ts,
         "pass_status": item["pass_status"],
@@ -339,7 +363,8 @@ def approve_item(id: str, edited_fields: dict, reviewer_id: Optional[str] = None
         "final_values": final_values,
         "was_edited": was_edited,
         "field_feedback": field_feedback,
-    })
+    }
+    return queue_update, audits, training_record
 
 
 def get_field_audit(scan_id: str) -> list[dict]:

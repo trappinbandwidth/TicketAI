@@ -3,6 +3,7 @@ Basic smoke tests — run with: pytest tests/
 Golden-file tests (real tickets) go in tests/golden/ once S3 access is set up.
 """
 import os
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 
@@ -18,6 +19,13 @@ os.environ["USE_MOCK"] = "true"
 
 client = TestClient(app)
 HEADERS = {"x-api-key": "cdl-local-dev"}
+
+
+def _driver_headers(operation_id=None):
+    return {
+        "authorization": "Bearer driver-token",
+        "x-operation-id": operation_id or str(uuid.uuid4()),
+    }
 
 
 def _blank_pdf() -> bytes:
@@ -49,10 +57,176 @@ def test_auth_required():
     assert r.status_code == 401
 
 
+def test_driver_upload_rejects_non_driver_token(monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "carrier_1", "role": "carrier"},
+    )
+
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.pdf", b"x", "application/pdf")},
+        headers={"authorization": "Bearer carrier-token"},
+    )
+
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Required role missing."
+
+
+def test_driver_upload_rejects_form_identity_mismatch(monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "driver_1", "role": "driver"},
+    )
+
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.pdf", b"x", "application/pdf")},
+        data={"driver_id": "driver_2"},
+        headers={"authorization": "Bearer driver-token"},
+    )
+
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Driver upload identity does not match the signed-in account."
+
+
+def test_driver_upload_derives_driver_id_from_token(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "driver_1", "role": "driver"},
+    )
+    monkeypatch.setattr(
+        "app.routes.process.verify_enrollment",
+        lambda driver_id: seen.setdefault(
+            "enrollment",
+            {
+                "driver_id": driver_id,
+                "enrolled": True,
+                "status": "active",
+                "message": "ok",
+            },
+        ),
+    )
+
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.docx", b"x", "application/octet-stream")},
+        headers=_driver_headers(),
+    )
+
+    assert r.status_code == 415
+    assert seen["enrollment"]["driver_id"] == "driver_1"
+
+
+def test_driver_upload_cannot_select_existing_ticket_or_related_account(monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "driver_1", "role": "driver"},
+    )
+
+    ticket = client.post(
+        "/api/v1/process",
+        files={"files": ("t.pdf", b"x", "application/pdf")},
+        data={"ticket_id": "ticket_owned_by_someone_else"},
+        headers=_driver_headers(),
+    )
+    related = client.post(
+        "/api/v1/process",
+        files={"files": ("t.pdf", b"x", "application/pdf")},
+        data={"carrier_id": "carrier_1"},
+        headers=_driver_headers(),
+    )
+
+    assert ticket.status_code == 400
+    assert ticket.json()["detail"] == "Driver uploads cannot select an existing ticket."
+    assert related.status_code == 400
+    assert related.json()["detail"] == "Driver uploads cannot select related account identities."
+
+
+def test_driver_upload_replay_is_rejected(monkeypatch):
+    from app.services.upload_idempotency import clear_mock_claims
+
+    clear_mock_claims()
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "driver_1", "role": "driver"},
+    )
+    monkeypatch.setattr(
+        "app.routes.process.verify_enrollment",
+        lambda driver_id: {
+            "driver_id": driver_id,
+            "enrolled": True,
+            "status": "active",
+            "message": "ok",
+        },
+    )
+    operation_id = str(uuid.uuid4())
+    request = {
+        "files": {"files": ("t.docx", b"x", "application/octet-stream")},
+        "headers": _driver_headers(operation_id),
+    }
+
+    first = client.post("/api/v1/process", **request)
+    replay = client.post("/api/v1/process", **request)
+
+    assert first.status_code == 415
+    assert replay.status_code == 409
+    assert replay.json()["detail"] == "Driver upload operation already accepted."
+
+
+def test_trusted_manual_upload_retains_service_auth():
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.docx", b"x", "application/octet-stream")},
+        data={"source": "manual"},
+        headers=HEADERS,
+    )
+
+    assert r.status_code == 415
+
+
+def test_staff_manual_upload_accepts_bearer_without_service_key(monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "staff_1", "role": "staff"},
+    )
+
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.docx", b"x", "application/octet-stream")},
+        data={"source": "manual"},
+        headers={"authorization": "Bearer staff-token"},
+    )
+
+    assert r.status_code == 415
+
+
+def test_manual_upload_does_not_fall_back_to_service_key_for_wrong_bearer(monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.process.verify_firebase_token",
+        lambda _header: {"uid": "carrier_1", "role": "carrier"},
+    )
+
+    r = client.post(
+        "/api/v1/process",
+        files={"files": ("t.docx", b"x", "application/octet-stream")},
+        data={"source": "manual"},
+        headers={
+            "authorization": "Bearer carrier-token",
+            "x-api-key": "cdl-local-dev",
+        },
+    )
+
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Staff role required."
+
+
 def test_unsupported_file_type():
     r = client.post(
         "/api/v1/process",
         files={"files": ("t.docx", b"x", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+        data={"source": "manual"},
         headers=HEADERS,
     )
     assert r.status_code == 415
@@ -63,6 +237,7 @@ def test_mock_response_shape():
     r = client.post(
         "/api/v1/process",
         files={"files": ("ticket.pdf", _blank_pdf(), "application/pdf")},
+        data={"source": "manual"},
         headers=HEADERS,
     )
     assert r.status_code == 200
@@ -89,6 +264,7 @@ def test_mock_pass_status_present():
     r = client.post(
         "/api/v1/process",
         files={"files": ("ticket.pdf", _blank_pdf(), "application/pdf")},
+        data={"source": "manual"},
         headers=HEADERS,
     )
     body = r.json()
@@ -102,6 +278,7 @@ def test_mock_cdl_point_impact():
     r = client.post(
         "/api/v1/process",
         files={"files": ("ticket.pdf", _blank_pdf(), "application/pdf")},
+        data={"source": "manual"},
         headers=HEADERS,
     )
     body = r.json()

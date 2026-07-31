@@ -36,6 +36,11 @@ _URGENCY_ORDER = {"CRITICAL": 0, "HIGH": 1, "STANDARD": 2, "LOW": 3}
 
 
 def _parse_date(s: str) -> Optional[datetime]:
+    # court_date is normally extracted text, but a Firestore timestamp
+    # (DatetimeWithNanoseconds) can arrive here from data written as a date
+    # object — accept it directly instead of crashing on .strip().
+    if hasattr(s, "isoformat"):
+        return s if getattr(s, "tzinfo", None) else s.replace(tzinfo=timezone.utc)
     s = (s or "").strip()
     if not s:
         return None

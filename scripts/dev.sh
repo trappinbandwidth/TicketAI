@@ -16,6 +16,12 @@ export FIREBASE_PROJECT_ID="rigresolve-local"
 export FIRESTORE_EMULATOR_HOST="${FIRESTORE_EMULATOR_HOST:-localhost:8080}"
 export FIREBASE_AUTH_EMULATOR_HOST="${FIREBASE_AUTH_EMULATOR_HOST:-localhost:9099}"
 export FIREBASE_STORAGE_EMULATOR_HOST="${FIREBASE_STORAGE_EMULATOR_HOST:-localhost:9199}"
+# Google Cloud Storage (used by firebase-admin) reads this host, including scheme.
+export STORAGE_EMULATOR_HOST="${STORAGE_EMULATOR_HOST:-http://localhost:9199}"
+# Synthetic local-only AES key. Production injects an independently generated
+# key and version from Secret Manager; this value protects no real data.
+export PII_ENCRYPTION_KEY_B64="${PII_ENCRYPTION_KEY_B64:-BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=}"
+export PII_ENCRYPTION_KEY_ID="${PII_ENCRYPTION_KEY_ID:-local-v1}"
 
 case "${1:-}" in
   emulators)
@@ -32,7 +38,10 @@ case "${1:-}" in
     export USE_MOCK="${USE_MOCK:-true}"
     export API_KEY="${API_KEY:-tipos-local-dev}"
     export APP_ENV="development"
-    export CORS_ALLOWED_ORIGINS="http://localhost:5301|http://localhost:5302|http://localhost:5303|http://localhost:5304"
+    # Browsers and desktop preview links may resolve the same local app through
+    # either loopback hostname. Both are explicit development-only origins;
+    # production still requires its separately configured allowlist.
+    export CORS_ALLOWED_ORIGINS="http://localhost:5301|http://127.0.0.1:5301|http://localhost:5302|http://127.0.0.1:5302|http://localhost:5303|http://127.0.0.1:5303|http://localhost:5304|http://127.0.0.1:5304"
     for flag in \
       TIP_OS_IDENTITY_ENABLED TIP_OS_RECORDS_ENABLED TIP_OS_DOCUMENTS_ENABLED \
       TIP_OS_WORKFLOWS_ENABLED TIP_OS_INTELLIGENCE_ENABLED TIP_OS_ADMIN_CONSOLE_ENABLED \
@@ -41,7 +50,7 @@ case "${1:-}" in
       TIP_OS_ENTITY_RESOLUTION_ENABLED TIP_OS_ATTORNEY_GOVERNANCE_ENABLED \
       TIP_OS_LAUNCH_ASSESSMENT_ENABLED TIP_OS_AUTH_SHADOW_ENABLED
     do export "$flag=true"; done
-    exec .venv/bin/python -m uvicorn app.main:app --reload --port 8000
+    exec .venv/bin/python -m uvicorn app.main:app --reload --port "${PORT:-8000}"
     ;;
 
   *)

@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from fastapi import APIRouter, File, Header, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 from app.platform.document_service import DocumentService
@@ -14,6 +14,7 @@ from app.services.auth_rbac import STAFF_ROLES, verify_firebase_token
 from app.services.malware_scanner import configured_scanner
 from app.services.document_worker import run_document_job
 from app.services.driver_resolve import DriverResolveService
+from app.services.file_naming import FileDepartment, opaque_storage_object
 
 
 router = APIRouter(prefix="/documents", tags=["tip-os-documents"])
@@ -49,12 +50,12 @@ def _service() -> DocumentService:
     return DocumentService(firebase_service._firestore_client, configured_scanner())
 
 
-def _store_quarantine(document_id: str, filename: str, content_type: str, content: bytes) -> str:
+def _store_quarantine(document_id: str, content_type: str, content: bytes) -> str:
     from firebase_admin import storage
 
     project = os.getenv("FIREBASE_PROJECT_ID", "rigresolve")
     bucket = storage.bucket(f"{project}.appspot.com")
-    path = f"tip-os-quarantine/{document_id}/{filename}"
+    path = f"tip-os-quarantine/{document_id}/{opaque_storage_object(document_id, content_type)}"
     bucket.blob(path).upload_from_string(content, content_type=content_type)
     return f"gs://{bucket.name}/{path}"
 
@@ -62,9 +63,29 @@ def _store_quarantine(document_id: str, filename: str, content_type: str, conten
 @router.post("", status_code=202)
 async def upload_document(
     file: UploadFile = File(...),
+    case_id: Optional[str] = Form(None, max_length=100),
     authorization: Optional[str] = Header(None),
 ):
-    actor_id = _actor(_claims(authorization))
+    claims = _claims(authorization)
+    actor_id = _actor(claims)
+    subject_name = str(claims.get("name") or "").strip()
+    if not subject_name:
+        raise HTTPException(
+            status_code=422,
+            detail="Your verified profile name is required before uploading documents.",
+        )
+    role = str(claims.get("role") or claims.get("staff_role") or "driver").upper()
+    department = {
+        "DRIVER": FileDepartment.DRIVER,
+        "CARRIER": FileDepartment.CARRIER,
+        "ATTORNEY": FileDepartment.ATTORNEY,
+        "ADMIN": FileDepartment.CAPTAIN,
+        "AAM": FileDepartment.CAPTAIN,
+        "ENGINEERING": FileDepartment.CAPTAIN,
+        "SUPPORT": FileDepartment.CAPTAIN,
+    }.get(role)
+    if department is None:
+        raise HTTPException(status_code=403, detail="Role cannot upload governed documents.")
     content = await file.read()
     service = _service()
     try:
@@ -74,8 +95,12 @@ async def upload_document(
             file.filename or "document",
             file.content_type or "",
             content,
+            subject_name=subject_name,
+            department=department,
+            case_id=case_id,
+            entity_name=department == FileDepartment.CARRIER,
         )
-        storage_path = _store_quarantine(asset.id, asset.filename, asset.content_type, content)
+        storage_path = _store_quarantine(asset.id, asset.content_type, content)
         asset.storage_path = storage_path
         service.db.collection("document_assets").document(asset.id).set(
             asset.model_dump(mode="json")

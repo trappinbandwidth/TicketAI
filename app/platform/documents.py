@@ -50,6 +50,10 @@ class DocumentAsset(BaseModel):
     id: str
     owner_principal_id: str
     filename: str
+    original_filename: Optional[str] = None
+    naming_policy_version: Optional[str] = None
+    naming_department: Optional[str] = None
+    naming_case: Optional[str] = None
     content_type: str
     byte_size: int
     sha256: str

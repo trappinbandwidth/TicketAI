@@ -11,11 +11,16 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Query
 from fastapi.responses import FileResponse
 
 from app.routes._common import require_staff
-from app.services.agent_identity import canonical_agent_name, agent_display_name, agent_identity_payload
+from app.services.agent_identity import (
+    agent_department_summaries,
+    canonical_agent_name,
+    agent_display_name,
+    agent_identity_payload,
+)
 from app.services.event_service import write_event
 from app.services.staff_audit import write_staff_audit
 from app.services.queue_store import EXTRACTED_FIELDS
@@ -346,7 +351,7 @@ def get_field_drilldown(field_key: str, authorization: Optional[str] = Header(No
 # ── Agent scorecard ─────────────────────────────────────────────────────────
 
 @router.get("/admin/stats/agents")
-def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None)):
+def get_agent_stats(days: int = Query(30, ge=1, le=90), authorization: Optional[str] = Header(None)):
     require_staff(authorization)
     db = _fs()
 
@@ -458,8 +463,17 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
         ag["events"] += 1
 
         # Events may carry per-agent token usage directly or inside detail.
-        usage = detail.get("token_usage") or ev.get("token_usage") or []
-        ag["cost_usd"] = ag.get("cost_usd", 0.0) + _compute_scan_cost(usage)
+        usage = detail.get("token_usage") or detail.get("usage") or ev.get("token_usage") or []
+        if isinstance(usage, dict):
+            usage = [usage]
+        explicit_cost = sum(
+            float(call.get("cost_usd", 0) or 0)
+            for call in usage
+            if isinstance(call, dict)
+        )
+        ag["cost_usd"] = ag.get("cost_usd", 0.0) + (
+            explicit_cost if explicit_cost else _compute_scan_cost(usage)
+        )
 
         if "error" in event:
             ag["errors"] += 1
@@ -599,7 +613,7 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
     for agent_key, ag in agents.items():
         total_events = ag["events"]
         errors = ag["errors"]
-        health = round(1 - (errors / max(total_events, 1)), 3)
+        health = round(1 - (errors / total_events), 3) if total_events else None
 
         summary: dict = {
             "agent": agent_key,
@@ -712,9 +726,15 @@ def get_agent_stats(days: int = 30, authorization: Optional[str] = Header(None))
 
         results.append(summary)
 
-    # Sort by health score ascending (worst agents first)
-    results.sort(key=lambda r: r["health_score"])
-    return {"agents": results, "days": days}
+    # Sort observed agents by worst health first; agents without events remain
+    # visible after observed results instead of being reported as healthy.
+    results.sort(key=lambda r: (r["health_score"] is None, r["health_score"] or 0))
+
+    return {
+        "agents": results,
+        "departments": agent_department_summaries(results),
+        "days": days,
+    }
 
 
 # ── Scan feed ────────────────────────────────────────────────────────────────

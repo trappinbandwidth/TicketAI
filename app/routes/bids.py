@@ -335,68 +335,120 @@ def select_bid(case_id: str, bid_id: str, body: SelectBidBody, authorization: Op
     Select a bid: marks bid as 'selected', updates case with attorney info,
     marks other bids 'rejected', and logs activity.
     """
-    require_staff(authorization)
+    actor = require_staff(authorization)
     db = _db()
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
     try:
         case_ref = db.collection("cases").document(case_id)
+        case_doc = case_ref.get()
+        if not case_doc.exists:
+            raise HTTPException(status_code=404, detail=f"Case {case_id} not found.")
+        case_data = case_doc.to_dict() or {}
+        if case_data.get("bid_status") == "awarded":
+            if case_data.get("bid_awarded_to") == bid_id:
+                return {
+                    "success": True,
+                    "attorney_name": case_data.get("attorney_name", ""),
+                    "fee_amount": case_data.get("attorney_fee_amount"),
+                    "idempotent_replay": True,
+                }
+            raise HTTPException(
+                status_code=409,
+                detail="Case was already awarded to a different bid.",
+            )
+
         bid_ref = case_ref.collection("bids").document(bid_id)
         bid_doc = bid_ref.get()
         if not bid_doc.exists:
             raise HTTPException(status_code=404, detail=f"Bid {bid_id} not found.")
         bid_data = bid_doc.to_dict()
+        other_bids = [
+            item
+            for item in case_ref.collection("bids").stream()
+            if item.id != bid_id and item.to_dict().get("bid_status") != "removed"
+        ]
+        if len(other_bids) > 100:
+            raise HTTPException(
+                status_code=409,
+                detail="Too many bids to award safely in one Pilot operation.",
+            )
 
-        # Mark selected bid
-        bid_ref.update({"bid_status": "selected", "updated_at": SERVER_TIMESTAMP})
-        db.collection("bids").document(bid_id).update({"bid_status": "selected", "updated_at": SERVER_TIMESTAMP})
-
-        # Reject other bids
-        other_bids = case_ref.collection("bids").stream()
+        actor_id = actor.get("email") or actor.get("uid") or actor.get("sub") or "staff"
+        batch = db.batch()
+        batch.update(bid_ref, {"bid_status": "selected", "updated_at": SERVER_TIMESTAMP})
+        batch.update(
+            db.collection("bids").document(bid_id),
+            {"bid_status": "selected", "updated_at": SERVER_TIMESTAMP},
+        )
         for b in other_bids:
-            if b.id != bid_id and b.to_dict().get("bid_status") != "removed":
-                b.reference.update({"bid_status": "rejected"})
-                db.collection("bids").document(b.id).update({"bid_status": "rejected"})
+            batch.update(b.reference, {"bid_status": "rejected", "updated_at": SERVER_TIMESTAMP})
+            batch.update(
+                db.collection("bids").document(b.id),
+                {"bid_status": "rejected", "updated_at": SERVER_TIMESTAMP},
+            )
 
-        # Update case with selected attorney
         attorney_name = bid_data.get("attorney_name", "")
         attorney_phone = bid_data.get("attorney_phone", "")
         attorney_email = bid_data.get("attorney_email", "")
         fee_amount = bid_data.get("fee_amount")
 
-        case_ref.update({
+        batch.update(case_ref, {
             "attorney_name": attorney_name,
             "attorney_phone": attorney_phone,
             "bid_status": "awarded",
             "bid_awarded_to": bid_id,
             "bid_awarded_at": SERVER_TIMESTAMP,
             "attorney_fee_amount": fee_amount,
-            "last_updated_by": body.selected_by,
+            "last_updated_by": actor_id,
             "last_updated_at": SERVER_TIMESTAMP,
         })
 
-        # Update linked ticket
-        case_data = case_ref.get().to_dict() or {}
         if case_data.get("ticket_id"):
-            db.collection("tickets").document(case_data["ticket_id"]).update({
+            batch.update(db.collection("tickets").document(case_data["ticket_id"]), {
                 "attorney_name": attorney_name,
                 "attorney_phone": attorney_phone,
                 "attorney_email": attorney_email,
             })
 
-        # Log activity
-        activity_id = str(uuid.uuid4())
         note = body.note or f"Bid selected — {attorney_name} awarded the case. Fee: ${fee_amount or 'TBD'}"
-        case_ref.collection("activity").document(activity_id).set({
+        batch.set(case_ref.collection("activity").document(f"bid_awarded_{bid_id}"), {
             "type": "bid_awarded",
             "note": note,
-            "created_by": body.selected_by,
-            "created_by_name": body.selected_by,
+            "created_by": actor_id,
+            "created_by_name": actor_id,
             "created_at": SERVER_TIMESTAMP,
         })
+        batch.set(
+            db.collection("captain_action_audits").document(
+                f"bid_awarded_{case_id}_{bid_id}"
+            ),
+            {
+                "action": "case_bid_awarded",
+                "case_id": case_id,
+                "ticket_id": case_data.get("ticket_id"),
+                "bid_id": bid_id,
+                "actor_id": actor_id,
+                "rejected_bid_ids": [item.id for item in other_bids],
+                "created_at": SERVER_TIMESTAMP,
+            },
+        )
+        try:
+            batch.commit()
+        except Exception as exc:
+            logger.exception("[bids] atomic award failed case=%s bid=%s", case_id, bid_id)
+            raise HTTPException(
+                status_code=503,
+                detail="Bid award was not committed. It is safe to retry.",
+            ) from exc
 
         logger.warning("[bids] bid selected case=%s bid=%s attorney=%s", case_id, bid_id, attorney_name)
-        return {"success": True, "attorney_name": attorney_name, "fee_amount": fee_amount}
+        return {
+            "success": True,
+            "attorney_name": attorney_name,
+            "fee_amount": fee_amount,
+            "idempotent_replay": False,
+        }
     except HTTPException:
         raise
     except Exception as exc:

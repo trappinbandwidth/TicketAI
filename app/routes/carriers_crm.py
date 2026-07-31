@@ -29,8 +29,15 @@ CARRIER_STATUSES = ["lead", "contacted", "demo_scheduled", "enrolled", "declined
 
 
 def _db():
-    from app.services.firebase_service import db
-    return db
+    # Mirror the standard route pattern (attorneys/bids/cases): initialise then
+    # return the live client. The old `import db` grabbed a module attribute that
+    # is None until _init() runs — fine on ADC where something else triggered
+    # init first, but a hard 500 under the local emulator stack.
+    from app.services.firebase_service import _init, _firestore_client
+    _init()
+    if _firestore_client is None:
+        raise HTTPException(status_code=503, detail="Firestore not configured.")
+    return _firestore_client
 
 
 # ── Models ─────────────────────────────────────────────────────────────────────
@@ -49,6 +56,26 @@ class EnrollmentUpdate(BaseModel):
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────────
+
+def _carrier_out(doc) -> dict:
+    data = doc.to_dict()
+    data["carrier_id"] = doc.id
+    stored_dot = data.get("dot_number") or data.get("usdot_number")
+    data["dot_number"] = str(stored_dot or (doc.id if str(doc.id).isdigit() else ""))
+    for field in ["created_at", "updated_at", "contacted_at", "enrolled_at"]:
+        if hasattr(data.get(field), "isoformat"):
+            data[field] = data[field].isoformat()
+    return data
+
+
+def _carrier_by_identifier(db, identifier: str):
+    direct = db.collection("carriers").document(identifier).get()
+    if direct.exists:
+        return direct
+    matches = list(
+        db.collection("carriers").where("dot_number", "==", identifier).limit(2).stream()
+    )
+    return matches[0] if len(matches) == 1 else None
 
 @router.get("/carriers")
 async def list_carriers(
@@ -77,14 +104,9 @@ async def list_carriers(
     docs = query.limit(limit).stream()
     results = []
     for doc in docs:
-        d = doc.to_dict()
-        d["dot_number"] = doc.id
+        d = _carrier_out(doc)
         if min_drivers and int(d.get("driver_total") or 0) < min_drivers:
             continue
-        # Serialize Firestore timestamps
-        for ts_field in ["created_at", "updated_at", "contacted_at", "enrolled_at"]:
-            if hasattr(d.get(ts_field), "isoformat"):
-                d[ts_field] = d[ts_field].isoformat()
         results.append(d)
 
     return {"carriers": results, "count": len(results)}
@@ -171,15 +193,10 @@ async def state_coverage(authorization: Optional[str] = Header(None)):
 @router.get("/carriers/{dot_number}")
 async def get_carrier(dot_number: str, authorization: Optional[str] = Header(None)):
     require_staff(authorization)
-    doc = _db().collection("carriers").document(dot_number).get()
-    if not doc.exists:
+    doc = _carrier_by_identifier(_db(), dot_number)
+    if not doc:
         raise HTTPException(status_code=404, detail="Carrier not found")
-    d = doc.to_dict()
-    d["dot_number"] = doc.id
-    for ts_field in ["created_at", "updated_at", "contacted_at", "enrolled_at"]:
-        if hasattr(d.get(ts_field), "isoformat"):
-            d[ts_field] = d[ts_field].isoformat()
-    return d
+    return _carrier_out(doc)
 
 
 @router.get("/carriers/{dot_number}/drivers")
@@ -193,9 +210,10 @@ async def get_carrier_drivers(dot_number: str, authorization: Optional[str] = He
     """
     require_staff(authorization)
     db = _db()
-    if not db.collection("carriers").document(dot_number).get().exists:
+    carrier = _carrier_by_identifier(db, dot_number)
+    if not carrier:
         raise HTTPException(status_code=404, detail="Carrier not found")
-    docs = db.collection("drivers").where("carrier_id", "==", dot_number).stream()
+    docs = db.collection("drivers").where("carrier_id", "==", carrier.id).stream()
     drivers = []
     for d in docs:
         dd = d.to_dict()
@@ -207,7 +225,8 @@ async def get_carrier_drivers(dot_number: str, authorization: Optional[str] = He
             "email": dd.get("email"),
             "subscription_status": dd.get("subscription_status"),
         })
-    return {"dot_number": dot_number, "drivers": drivers, "count": len(drivers)}
+    return {"carrier_id": carrier.id, "dot_number": _carrier_out(carrier)["dot_number"],
+            "drivers": drivers, "count": len(drivers)}
 
 
 @router.patch("/carriers/{dot_number}/outreach")
