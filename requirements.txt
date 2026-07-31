@@ -4,7 +4,7 @@ python-multipart==0.0.32
 anthropic==0.54.0
 pymupdf==1.28.0
 python-dotenv==1.2.2
-pydantic==2.10.3
+pydantic==2.13.4
 langgraph==1.2.9
 langchain-core==1.4.7
 Pillow==11.2.1
