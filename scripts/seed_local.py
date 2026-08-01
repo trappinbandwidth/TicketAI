@@ -30,6 +30,7 @@ from firebase_admin import auth as fb_auth, firestore  # noqa: E402
 
 from app.services.firebase_service import _emulator_credential  # noqa: E402
 from app.services.driver_profile import PiiCipher  # noqa: E402
+from app.platform.service import principal_id_for_uid  # noqa: E402
 
 PROJECT = os.environ["FIREBASE_PROJECT_ID"]
 if not firebase_admin._apps:
@@ -91,6 +92,12 @@ DRIVERS = [
     },
 ]
 
+CONNECTED_DRIVER_NAMES = {
+    "seed_driver_alicia": ("Alicia", "Brooks"),
+    "seed_driver_tom": ("Tom", "Nguyen"),
+    "seed_driver_wade": ("Wade", "Carter"),
+}
+
 # The rest of a complete driver profile (the onboarding gate collects these).
 # ssn_last4 is here only so the seeded, already-onboarded drivers look complete;
 # it is sensitive PII and in production must be encrypted at rest / access-gated.
@@ -123,6 +130,14 @@ CARRIERS = [
         "insurance_company": "Great West Casualty", "insurance_type": "primary_liability",
         "insurance_policy_number": "GW-4491203", "insurance_annual_cost_cents": 18400000,
     },
+]
+
+# Deterministic public records from the bundled FMCSA motor-carrier authority
+# index. These are CRM prospects, not registered users, and never receive
+# synthetic CSA BASICs or individual Driver risk data.
+FMCSA_SAMPLE_DOTS = [
+    "100002", "100011", "1000728", "1001080",
+    "1001199", "1001271", "100139", "1001468",
 ]
 
 # ── Risk / underwriting profiles ────────────────────────────────────────────
@@ -193,6 +208,22 @@ RISK_DRIVER = {
     },
 }
 
+TIP_SCORE_RISK = {
+    "drv_lovelace": {
+        # Golden cross-portal example: 745 Preferred / 90% confidence.
+        "unsafeDriving": 0.30, "crash": 0.10, "hoursOfService": 0.40,
+        "driverFitness": 0.20, "substanceAlcohol": 0.0, "safetyManagement": 0.25,
+    },
+    "drv_delgado": {
+        "unsafeDriving": 0.31, "crash": 0.18, "hoursOfService": 0.22,
+        "driverFitness": 0.16, "substanceAlcohol": 0.0, "safetyManagement": 0.34,
+    },
+    "drv_johnson": {
+        "unsafeDriving": 0.56, "crash": 0.38, "hoursOfService": 0.72,
+        "driverFitness": 0.28, "substanceAlcohol": 0.0, "safetyManagement": 0.61,
+    },
+}
+
 # ── Attorneys (one per network tier — anchor, independent, clinic) ───────────
 ATTORNEYS = [
     {
@@ -256,6 +287,31 @@ TICKETS = [
         "ticket_state": "MO", "ticket_county": "Jackson", "ticket_city": "Kansas City",
         "court_date": days(-14), "citation_number": "MO-233-2026", "fine_amount_cents": 22500,
         "source": "driver_upload", "assigned_attorney_id": "att_indie", "outcome": "dismissed",
+        "selected_fee_cents": 45000, "original_disposition": "citation_filed",
+        "final_disposition": "dismissed", "original_points": 3, "final_points": 0,
+    },
+    {
+        "id": "TX-2025-880", "driver_id": "drv_lovelace", "carrier_id": "car_bigrig",
+        "attorney_status": "Payout Sent", "pass_status": "green",
+        "violation_category": "Speeding", "violation_description": "11–14 mph over",
+        "ticket_state": "TX", "ticket_county": "Bexar", "ticket_city": "San Antonio",
+        "court_date": days(-90), "citation_number": "TX-880-2025",
+        "fine_amount_cents": 32500, "source": "driver_upload",
+        "assigned_attorney_id": "att_anchor", "outcome": "dismissed",
+        "selected_fee_cents": 58000, "original_disposition": "citation_filed",
+        "final_disposition": "dismissed", "original_points": 3, "final_points": 0,
+    },
+    {
+        "id": "TX-2025-902", "driver_id": "drv_johnson", "carrier_id": "car_bigrig",
+        "attorney_status": "Payout Sent", "pass_status": "green",
+        "violation_category": "Unsafe lane change", "violation_description": "Lane change",
+        "ticket_state": "TX", "ticket_county": "Travis", "ticket_city": "Austin",
+        "court_date": days(-62), "citation_number": "TX-902-2025",
+        "fine_amount_cents": 29000, "source": "carrier_upload",
+        "assigned_attorney_id": "att_anchor", "outcome": "fine_reduction",
+        "selected_fee_cents": 58000, "original_disposition": "citation_filed",
+        "final_disposition": "fine_reduced", "original_fine_cents": 29000,
+        "final_fine_cents": 14500, "original_points": 2, "final_points": 1,
     },
 ]
 
@@ -403,7 +459,7 @@ NOTIFICATIONS = [
 
 # ── Payout requests (attorney draw-downs the Captain finance view manages) ──
 PAYOUTS = [
-    {"id": "payout_ks_firm", "attorney_id": "att_ks_firm", "attorney_name": "Reese & Associates (KS)",
+    {"id": "payout_indie", "attorney_id": "att_indie", "attorney_name": "Cyrus Boyd · Boyd Legal",
      "ticket_ids": ["MO-2026-233"], "total_amount": 450.0, "status": "requested", "requested_offset": -2},
     {"id": "payout_anchor", "attorney_id": "att_anchor", "attorney_name": "Whitfield Transportation Law",
      "ticket_ids": ["TX-2025-880", "TX-2025-902"], "total_amount": 1160.0, "status": "paid",
@@ -413,6 +469,8 @@ PAYOUTS = [
 
 def seed_payouts() -> None:
     from datetime import timedelta as _td
+    # Remove the superseded inconsistent local-only sample on replay.
+    db.collection("payout_requests").document("payout_ks_firm").delete()
     for p in PAYOUTS:
         doc = dict(p)
         pid = doc.pop("id")
@@ -738,6 +796,7 @@ def seed() -> None:
             key: value for key, value in d.items()
             if key not in {"cdl_number", "cdl_state"}
         }
+        doc["principal_id"] = principal_id_for_uid(d["uid"])
         doc["seeded"] = True
         # The carrier roster endpoint reads full_name; compose it so rosters show
         # people rather than driver ids.
@@ -768,7 +827,81 @@ def seed() -> None:
             ),
             "seeded": True,
         })
+    for uid, (first_name, last_name) in CONNECTED_DRIVER_NAMES.items():
+        ref = db.collection("drivers").document(uid)
+        if ref.get().exists:
+            ref.set({
+                "first_name": first_name,
+                "last_name": last_name,
+                "full_name": f"{first_name} {last_name}",
+                "seeded": True,
+            }, merge=True)
     print(f"  drivers: {len(DRIVERS)}")
+
+    from app.services.tip_score import (
+        ComponentInput,
+        ConfidenceInput,
+        ScoreCalculationInput,
+        TipComponent,
+        TipScoreCalculator,
+        TipScoreStatus,
+    )
+    for profile_id, risks in TIP_SCORE_RISK.items():
+        driver_id = principal_id_for_uid(profile_id)
+        components = {
+            TipComponent(component): ComponentInput(
+                risk=risk,
+                event_count=1 if risk else 0,
+                verified_event_count=1 if risk else 0,
+                top_factors=(
+                    [f"Verified local QA factor for {component}"]
+                    if risk else []
+                ),
+            )
+            for component, risk in risks.items()
+        }
+        snapshot = TipScoreCalculator().calculate(ScoreCalculationInput(
+            driver_id=driver_id,
+            components=components,
+            confidence=(
+                ConfidenceInput(
+                    source_completeness=0.85,
+                    identity_match_quality=1.0,
+                    record_freshness=0.90,
+                    credential_verification=1.0,
+                    exposure_sufficiency=0.75,
+                )
+                if profile_id == "drv_lovelace"
+                else ConfidenceInput(
+                    source_completeness=0.82,
+                    identity_match_quality=0.96,
+                    record_freshness=0.88,
+                    credential_verification=0.90,
+                    exposure_sufficiency=0.78,
+                )
+            ),
+            status=(
+                TipScoreStatus.OFFICIAL
+                if profile_id == "drv_lovelace"
+                else TipScoreStatus.PROVISIONAL
+            ),
+            data_as_of=NOW,
+            verified_history_months=24,
+            verified_inspections=max(
+                1, int(RISK_DRIVER[profile_id].get("inspections_24mo") or 0)
+            ),
+            evidence_ids=[f"seeded-risk-profile:{driver_id}"],
+            calculation_reason="local_qa_seed",
+        ))
+        data = snapshot.model_dump(mode="python")
+        db.collection("tip_score_snapshots").document(snapshot.id).set(data)
+        db.collection("tip_score_current").document(driver_id).set(data)
+        # Remove the pre-principal current pointer created by older local seeds.
+        # Immutable history remains available for diagnosis, but no portal may
+        # read or advance a score by Firebase uid.
+        db.collection("tip_score_current").document(profile_id).delete()
+        db.collection("tip_score_lifecycle").document(profile_id).delete()
+    print(f"  TIP Score snapshots: {len(TIP_SCORE_RISK)} (shadow QA ranking)")
 
     for c in CARRIERS:
         upsert_user(c["uid"], c["email"], {"role": "carrier", "carrier_id": c["uid"]})
@@ -789,7 +922,38 @@ def seed() -> None:
                     },
                     merge=True,
                 )
-    print(f"  carriers: {len(CARRIERS)} (+ rosters)")
+    from app.services.carrier_lookup import carrier_discovery_detail
+    fmcsa_count = 0
+    for dot_number in FMCSA_SAMPLE_DOTS:
+        public = carrier_discovery_detail(dot_number)
+        if public is None:
+            continue
+        db.collection("carriers").document(dot_number).set({
+            "company_name": public.get("dba_name") or public.get("legal_name"),
+            "legal_name": public.get("legal_name"),
+            "dba_name": public.get("dba_name"),
+            "dot_number": public["dot_number"],
+            "usdot": public["dot_number"],
+            "mc_number": public.get("docket_number"),
+            "operating_status": public.get("operating_status"),
+            "authority_type": public.get("authority_type"),
+            "city": public.get("city"),
+            "state": public.get("state"),
+            "zip": public.get("zip"),
+            "phone": public.get("phone"),
+            "minimum_coverage": public.get("minimum_coverage"),
+            "hazmat": public.get("hazmat"),
+            "passenger": public.get("passenger"),
+            "carrier_level_crash_context": public.get("carrier_level_crash_context"),
+            "fmcsa_provenance": public.get("provenance"),
+            "status": "lead",
+            "subscription_status": "prospect",
+            "driver_count": None,
+            "seeded": True,
+            "sample_record": True,
+        }, merge=True)
+        fmcsa_count += 1
+    print(f"  carriers: {len(CARRIERS)} enrolled + {fmcsa_count} FMCSA public samples (+ rosters)")
 
     for a in ATTORNEYS:
         upsert_user(a["uid"], a["email"], {"role": "attorney", "attorney_id": a["uid"]})

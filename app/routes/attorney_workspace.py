@@ -75,6 +75,20 @@ def admin_payout_requests(status: Optional[str] = None, authorization: Optional[
     return {"payout_requests": cl.list_payout_requests(get_db(), status)}
 
 
+@router.get("/admin/payout-requests/{payout_id}")
+def admin_payout_request_detail(
+    payout_id: str,
+    authorization: Optional[str] = Header(None),
+):
+    require_staff(authorization)
+    try:
+        return cl.payout_request_detail(get_db(), payout_id)
+    except ValueError as error:
+        if str(error) == "payout_not_found":
+            raise HTTPException(status_code=404, detail="Payout transaction not found.") from error
+        raise
+
+
 class MarkPaid(BaseModel):
     payout_method: str = "Manual"
 
