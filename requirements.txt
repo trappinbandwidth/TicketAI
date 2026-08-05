@@ -14,4 +14,4 @@ pandas==2.2.3
 stripe==15.3.0
 twilio==9.3.7
 sendgrid==6.11.0
-cryptography==49.0.0
+cryptography==50.0.0
